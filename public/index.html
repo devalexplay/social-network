@@ -1084,4 +1084,65 @@
         const input = document.getElementById(`commentInput-${postId}`);
         const content = input?.value.trim();
         if (!content) return;
-        await api(`/api/comment/${postId}`, { method: '
+        await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
+        await loadFeed();
+        renderMain();
+    };
+
+    window.switchTab = (tab) => {
+        currentTab = tab;
+        if (tab === 'home') renderMain();
+        else renderMain();
+    };
+
+    window.openChat = async (userId, username) => {
+        currentChatUser = { id: userId, username };
+        const messages = await api(`/api/messages/${userId}`);
+        const conversationsDiv = document.getElementById('conversationsList');
+        const chatArea = document.getElementById('chatArea');
+        if (conversationsDiv) conversationsDiv.style.display = 'none';
+        if (chatArea) chatArea.style.display = 'flex';
+        const container = document.getElementById('chatMessages');
+        if (container) {
+            container.innerHTML = messages.map(m => `
+                <div class="message ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
+                    ${escapeHtml(m.content)}
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+    };
+
+    window.sendChatMessage = async () => {
+        const input = document.getElementById('chatInput');
+        const content = input?.value.trim();
+        if (!content || !currentChatUser) return;
+        await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
+        if (input) input.value = '';
+        await openChat(currentChatUser.id, currentChatUser.username);
+    };
+
+    window.logout = async () => {
+        await api('/api/logout', { method: 'POST' });
+        currentUser = null;
+        render();
+    };
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
+    }
+
+    (async () => {
+        try {
+            const me = await api('/api/me');
+            if (me.user) {
+                currentUser = me.user;
+                await loadFeed();
+            }
+        } catch(e) {}
+        render();
+    })();
+</script>
+</body>
+</html>
