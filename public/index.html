@@ -13,13 +13,12 @@
             --text-secondary: #71767b;
             --border-color: #2f3336;
             --hover-bg: #080808;
-            --nav-hover: #181818;
             --accent: #1d9bf0;
         }
         body.dark { --bg-primary: #000000; --bg-secondary: #000000; --text-primary: #ffffff; --border-color: #2f3336; --hover-bg: #080808; }
         body.dark-gray { --bg-primary: #121212; --bg-secondary: #1a1a1a; --text-primary: #ffffff; --border-color: #2a2a2a; --hover-bg: #1e1e1e; }
         body.gray { --bg-primary: #1a1a1a; --bg-secondary: #222222; --text-primary: #ffffff; --border-color: #333333; --hover-bg: #262626; }
-        body.light { --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --text-primary: #000000; --text-secondary: #536471; --border-color: #e1e8ed; --hover-bg: #f0f0f0; --nav-hover: #e8e8e8; }
+        body.light { --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --text-primary: #000000; --text-secondary: #536471; --border-color: #e1e8ed; --hover-bg: #f0f0f0; }
     </style>
     <style>
         * {
@@ -444,8 +443,14 @@
             padding: 20px;
         }
 
+        .search-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
         .search-input {
-            width: 100%;
+            flex: 1;
             padding: 12px 20px;
             background: transparent;
             border: 1px solid var(--border-color);
@@ -458,6 +463,25 @@
 
         .search-input:focus {
             border-color: var(--accent);
+        }
+
+        .search-btn {
+            background: var(--accent);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 0.15s ease;
+            color: white;
+            font-size: 18px;
+        }
+
+        .search-btn:hover {
+            opacity: 0.9;
         }
 
         .search-result {
@@ -669,14 +693,14 @@
             opacity: 0.85;
         }
 
-        /* Avatar crop modal */
+        /* Advanced Crop Modal */
         .crop-modal {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -687,7 +711,7 @@
             background: #000000;
             border-radius: 28px;
             padding: 24px;
-            width: 400px;
+            width: 450px;
             max-width: 90%;
             text-align: center;
             border: 1px solid #2f3336;
@@ -695,47 +719,89 @@
 
         .crop-container {
             position: relative;
-            width: 280px;
-            height: 280px;
+            width: 300px;
+            height: 300px;
             margin: 16px auto;
             overflow: hidden;
             border-radius: 50%;
             border: 2px solid var(--accent);
+            cursor: grab;
+        }
+
+        .crop-container:active {
+            cursor: grabbing;
         }
 
         .crop-image {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            cursor: move;
+            object-fit: none;
+            transform-origin: center;
         }
 
-        .slider-container {
-            margin: 16px 0;
-        }
-
-        .slider {
+        .zoom-slider {
             width: 100%;
+            margin: 16px 0;
             accent-color: var(--accent);
         }
 
-        /* Theme settings */
-        .theme-option {
-            padding: 12px 16px;
-            margin: 8px 0;
+        .custom-select {
+            position: relative;
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
             border-radius: 9999px;
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.15s ease;
+        }
+
+        .custom-select:hover {
+            border-color: var(--accent);
+        }
+
+        .custom-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            margin-top: 8px;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .custom-select-option {
+            padding: 12px 16px;
             cursor: pointer;
             transition: background 0.15s ease;
-            color: var(--text-primary);
+        }
+
+        .custom-select-option:hover {
+            background: var(--hover-bg);
+        }
+
+        .custom-select-option.selected {
+            color: var(--accent);
+        }
+
+        .theme-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            border-radius: 9999px;
         }
 
         .theme-option:hover {
             background: var(--hover-bg);
-        }
-
-        .theme-option.active {
-            color: var(--accent);
-            font-weight: 600;
         }
 
         .user-preview {
@@ -797,6 +863,12 @@
     let allUsers = [];
     let currentProfileUser = null;
     let userFollows = [];
+    let cropImageFile = null;
+    let cropScale = 1;
+    let cropTranslateX = 0;
+    let cropTranslateY = 0;
+    let isDragging = false;
+    let dragStartX = 0, dragStartY = 0;
 
     const tabs = ['Home', 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'More'];
     const tabKeys = ['home', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'more'];
@@ -825,60 +897,99 @@
         document.getElementById('confirmCancel').onclick = () => modal.remove();
     }
 
-    function showCropModal(file, onCrop) {
+    function openCropModal(file) {
+        cropImageFile = file;
+        cropScale = 1;
+        cropTranslateX = 0;
+        cropTranslateY = 0;
+        
         const reader = new FileReader();
         reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const modal = document.createElement('div');
-                modal.className = 'crop-modal';
-                modal.innerHTML = `
-                    <div class="crop-modal-content">
-                        <h3 style="margin-bottom:16px;">Adjust avatar</h3>
-                        <div class="crop-container">
-                            <img class="crop-image" src="${e.target.result}" style="transform: scale(1);">
-                        </div>
-                        <div class="slider-container">
-                            <input type="range" class="slider" min="1" max="3" step="0.01" value="1">
-                        </div>
-                        <div style="display:flex; gap:12px; margin-top:20px;">
-                            <button id="cropApply" style="flex:1; background:var(--accent); border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Apply</button>
-                            <button id="cropCancel" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Cancel</button>
-                        </div>
+            const modal = document.createElement('div');
+            modal.className = 'crop-modal';
+            modal.innerHTML = `
+                <div class="crop-modal-content">
+                    <h3 style="margin-bottom:16px;">Adjust Avatar</h3>
+                    <div class="crop-container" id="cropContainer">
+                        <img class="crop-image" id="cropImage" src="${e.target.result}" style="transform: scale(1) translate(0px, 0px);">
                     </div>
-                `;
-                document.body.appendChild(modal);
-                
-                const cropImg = modal.querySelector('.crop-image');
-                const slider = modal.querySelector('.slider');
-                let scale = 1;
-                
-                slider.addEventListener('input', (e) => {
-                    scale = parseFloat(e.target.value);
-                    cropImg.style.transform = `scale(${scale})`;
-                });
-                
-                modal.querySelector('#cropApply').onclick = () => {
+                    <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="3" step="0.01" value="1">
+                    <div style="display:flex; gap:12px; margin-top:20px;">
+                        <button id="cropApply" style="flex:1; background:var(--accent); border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Apply</button>
+                        <button id="cropCancel" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            const cropImg = document.getElementById('cropImage');
+            const container = document.getElementById('cropContainer');
+            const slider = document.getElementById('zoomSlider');
+            
+            let startX, startY, startTranslateX, startTranslateY;
+            
+            const updateTransform = () => {
+                cropImg.style.transform = `scale(${cropScale}) translate(${cropTranslateX}px, ${cropTranslateY}px)`;
+            };
+            
+            slider.addEventListener('input', (e) => {
+                cropScale = parseFloat(e.target.value);
+                updateTransform();
+            });
+            
+            const onMouseDown = (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startTranslateX = cropTranslateX;
+                startTranslateY = cropTranslateY;
+                container.style.cursor = 'grabbing';
+                e.preventDefault();
+            };
+            
+            const onMouseMove = (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                cropTranslateX = startTranslateX + dx / cropScale;
+                cropTranslateY = startTranslateY + dy / cropScale;
+                updateTransform();
+            };
+            
+            const onMouseUp = () => {
+                isDragging = false;
+                container.style.cursor = 'grab';
+            };
+            
+            container.addEventListener('mousedown', onMouseDown);
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+            
+            modal.querySelector('#cropApply').onclick = () => {
+                const img = new Image();
+                img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     const size = 400;
                     canvas.width = size;
                     canvas.height = size;
                     
-                    const imgWidth = img.width * scale;
-                    const imgHeight = img.height * scale;
-                    const dx = (size - imgWidth) / 2;
-                    const dy = (size - imgHeight) / 2;
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
+                    const scaledWidth = imgWidth * cropScale;
+                    const scaledHeight = imgHeight * cropScale;
+                    const dx = (size - scaledWidth) / 2 + (cropTranslateX * cropScale);
+                    const dy = (size - scaledHeight) / 2 + (cropTranslateY * cropScale);
                     
-                    ctx.drawImage(img, dx, dy, imgWidth, imgHeight);
+                    ctx.drawImage(img, dx, dy, scaledWidth, scaledHeight);
                     canvas.toBlob((blob) => {
-                        onCrop(blob);
+                        updateAvatar(blob);
                         modal.remove();
                     }, 'image/png');
                 };
-                modal.querySelector('#cropCancel').onclick = () => modal.remove();
+                img.src = URL.createObjectURL(cropImageFile);
             };
-            img.src = e.target.result;
+            modal.querySelector('#cropCancel').onclick = () => modal.remove();
         };
         reader.readAsDataURL(file);
     }
@@ -933,6 +1044,7 @@
         await api('/api/avatar', { method: 'POST', body: formData });
         const me = await api('/api/me');
         currentUser = me.user;
+        await loadFeed();
         renderMain();
     }
 
@@ -953,16 +1065,16 @@
         preview.style.left = Math.min(x, window.innerWidth - 300) + 'px';
         preview.style.top = y + 'px';
         preview.innerHTML = `
-            <div class="user-preview-header" style="display:flex; gap:12px; margin-bottom:12px;">
-                <img class="user-preview-avatar" src="${user.avatar || ''}" style="width:56px; height:56px; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.after(document.createTextNode(user.username[0].toUpperCase()))">
+            <div style="display:flex; gap:12px; margin-bottom:12px;">
+                <img src="${user.avatar || ''}" style="width:56px; height:56px; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.after(document.createTextNode(user.username[0].toUpperCase()))">
                 <div>
-                    <div class="user-preview-name" style="font-weight:700;">${escapeHtml(user.username)}</div>
-                    <div class="user-preview-username" style="color:#71767b;">@${escapeHtml(user.username)}</div>
+                    <div style="font-weight:700;">${escapeHtml(user.username)}</div>
+                    <div style="color:#71767b;">@${escapeHtml(user.username)}</div>
                 </div>
             </div>
-            <div class="user-preview-bio">${escapeHtml(user.bio || 'No bio yet')}</div>
-            <div class="user-preview-joined" style="color:#71767b; margin:12px 0;">Joined ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
-            <div class="user-preview-btn" onclick="viewProfile('${user.username}'); document.querySelector('.user-preview')?.remove();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer;">View Profile</div>
+            <div>${escapeHtml(user.bio || 'No bio yet')}</div>
+            <div style="color:#71767b; margin:12px 0;">Joined ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
+            <div onclick="viewProfile('${user.username}'); document.querySelector('.user-preview')?.remove();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer;">View Profile</div>
         `;
         document.body.appendChild(preview);
         
@@ -1000,6 +1112,7 @@
     function setTheme(theme) {
         document.body.className = theme;
         localStorage.setItem('theme', theme);
+        renderMain();
     }
 
     async function render() {
@@ -1113,7 +1226,7 @@
         try { conversations = await api('/api/conversations'); } catch(e) { conversations = []; }
     }
 
-    async function searchUsers() {
+    async function performSearch() {
         if (!searchQuery.trim()) { searchResults = []; renderMain(); return; }
         try {
             const users = await api('/api/users');
@@ -1250,7 +1363,10 @@
     function renderSearch() {
         return `
             <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search users...">
+                <div class="search-wrapper">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search users..." onkeypress="if(event.key==='Enter') performSearch()">
+                    <button class="search-btn" onclick="performSearch()">🔍</button>
+                </div>
                 <div id="searchResults" style="margin-top:20px;">
                     ${searchResults.map(u => `
                         <div class="search-result" onclick="viewProfile('${u.username}')">
@@ -1297,14 +1413,41 @@
 
     function renderMore() {
         const savedTheme = localStorage.getItem('theme') || 'dark';
+        const themeNames = { dark: 'Dark (Black)', 'dark-gray': 'Dark Gray', gray: 'Gray', light: 'Light' };
+        let dropdownOpen = false;
+        
+        setTimeout(() => {
+            const select = document.getElementById('themeSelect');
+            if (select) {
+                select.onclick = () => {
+                    const dropdown = document.getElementById('themeDropdown');
+                    if (dropdown) {
+                        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                    }
+                };
+                document.addEventListener('click', (e) => {
+                    if (!select.contains(e.target)) {
+                        const dropdown = document.getElementById('themeDropdown');
+                        if (dropdown) dropdown.style.display = 'none';
+                    }
+                });
+            }
+        }, 10);
+        
         return `
             <div class="feed-container" style="padding:20px;">
                 <div class="profile-header" style="border-bottom: none;">
                     <h3 style="text-align:left; margin-bottom:20px;">Theme</h3>
-                    <div class="theme-option ${savedTheme === 'dark' ? 'active' : ''}" onclick="setTheme('dark')">Dark (Black)</div>
-                    <div class="theme-option ${savedTheme === 'dark-gray' ? 'active' : ''}" onclick="setTheme('dark-gray')">Dark Gray</div>
-                    <div class="theme-option ${savedTheme === 'gray' ? 'active' : ''}" onclick="setTheme('gray')">Gray</div>
-                    <div class="theme-option ${savedTheme === 'light' ? 'active' : ''}" onclick="setTheme('light')">Light</div>
+                    <div class="custom-select" id="themeSelect">
+                        <span id="selectedThemeText">${themeNames[savedTheme]}</span>
+                        <span>▼</span>
+                        <div class="custom-select-dropdown" id="themeDropdown" style="display:none;">
+                            <div class="custom-select-option ${savedTheme === 'dark' ? 'selected' : ''}" onclick="setTheme('dark'); document.getElementById('selectedThemeText').innerText='Dark (Black)';">Dark (Black)</div>
+                            <div class="custom-select-option ${savedTheme === 'dark-gray' ? 'selected' : ''}" onclick="setTheme('dark-gray'); document.getElementById('selectedThemeText').innerText='Dark Gray';">Dark Gray</div>
+                            <div class="custom-select-option ${savedTheme === 'gray' ? 'selected' : ''}" onclick="setTheme('gray'); document.getElementById('selectedThemeText').innerText='Gray';">Gray</div>
+                            <div class="custom-select-option ${savedTheme === 'light' ? 'selected' : ''}" onclick="setTheme('light'); document.getElementById('selectedThemeText').innerText='Light';">Light</div>
+                        </div>
+                    </div>
                 </div>
                 <div style="border-top:1px solid var(--border-color); margin-top:20px; padding-top:20px;">
                     <div class="recommendation-card" onclick="logout()" style="cursor:pointer;">
@@ -1334,10 +1477,7 @@
         input.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
-                showCropModal(file, async (croppedBlob) => {
-                    await updateAvatar(croppedBlob);
-                    renderMain();
-                });
+                openCropModal(file);
             }
         };
         input.click();
@@ -1404,12 +1544,6 @@
         
         attachGlobalEvents();
         if (currentTab === 'home') attachHomeEvents();
-        if (currentTab === 'search') {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => { searchQuery = e.target.value; searchUsers(); });
-            }
-        }
     }
 
     function attachGlobalEvents() {
