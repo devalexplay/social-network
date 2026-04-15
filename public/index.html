@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>FreedomNet</title>
     <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231d9bf0'/%3E%3C/svg%3E">
+    <style id="theme-style">
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #71767b;
+            --border-color: #2f3336;
+            --hover-bg: #080808;
+            --nav-hover: #181818;
+            --accent: #1d9bf0;
+        }
+        body.dark { --bg-primary: #000000; --bg-secondary: #000000; --text-primary: #ffffff; --border-color: #2f3336; --hover-bg: #080808; }
+        body.dark-gray { --bg-primary: #121212; --bg-secondary: #1a1a1a; --text-primary: #ffffff; --border-color: #2a2a2a; --hover-bg: #1e1e1e; }
+        body.gray { --bg-primary: #1a1a1a; --bg-secondary: #222222; --text-primary: #ffffff; --border-color: #333333; --hover-bg: #262626; }
+        body.light { --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --text-primary: #000000; --text-secondary: #536471; --border-color: #e1e8ed; --hover-bg: #f0f0f0; --nav-hover: #e8e8e8; }
+    </style>
     <style>
         * {
             margin: 0;
@@ -14,9 +30,10 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #000000;
-            color: #ffffff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             overflow-x: hidden;
+            transition: background 0.2s ease, color 0.2s ease;
         }
 
         .app {
@@ -32,9 +49,10 @@
             position: fixed;
             height: 100vh;
             padding: 20px 12px;
-            border-right: 1px solid #2f3336;
-            background: #000000;
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-primary);
             overflow-y: auto;
+            transition: background 0.2s ease, border-color 0.2s ease;
         }
 
         .logo {
@@ -42,7 +60,7 @@
             font-weight: 800;
             margin-bottom: 30px;
             padding: 12px;
-            color: #1d9bf0;
+            color: var(--accent);
             letter-spacing: -1px;
         }
 
@@ -52,28 +70,24 @@
             gap: 16px;
             padding: 12px;
             margin: 4px 0;
-            border-radius: 9999px;
+            border-radius: 0;
             cursor: pointer;
-            transition: all 0.1s ease;
+            transition: color 0.15s ease;
             font-size: 20px;
             font-weight: 400;
             width: fit-content;
-            color: #e7e9ea;
+            color: var(--text-secondary);
+            background: transparent;
         }
 
         .nav-item:hover {
-            background: #181818;
-            color: #ffffff;
+            color: var(--text-primary);
+            background: transparent;
         }
 
         .nav-item.active {
             font-weight: 700;
-            color: #1d9bf0;
-        }
-
-        .nav-item.active:hover {
-            background: #181818;
-            color: #1d9bf0;
+            color: var(--accent);
         }
 
         .nav-text {
@@ -84,7 +98,8 @@
             margin-left: 275px;
             flex: 1;
             min-height: 100vh;
-            border-right: 1px solid #2f3336;
+            border-right: 1px solid var(--border-color);
+            transition: border-color 0.2s ease;
         }
 
         .header {
@@ -93,7 +108,7 @@
             background: rgba(0,0,0,0.95);
             backdrop-filter: blur(12px);
             padding: 16px 20px;
-            border-bottom: 1px solid #2f3336;
+            border-bottom: 1px solid var(--border-color);
             font-size: 20px;
             font-weight: 800;
             z-index: 10;
@@ -106,7 +121,7 @@
 
         .create-post {
             padding: 16px;
-            border-bottom: 1px solid #2f3336;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             gap: 12px;
         }
@@ -117,13 +132,18 @@
             border-radius: 50%;
             object-fit: cover;
             cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+
+        .avatar-img:hover {
+            opacity: 0.8;
         }
 
         .avatar-placeholder {
             width: 48px;
             height: 48px;
             border-radius: 50%;
-            background: #1d9bf0;
+            background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -131,6 +151,11 @@
             font-size: 18px;
             flex-shrink: 0;
             cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+
+        .avatar-placeholder:hover {
+            opacity: 0.8;
         }
 
         .post-input-area {
@@ -141,7 +166,7 @@
             width: 100%;
             background: transparent;
             border: none;
-            color: #ffffff;
+            color: var(--text-primary);
             font-size: 18px;
             resize: vertical;
             font-family: inherit;
@@ -157,25 +182,28 @@
         }
 
         .image-upload {
-            color: #1d9bf0;
+            color: var(--accent);
             cursor: pointer;
             font-size: 20px;
             padding: 8px;
             border-radius: 50%;
+            transition: opacity 0.15s ease;
         }
 
         .image-upload:hover {
-            background: #181818;
+            opacity: 0.8;
+            background: transparent;
         }
 
         .publish-btn {
-            background: #1d9bf0;
+            background: var(--accent);
             color: white;
             border: none;
             padding: 8px 20px;
             border-radius: 9999px;
             font-weight: 700;
             cursor: pointer;
+            transition: opacity 0.15s ease;
         }
 
         .publish-btn:hover {
@@ -183,13 +211,14 @@
         }
 
         .post-card {
-            border-bottom: 1px solid #2f3336;
+            border-bottom: 1px solid var(--border-color);
             padding: 12px 16px;
-            transition: background 0.1s ease;
+            transition: background 0.15s ease;
+            cursor: pointer;
         }
 
         .post-card:hover {
-            background: #080808;
+            background: var(--hover-bg);
         }
 
         .post-header {
@@ -203,6 +232,11 @@
             border-radius: 50%;
             object-fit: cover;
             cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+
+        .post-avatar-img:hover {
+            opacity: 0.8;
         }
 
         .post-body {
@@ -219,18 +253,20 @@
         }
 
         .post-username {
-            color: #71767b;
+            color: var(--text-secondary);
             font-weight: 400;
             font-size: 14px;
             cursor: pointer;
+            transition: color 0.15s ease;
         }
 
         .post-username:hover {
+            color: var(--accent);
             text-decoration: underline;
         }
 
         .post-time {
-            color: #71767b;
+            color: var(--text-secondary);
             font-size: 13px;
         }
 
@@ -241,12 +277,12 @@
         }
 
         .mention {
-            color: #1d9bf0;
+            color: var(--accent);
             cursor: pointer;
         }
 
         .hashtag {
-            color: #1d9bf0;
+            color: var(--accent);
             cursor: pointer;
         }
 
@@ -256,7 +292,7 @@
             max-width: 100%;
             max-height: 400px;
             object-fit: cover;
-            border: 1px solid #2f3336;
+            border: 1px solid var(--border-color);
         }
 
         .post-stats {
@@ -269,7 +305,7 @@
         .stat-btn {
             background: none;
             border: none;
-            color: #71767b;
+            color: var(--text-secondary);
             cursor: pointer;
             font-size: 14px;
             display: flex;
@@ -277,11 +313,12 @@
             gap: 6px;
             padding: 6px 12px;
             border-radius: 9999px;
+            transition: color 0.15s ease;
         }
 
         .stat-btn:hover {
-            background: #181818;
-            color: #ffffff;
+            color: var(--text-primary);
+            background: transparent;
         }
 
         .stat-btn.liked {
@@ -291,23 +328,24 @@
         .delete-btn {
             background: none;
             border: none;
-            color: #71767b;
+            color: var(--text-secondary);
             cursor: pointer;
             font-size: 14px;
             padding: 6px 12px;
             border-radius: 9999px;
             margin-left: auto;
+            transition: color 0.15s ease;
         }
 
         .delete-btn:hover {
-            background: #181818;
             color: #f4212e;
+            background: transparent;
         }
 
         .comments-section {
             margin-top: 12px;
             padding-top: 12px;
-            border-top: 1px solid #2f3336;
+            border-top: 1px solid var(--border-color);
         }
 
         .comment {
@@ -326,7 +364,7 @@
         }
 
         .comment strong {
-            color: #1d9bf0;
+            color: var(--accent);
             cursor: pointer;
         }
 
@@ -339,15 +377,16 @@
         .comment-input input {
             flex: 1;
             background: transparent;
-            border: 1px solid #2f3336;
+            border: 1px solid var(--border-color);
             border-radius: 9999px;
             padding: 10px 16px;
-            color: #ffffff;
+            color: var(--text-primary);
             outline: none;
+            transition: border-color 0.15s ease;
         }
 
         .comment-input input:focus {
-            border-color: #1d9bf0;
+            border-color: var(--accent);
         }
 
         .profile-container {
@@ -358,7 +397,7 @@
         .profile-header {
             padding: 20px;
             text-align: center;
-            border-bottom: 1px solid #2f3336;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .profile-avatar {
@@ -368,21 +407,15 @@
             object-fit: cover;
             margin: 0 auto 16px;
             cursor: pointer;
+            transition: opacity 0.15s ease;
         }
 
-        .avatar-upload-label {
-            display: inline-block;
-            background: #1d9bf0;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 9999px;
-            cursor: pointer;
-            margin-top: 12px;
-            font-size: 14px;
+        .profile-avatar:hover {
+            opacity: 0.8;
         }
 
         .follow-btn {
-            background: #1d9bf0;
+            background: var(--accent);
             color: white;
             border: none;
             padding: 8px 24px;
@@ -390,17 +423,19 @@
             font-weight: 700;
             cursor: pointer;
             margin-top: 12px;
+            transition: opacity 0.15s ease;
         }
 
         .unfollow-btn {
-            background: #2f3336;
-            color: #ffffff;
-            border: 1px solid #2f3336;
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
             padding: 8px 24px;
             border-radius: 9999px;
             font-weight: 700;
             cursor: pointer;
             margin-top: 12px;
+            transition: all 0.15s ease;
         }
 
         .search-container {
@@ -412,29 +447,31 @@
         .search-input {
             width: 100%;
             padding: 12px 20px;
-            background: #000000;
-            border: 1px solid #2f3336;
+            background: transparent;
+            border: 1px solid var(--border-color);
             border-radius: 9999px;
-            color: #ffffff;
+            color: var(--text-primary);
             font-size: 16px;
             outline: none;
+            transition: border-color 0.15s ease;
         }
 
         .search-input:focus {
-            border-color: #1d9bf0;
+            border-color: var(--accent);
         }
 
         .search-result {
             padding: 16px;
-            border-bottom: 1px solid #2f3336;
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: background 0.15s ease;
         }
 
         .search-result:hover {
-            background: #080808;
+            background: var(--hover-bg);
         }
 
         .search-result-avatar {
@@ -444,39 +481,20 @@
             object-fit: cover;
         }
 
-        .reels-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .reel {
-            background: #000000;
-            border: 1px solid #2f3336;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .reel-video {
-            width: 100%;
-            aspect-ratio: 9/16;
-            background: #111;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-        }
-
         .recommendation-card {
-            background: #000000;
-            border: 1px solid #2f3336;
+            background: transparent;
+            border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: background 0.15s ease;
+        }
+
+        .recommendation-card:hover {
+            background: var(--hover-bg);
         }
 
         .recommendation-avatar {
@@ -488,14 +506,15 @@
 
         .notification {
             padding: 16px;
-            border-bottom: 1px solid #2f3336;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             gap: 12px;
             align-items: center;
+            transition: background 0.15s ease;
         }
 
         .notification:hover {
-            background: #080808;
+            background: var(--hover-bg);
         }
 
         .notification-avatar {
@@ -512,21 +531,22 @@
 
         .conversations-list {
             width: 350px;
-            border-right: 1px solid #2f3336;
+            border-right: 1px solid var(--border-color);
             overflow-y: auto;
         }
 
         .conversation {
             padding: 16px;
-            border-bottom: 1px solid #2f3336;
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: background 0.15s ease;
         }
 
         .conversation:hover {
-            background: #080808;
+            background: var(--hover-bg);
         }
 
         .conversation-avatar {
@@ -559,19 +579,19 @@
         }
 
         .message.outgoing {
-            background: #1d9bf0;
+            background: var(--accent);
             color: white;
             align-self: flex-end;
         }
 
         .message.incoming {
-            background: #2f3336;
+            background: var(--border-color);
             align-self: flex-start;
         }
 
         .chat-input-area {
             padding: 16px;
-            border-top: 1px solid #2f3336;
+            border-top: 1px solid var(--border-color);
             display: flex;
             gap: 12px;
         }
@@ -579,100 +599,149 @@
         .chat-input-area input {
             flex: 1;
             background: transparent;
-            border: 1px solid #2f3336;
+            border: 1px solid var(--border-color);
             border-radius: 9999px;
             padding: 12px 16px;
-            color: #ffffff;
+            color: var(--text-primary);
             outline: none;
         }
 
-        .modal {
+        .chat-input-area input:focus {
+            border-color: var(--accent);
+        }
+
+        /* Custom Modal */
+        .custom-modal {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            backdrop-filter: blur(4px);
         }
 
-        .modal-content {
+        .custom-modal-content {
             background: #000000;
+            border-radius: 28px;
+            padding: 28px;
+            width: 320px;
+            text-align: center;
             border: 1px solid #2f3336;
-            border-radius: 20px;
-            padding: 24px;
-            width: 500px;
-            max-width: 90%;
         }
 
-        .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #000000;
+        .custom-modal-content p {
+            margin-bottom: 24px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .custom-modal-buttons {
             display: flex;
-            align-items: center;
+            gap: 12px;
             justify-content: center;
-            z-index: 1000;
         }
 
-        .auth-card {
-            background: #000000;
-            border: 1px solid #2f3336;
-            border-radius: 20px;
-            padding: 40px;
-            width: 400px;
-        }
-
-        .auth-card input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #000000;
-            border: 1px solid #2f3336;
-            border-radius: 8px;
-            color: #ffffff;
-            outline: none;
-        }
-
-        .auth-card input:focus {
-            border-color: #1d9bf0;
-        }
-
-        .auth-card button {
-            width: 100%;
-            padding: 12px;
-            background: #1d9bf0;
-            color: white;
-            border: none;
+        .custom-modal-btn {
+            padding: 10px 24px;
             border-radius: 9999px;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
+            border: none;
+            transition: opacity 0.15s ease;
         }
 
-        .error-message {
-            color: #f4212e;
-            font-size: 13px;
-            margin-top: 8px;
-            text-align: center;
+        .custom-modal-btn-yes {
+            background: #f4212e;
+            color: white;
         }
 
-        .success-message {
-            color: #1d9bf0;
-            font-size: 13px;
-            margin-top: 8px;
+        .custom-modal-btn-cancel {
+            background: #2f3336;
+            color: white;
+        }
+
+        .custom-modal-btn:hover {
+            opacity: 0.85;
+        }
+
+        /* Avatar crop modal */
+        .crop-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .crop-modal-content {
+            background: #000000;
+            border-radius: 28px;
+            padding: 24px;
+            width: 400px;
+            max-width: 90%;
             text-align: center;
+            border: 1px solid #2f3336;
+        }
+
+        .crop-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 16px auto;
+            overflow: hidden;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+        }
+
+        .crop-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: move;
+        }
+
+        .slider-container {
+            margin: 16px 0;
+        }
+
+        .slider {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        /* Theme settings */
+        .theme-option {
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            color: var(--text-primary);
+        }
+
+        .theme-option:hover {
+            background: var(--hover-bg);
+        }
+
+        .theme-option.active {
+            color: var(--accent);
+            font-weight: 600;
         }
 
         .user-preview {
             position: fixed;
             background: #000000;
-            border: 1px solid #2f3336;
+            border: 1px solid var(--border-color);
             border-radius: 20px;
             padding: 16px;
             width: 280px;
@@ -680,56 +749,10 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
-        .user-preview-header {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .user-preview-avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .user-preview-name {
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .user-preview-username {
-            color: #71767b;
-            font-size: 14px;
-        }
-
-        .user-preview-bio {
-            margin: 12px 0;
-            font-size: 14px;
-        }
-
-        .user-preview-joined {
-            color: #71767b;
-            font-size: 13px;
-            margin-bottom: 12px;
-        }
-
-        .user-preview-btn {
-            width: 100%;
-            padding: 8px;
-            background: #1d9bf0;
-            color: white;
-            border: none;
-            border-radius: 9999px;
-            font-weight: 700;
-            cursor: pointer;
-            text-align: center;
-        }
-
         .suggestions-dropdown {
             position: absolute;
             background: #000000;
-            border: 1px solid #2f3336;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             max-height: 200px;
             overflow-y: auto;
@@ -740,10 +763,11 @@
         .suggestion-item {
             padding: 10px 12px;
             cursor: pointer;
+            transition: background 0.15s ease;
         }
 
         .suggestion-item:hover {
-            background: #181818;
+            background: var(--hover-bg);
         }
 
         @media (max-width: 1000px) {
@@ -774,26 +798,95 @@
     let currentProfileUser = null;
     let userFollows = [];
 
-    const tabs = ['Home', 'Reels', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'More'];
-    const tabKeys = ['home', 'reels', 'messages', 'search', 'interesting', 'notifications', 'create', 'more'];
+    const tabs = ['Home', 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'More'];
+    const tabKeys = ['home', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'more'];
+
+    function showConfirmDialog(message, onYes) {
+        const existing = document.querySelector('.custom-modal');
+        if (existing) existing.remove();
+        
+        const modal = document.createElement('div');
+        modal.className = 'custom-modal';
+        modal.innerHTML = `
+            <div class="custom-modal-content">
+                <p>${message}</p>
+                <div class="custom-modal-buttons">
+                    <button class="custom-modal-btn custom-modal-btn-yes" id="confirmYes">Yes</button>
+                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        document.getElementById('confirmYes').onclick = () => {
+            modal.remove();
+            onYes();
+        };
+        document.getElementById('confirmCancel').onclick = () => modal.remove();
+    }
+
+    function showCropModal(file, onCrop) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const modal = document.createElement('div');
+                modal.className = 'crop-modal';
+                modal.innerHTML = `
+                    <div class="crop-modal-content">
+                        <h3 style="margin-bottom:16px;">Adjust avatar</h3>
+                        <div class="crop-container">
+                            <img class="crop-image" src="${e.target.result}" style="transform: scale(1);">
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider" min="1" max="3" step="0.01" value="1">
+                        </div>
+                        <div style="display:flex; gap:12px; margin-top:20px;">
+                            <button id="cropApply" style="flex:1; background:var(--accent); border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Apply</button>
+                            <button id="cropCancel" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                const cropImg = modal.querySelector('.crop-image');
+                const slider = modal.querySelector('.slider');
+                let scale = 1;
+                
+                slider.addEventListener('input', (e) => {
+                    scale = parseFloat(e.target.value);
+                    cropImg.style.transform = `scale(${scale})`;
+                });
+                
+                modal.querySelector('#cropApply').onclick = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const size = 400;
+                    canvas.width = size;
+                    canvas.height = size;
+                    
+                    const imgWidth = img.width * scale;
+                    const imgHeight = img.height * scale;
+                    const dx = (size - imgWidth) / 2;
+                    const dy = (size - imgHeight) / 2;
+                    
+                    ctx.drawImage(img, dx, dy, imgWidth, imgHeight);
+                    canvas.toBlob((blob) => {
+                        onCrop(blob);
+                        modal.remove();
+                    }, 'image/png');
+                };
+                modal.querySelector('#cropCancel').onclick = () => modal.remove();
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
 
     async function api(url, options = {}) {
         const res = await fetch(url, { ...options, credentials: 'include' });
         if (!res.ok) throw new Error(await res.text());
         return res.json();
-    }
-
-    function showMessage(elementId, message, isError = false) {
-        const container = document.getElementById(elementId);
-        if (container) {
-            const existing = container.querySelector('.error-message, .success-message');
-            if (existing) existing.remove();
-            const msgDiv = document.createElement('div');
-            msgDiv.className = isError ? 'error-message' : 'success-message';
-            msgDiv.textContent = message;
-            container.appendChild(msgDiv);
-            setTimeout(() => { if (msgDiv.parentNode) msgDiv.remove(); }, 4000);
-        }
     }
 
     function parseMentionsAndHashtags(text) {
@@ -844,11 +937,11 @@
     }
 
     async function deletePost(postId) {
-        if (confirm('Delete this post?')) {
+        showConfirmDialog('Delete this post?', async () => {
             await api(`/api/posts/${postId}`, { method: 'DELETE' });
             await loadFeed();
             renderMain();
-        }
+        });
     }
 
     function showUserPreview(user, x, y) {
@@ -860,16 +953,16 @@
         preview.style.left = Math.min(x, window.innerWidth - 300) + 'px';
         preview.style.top = y + 'px';
         preview.innerHTML = `
-            <div class="user-preview-header">
-                <img class="user-preview-avatar" src="${user.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(user.username[0].toUpperCase()))" style="background:#1d9bf0; display:flex; align-items:center; justify-content:center; font-size:24px;">
+            <div class="user-preview-header" style="display:flex; gap:12px; margin-bottom:12px;">
+                <img class="user-preview-avatar" src="${user.avatar || ''}" style="width:56px; height:56px; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.after(document.createTextNode(user.username[0].toUpperCase()))">
                 <div>
-                    <div class="user-preview-name">${escapeHtml(user.username)}</div>
-                    <div class="user-preview-username">@${escapeHtml(user.username)}</div>
+                    <div class="user-preview-name" style="font-weight:700;">${escapeHtml(user.username)}</div>
+                    <div class="user-preview-username" style="color:#71767b;">@${escapeHtml(user.username)}</div>
                 </div>
             </div>
             <div class="user-preview-bio">${escapeHtml(user.bio || 'No bio yet')}</div>
-            <div class="user-preview-joined">Joined ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
-            <div class="user-preview-btn" onclick="viewProfile('${user.username}'); document.querySelector('.user-preview')?.remove();">View Profile</div>
+            <div class="user-preview-joined" style="color:#71767b; margin:12px 0;">Joined ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
+            <div class="user-preview-btn" onclick="viewProfile('${user.username}'); document.querySelector('.user-preview')?.remove();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer;">View Profile</div>
         `;
         document.body.appendChild(preview);
         
@@ -894,7 +987,7 @@
 
     window.viewProfile = (username) => {
         if (username === currentUser.username) {
-            currentTab = 'more';
+            currentTab = 'profile';
             currentProfileUser = null;
             renderMain();
         } else {
@@ -903,6 +996,11 @@
             renderMain();
         }
     };
+
+    function setTheme(theme) {
+        document.body.className = theme;
+        localStorage.setItem('theme', theme);
+    }
 
     async function render() {
         if (!currentUser) {
@@ -917,15 +1015,15 @@
     async function renderAuth() {
         const root = document.getElementById('root');
         root.innerHTML = `
-            <div class="auth-overlay">
-                <div class="auth-card">
-                    <h2 style="margin-bottom:20px; text-align:center;">FreedomNet</h2>
+            <div class="auth-overlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#000000; display:flex; align-items:center; justify-content:center; z-index:1000;">
+                <div class="auth-card" style="background:#000000; border:1px solid #2f3336; border-radius:20px; padding:40px; width:400px;">
+                    <h2 style="margin-bottom:20px; text-align:center; color:var(--accent);">FreedomNet</h2>
                     <div id="authForm">
-                        <input type="text" id="loginInput" placeholder="Username / Email">
-                        <input type="password" id="loginPassword" placeholder="Password">
-                        <button onclick="login()">Login</button>
+                        <input type="text" id="loginInput" placeholder="Username / Email" style="width:100%; padding:12px; margin:10px 0; background:#000000; border:1px solid #2f3336; border-radius:8px; color:#ffffff;">
+                        <input type="password" id="loginPassword" placeholder="Password" style="width:100%; padding:12px; margin:10px 0; background:#000000; border:1px solid #2f3336; border-radius:8px; color:#ffffff;">
+                        <button onclick="login()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:9999px; font-weight:700;">Login</button>
                         <p style="margin:15px 0; text-align:center; color:#71767b;">or</p>
-                        <button onclick="showRegister()" style="background:#2f3336;">Register</button>
+                        <button onclick="showRegister()" style="width:100%; padding:12px; background:#2f3336; color:white; border:none; border-radius:9999px;">Register</button>
                     </div>
                 </div>
             </div>
@@ -934,11 +1032,11 @@
 
     window.showRegister = () => {
         document.getElementById('authForm').innerHTML = `
-            <input type="text" id="regUsername" placeholder="Username" maxlength="20">
-            <input type="email" id="regEmail" placeholder="Email">
-            <input type="password" id="regPassword" placeholder="Password">
-            <button onclick="register()">Register</button>
-            <button onclick="renderAuth()" style="background:#2f3336; margin-top:10px;">Back</button>
+            <input type="text" id="regUsername" placeholder="Username" maxlength="20" style="width:100%; padding:12px; margin:10px 0; background:#000000; border:1px solid #2f3336; border-radius:8px; color:#ffffff;">
+            <input type="email" id="regEmail" placeholder="Email" style="width:100%; padding:12px; margin:10px 0; background:#000000; border:1px solid #2f3336; border-radius:8px; color:#ffffff;">
+            <input type="password" id="regPassword" placeholder="Password" style="width:100%; padding:12px; margin:10px 0; background:#000000; border:1px solid #2f3336; border-radius:8px; color:#ffffff;">
+            <button onclick="register()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:9999px;">Register</button>
+            <button onclick="renderAuth()" style="width:100%; padding:12px; background:#2f3336; margin-top:10px; border:none; border-radius:9999px; color:white;">Back</button>
             <div id="registerMessage"></div>
         `;
     };
@@ -993,6 +1091,20 @@
         }
     };
 
+    function showMessage(elementId, message, isError = false) {
+        const container = document.getElementById(elementId);
+        if (container) {
+            const existing = container.querySelector('.error-message, .success-message');
+            if (existing) existing.remove();
+            const msgDiv = document.createElement('div');
+            msgDiv.className = isError ? 'error-message' : 'success-message';
+            msgDiv.style.cssText = isError ? 'color:#f4212e; font-size:13px; margin-top:8px; text-align:center;' : 'color:#1d9bf0; font-size:13px; margin-top:8px; text-align:center;';
+            msgDiv.textContent = message;
+            container.appendChild(msgDiv);
+            setTimeout(() => { if (msgDiv.parentNode) msgDiv.remove(); }, 4000);
+        }
+    }
+
     async function loadFeed() {
         try { feed = await api('/api/feed'); } catch(e) { feed = []; }
     }
@@ -1010,102 +1122,13 @@
         } catch(e) { searchResults = []; }
     }
 
-    async function renderMain() {
-        await loadFeed();
-        await loadConversations();
-        
-        const root = document.getElementById('root');
-        
-        if (currentTab === 'profile' && currentProfileUser) {
-            const profilePosts = feed.filter(p => p.user_id === currentProfileUser.id);
-            const isOwnProfile = currentProfileUser.id === currentUser.id;
-            const following = isFollowing(currentProfileUser.id);
-            
-            root.innerHTML = `
-                <div class="app">
-                    <div class="sidebar">
-                        <div class="logo">FreedomNet</div>
-                        ${tabs.map((tab, idx) => `
-                            <div class="nav-item ${currentTab === tabKeys[idx] ? 'active' : ''}" onclick="switchTab('${tabKeys[idx]}')">
-                                <span class="nav-text">${tab}</span>
-                            </div>
-                        `).join('')}
-                        <div class="nav-item" onclick="logout()" style="margin-top: 40px;">
-                            <span class="nav-text">Logout</span>
-                        </div>
-                    </div>
-                    <div class="main-content">
-                        <div class="header">Profile</div>
-                        <div class="profile-container">
-                            <div class="profile-header">
-                                <img class="profile-avatar" src="${currentProfileUser.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(currentProfileUser.username[0].toUpperCase()))" style="background:#1d9bf0; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:48px;">
-                                <h2>${escapeHtml(currentProfileUser.username)}</h2>
-                                <p style="color:#71767b;">@${escapeHtml(currentProfileUser.username)}</p>
-                                <p>${escapeHtml(currentProfileUser.bio || 'No bio yet')}</p>
-                                <p style="color:#71767b; font-size:13px; margin-top:8px;">Joined ${new Date(currentProfileUser.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
-                                ${!isOwnProfile ? `
-                                    ${following ? 
-                                        `<button class="unfollow-btn" onclick="unfollowUser(${currentProfileUser.id})">Unfollow</button>` :
-                                        `<button class="follow-btn" onclick="followUser(${currentProfileUser.id})">Follow</button>`
-                                    }
-                                ` : ''}
-                            </div>
-                            <div style="border-top: 1px solid #2f3336;">
-                                ${profilePosts.map(post => renderPostCard(post)).join('')}
-                                ${profilePosts.length === 0 ? '<div style="padding:40px; text-align:center; color:#71767b;">No posts yet</div>' : ''}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            attachGlobalEvents();
-            return;
-        }
-        
-        root.innerHTML = `
-            <div class="app">
-                <div class="sidebar">
-                    <div class="logo">FreedomNet</div>
-                    ${tabs.map((tab, idx) => `
-                        <div class="nav-item ${currentTab === tabKeys[idx] ? 'active' : ''}" onclick="switchTab('${tabKeys[idx]}')">
-                            <span class="nav-text">${tab}</span>
-                        </div>
-                    `).join('')}
-                    <div class="nav-item" onclick="logout()" style="margin-top: 40px;">
-                        <span class="nav-text">Logout</span>
-                    </div>
-                </div>
-                <div class="main-content">
-                    <div class="header">${currentTab === 'more' ? 'More' : (currentTab.charAt(0).toUpperCase() + currentTab.slice(1))}</div>
-                    ${currentTab === 'home' ? renderHome() : ''}
-                    ${currentTab === 'reels' ? renderReels() : ''}
-                    ${currentTab === 'messages' ? renderMessages() : ''}
-                    ${currentTab === 'search' ? renderSearch() : ''}
-                    ${currentTab === 'interesting' ? renderInteresting() : ''}
-                    ${currentTab === 'notifications' ? renderNotifications() : ''}
-                    ${currentTab === 'create' ? renderCreateModal() : ''}
-                    ${currentTab === 'more' ? renderMore() : ''}
-                </div>
-            </div>
-        `;
-        
-        attachGlobalEvents();
-        if (currentTab === 'home') attachHomeEvents();
-        if (currentTab === 'search') {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => { searchQuery = e.target.value; searchUsers(); });
-            }
-        }
-    }
-
     function renderPostCard(post) {
         const isOwnPost = post.user_id === currentUser.id;
         return `
             <div class="post-card" data-post-id="${post.id}">
                 <div class="post-header">
                     ${post.avatar ? 
-                        `<img class="post-avatar-img" src="${post.avatar}" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))" style="background:#1d9bf0; display:flex; align-items:center; justify-content:center;">` :
+                        `<img class="post-avatar-img" src="${post.avatar}" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` :
                         `<div class="avatar-placeholder" style="width:48px; height:48px;">${(post.username || 'U')[0].toUpperCase()}</div>`
                     }
                     <div class="post-body">
@@ -1137,7 +1160,7 @@
                             `).join('')}
                             <div class="comment-input">
                                 <input type="text" id="commentInput-${post.id}" placeholder="Add a comment...">
-                                <button onclick="addComment(${post.id})">→</button>
+                                <button onclick="addComment(${post.id})" style="background:none; border:none; color:var(--accent); cursor:pointer;">→</button>
                             </div>
                         </div>
                     </div>
@@ -1151,8 +1174,8 @@
             <div class="feed-container">
                 <div class="create-post">
                     ${currentUser?.avatar ? 
-                        `<img class="avatar-img" src="${currentUser.avatar}" onclick="viewProfile('${currentUser.username}')" onerror="this.style.display='none'; this.after(document.createTextNode(currentUser.username[0].toUpperCase()))">` :
-                        `<div class="avatar-placeholder" onclick="viewProfile('${currentUser.username}')">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>`
+                        `<img class="avatar-img" src="${currentUser.avatar}" onclick="openAvatarUpload()" onerror="this.style.display='none'; this.after(document.createTextNode(currentUser.username[0].toUpperCase()))">` :
+                        `<div class="avatar-placeholder" onclick="openAvatarUpload()">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>`
                     }
                     <div class="post-input-area">
                         <textarea id="postContent" rows="2" placeholder="What's happening?"></textarea>
@@ -1169,8 +1192,36 @@
         `;
     }
 
-    function renderReels() {
-        return `<div class="reels-container">${[1,2,3,4,5].map(i => `<div class="reel"><div class="reel-video">▶ Reel ${i}</div><div style="padding:12px;"><strong>creator_${i}</strong><div style="color:#71767b;">1.2M views</div></div></div>`).join('')}</div>`;
+    function renderProfilePage() {
+        const user = currentProfileUser || currentUser;
+        const isOwnProfile = !currentProfileUser || currentProfileUser.id === currentUser.id;
+        const following = currentProfileUser ? isFollowing(currentProfileUser.id) : false;
+        const userPosts = feed.filter(p => p.user_id === user.id);
+        
+        return `
+            <div class="profile-container">
+                <div class="profile-header">
+                    ${user.avatar ? 
+                        `<img class="profile-avatar" src="${user.avatar}" onclick="${isOwnProfile ? 'openAvatarUpload()' : ''}" onerror="this.style.display='none';">` :
+                        `<div class="avatar-placeholder" style="width:120px; height:120px; font-size:48px; margin:0 auto 16px;" onclick="${isOwnProfile ? 'openAvatarUpload()' : ''}">${(user.username || 'U')[0].toUpperCase()}</div>`
+                    }
+                    <h2>${escapeHtml(user.username)}</h2>
+                    <p style="color:var(--text-secondary);">@${escapeHtml(user.username)}</p>
+                    <p>${escapeHtml(user.bio || 'No bio yet')}</p>
+                    <p style="color:var(--text-secondary); font-size:13px; margin-top:8px;">Joined ${new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                    ${!isOwnProfile ? `
+                        ${following ? 
+                            `<button class="unfollow-btn" onclick="unfollowUser(${user.id})">Unfollow</button>` :
+                            `<button class="follow-btn" onclick="followUser(${user.id})">Follow</button>`
+                        }
+                    ` : ''}
+                </div>
+                <div style="border-top: 1px solid var(--border-color);">
+                    ${userPosts.map(post => renderPostCard(post)).join('')}
+                    ${userPosts.length === 0 ? '<div style="padding:40px; text-align:center; color:var(--text-secondary);">No posts yet</div>' : ''}
+                </div>
+            </div>
+        `;
     }
 
     function renderMessages() {
@@ -1179,22 +1230,42 @@
                 <div class="conversations-list" id="conversationsList">
                     ${conversations.map(c => `
                         <div class="conversation" onclick="openChat(${c.other_id}, '${escapeHtml(c.username)}')">
-                            <img class="conversation-avatar" src="${c.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(c.username[0].toUpperCase()))" style="background:#1d9bf0; display:flex; align-items:center; justify-content:center;">
-                            <div><strong>${escapeHtml(c.username)}</strong><div style="font-size:12px; color:#71767b;">${escapeHtml(c.last_message || 'No messages')}</div></div>
+                            <img class="conversation-avatar" src="${c.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(c.username[0].toUpperCase()))">
+                            <div><strong>${escapeHtml(c.username)}</strong><div style="font-size:12px; color:var(--text-secondary);">${escapeHtml(c.last_message || 'No messages')}</div></div>
                         </div>
                     `).join('')}
+                    ${conversations.length === 0 ? '<div style="padding:20px; color:var(--text-secondary);">No conversations yet</div>' : ''}
                 </div>
-                <div class="chat-area" id="chatArea" style="display:none;"><div class="chat-messages" id="chatMessages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Message..."><button onclick="sendChatMessage()" style="background:#1d9bf0; border:none; border-radius:9999px; padding:8px 20px; color:white;">Send</button></div></div>
+                <div class="chat-area" id="chatArea" style="display:none;">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="Message...">
+                        <button onclick="sendChatMessage()" style="background:var(--accent); border:none; border-radius:9999px; padding:8px 20px; color:white; cursor:pointer;">Send</button>
+                    </div>
+                </div>
             </div>
         `;
     }
 
     function renderSearch() {
-        return `<div class="search-container"><input type="text" id="searchInput" class="search-input" placeholder="Search users..."><div id="searchResults" style="margin-top:20px;">${searchResults.map(u => `<div class="search-result" onclick="viewProfile('${u.username}')"><img class="search-result-avatar" src="${u.avatar || ''}" onerror="this.style.display='none';"><div><strong>${escapeHtml(u.username)}</strong><div style="color:#71767b;">@${escapeHtml(u.username)}</div></div></div>`).join('')}</div></div>`;
+        return `
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search users...">
+                <div id="searchResults" style="margin-top:20px;">
+                    ${searchResults.map(u => `
+                        <div class="search-result" onclick="viewProfile('${u.username}')">
+                            <img class="search-result-avatar" src="${u.avatar || ''}" onerror="this.style.display='none';">
+                            <div><strong>${escapeHtml(u.username)}</strong><div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div>
+                        </div>
+                    `).join('')}
+                    ${searchQuery && searchResults.length === 0 ? '<div style="padding:20px; color:var(--text-secondary);">No users found</div>' : ''}
+                </div>
+            </div>
+        `;
     }
 
     function renderInteresting() {
-        return `<div class="feed-container">${feed.slice(0,5).map(post => `<div class="recommendation-card"><img class="recommendation-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">@${escapeHtml(post.username)}</strong><div>${parseMentionsAndHashtags(post.content || '')}</div><button onclick="followUser(${post.user_id})" style="margin-top:8px; background:#1d9bf0; border:none; padding:4px 16px; border-radius:20px; color:white;">Follow</button></div></div>`).join('')}</div>`;
+        return `<div class="feed-container">${feed.slice(0,5).map(post => `<div class="recommendation-card"><img class="recommendation-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">@${escapeHtml(post.username)}</strong><div>${parseMentionsAndHashtags(post.content || '')}</div><button onclick="followUser(${post.user_id})" style="margin-top:8px; background:var(--accent); border:none; padding:4px 16px; border-radius:20px; color:white; cursor:pointer;">Follow</button></div></div>`).join('')}</div>`;
     }
 
     function renderNotifications() {
@@ -1202,26 +1273,43 @@
     }
 
     function renderCreateModal() {
-        setTimeout(() => { const modal = document.getElementById('createModal'); if(modal) modal.style.display='flex'; }, 10);
-        return `<div id="createModal" class="modal" style="display:flex;"><div class="modal-content"><h3>Create post</h3><textarea id="modalPostContent" rows="3" style="width:100%; background:#000; border:1px solid #2f3336; border-radius:12px; padding:12px; color:white;"></textarea><input type="file" id="modalPostImage" accept="image/*" style="margin:12px 0;"><div style="display:flex; gap:12px;"><button onclick="publishModalPost()" style="flex:1; background:#1d9bf0; border:none; padding:10px; border-radius:9999px; color:white;">Post</button><button onclick="switchTab('home')" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white;">Cancel</button></div></div></div>`;
+        setTimeout(() => {
+            const modal = document.getElementById('createModal');
+            if(modal) modal.style.display='flex';
+            const textarea = document.getElementById('modalPostContent');
+            if(textarea) textarea.focus();
+        }, 10);
+        return `
+            <div id="createModal" class="modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index:1000;">
+                <div class="modal-content" style="background:#000000; border:1px solid #2f3336; border-radius:28px; padding:24px; width:500px; max-width:90%;">
+                    <h3 style="margin-bottom:16px;">Create post</h3>
+                    <textarea id="modalPostContent" rows="3" style="width:100%; background:#000000; border:1px solid #2f3336; border-radius:12px; padding:12px; color:white;"></textarea>
+                    <input type="file" id="modalPostImage" accept="image/*" style="margin:12px 0;">
+                    <div id="modalImagePreview"></div>
+                    <div style="display:flex; gap:12px;">
+                        <button onclick="publishModalPost()" style="flex:1; background:var(--accent); border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Post</button>
+                        <button onclick="switchTab('home')" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     function renderMore() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
         return `
             <div class="feed-container" style="padding:20px;">
-                <div class="profile-header">
-                    ${currentUser?.avatar ? 
-                        `<img class="profile-avatar" src="${currentUser.avatar}" onclick="document.getElementById('avatarUpload').click()" style="cursor:pointer;">` :
-                        `<div class="avatar-placeholder" style="width:120px; height:120px; font-size:48px; margin:0 auto 16px;" onclick="document.getElementById('avatarUpload').click()">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>`
-                    }
-                    <input type="file" id="avatarUpload" accept="image/*,image/gif" style="display:none;" onchange="updateAvatar(this.files[0])">
-                    <label class="avatar-upload-label" onclick="document.getElementById('avatarUpload').click()">Change Avatar</label>
-                    <h2 style="margin-top:16px;">${escapeHtml(currentUser?.username)}</h2>
-                    <p style="color:#71767b;">@${escapeHtml(currentUser?.username)}</p>
-                    <p style="margin-top:12px;">Joined ${new Date(currentUser?.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                <div class="profile-header" style="border-bottom: none;">
+                    <h3 style="text-align:left; margin-bottom:20px;">Theme</h3>
+                    <div class="theme-option ${savedTheme === 'dark' ? 'active' : ''}" onclick="setTheme('dark')">Dark (Black)</div>
+                    <div class="theme-option ${savedTheme === 'dark-gray' ? 'active' : ''}" onclick="setTheme('dark-gray')">Dark Gray</div>
+                    <div class="theme-option ${savedTheme === 'gray' ? 'active' : ''}" onclick="setTheme('gray')">Gray</div>
+                    <div class="theme-option ${savedTheme === 'light' ? 'active' : ''}" onclick="setTheme('light')">Light</div>
                 </div>
-                <div style="border-top:1px solid #2f3336;">
-                    <div class="recommendation-card" onclick="logout()" style="cursor:pointer;"><div><strong>Logout</strong><div style="color:#71767b;">Sign out</div></div></div>
+                <div style="border-top:1px solid var(--border-color); margin-top:20px; padding-top:20px;">
+                    <div class="recommendation-card" onclick="logout()" style="cursor:pointer;">
+                        <div><strong>Logout</strong><div style="color:var(--text-secondary);">Sign out of your account</div></div>
+                    </div>
                 </div>
             </div>
         `;
@@ -1238,6 +1326,91 @@
         await loadFeed();
         renderMain();
     };
+
+    function openAvatarUpload() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*,image/gif';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                showCropModal(file, async (croppedBlob) => {
+                    await updateAvatar(croppedBlob);
+                    renderMain();
+                });
+            }
+        };
+        input.click();
+    }
+
+    async function renderMain() {
+        await loadFeed();
+        await loadConversations();
+        
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.body.className = savedTheme;
+        
+        const root = document.getElementById('root');
+        
+        if (currentTab === 'profile') {
+            root.innerHTML = `
+                <div class="app">
+                    <div class="sidebar">
+                        <div class="logo">FreedomNet</div>
+                        ${tabs.map((tab, idx) => `
+                            <div class="nav-item ${currentTab === tabKeys[idx] ? 'active' : ''}" onclick="switchTab('${tabKeys[idx]}')">
+                                <span class="nav-text">${tab}</span>
+                            </div>
+                        `).join('')}
+                        <div class="nav-item" onclick="logout()" style="margin-top: 40px;">
+                            <span class="nav-text">Logout</span>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                        <div class="header">Profile</div>
+                        ${renderProfilePage()}
+                    </div>
+                </div>
+            `;
+            attachGlobalEvents();
+            return;
+        }
+        
+        root.innerHTML = `
+            <div class="app">
+                <div class="sidebar">
+                    <div class="logo">FreedomNet</div>
+                    ${tabs.map((tab, idx) => `
+                        <div class="nav-item ${currentTab === tabKeys[idx] ? 'active' : ''}" onclick="switchTab('${tabKeys[idx]}')">
+                            <span class="nav-text">${tab}</span>
+                        </div>
+                    `).join('')}
+                    <div class="nav-item" onclick="logout()" style="margin-top: 40px;">
+                        <span class="nav-text">Logout</span>
+                    </div>
+                </div>
+                <div class="main-content">
+                    <div class="header">${currentTab === 'more' ? 'Settings' : (currentTab.charAt(0).toUpperCase() + currentTab.slice(1))}</div>
+                    ${currentTab === 'home' ? renderHome() : ''}
+                    ${currentTab === 'messages' ? renderMessages() : ''}
+                    ${currentTab === 'search' ? renderSearch() : ''}
+                    ${currentTab === 'interesting' ? renderInteresting() : ''}
+                    ${currentTab === 'notifications' ? renderNotifications() : ''}
+                    ${currentTab === 'create' ? renderCreateModal() : ''}
+                    ${currentTab === 'more' ? renderMore() : ''}
+                </div>
+            </div>
+        `;
+        
+        attachGlobalEvents();
+        if (currentTab === 'home') attachHomeEvents();
+        if (currentTab === 'search') {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => { searchQuery = e.target.value; searchUsers(); });
+            }
+        }
+    }
 
     function attachGlobalEvents() {
         document.querySelectorAll('.mention, .hashtag, .post-username, .post-avatar-img, .avatar-placeholder, .avatar-img').forEach(el => {
@@ -1264,12 +1437,12 @@
                     const query = lastWord.substring(1);
                     if (lastWord.startsWith('@')) {
                         const matches = allUsers.filter(u => u.username.toLowerCase().includes(query.toLowerCase())).slice(0,5);
-                        if (matches.length) suggestionsContainer.innerHTML = `<div class="suggestions-dropdown" style="position:absolute; bottom:100%; left:0;">${matches.map(m => `<div class="suggestion-item" data-suggestion="${m.username}" data-type="mention">@${escapeHtml(m.username)}</div>`).join('')}</div>`;
+                        if (matches.length) suggestionsContainer.innerHTML = `<div class="suggestions-dropdown" style="position:absolute; bottom:100%; left:0; background:#000000; border:1px solid #2f3336; border-radius:12px;">${matches.map(m => `<div class="suggestion-item" data-suggestion="${m.username}" data-type="mention" style="padding:10px 12px; cursor:pointer;">@${escapeHtml(m.username)}</div>`).join('')}</div>`;
                         else suggestionsContainer.innerHTML = '';
                     } else {
-                        const hashtags = ['trending', 'news', 'viral', 'coding', 'design', 'tech'];
+                        const hashtags = ['trending', 'news', 'viral', 'coding', 'design', 'tech', 'art', 'music'];
                         const matches = hashtags.filter(h => h.includes(query)).slice(0,5);
-                        if (matches.length) suggestionsContainer.innerHTML = `<div class="suggestions-dropdown" style="position:absolute; bottom:100%; left:0;">${matches.map(m => `<div class="suggestion-item" data-suggestion="${m}" data-type="hashtag">#${escapeHtml(m)}</div>`).join('')}</div>`;
+                        if (matches.length) suggestionsContainer.innerHTML = `<div class="suggestions-dropdown" style="position:absolute; bottom:100%; left:0; background:#000000; border:1px solid #2f3336; border-radius:12px;">${matches.map(m => `<div class="suggestion-item" data-suggestion="${m}" data-type="hashtag" style="padding:10px 12px; cursor:pointer;">#${escapeHtml(m)}</div>`).join('')}</div>`;
                         else suggestionsContainer.innerHTML = '';
                     }
                     document.querySelectorAll('.suggestion-item').forEach(el => {
