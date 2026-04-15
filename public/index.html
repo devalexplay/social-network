@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>FreedomNet — Instagram + Reddit Style</title>
+    <title>FreedomNet — X style</title>
     <style>
         * {
             margin: 0;
@@ -13,169 +13,135 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: #262626;
-            min-height: 100vh;
+            background: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
         }
 
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                color: #eee;
-            }
-            .post-card, .create-post, .sidebar, .chat-panel {
-                background: rgba(30, 30, 46, 0.95) !important;
-                backdrop-filter: blur(10px);
-            }
-        }
-
-        /* App layout */
+        /* App wrapper */
         .app {
             display: flex;
             min-height: 100vh;
-            max-width: 1400px;
+            max-width: 1280px;
             margin: 0 auto;
             position: relative;
         }
 
-        /* Sidebar */
+        /* Sidebar navigation (X style) */
         .sidebar {
-            width: 280px;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(0,0,0,0.1);
-            padding: 20px;
+            width: 275px;
             position: fixed;
             height: 100vh;
+            padding: 20px 12px;
+            border-right: 1px solid #2f3336;
+            background: #000000;
             overflow-y: auto;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
         }
 
         .logo {
             font-size: 28px;
             font-weight: 800;
             margin-bottom: 30px;
-            background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            padding: 12px;
+            color: #1d9bf0;
             letter-spacing: -1px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
+            gap: 16px;
+            padding: 12px;
             margin: 4px 0;
-            border-radius: 12px;
+            border-radius: 9999px;
             cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 20px;
+            font-weight: 400;
+            width: fit-content;
         }
 
         .nav-item:hover {
-            background: rgba(0,0,0,0.05);
-            transform: translateX(4px);
+            background: #181818;
+            transform: scale(1.02);
         }
 
         .nav-item.active {
-            background: linear-gradient(135deg, #833ab4, #fd1d1d);
-            color: white;
+            font-weight: 700;
+            color: #1d9bf0;
+        }
+
+        .nav-icon {
+            font-size: 26px;
+            font-weight: 400;
+        }
+
+        .nav-text {
+            font-size: 20px;
         }
 
         /* Main content */
         .main-content {
-            margin-left: 280px;
+            margin-left: 275px;
             flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            height: 100vh;
+            min-height: 100vh;
+            border-right: 1px solid #2f3336;
         }
 
-        /* Stories row (Instagram style) */
-        .stories {
-            display: flex;
-            gap: 16px;
-            overflow-x: auto;
-            padding: 16px;
-            margin-bottom: 24px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(12px);
+            padding: 16px 20px;
+            border-bottom: 1px solid #2f3336;
+            font-size: 20px;
+            font-weight: 800;
+            z-index: 10;
         }
 
-        .story {
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .story-ring {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045);
-            padding: 3px;
-        }
-
-        .story-img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-        }
-
-        /* Feed */
+        /* Feed container */
         .feed-container {
             max-width: 600px;
             margin: 0 auto;
         }
 
-        /* Create post */
+        /* Create post area */
         .create-post {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .create-post-header {
+            padding: 16px;
+            border-bottom: 1px solid #2f3336;
             display: flex;
             gap: 12px;
-            margin-bottom: 16px;
         }
 
         .avatar {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            background: #1d9bf0;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
         }
 
-        .post-input {
+        .post-input-area {
             flex: 1;
         }
 
-        .post-input textarea {
+        .post-input-area textarea {
             width: 100%;
-            border: none;
-            outline: none;
-            resize: vertical;
-            font-size: 16px;
-            font-family: inherit;
             background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 18px;
+            resize: vertical;
+            font-family: inherit;
+            outline: none;
+            min-height: 60px;
         }
 
         .post-actions-bar {
@@ -183,288 +149,378 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(0,0,0,0.1);
         }
 
         .image-upload {
-            background: none;
-            border: none;
-            font-size: 24px;
+            color: #1d9bf0;
             cursor: pointer;
+            font-size: 20px;
             padding: 8px;
             border-radius: 50%;
             transition: 0.2s;
         }
 
         .image-upload:hover {
-            background: rgba(0,0,0,0.05);
+            background: #181818;
         }
 
         .publish-btn {
-            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            background: #1d9bf0;
             color: white;
             border: none;
-            padding: 8px 24px;
-            border-radius: 25px;
-            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 9999px;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
         }
 
         .publish-btn:hover {
+            background: #1a8cd8;
             transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         /* Post card */
         .post-card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            margin-bottom: 20px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: 0.2s;
+            border-bottom: 1px solid #2f3336;
+            padding: 12px 16px;
+            transition: background 0.2s ease;
+            cursor: pointer;
+            animation: fadeInUp 0.3s ease;
         }
 
         .post-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: #080808;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .post-header {
             display: flex;
-            align-items: center;
-            padding: 16px;
             gap: 12px;
         }
 
         .post-avatar {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            background: #1d9bf0;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            color: white;
+            font-size: 18px;
         }
 
-        .post-user-info {
+        .post-body {
             flex: 1;
         }
 
-        .post-username {
+        .post-user {
             font-weight: 700;
-            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .post-username {
+            color: #71767b;
+            font-weight: 400;
+            margin-left: 6px;
+            font-size: 14px;
         }
 
         .post-time {
-            font-size: 12px;
-            color: #8e8e8e;
+            color: #71767b;
+            font-size: 13px;
+            margin-left: 6px;
         }
 
         .post-content {
-            padding: 0 16px 12px 16px;
-            font-size: 14px;
+            font-size: 15px;
+            margin: 8px 0;
             line-height: 1.4;
         }
 
         .post-image {
-            width: 100%;
-            max-height: 500px;
+            margin-top: 12px;
+            border-radius: 16px;
+            max-width: 100%;
+            max-height: 400px;
             object-fit: cover;
-            background: #f0f0f0;
-        }
-
-        /* Reddit-style voting */
-        .vote-section {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-top: 1px solid rgba(0,0,0,0.1);
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .vote-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-
-        .vote-btn:hover {
-            background: rgba(0,0,0,0.05);
-        }
-
-        .vote-btn.upvoted {
-            color: #ff4500;
-        }
-
-        .vote-btn.downvoted {
-            color: #7193ff;
-        }
-
-        .vote-score {
-            font-weight: 700;
-            font-size: 16px;
+            border: 1px solid #2f3336;
         }
 
         .post-stats {
             display: flex;
-            gap: 20px;
-            padding: 12px 16px;
+            gap: 32px;
+            margin-top: 12px;
         }
 
         .stat-btn {
             background: none;
             border: none;
+            color: #71767b;
             cursor: pointer;
+            font-size: 14px;
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 14px;
-            color: #8e8e8e;
-            transition: 0.2s;
             padding: 6px 12px;
-            border-radius: 20px;
+            border-radius: 9999px;
+            transition: all 0.2s ease;
         }
 
         .stat-btn:hover {
-            background: rgba(0,0,0,0.05);
+            background: #181818;
+            color: #1d9bf0;
         }
 
         .stat-btn.liked {
-            color: #ed4956;
+            color: #f91880;
         }
 
         /* Comments */
         .comments-section {
-            padding: 0 16px 16px 16px;
-            border-top: 1px solid rgba(0,0,0,0.1);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #2f3336;
         }
 
         .comment {
-            margin: 12px 0;
-            font-size: 13px;
+            font-size: 14px;
+            margin: 8px 0;
         }
 
         .comment strong {
-            font-weight: 600;
-            margin-right: 8px;
+            color: #1d9bf0;
         }
 
         .comment-input {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(0,0,0,0.1);
         }
 
         .comment-input input {
             flex: 1;
-            border: none;
-            outline: none;
             background: transparent;
-            font-size: 14px;
+            border: 1px solid #2f3336;
+            border-radius: 9999px;
+            padding: 10px 16px;
+            color: #ffffff;
+            outline: none;
+            transition: border 0.2s ease;
         }
 
-        /* Chat panel */
-        .chat-panel {
-            position: fixed;
-            right: 0;
-            top: 0;
-            width: 380px;
-            height: 100vh;
-            background: rgba(255,255,255,0.98);
-            backdrop-filter: blur(10px);
-            border-left: 1px solid rgba(0,0,0,0.1);
-            transform: translateX(100%);
-            transition: 0.3s;
-            z-index: 100;
+        .comment-input input:focus {
+            border-color: #1d9bf0;
+        }
+
+        /* Search */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            background: #000000;
+            border: 1px solid #2f3336;
+            border-radius: 9999px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: #1d9bf0;
+        }
+
+        .search-result {
+            padding: 16px;
+            border-bottom: 1px solid #2f3336;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .search-result:hover {
+            background: #080808;
+        }
+
+        /* Reels */
+        .reels-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .reel {
+            background: #000000;
+            border: 1px solid #2f3336;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .reel-video {
+            width: 100%;
+            aspect-ratio: 9/16;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        /* Interesting / Recommendations */
+        .recommendation-card {
+            background: #000000;
+            border: 1px solid #2f3336;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .recommendation-card:hover {
+            transform: translateX(4px);
+            border-color: #1d9bf0;
+        }
+
+        /* Notifications */
+        .notification {
+            padding: 16px;
+            border-bottom: 1px solid #2f3336;
+            display: flex;
+            gap: 12px;
+            transition: background 0.2s ease;
+        }
+
+        .notification:hover {
+            background: #080808;
+        }
+
+        /* Messages */
+        .messages-container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        .conversations-list {
+            width: 350px;
+            border-right: 1px solid #2f3336;
+            overflow-y: auto;
+        }
+
+        .conversation {
+            padding: 16px;
+            border-bottom: 1px solid #2f3336;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .conversation:hover {
+            background: #080808;
+        }
+
+        .conversation.active {
+            background: #181818;
+        }
+
+        .chat-area {
+            flex: 1;
             display: flex;
             flex-direction: column;
-        }
-
-        .chat-panel.open {
-            transform: translateX(0);
-        }
-
-        .chat-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
         }
 
         .chat-messages {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .message {
-            margin: 8px 0;
+            max-width: 70%;
             padding: 10px 14px;
             border-radius: 18px;
-            max-width: 80%;
             font-size: 14px;
+            animation: fadeInUp 0.2s ease;
         }
 
         .message.outgoing {
-            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            background: #1d9bf0;
             color: white;
-            margin-left: auto;
+            align-self: flex-end;
         }
 
         .message.incoming {
-            background: rgba(0,0,0,0.05);
+            background: #2f3336;
+            align-self: flex-start;
         }
 
         .chat-input-area {
             padding: 16px;
-            border-top: 1px solid rgba(0,0,0,0.1);
+            border-top: 1px solid #2f3336;
             display: flex;
             gap: 12px;
         }
 
         .chat-input-area input {
             flex: 1;
-            padding: 10px 16px;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 25px;
+            background: transparent;
+            border: 1px solid #2f3336;
+            border-radius: 9999px;
+            padding: 12px 16px;
+            color: #ffffff;
             outline: none;
         }
 
-        .chat-toggle {
+        .chat-input-area input:focus {
+            border-color: #1d9bf0;
+        }
+
+        /* Modal for Create */
+        .modal {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, #833ab4, #fd1d1d);
-            border-radius: 50%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 90;
-            transition: 0.2s;
-            color: white;
-            font-size: 24px;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
         }
 
-        .chat-toggle:hover {
-            transform: scale(1.05);
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #000000;
+            border: 1px solid #2f3336;
+            border-radius: 20px;
+            padding: 24px;
+            width: 500px;
+            max-width: 90%;
         }
 
         /* Auth */
@@ -474,7 +530,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -482,52 +538,63 @@
         }
 
         .auth-card {
-            background: white;
+            background: #000000;
+            border: 1px solid #2f3336;
+            border-radius: 20px;
             padding: 40px;
-            border-radius: 30px;
-            width: 420px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 400px;
         }
 
         .auth-card input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px;
             margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            font-size: 14px;
+            background: #000000;
+            border: 1px solid #2f3336;
+            border-radius: 8px;
+            color: #ffffff;
+            outline: none;
+        }
+
+        .auth-card input:focus {
+            border-color: #1d9bf0;
         }
 
         .auth-card button {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #1d9bf0;
             color: white;
             border: none;
-            border-radius: 12px;
-            font-weight: 600;
+            border-radius: 9999px;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 10px;
+            transition: 0.2s;
         }
 
-        .lang-switcher {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            z-index: 110;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .auth-card button:hover {
+            background: #1a8cd8;
         }
 
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; }
-            .sidebar span:not(.logo) { display: none; }
-            .main-content { margin-left: 70px; }
-            .chat-panel { width: 100%; }
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2f3336;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1d9bf0;
+        }
+
+        @media (max-width: 1000px) {
+            .sidebar { width: 88px; }
+            .sidebar .nav-text { display: none; }
+            .main-content { margin-left: 88px; }
         }
     </style>
 </head>
@@ -535,53 +602,25 @@
 <div id="root"></div>
 
 <script>
-    // ========== ЯЗЫКИ ==========
-    const translations = {
-        en: {
-            appName: 'FreedomNet', feed: 'Feed', profile: 'Profile', logout: 'Logout',
-            whatsHappening: "What's happening?", publish: 'Publish', login: 'Login',
-            register: 'Register', username: 'Username', email: 'Email', password: 'Password',
-            or: 'or', back: 'Back', messages: 'Messages', main: 'Home', joined: 'Joined',
-            comment: 'Comment', likes: 'Likes', comments: 'Comments', upvote: 'Upvote',
-            downvote: 'Downvote', stories: 'Stories', registerSuccess: 'Registration successful! Please login.',
-            emailInvalid: 'Invalid email format', usernameInvalid: 'Username must be 3-20 chars (letters, numbers, underscore)',
-            usernameTaken: 'Username or email already taken', error: 'Error'
-        },
-        ru: {
-            appName: 'FreedomNet', feed: 'Лента', profile: 'Профиль', logout: 'Выйти',
-            whatsHappening: 'Что нового?', publish: 'Опубликовать', login: 'Войти',
-            register: 'Регистрация', username: 'Имя пользователя', email: 'Email', password: 'Пароль',
-            or: 'или', back: 'Назад', messages: 'Сообщения', main: 'Главная', joined: 'Присоединился',
-            comment: 'Комментарий', likes: 'Нравится', comments: 'Комментарии', upvote: 'За',
-            downvote: 'Против', stories: 'Истории', registerSuccess: 'Регистрация успешна! Войдите.',
-            emailInvalid: 'Неверный формат email', usernameInvalid: 'Имя 3-20 букв, цифр, _',
-            usernameTaken: 'Имя или email уже заняты', error: 'Ошибка'
-        }
-    };
-    
-    let currentLang = localStorage.getItem('language') || 'en';
-    function t(key) { return translations[currentLang][key] || key; }
-    function setLanguage(lang) { currentLang = lang; localStorage.setItem('language', lang); render(); }
-    function renderLangSwitcher() {
-        return `<div class="lang-switcher" onclick="setLanguage(currentLang === 'en' ? 'ru' : 'en')">${currentLang === 'en' ? '🇬🇧 EN' : '🇷🇺 RU'}</div>`;
-    }
-    
-    // ========== API ==========
+    // API helper
     async function api(url, options = {}) {
         const res = await fetch(url, { ...options, credentials: 'include' });
         if (!res.ok) throw new Error(await res.text());
         return res.json();
     }
-    
+
     let currentUser = null;
-    let currentView = 'feed';
+    let currentTab = 'home';
     let feed = [];
     let conversations = [];
     let currentChatUser = null;
     let pendingImage = null;
-    let postVotes = {};
-    
-    // ========== RENDER ==========
+    let searchQuery = '';
+    let searchResults = [];
+
+    // Navigation tabs
+    const tabs = ['home', 'reels', 'messages', 'search', 'interesting', 'notifications', 'create', 'more'];
+
     async function render() {
         if (!currentUser) {
             await renderAuth();
@@ -589,47 +628,46 @@
         }
         await renderMain();
     }
-    
+
     async function renderAuth() {
         const root = document.getElementById('root');
         root.innerHTML = `
-            ${renderLangSwitcher()}
             <div class="auth-overlay">
                 <div class="auth-card">
-                    <h2 style="margin-bottom:20px; text-align:center;">${t('appName')}</h2>
+                    <h2 style="margin-bottom:20px; text-align:center;">FreedomNet</h2>
                     <div id="authForm">
-                        <input type="text" id="loginInput" placeholder="${t('username')} / ${t('email')}">
-                        <input type="password" id="loginPassword" placeholder="${t('password')}">
-                        <button onclick="login()">${t('login')}</button>
-                        <p style="margin:15px 0; text-align:center;">${t('or')}</p>
-                        <button onclick="showRegister()">${t('register')}</button>
+                        <input type="text" id="loginInput" placeholder="Username / Email">
+                        <input type="password" id="loginPassword" placeholder="Password">
+                        <button onclick="login()">Login</button>
+                        <p style="margin:15px 0; text-align:center;">or</p>
+                        <button onclick="showRegister()">Register</button>
                     </div>
                 </div>
             </div>
         `;
     }
-    
+
     window.showRegister = () => {
         document.getElementById('authForm').innerHTML = `
-            <input type="text" id="regUsername" placeholder="${t('username')}" maxlength="20">
-            <input type="email" id="regEmail" placeholder="${t('email')}">
-            <input type="password" id="regPassword" placeholder="${t('password')}">
-            <button onclick="register()">${t('register')}</button>
-            <button onclick="renderAuth()" style="background:#ccc; color:#333; margin-top:10px;">${t('back')}</button>
+            <input type="text" id="regUsername" placeholder="Username" maxlength="20">
+            <input type="email" id="regEmail" placeholder="Email">
+            <input type="password" id="regPassword" placeholder="Password">
+            <button onclick="register()">Register</button>
+            <button onclick="renderAuth()" style="background:#2f3336; margin-top:10px;">Back</button>
         `;
     };
-    
+
     window.register = async () => {
         const username = document.getElementById('regUsername').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
         
         if (!username.match(/^[a-zA-Z0-9_]{3,20}$/)) {
-            alert(t('usernameInvalid'));
+            alert('Username must be 3-20 characters (letters, numbers, underscore)');
             return;
         }
         if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-            alert(t('emailInvalid'));
+            alert('Invalid email format');
             return;
         }
         if (password.length < 4) {
@@ -643,13 +681,13 @@
                 body: JSON.stringify({ username, email, password }),
                 headers: { 'Content-Type': 'application/json' }
             });
-            alert(t('registerSuccess'));
+            alert('Registration successful! Please login.');
             renderAuth();
         } catch(e) {
-            alert(t('usernameTaken'));
+            alert('Username or email already taken');
         }
     };
-    
+
     window.login = async () => {
         const login = document.getElementById('loginInput').value;
         const password = document.getElementById('loginPassword').value;
@@ -664,80 +702,86 @@
             await loadFeed();
             await loadConversations();
             render();
-        } catch(e) { alert(t('error')); }
+        } catch(e) { alert('Login failed'); }
     };
-    
+
     async function loadFeed() {
         try { feed = await api('/api/feed'); } catch(e) { feed = []; }
     }
-    
+
     async function loadConversations() {
         try { conversations = await api('/api/conversations'); } catch(e) { conversations = []; }
     }
-    
+
+    async function searchUsers() {
+        if (!searchQuery.trim()) { searchResults = []; renderMain(); return; }
+        try {
+            const users = await api('/api/users');
+            searchResults = users.filter(u => u.username.toLowerCase().includes(searchQuery.toLowerCase()));
+            renderMain();
+        } catch(e) { searchResults = []; }
+    }
+
     async function renderMain() {
         await loadFeed();
         await loadConversations();
+        
         const root = document.getElementById('root');
         root.innerHTML = `
-            ${renderLangSwitcher()}
             <div class="app">
                 <div class="sidebar">
-                    <div class="logo">✨ ${t('appName')}</div>
-                    <div class="nav-item ${currentView === 'feed' ? 'active' : ''}" onclick="setView('feed')">
-                        <span>🏠</span> <span>${t('feed')}</span>
-                    </div>
-                    <div class="nav-item ${currentView === 'profile' ? 'active' : ''}" onclick="setView('profile')">
-                        <span>👤</span> <span>${t('profile')}</span>
-                    </div>
-                    <div class="nav-item" onclick="logout()">
-                        <span>🚪</span> <span>${t('logout')}</span>
+                    <div class="logo">FreedomNet</div>
+                    ${tabs.map(tab => `
+                        <div class="nav-item ${currentTab === tab ? 'active' : ''}" onclick="switchTab('${tab}')">
+                            <span class="nav-icon">${getIcon(tab)}</span>
+                            <span class="nav-text">${capitalize(tab)}</span>
+                        </div>
+                    `).join('')}
+                    <div class="nav-item" onclick="logout()" style="margin-top: 40px;">
+                        <span class="nav-icon">🚪</span>
+                        <span class="nav-text">Logout</span>
                     </div>
                 </div>
                 <div class="main-content">
-                    <div class="stories">
-                        <div class="story"><div class="story-ring"><div class="story-img">📸</div></div><div>${t('stories')}</div></div>
-                        <div class="story"><div class="story-ring"><div class="story-img">🎨</div></div><div>Art</div></div>
-                        <div class="story"><div class="story-ring"><div class="story-img">💡</div></div><div>Ideas</div></div>
-                    </div>
-                    ${currentView === 'feed' ? renderFeed() : renderProfile()}
-                </div>
-                <div class="chat-toggle" onclick="toggleChat()">💬</div>
-                <div class="chat-panel" id="chatPanel">
-                    <div class="chat-header"><span>${t('messages')}</span><span onclick="toggleChat()" style="cursor:pointer;">✕</span></div>
-                    <div id="chatUsersList" style="padding:16px; overflow-y:auto;">
-                        ${conversations.map(c => `<div style="padding:12px; cursor:pointer; border-bottom:1px solid rgba(0,0,0,0.1);" onclick="openChat(${c.other_id})">
-                            <strong>${escapeHtml(c.username)}</strong>
-                            <div style="font-size:12px; color:#8e8e8e;">${escapeHtml(c.last_message || '')}</div>
-                        </div>`).join('')}
-                    </div>
-                    <div id="chatMessagesArea" style="display:none; flex-direction:column; height:100%;">
-                        <div class="chat-header" id="chatHeader"></div>
-                        <div class="chat-messages" id="chatMessages"></div>
-                        <div class="chat-input-area">
-                            <input type="text" id="chatInput" placeholder="Message...">
-                            <button onclick="sendChatMessage()" style="background:linear-gradient(135deg,#833ab4,#fd1d1d); border:none; border-radius:25px; padding:8px 20px; color:white;">→</button>
-                        </div>
-                    </div>
+                    <div class="header">${capitalize(currentTab)}</div>
+                    ${currentTab === 'home' ? renderHome() : ''}
+                    ${currentTab === 'reels' ? renderReels() : ''}
+                    ${currentTab === 'messages' ? renderMessages() : ''}
+                    ${currentTab === 'search' ? renderSearch() : ''}
+                    ${currentTab === 'interesting' ? renderInteresting() : ''}
+                    ${currentTab === 'notifications' ? renderNotifications() : ''}
+                    ${currentTab === 'create' ? renderCreateModal() : ''}
+                    ${currentTab === 'more' ? renderMore() : ''}
                 </div>
             </div>
         `;
-        if (currentView === 'feed') attachFeedEvents();
+        
+        if (currentTab === 'home') attachFeedEvents();
+        if (currentTab === 'messages') attachMessagesEvents();
+        if (currentTab === 'search') document.getElementById('searchInput')?.addEventListener('input', (e) => { searchQuery = e.target.value; searchUsers(); });
     }
-    
-    function renderFeed() {
+
+    function getIcon(tab) {
+        const icons = {
+            home: '🏠', reels: '📱', messages: '💬', search: '🔍',
+            interesting: '✨', notifications: '🔔', create: '➕', more: '☰'
+        };
+        return icons[tab] || '•';
+    }
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function renderHome() {
         return `
             <div class="feed-container">
                 <div class="create-post">
-                    <div class="create-post-header">
-                        <div class="avatar">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>
-                        <div class="post-input">
-                            <textarea id="postContent" rows="2" placeholder="${t('whatsHappening')}"></textarea>
-                            <div id="imagePreview" style="margin-top:8px;"></div>
-                            <div class="post-actions-bar">
-                                <label class="image-upload">📷 <input type="file" id="postImage" accept="image/*" style="display:none;"></label>
-                                <button class="publish-btn" onclick="publishPost()">${t('publish')}</button>
-                            </div>
+                    <div class="avatar">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>
+                    <div class="post-input-area">
+                        <textarea id="postContent" rows="2" placeholder="What's happening?"></textarea>
+                        <div id="imagePreview" style="margin-top:8px;"></div>
+                        <div class="post-actions-bar">
+                            <label class="image-upload">📷 <input type="file" id="postImage" accept="image/*" style="display:none;"></label>
+                            <button class="publish-btn" onclick="publishPost()">Post</button>
                         </div>
                     </div>
                 </div>
@@ -745,31 +789,29 @@
                     <div class="post-card" data-post-id="${post.id}">
                         <div class="post-header">
                             <div class="post-avatar">${(post.username || 'U')[0].toUpperCase()}</div>
-                            <div class="post-user-info">
-                                <div class="post-username">${escapeHtml(post.username)}</div>
-                                <div class="post-time">${new Date(post.created_at).toLocaleString()}</div>
-                            </div>
-                        </div>
-                        <div class="post-content">${escapeHtml(post.content || '')}</div>
-                        ${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open('${post.image}')">` : ''}
-                        <div class="vote-section">
-                            <button class="vote-btn ${post.user_vote === 1 ? 'upvoted' : ''}" onclick="vote(${post.id}, 1)">▲</button>
-                            <span class="vote-score">${post.likes_count || 0}</span>
-                            <button class="vote-btn ${post.user_vote === -1 ? 'downvoted' : ''}" onclick="vote(${post.id}, -1)">▼</button>
-                        </div>
-                        <div class="post-stats">
-                            <button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
-                                ❤️ ${post.likes_count || 0}
-                            </button>
-                            <button class="stat-btn" onclick="toggleComments(${post.id})">
-                                💬 ${post.comments?.length || 0}
-                            </button>
-                        </div>
-                        <div id="comments-${post.id}" style="display:none;" class="comments-section">
-                            ${(post.comments || []).map(c => `<div class="comment"><strong>${escapeHtml(c.username)}</strong> ${escapeHtml(c.content)}</div>`).join('')}
-                            <div class="comment-input">
-                                <input type="text" id="commentInput-${post.id}" placeholder="${t('comment')}...">
-                                <button onclick="addComment(${post.id})">→</button>
+                            <div class="post-body">
+                                <div class="post-user">
+                                    ${escapeHtml(post.username)}
+                                    <span class="post-username">@${escapeHtml(post.username)}</span>
+                                    <span class="post-time">${new Date(post.created_at).toLocaleString()}</span>
+                                </div>
+                                <div class="post-content">${escapeHtml(post.content || '')}</div>
+                                ${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open('${post.image}')">` : ''}
+                                <div class="post-stats">
+                                    <button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                                        ❤️ ${post.likes_count || 0}
+                                    </button>
+                                    <button class="stat-btn" onclick="toggleComments(${post.id})">
+                                        💬 ${post.comments?.length || 0}
+                                    </button>
+                                </div>
+                                <div id="comments-${post.id}" style="display:none;" class="comments-section">
+                                    ${(post.comments || []).map(c => `<div class="comment"><strong>${escapeHtml(c.username)}</strong> ${escapeHtml(c.content)}</div>`).join('')}
+                                    <div class="comment-input">
+                                        <input type="text" id="commentInput-${post.id}" placeholder="Add a comment...">
+                                        <button onclick="addComment(${post.id})">→</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -777,16 +819,138 @@
             </div>
         `;
     }
-    
-    function renderProfile() {
-        return `<div style="max-width:600px; margin:0 auto; background:rgba(255,255,255,0.95); border-radius:20px; padding:32px; text-align:center;">
-            <div class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 20px;">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>
-            <h2>${escapeHtml(currentUser?.username)}</h2>
-            <p style="color:#8e8e8e;">${escapeHtml(currentUser?.email || '')}</p>
-            <p style="margin-top:16px;">${t('joined')}: ${new Date().toLocaleDateString()}</p>
-        </div>`;
+
+    function renderReels() {
+        return `
+            <div class="reels-container">
+                ${[1,2,3,4,5].map(i => `
+                    <div class="reel">
+                        <div class="reel-video">📱 Reel ${i}</div>
+                        <div style="padding:12px;"><strong>creator_${i}</strong><div style="color:#71767b; font-size:12px;">1.2M views</div></div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     }
-    
+
+    function renderMessages() {
+        return `
+            <div class="messages-container">
+                <div class="conversations-list" id="conversationsList">
+                    ${conversations.map(c => `
+                        <div class="conversation" onclick="openChat(${c.other_id}, '${escapeHtml(c.username)}')">
+                            <strong>${escapeHtml(c.username)}</strong>
+                            <div style="font-size:12px; color:#71767b;">${escapeHtml(c.last_message || '')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="chat-area" id="chatArea" style="display:none;">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="Message...">
+                        <button onclick="sendChatMessage()" style="background:#1d9bf0; border:none; border-radius:9999px; padding:8px 20px; color:white;">Send</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderSearch() {
+        return `
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search users...">
+                <div id="searchResults" style="margin-top:20px;">
+                    ${searchResults.map(u => `
+                        <div class="search-result" onclick="openChat(${u.id}, '${escapeHtml(u.username)}'); switchTab('messages');">
+                            <strong>${escapeHtml(u.username)}</strong>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderInteresting() {
+        return `
+            <div class="feed-container">
+                ${feed.slice(0,5).map(post => `
+                    <div class="recommendation-card">
+                        <strong>@${escapeHtml(post.username)}</strong>
+                        <div style="margin-top:8px;">${escapeHtml(post.content || '')}</div>
+                        <button onclick="switchTab('home')" style="margin-top:12px; background:#1d9bf0; border:none; padding:6px 16px; border-radius:20px; color:white; cursor:pointer;">Follow</button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function renderNotifications() {
+        return `
+            <div class="feed-container">
+                ${feed.slice(0,8).map(post => `
+                    <div class="notification">
+                        <div class="avatar" style="width:40px;height:40px;">❤️</div>
+                        <div><strong>${escapeHtml(post.username)}</strong> liked your post</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function renderCreateModal() {
+        setTimeout(() => {
+            const modal = document.getElementById('createModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.getElementById('modalPostContent')?.focus();
+            }
+        }, 10);
+        return `
+            <div id="createModal" class="modal" style="display:flex;">
+                <div class="modal-content">
+                    <h3 style="margin-bottom:16px;">Create new post</h3>
+                    <textarea id="modalPostContent" rows="3" style="width:100%; background:#000; border:1px solid #2f3336; border-radius:12px; padding:12px; color:white;" placeholder="What's happening?"></textarea>
+                    <input type="file" id="modalPostImage" accept="image/*" style="margin:12px 0;">
+                    <div id="modalImagePreview"></div>
+                    <div style="display:flex; gap:12px; margin-top:16px;">
+                        <button onclick="publishModalPost()" style="flex:1; background:#1d9bf0; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Post</button>
+                        <button onclick="switchTab('home')" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderMore() {
+        return `
+            <div class="feed-container" style="padding:20px;">
+                <div class="recommendation-card" onclick="logout()" style="cursor:pointer;">
+                    <strong>🚪 Logout</strong>
+                </div>
+                <div class="recommendation-card">
+                    <strong>👤 Profile</strong>
+                    <div>@${escapeHtml(currentUser?.username)}</div>
+                </div>
+                <div class="recommendation-card">
+                    <strong>⚙️ Settings</strong>
+                    <div>Appearance, language, privacy</div>
+                </div>
+            </div>
+        `;
+    }
+
+    window.publishModalPost = async () => {
+        const content = document.getElementById('modalPostContent')?.value || '';
+        const file = document.getElementById('modalPostImage')?.files[0];
+        const formData = new FormData();
+        formData.append('content', content);
+        if (file) formData.append('image', file);
+        await api('/api/posts', { method: 'POST', body: formData });
+        switchTab('home');
+        await loadFeed();
+        renderMain();
+    };
+
     function attachFeedEvents() {
         document.getElementById('postImage')?.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -800,7 +964,11 @@
             }
         });
     }
-    
+
+    function attachMessagesEvents() {
+        // handled in openChat
+    }
+
     window.publishPost = async () => {
         const content = document.getElementById('postContent')?.value || '';
         const formData = new FormData();
@@ -814,15 +982,9 @@
         document.getElementById('postContent').value = '';
         document.getElementById('imagePreview').innerHTML = '';
         await loadFeed();
-        render();
+        renderMain();
     };
-    
-    window.vote = async (postId, value) => {
-        await api(`/api/vote/${postId}`, { method: 'POST', body: JSON.stringify({ value }), headers: { 'Content-Type': 'application/json' } });
-        await loadFeed();
-        render();
-    };
-    
+
     window.toggleLike = async (postId) => {
         const post = feed.find(p => p.id === postId);
         if (post.user_liked) {
@@ -831,64 +993,64 @@
             await api(`/api/like/${postId}`, { method: 'POST' });
         }
         await loadFeed();
-        render();
+        renderMain();
     };
-    
+
     window.toggleComments = (postId) => {
         const el = document.getElementById(`comments-${postId}`);
         if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
     };
-    
+
     window.addComment = async (postId) => {
         const input = document.getElementById(`commentInput-${postId}`);
         const content = input?.value.trim();
         if (!content) return;
         await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
         await loadFeed();
-        render();
+        renderMain();
     };
-    
-    window.setView = (view) => { currentView = view; render(); };
-    window.toggleChat = () => { document.getElementById('chatPanel')?.classList.toggle('open'); };
-    
-    window.openChat = async (userId) => {
-        currentChatUser = userId;
+
+    window.switchTab = (tab) => {
+        currentTab = tab;
+        if (tab === 'home') renderMain();
+        else if (tab === 'create') renderMain();
+        else renderMain();
+    };
+
+    window.openChat = async (userId, username) => {
+        currentChatUser = { id: userId, username };
         const messages = await api(`/api/messages/${userId}`);
-        document.getElementById('chatUsersList').style.display = 'none';
-        document.getElementById('chatMessagesArea').style.display = 'flex';
-        document.getElementById('chatHeader').innerHTML = `<span>💬 Chat</span><span onclick="closeChat()" style="cursor:pointer;">✕</span>`;
+        document.getElementById('conversationsList').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
         const container = document.getElementById('chatMessages');
-        container.innerHTML = messages.map(m => `<div class="message ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">${escapeHtml(m.content)}</div>`).join('');
+        container.innerHTML = messages.map(m => `
+            <div class="message ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
+                ${escapeHtml(m.content)}
+            </div>
+        `).join('');
         container.scrollTop = container.scrollHeight;
     };
-    
-    window.closeChat = () => {
-        currentChatUser = null;
-        document.getElementById('chatUsersList').style.display = 'block';
-        document.getElementById('chatMessagesArea').style.display = 'none';
-    };
-    
+
     window.sendChatMessage = async () => {
         const input = document.getElementById('chatInput');
         const content = input?.value.trim();
         if (!content || !currentChatUser) return;
-        await api(`/api/messages/${currentChatUser}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
+        await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
         input.value = '';
-        await openChat(currentChatUser);
+        await openChat(currentChatUser.id, currentChatUser.username);
     };
-    
+
     window.logout = async () => {
         await api('/api/logout', { method: 'POST' });
         currentUser = null;
         render();
     };
-    
+
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
     }
-    
-    // Init
+
     (async () => {
         try {
             const me = await api('/api/me');
