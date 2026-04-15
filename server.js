@@ -8,33 +8,34 @@ const fs = require('fs');
 
 const app = express();
 
-// Создаём папку для фото
+// Папка для фото
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 
-// Настройка загрузки фото
 const storage = multer.diskStorage({
     destination: uploadsDir,
     filename: (req, file, cb) => {
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-// База данных SQLite
+// База данных
 const db = new sqlite3.Database('social.db');
 
 db.serialize(() => {
-    // Пользователи
+    // Таблица пользователей (добавлен email, уникальный username)
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
+        email TEXT UNIQUE,
         password TEXT,
         avatar TEXT,
+        bio TEXT,
         created_at INTEGER
     )`);
     
-    // Посты
+    // Посты с рейтингом (как на Reddit)
     db.run(`CREATE TABLE IF NOT EXISTS posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
@@ -42,10 +43,11 @@ db.serialize(() => {
         image TEXT,
         created_at INTEGER,
         likes_count INTEGER DEFAULT 0,
+        comments_count INTEGER DEFAULT 0,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )`);
     
-    // Лайки
+    // Лайки (для постов)
     db.run(`CREATE TABLE IF NOT EXISTS likes (
         user_id INTEGER,
         post_id INTEGER,
@@ -59,23 +61,22 @@ db.serialize(() => {
         post_id INTEGER,
         content TEXT,
         created_at INTEGER,
+        likes_count INTEGER DEFAULT 0,
         FOREIGN KEY(user_id) REFERENCES users(id),
         FOREIGN KEY(post_id) REFERENCES posts(id)
     )`);
     
-    // Сообщения
+    // Личные сообщения
     db.run(`CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         from_id INTEGER,
         to_id INTEGER,
         content TEXT,
         created_at INTEGER,
-        read INTEGER DEFAULT 0,
-        FOREIGN KEY(from_id) REFERENCES users(id),
-        FOREIGN KEY(to_id) REFERENCES users(id)
+        read INTEGER DEFAULT 0
     )`);
     
-    // Подписки
+    // Подписки (Instagram style)
     db.run(`CREATE TABLE IF NOT EXISTS follows (
         follower_id INTEGER,
         followee_id INTEGER,
@@ -87,41 +88,71 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 app.use(session({
-    secret: 'freedomnet-secret-key-2024',
+    secret: 'freedomnet-super-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 }
 }));
 
-// Middleware для проверки авторизации
 function auth(req, res, next) {
     if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
     next();
 }
 
-// ============ API РОУТЫ ============
+// ============= API =============
 
-// Регистрация
+// Регистрация с email и проверкой уникальности
 app.post('/api/register', async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: 'All fields required' });
+    const { username, email, password } = req.body;
+    
+    if (!username || !email || !password) {
+        return res.status(400).json({ error: 'All fields required' });
+    }
+    
+    // Проверка формата email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+    }
+    
+    // Проверка длины username
+    if (username.length < 3 || username.length > 20) {
+        return res.status(400).json({ error: 'Username must be 3-20 characters' });
+    }
+    
+    // Проверка на запрещённые символы в username
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        return res.status(400).json({ error: 'Username can only contain letters, numbers, and underscore' });
+    }
     
     const hashed = await bcrypt.hash(password, 10);
-    db.run('INSERT INTO users (username, password, created_at) VALUES (?, ?, ?)', 
-        [username, hashed, Date.now()], 
+    
+    db.run('INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, ?)',
+        [username, email, hashed, Date.now()],
         function(err) {
-            if (err) return res.status(400).json({ error: 'Username taken' });
+            if (err) {
+                if (err.message.includes('UNIQUE')) {
+                    return res.status(400).json({ error: 'Username or email already taken' });
+                }
+                return res.status(500).json({ error: err.message });
+            }
             res.json({ success: true });
         });
 });
 
-// Вход
+// Вход (можно по username или email)
 app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-    db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
-        if (err || !user) return res.status(401).json({ error: 'Invalid credentials' });
+    const { login, password } = req.body;
+    
+    db.get('SELECT * FROM users WHERE username = ? OR email = ?', [login, login], async (err, user) => {
+        if (err || !user) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        
         const valid = await bcrypt.compare(password, user.password);
-        if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+        if (!valid) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
         
         req.session.userId = user.id;
         req.session.username = user.username;
@@ -129,21 +160,21 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// Выход
+// Остальные API (посты, лайки, комментарии, сообщения) остаются такими же как в предыдущей версии
+// ... (добавь их сюда из предыдущего server.js)
+
 app.post('/api/logout', (req, res) => {
     req.session.destroy();
     res.json({ success: true });
 });
 
-// Текущий пользователь
 app.get('/api/me', (req, res) => {
     if (!req.session.userId) return res.json({ user: null });
-    db.get('SELECT id, username, avatar FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+    db.get('SELECT id, username, email, avatar, bio FROM users WHERE id = ?', [req.session.userId], (err, user) => {
         res.json({ user });
     });
 });
 
-// Создать пост
 app.post('/api/posts', auth, upload.single('image'), (req, res) => {
     const { content } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : null;
@@ -155,7 +186,6 @@ app.post('/api/posts', auth, upload.single('image'), (req, res) => {
         });
 });
 
-// Получить ленту
 app.get('/api/feed', auth, (req, res) => {
     const query = `
         SELECT p.*, u.username, u.avatar,
@@ -178,7 +208,6 @@ app.get('/api/feed', auth, (req, res) => {
     });
 });
 
-// Лайкнуть пост
 app.post('/api/like/:postId', auth, (req, res) => {
     db.run('INSERT OR IGNORE INTO likes (user_id, post_id) VALUES (?, ?)',
         [req.session.userId, req.params.postId],
@@ -190,7 +219,6 @@ app.post('/api/like/:postId', auth, (req, res) => {
         });
 });
 
-// Убрать лайк
 app.delete('/api/like/:postId', auth, (req, res) => {
     db.run('DELETE FROM likes WHERE user_id = ? AND post_id = ?',
         [req.session.userId, req.params.postId],
@@ -202,13 +230,13 @@ app.delete('/api/like/:postId', auth, (req, res) => {
         });
 });
 
-// Добавить комментарий
 app.post('/api/comment/:postId', auth, (req, res) => {
     const { content } = req.body;
     db.run('INSERT INTO comments (user_id, post_id, content, created_at) VALUES (?, ?, ?, ?)',
         [req.session.userId, req.params.postId, content, Date.now()],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
+            db.run('UPDATE posts SET comments_count = comments_count + 1 WHERE id = ?', [req.params.postId]);
             db.get('SELECT c.*, u.username FROM comments c JOIN users u ON c.user_id = u.id WHERE c.id = ?',
                 [this.lastID], (err, comment) => {
                     res.json(comment);
@@ -216,14 +244,12 @@ app.post('/api/comment/:postId', auth, (req, res) => {
         });
 });
 
-// Получить список пользователей для чата
 app.get('/api/users', auth, (req, res) => {
     db.all('SELECT id, username, avatar FROM users WHERE id != ? LIMIT 50', [req.session.userId], (err, users) => {
         res.json(users);
     });
 });
 
-// Получить диалоги
 app.get('/api/conversations', auth, (req, res) => {
     const query = `
         SELECT DISTINCT 
@@ -246,7 +272,6 @@ app.get('/api/conversations', auth, (req, res) => {
         });
 });
 
-// Получить сообщения с пользователем
 app.get('/api/messages/:userId', auth, (req, res) => {
     db.all(`SELECT m.*, u.username 
             FROM messages m 
@@ -261,7 +286,6 @@ app.get('/api/messages/:userId', auth, (req, res) => {
         });
 });
 
-// Отправить сообщение
 app.post('/api/messages/:userId', auth, (req, res) => {
     const { content } = req.body;
     db.run('INSERT INTO messages (from_id, to_id, content, created_at) VALUES (?, ?, ?, ?)',
@@ -272,12 +296,10 @@ app.post('/api/messages/:userId', auth, (req, res) => {
         });
 });
 
-// Главная страница
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Запуск
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
