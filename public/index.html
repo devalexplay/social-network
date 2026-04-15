@@ -2,88 +2,571 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreedomNet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>FreedomNet — Instagram + Reddit Style</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000; color: #fff; }
-        .lang-switcher { position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1d9bf0; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        /* остальные стили как в предыдущей версии */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #262626;
+            min-height: 100vh;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                color: #eee;
+            }
+            .post-card, .create-post, .sidebar, .chat-panel {
+                background: rgba(30, 30, 46, 0.95) !important;
+                backdrop-filter: blur(10px);
+            }
+        }
+
+        /* App layout */
+        .app {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(0,0,0,0.1);
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin: 4px 0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(0,0,0,0.05);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            color: white;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        /* Stories row (Instagram style) */
+        .stories {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 16px;
+            margin-bottom: 24px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .story {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .story-ring {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045);
+            padding: 3px;
+        }
+
+        .story-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        /* Feed */
+        .feed-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Create post */
+        .create-post {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .create-post-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .post-input {
+            flex: 1;
+        }
+
+        .post-input textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: vertical;
+            font-size: 16px;
+            font-family: inherit;
+            background: transparent;
+        }
+
+        .post-actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .image-upload {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        .image-upload:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .publish-btn {
+            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .publish-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Post card */
+        .post-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            gap: 12px;
+        }
+
+        .post-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #8e8e8e;
+        }
+
+        .post-content {
+            padding: 0 16px 12px 16px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        /* Reddit-style voting */
+        .vote-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .vote-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .vote-btn:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .vote-btn.upvoted {
+            color: #ff4500;
+        }
+
+        .vote-btn.downvoted {
+            color: #7193ff;
+        }
+
+        .vote-score {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 20px;
+            padding: 12px 16px;
+        }
+
+        .stat-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #8e8e8e;
+            transition: 0.2s;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .stat-btn:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .stat-btn.liked {
+            color: #ed4956;
+        }
+
+        /* Comments */
+        .comments-section {
+            padding: 0 16px 16px 16px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .comment {
+            margin: 12px 0;
+            font-size: 13px;
+        }
+
+        .comment strong {
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .comment-input {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .comment-input input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+        }
+
+        /* Chat panel */
+        .chat-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 380px;
+            height: 100vh;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
+            border-left: 1px solid rgba(0,0,0,0.1);
+            transform: translateX(100%);
+            transition: 0.3s;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-panel.open {
+            transform: translateX(0);
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .message {
+            margin: 8px 0;
+            padding: 10px 14px;
+            border-radius: 18px;
+            max-width: 80%;
+            font-size: 14px;
+        }
+
+        .message.outgoing {
+            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.incoming {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .chat-input-area {
+            padding: 16px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 25px;
+            outline: none;
+        }
+
+        .chat-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 90;
+            transition: 0.2s;
+            color: white;
+            font-size: 24px;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        /* Auth */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .auth-card input {
+            width: 100%;
+            padding: 12px 16px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .auth-card button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            z-index: 110;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; }
+            .sidebar span:not(.logo) { display: none; }
+            .main-content { margin-left: 70px; }
+            .chat-panel { width: 100%; }
+        }
     </style>
 </head>
 <body>
 <div id="root"></div>
+
 <script>
-    // Language translations
+    // ========== ЯЗЫКИ ==========
     const translations = {
         en: {
-            appName: 'FreedomNet',
-            feed: 'Feed',
-            profile: 'Profile',
-            logout: 'Logout',
-            whatsHappening: 'What\'s happening?',
-            post: 'Post',
-            login: 'Login',
-            register: 'Register',
-            username: 'Username',
-            password: 'Password',
-            or: 'or',
-            back: 'Back',
-            messages: 'Messages',
-            main: 'Main',
-            joined: 'Joined',
-            publish: 'Publish',
-            comment: 'Comment',
-            likes: 'Likes',
-            comments: 'Comments',
-            loginSuccess: 'Login successful!',
-            registerSuccess: 'Registration successful! Please login.',
-            error: 'Error'
+            appName: 'FreedomNet', feed: 'Feed', profile: 'Profile', logout: 'Logout',
+            whatsHappening: "What's happening?", publish: 'Publish', login: 'Login',
+            register: 'Register', username: 'Username', email: 'Email', password: 'Password',
+            or: 'or', back: 'Back', messages: 'Messages', main: 'Home', joined: 'Joined',
+            comment: 'Comment', likes: 'Likes', comments: 'Comments', upvote: 'Upvote',
+            downvote: 'Downvote', stories: 'Stories', registerSuccess: 'Registration successful! Please login.',
+            emailInvalid: 'Invalid email format', usernameInvalid: 'Username must be 3-20 chars (letters, numbers, underscore)',
+            usernameTaken: 'Username or email already taken', error: 'Error'
         },
         ru: {
-            appName: 'FreedomNet',
-            feed: 'Лента',
-            profile: 'Профиль',
-            logout: 'Выйти',
-            whatsHappening: 'Что происходит?',
-            post: 'Опубликовать',
-            login: 'Войти',
-            register: 'Зарегистрироваться',
-            username: 'Имя пользователя',
-            password: 'Пароль',
-            or: 'или',
-            back: 'Назад',
-            messages: 'Сообщения',
-            main: 'Главная',
-            joined: 'Присоединился',
-            publish: 'Опубликовать',
-            comment: 'Комментарий',
-            likes: 'Нравится',
-            comments: 'Комментарии',
-            loginSuccess: 'Вход выполнен!',
-            registerSuccess: 'Регистрация успешна! Войдите.',
-            error: 'Ошибка'
+            appName: 'FreedomNet', feed: 'Лента', profile: 'Профиль', logout: 'Выйти',
+            whatsHappening: 'Что нового?', publish: 'Опубликовать', login: 'Войти',
+            register: 'Регистрация', username: 'Имя пользователя', email: 'Email', password: 'Пароль',
+            or: 'или', back: 'Назад', messages: 'Сообщения', main: 'Главная', joined: 'Присоединился',
+            comment: 'Комментарий', likes: 'Нравится', comments: 'Комментарии', upvote: 'За',
+            downvote: 'Против', stories: 'Истории', registerSuccess: 'Регистрация успешна! Войдите.',
+            emailInvalid: 'Неверный формат email', usernameInvalid: 'Имя 3-20 букв, цифр, _',
+            usernameTaken: 'Имя или email уже заняты', error: 'Ошибка'
         }
     };
     
     let currentLang = localStorage.getItem('language') || 'en';
-    
-    function t(key) {
-        return translations[currentLang][key] || key;
-    }
-    
-    function setLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem('language', lang);
-        render(); // перерисовываем интерфейс
-    }
-    
-    // Добавляем переключатель в интерфейс
+    function t(key) { return translations[currentLang][key] || key; }
+    function setLanguage(lang) { currentLang = lang; localStorage.setItem('language', lang); render(); }
     function renderLangSwitcher() {
         return `<div class="lang-switcher" onclick="setLanguage(currentLang === 'en' ? 'ru' : 'en')">${currentLang === 'en' ? '🇬🇧 EN' : '🇷🇺 RU'}</div>`;
     }
     
-    // Обёртка для api
+    // ========== API ==========
     async function api(url, options = {}) {
         const res = await fetch(url, { ...options, credentials: 'include' });
         if (!res.ok) throw new Error(await res.text());
@@ -96,7 +579,9 @@
     let conversations = [];
     let currentChatUser = null;
     let pendingImage = null;
+    let postVotes = {};
     
+    // ========== RENDER ==========
     async function render() {
         if (!currentUser) {
             await renderAuth();
@@ -111,9 +596,9 @@
             ${renderLangSwitcher()}
             <div class="auth-overlay">
                 <div class="auth-card">
-                    <h2 style="margin-bottom:20px;">${t('appName')}</h2>
+                    <h2 style="margin-bottom:20px; text-align:center;">${t('appName')}</h2>
                     <div id="authForm">
-                        <input type="text" id="loginUsername" placeholder="${t('username')}">
+                        <input type="text" id="loginInput" placeholder="${t('username')} / ${t('email')}">
                         <input type="password" id="loginPassword" placeholder="${t('password')}">
                         <button onclick="login()">${t('login')}</button>
                         <p style="margin:15px 0; text-align:center;">${t('or')}</p>
@@ -124,34 +609,61 @@
         `;
     }
     
-    window.login = async () => {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-        try {
-            await api('/api/login', { method: 'POST', body: JSON.stringify({ username, password }), headers: { 'Content-Type': 'application/json' } });
-            const me = await api('/api/me');
-            currentUser = me.user;
-            await loadFeed();
-            render();
-        } catch(e) { alert(t('error')); }
-    };
-    
     window.showRegister = () => {
         document.getElementById('authForm').innerHTML = `
-            <input type="text" id="regUsername" placeholder="${t('username')}">
+            <input type="text" id="regUsername" placeholder="${t('username')}" maxlength="20">
+            <input type="email" id="regEmail" placeholder="${t('email')}">
             <input type="password" id="regPassword" placeholder="${t('password')}">
             <button onclick="register()">${t('register')}</button>
-            <button onclick="renderAuth()" style="background:#2f3336; margin-top:10px;">${t('back')}</button>
+            <button onclick="renderAuth()" style="background:#ccc; color:#333; margin-top:10px;">${t('back')}</button>
         `;
     };
     
     window.register = async () => {
-        const username = document.getElementById('regUsername').value;
+        const username = document.getElementById('regUsername').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
+        
+        if (!username.match(/^[a-zA-Z0-9_]{3,20}$/)) {
+            alert(t('usernameInvalid'));
+            return;
+        }
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            alert(t('emailInvalid'));
+            return;
+        }
+        if (password.length < 4) {
+            alert('Password must be at least 4 characters');
+            return;
+        }
+        
         try {
-            await api('/api/register', { method: 'POST', body: JSON.stringify({ username, password }), headers: { 'Content-Type': 'application/json' } });
+            await api('/api/register', {
+                method: 'POST',
+                body: JSON.stringify({ username, email, password }),
+                headers: { 'Content-Type': 'application/json' }
+            });
             alert(t('registerSuccess'));
             renderAuth();
+        } catch(e) {
+            alert(t('usernameTaken'));
+        }
+    };
+    
+    window.login = async () => {
+        const login = document.getElementById('loginInput').value;
+        const password = document.getElementById('loginPassword').value;
+        try {
+            await api('/api/login', {
+                method: 'POST',
+                body: JSON.stringify({ login, password }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const me = await api('/api/me');
+            currentUser = me.user;
+            await loadFeed();
+            await loadConversations();
+            render();
         } catch(e) { alert(t('error')); }
     };
     
@@ -171,41 +683,40 @@
             ${renderLangSwitcher()}
             <div class="app">
                 <div class="sidebar">
-                    <div class="logo">${t('appName')}</div>
+                    <div class="logo">✨ ${t('appName')}</div>
                     <div class="nav-item ${currentView === 'feed' ? 'active' : ''}" onclick="setView('feed')">
-                        <span>🏠</span> <span class="nav-text">${t('feed')}</span>
+                        <span>🏠</span> <span>${t('feed')}</span>
                     </div>
                     <div class="nav-item ${currentView === 'profile' ? 'active' : ''}" onclick="setView('profile')">
-                        <span>👤</span> <span class="nav-text">${t('profile')}</span>
+                        <span>👤</span> <span>${t('profile')}</span>
                     </div>
                     <div class="nav-item" onclick="logout()">
-                        <span>🚪</span> <span class="nav-text">${t('logout')}</span>
+                        <span>🚪</span> <span>${t('logout')}</span>
                     </div>
                 </div>
                 <div class="main-content">
-                    <div class="header">${currentView === 'feed' ? t('main') : t('profile')}</div>
+                    <div class="stories">
+                        <div class="story"><div class="story-ring"><div class="story-img">📸</div></div><div>${t('stories')}</div></div>
+                        <div class="story"><div class="story-ring"><div class="story-img">🎨</div></div><div>Art</div></div>
+                        <div class="story"><div class="story-ring"><div class="story-img">💡</div></div><div>Ideas</div></div>
+                    </div>
                     ${currentView === 'feed' ? renderFeed() : renderProfile()}
                 </div>
                 <div class="chat-toggle" onclick="toggleChat()">💬</div>
                 <div class="chat-panel" id="chatPanel">
-                    <div class="chat-header">
-                        <span>${t('messages')}</span>
-                        <span onclick="toggleChat()" style="cursor:pointer;">✕</span>
-                    </div>
+                    <div class="chat-header"><span>${t('messages')}</span><span onclick="toggleChat()" style="cursor:pointer;">✕</span></div>
                     <div id="chatUsersList" style="padding:16px; overflow-y:auto;">
-                        ${conversations.map(c => `
-                            <div style="padding:12px; cursor:pointer; border-bottom:1px solid #2f3336;" onclick="openChat(${c.other_id})">
-                                <strong>${escapeHtml(c.username)}</strong>
-                                <div style="font-size:12px; color:#71767b;">${escapeHtml(c.last_message || '')}</div>
-                            </div>
-                        `).join('')}
+                        ${conversations.map(c => `<div style="padding:12px; cursor:pointer; border-bottom:1px solid rgba(0,0,0,0.1);" onclick="openChat(${c.other_id})">
+                            <strong>${escapeHtml(c.username)}</strong>
+                            <div style="font-size:12px; color:#8e8e8e;">${escapeHtml(c.last_message || '')}</div>
+                        </div>`).join('')}
                     </div>
                     <div id="chatMessagesArea" style="display:none; flex-direction:column; height:100%;">
                         <div class="chat-header" id="chatHeader"></div>
                         <div class="chat-messages" id="chatMessages"></div>
-                        <div class="chat-input">
-                            <input type="text" id="chatInput" placeholder="${t('message') || 'Message...'}">
-                            <button onclick="sendChatMessage()" style="background:#1d9bf0; border:none; border-radius:9999px; padding:8px 16px;">→</button>
+                        <div class="chat-input-area">
+                            <input type="text" id="chatInput" placeholder="Message...">
+                            <button onclick="sendChatMessage()" style="background:linear-gradient(135deg,#833ab4,#fd1d1d); border:none; border-radius:25px; padding:8px 20px; color:white;">→</button>
                         </div>
                     </div>
                 </div>
@@ -218,43 +729,47 @@
         return `
             <div class="feed-container">
                 <div class="create-post">
-                    <div class="avatar"></div>
-                    <div class="post-input-area">
-                        <textarea id="postContent" placeholder="${t('whatsHappening')}"></textarea>
-                        <div id="imagePreview" style="margin-top:8px;"></div>
-                        <div class="post-actions-bar">
-                            <label class="image-upload">🖼️ <input type="file" id="postImage" accept="image/*" style="display:none;"></label>
-                            <button class="publish-btn" onclick="publishPost()">${t('publish')}</button>
+                    <div class="create-post-header">
+                        <div class="avatar">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>
+                        <div class="post-input">
+                            <textarea id="postContent" rows="2" placeholder="${t('whatsHappening')}"></textarea>
+                            <div id="imagePreview" style="margin-top:8px;"></div>
+                            <div class="post-actions-bar">
+                                <label class="image-upload">📷 <input type="file" id="postImage" accept="image/*" style="display:none;"></label>
+                                <button class="publish-btn" onclick="publishPost()">${t('publish')}</button>
+                            </div>
                         </div>
                     </div>
                 </div>
                 ${feed.map(post => `
-                    <div class="post" data-post-id="${post.id}">
+                    <div class="post-card" data-post-id="${post.id}">
                         <div class="post-header">
                             <div class="post-avatar">${(post.username || 'U')[0].toUpperCase()}</div>
-                            <div class="post-body">
-                                <div class="post-user">
-                                    ${escapeHtml(post.username)}
-                                    <span class="post-username">@${escapeHtml(post.username)}</span>
-                                    <span class="post-time">${new Date(post.created_at).toLocaleString()}</span>
-                                </div>
-                                <div class="post-content">${escapeHtml(post.content || '')}</div>
-                                ${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open('${post.image}')">` : ''}
-                                <div class="post-stats">
-                                    <button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
-                                        ❤️ ${post.likes_count || 0}
-                                    </button>
-                                    <button class="stat-btn" onclick="toggleComments(${post.id})">
-                                        💬 ${post.comments?.length || 0}
-                                    </button>
-                                </div>
-                                <div id="comments-${post.id}" style="display:none;" class="comments-section">
-                                    ${(post.comments || []).map(c => `<div class="comment"><strong>${escapeHtml(c.username)}</strong> ${escapeHtml(c.content)}</div>`).join('')}
-                                    <div class="comment-input">
-                                        <input type="text" id="commentInput-${post.id}" placeholder="${t('comment')}...">
-                                        <button onclick="addComment(${post.id})">→</button>
-                                    </div>
-                                </div>
+                            <div class="post-user-info">
+                                <div class="post-username">${escapeHtml(post.username)}</div>
+                                <div class="post-time">${new Date(post.created_at).toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="post-content">${escapeHtml(post.content || '')}</div>
+                        ${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open('${post.image}')">` : ''}
+                        <div class="vote-section">
+                            <button class="vote-btn ${post.user_vote === 1 ? 'upvoted' : ''}" onclick="vote(${post.id}, 1)">▲</button>
+                            <span class="vote-score">${post.likes_count || 0}</span>
+                            <button class="vote-btn ${post.user_vote === -1 ? 'downvoted' : ''}" onclick="vote(${post.id}, -1)">▼</button>
+                        </div>
+                        <div class="post-stats">
+                            <button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                                ❤️ ${post.likes_count || 0}
+                            </button>
+                            <button class="stat-btn" onclick="toggleComments(${post.id})">
+                                💬 ${post.comments?.length || 0}
+                            </button>
+                        </div>
+                        <div id="comments-${post.id}" style="display:none;" class="comments-section">
+                            ${(post.comments || []).map(c => `<div class="comment"><strong>${escapeHtml(c.username)}</strong> ${escapeHtml(c.content)}</div>`).join('')}
+                            <div class="comment-input">
+                                <input type="text" id="commentInput-${post.id}" placeholder="${t('comment')}...">
+                                <button onclick="addComment(${post.id})">→</button>
                             </div>
                         </div>
                     </div>
@@ -264,10 +779,11 @@
     }
     
     function renderProfile() {
-        return `<div style="max-width:600px; margin:0 auto; padding:20px; text-align:center;">
-            <div class="avatar" style="margin:0 auto 20px;"></div>
+        return `<div style="max-width:600px; margin:0 auto; background:rgba(255,255,255,0.95); border-radius:20px; padding:32px; text-align:center;">
+            <div class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 20px;">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>
             <h2>${escapeHtml(currentUser?.username)}</h2>
-            <p style="color:#71767b;">${t('joined')}: ${new Date().toLocaleDateString()}</p>
+            <p style="color:#8e8e8e;">${escapeHtml(currentUser?.email || '')}</p>
+            <p style="margin-top:16px;">${t('joined')}: ${new Date().toLocaleDateString()}</p>
         </div>`;
     }
     
@@ -301,6 +817,12 @@
         render();
     };
     
+    window.vote = async (postId, value) => {
+        await api(`/api/vote/${postId}`, { method: 'POST', body: JSON.stringify({ value }), headers: { 'Content-Type': 'application/json' } });
+        await loadFeed();
+        render();
+    };
+    
     window.toggleLike = async (postId) => {
         const post = feed.find(p => p.id === postId);
         if (post.user_liked) {
@@ -326,28 +848,17 @@
         render();
     };
     
-    window.setView = (view) => {
-        currentView = view;
-        render();
-    };
-    
-    window.toggleChat = () => {
-        const panel = document.getElementById('chatPanel');
-        panel.classList.toggle('open');
-    };
+    window.setView = (view) => { currentView = view; render(); };
+    window.toggleChat = () => { document.getElementById('chatPanel')?.classList.toggle('open'); };
     
     window.openChat = async (userId) => {
         currentChatUser = userId;
         const messages = await api(`/api/messages/${userId}`);
         document.getElementById('chatUsersList').style.display = 'none';
         document.getElementById('chatMessagesArea').style.display = 'flex';
-        document.getElementById('chatHeader').innerHTML = `<span>${t('messages')}</span><span onclick="closeChat()" style="cursor:pointer;">✕</span>`;
+        document.getElementById('chatHeader').innerHTML = `<span>💬 Chat</span><span onclick="closeChat()" style="cursor:pointer;">✕</span>`;
         const container = document.getElementById('chatMessages');
-        container.innerHTML = messages.map(m => `
-            <div class="message ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
-                ${escapeHtml(m.content)}
-            </div>
-        `).join('');
+        container.innerHTML = messages.map(m => `<div class="message ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">${escapeHtml(m.content)}</div>`).join('');
         container.scrollTop = container.scrollHeight;
     };
     
@@ -379,11 +890,13 @@
     
     // Init
     (async () => {
-        const me = await api('/api/me');
-        if (me.user) {
-            currentUser = me.user;
-            await loadFeed();
-        }
+        try {
+            const me = await api('/api/me');
+            if (me.user) {
+                currentUser = me.user;
+                await loadFeed();
+            }
+        } catch(e) {}
         render();
     })();
 </script>
