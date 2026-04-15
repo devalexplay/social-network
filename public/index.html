@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>FreedomNet</title>
     <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231d9bf0'/%3E%3C/svg%3E">
-    <style id="theme-style">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --bg-primary: #000000;
             --bg-secondary: #000000;
@@ -19,13 +25,6 @@
         body.dark-gray { --bg-primary: #121212; --bg-secondary: #1a1a1a; --text-primary: #ffffff; --border-color: #2a2a2a; --hover-bg: #1e1e1e; }
         body.gray { --bg-primary: #1a1a1a; --bg-secondary: #222222; --text-primary: #ffffff; --border-color: #333333; --hover-bg: #262626; }
         body.light { --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --text-primary: #000000; --text-secondary: #536471; --border-color: #e1e8ed; --hover-bg: #f0f0f0; }
-    </style>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -466,22 +465,21 @@
         }
 
         .search-btn {
-            background: var(--accent);
+            background: transparent;
             border: none;
             width: 44px;
             height: 44px;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: opacity 0.15s ease;
-            color: white;
-            font-size: 18px;
+            color: var(--text-primary);
+            font-size: 20px;
         }
 
         .search-btn:hover {
-            opacity: 0.9;
+            opacity: 0.7;
         }
 
         .search-result {
@@ -634,7 +632,6 @@
             border-color: var(--accent);
         }
 
-        /* Custom Modal */
         .custom-modal {
             position: fixed;
             top: 0;
@@ -693,7 +690,6 @@
             opacity: 0.85;
         }
 
-        /* Advanced Crop Modal */
         .crop-modal {
             position: fixed;
             top: 0;
@@ -793,15 +789,77 @@
             color: var(--accent);
         }
 
-        .theme-option {
-            padding: 12px 16px;
-            cursor: pointer;
-            transition: background 0.15s ease;
-            border-radius: 9999px;
+        /* Puzzle CAPTCHA */
+        .puzzle-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            text-align: center;
         }
 
-        .theme-option:hover {
+        .puzzle-question {
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .puzzle-options {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .puzzle-option {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .puzzle-option:hover {
             background: var(--hover-bg);
+            border-color: var(--accent);
+        }
+
+        .puzzle-option.correct {
+            background: #00a86b;
+            border-color: #00a86b;
+            color: white;
+        }
+
+        .puzzle-option.wrong {
+            background: #f4212e;
+            border-color: #f4212e;
+            color: white;
+        }
+
+        .post-privacy {
+            margin-top: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .privacy-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            transition: background 0.15s ease;
+        }
+
+        .privacy-option:hover {
+            background: var(--hover-bg);
+        }
+
+        .privacy-option.active {
+            color: var(--accent);
         }
 
         .user-preview {
@@ -868,10 +926,48 @@
     let cropTranslateX = 0;
     let cropTranslateY = 0;
     let isDragging = false;
-    let dragStartX = 0, dragStartY = 0;
+    let pendingPostPrivacy = 'public';
+    let puzzleVerified = false;
+    let currentPuzzle = null;
 
     const tabs = ['Home', 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'More'];
     const tabKeys = ['home', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'more'];
+
+    const puzzles = [
+        { question: "What is 5 + 3?", answer: "8" },
+        { question: "What is 12 - 7?", answer: "5" },
+        { question: "What is 4 x 3?", answer: "12" },
+        { question: "What is 15 ÷ 3?", answer: "5" },
+        { question: "What is 9 + 6?", answer: "15" },
+        { question: "What is 20 - 8?", answer: "12" },
+        { question: "Select the color of the sky on a clear day", answer: "Blue" },
+        { question: "What is 7 x 2?", answer: "14" },
+        { question: "What is 18 ÷ 2?", answer: "9" },
+        { question: "Select the shape with 4 equal sides", answer: "Square" }
+    ];
+
+    const puzzleOptions = {
+        "Select the color of the sky on a clear day": ["Red", "Blue", "Green", "Yellow"],
+        "Select the shape with 4 equal sides": ["Circle", "Triangle", "Square", "Rectangle"]
+    };
+
+    function generatePuzzle() {
+        const randomIndex = Math.floor(Math.random() * puzzles.length);
+        currentPuzzle = { ...puzzles[randomIndex] };
+        if (puzzleOptions[currentPuzzle.question]) {
+            currentPuzzle.options = puzzleOptions[currentPuzzle.question];
+        } else {
+            const fakeOptions = [
+                String(parseInt(currentPuzzle.answer) + 1),
+                String(parseInt(currentPuzzle.answer) - 1),
+                currentPuzzle.answer,
+                String(parseInt(currentPuzzle.answer) + 2)
+            ];
+            currentPuzzle.options = fakeOptions.sort(() => Math.random() - 0.5);
+        }
+        puzzleVerified = false;
+        return currentPuzzle;
+    }
 
     function showConfirmDialog(message, onYes) {
         const existing = document.querySelector('.custom-modal');
@@ -1112,6 +1208,11 @@
     function setTheme(theme) {
         document.body.className = theme;
         localStorage.setItem('theme', theme);
+        const selectedText = document.getElementById('selectedThemeText');
+        if (selectedText) {
+            const names = { dark: 'Dark (Black)', 'dark-gray': 'Dark Gray', gray: 'Gray', light: 'Light' };
+            selectedText.innerText = names[theme];
+        }
         renderMain();
     }
 
@@ -1144,17 +1245,58 @@
     }
 
     window.showRegister = () => {
+        const puzzle = generatePuzzle();
         document.getElementById('authForm').innerHTML = `
             <input type="text" id="regUsername" placeholder="Username" maxlength="20" style="width:100%; padding:12px; margin:10px 0; background:#000000; border:1px solid #2f3336; border-radius:8px; color:#ffffff;">
             <input type="email" id="regEmail" placeholder="Email" style="width:100%; padding:12px; margin:10px 0; background:#000000; border:1px solid #2f3336; border-radius:8px; color:#ffffff;">
             <input type="password" id="regPassword" placeholder="Password" style="width:100%; padding:12px; margin:10px 0; background:#000000; border:1px solid #2f3336; border-radius:8px; color:#ffffff;">
-            <button onclick="register()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:9999px;">Register</button>
+            
+            <div class="puzzle-container" id="puzzleContainer">
+                <div class="puzzle-question">🔒 Verify you're human: ${puzzle.question}</div>
+                <div class="puzzle-options" id="puzzleOptions">
+                    ${puzzle.options.map(opt => `<div class="puzzle-option" data-value="${opt}">${opt}</div>`).join('')}
+                </div>
+                <div id="puzzleMessage" style="margin-top:12px; font-size:12px;"></div>
+            </div>
+            
+            <button id="registerBtn" disabled style="width:100%; padding:12px; background:#2f3336; color:white; border:none; border-radius:9999px; margin-top:10px; opacity:0.5;">Complete Verification First</button>
             <button onclick="renderAuth()" style="width:100%; padding:12px; background:#2f3336; margin-top:10px; border:none; border-radius:9999px; color:white;">Back</button>
             <div id="registerMessage"></div>
         `;
+        
+        document.querySelectorAll('.puzzle-option').forEach(el => {
+            el.addEventListener('click', () => {
+                const selected = el.dataset.value;
+                if (selected === puzzle.answer) {
+                    document.querySelectorAll('.puzzle-option').forEach(opt => opt.classList.remove('correct', 'wrong'));
+                    el.classList.add('correct');
+                    document.getElementById('puzzleMessage').innerHTML = '<span style="color:#00a86b;">✓ Verified! You can now register.</span>';
+                    puzzleVerified = true;
+                    const btn = document.getElementById('registerBtn');
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.background = 'var(--accent)';
+                    btn.innerText = 'Register';
+                    btn.onclick = () => register();
+                } else {
+                    document.querySelectorAll('.puzzle-option').forEach(opt => opt.classList.remove('correct', 'wrong'));
+                    el.classList.add('wrong');
+                    document.getElementById('puzzleMessage').innerHTML = '<span style="color:#f4212e;">✗ Wrong answer. Try again.</span>';
+                    setTimeout(() => {
+                        el.classList.remove('wrong');
+                        document.getElementById('puzzleMessage').innerHTML = '';
+                    }, 1000);
+                }
+            });
+        });
     };
 
     window.register = async () => {
+        if (!puzzleVerified) {
+            showMessage('registerMessage', 'Please complete the verification first', true);
+            return;
+        }
+        
         const username = document.getElementById('regUsername').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
@@ -1296,6 +1438,10 @@
                         <div id="imagePreview" style="margin-top:8px;"></div>
                         <div class="post-actions-bar">
                             <label class="image-upload">📷 <input type="file" id="postImage" accept="image/*" style="display:none;"></label>
+                            <div class="post-privacy">
+                                <div class="privacy-option ${pendingPostPrivacy === 'public' ? 'active' : ''}" onclick="setPrivacy('public')">🌍 Public</div>
+                                <div class="privacy-option ${pendingPostPrivacy === 'followers' ? 'active' : ''}" onclick="setPrivacy('followers')">🔒 Followers only</div>
+                            </div>
                             <button class="publish-btn" onclick="publishPost()">Post</button>
                         </div>
                     </div>
@@ -1303,6 +1449,11 @@
                 ${feed.map(post => renderPostCard(post)).join('')}
             </div>
         `;
+    }
+
+    function setPrivacy(privacy) {
+        pendingPostPrivacy = privacy;
+        renderHome();
     }
 
     function renderProfilePage() {
@@ -1400,6 +1551,10 @@
                 <div class="modal-content" style="background:#000000; border:1px solid #2f3336; border-radius:28px; padding:24px; width:500px; max-width:90%;">
                     <h3 style="margin-bottom:16px;">Create post</h3>
                     <textarea id="modalPostContent" rows="3" style="width:100%; background:#000000; border:1px solid #2f3336; border-radius:12px; padding:12px; color:white;"></textarea>
+                    <div class="post-privacy" style="margin:12px 0;">
+                        <div class="privacy-option ${pendingPostPrivacy === 'public' ? 'active' : ''}" onclick="setPrivacy('public')">🌍 Public</div>
+                        <div class="privacy-option ${pendingPostPrivacy === 'followers' ? 'active' : ''}" onclick="setPrivacy('followers')">🔒 Followers only</div>
+                    </div>
                     <input type="file" id="modalPostImage" accept="image/*" style="margin:12px 0;">
                     <div id="modalImagePreview"></div>
                     <div style="display:flex; gap:12px;">
@@ -1419,17 +1574,19 @@
         setTimeout(() => {
             const select = document.getElementById('themeSelect');
             if (select) {
-                select.onclick = () => {
+                select.onclick = (e) => {
+                    e.stopPropagation();
                     const dropdown = document.getElementById('themeDropdown');
                     if (dropdown) {
-                        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                        const isOpen = dropdown.style.display === 'block';
+                        dropdown.style.display = isOpen ? 'none' : 'block';
+                        select.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲';
                     }
                 };
-                document.addEventListener('click', (e) => {
-                    if (!select.contains(e.target)) {
-                        const dropdown = document.getElementById('themeDropdown');
-                        if (dropdown) dropdown.style.display = 'none';
-                    }
+                document.addEventListener('click', () => {
+                    const dropdown = document.getElementById('themeDropdown');
+                    if (dropdown) dropdown.style.display = 'none';
+                    if (select) select.querySelector('.arrow').innerHTML = '▼';
                 });
             }
         }, 10);
@@ -1440,7 +1597,7 @@
                     <h3 style="text-align:left; margin-bottom:20px;">Theme</h3>
                     <div class="custom-select" id="themeSelect">
                         <span id="selectedThemeText">${themeNames[savedTheme]}</span>
-                        <span>▼</span>
+                        <span class="arrow">▼</span>
                         <div class="custom-select-dropdown" id="themeDropdown" style="display:none;">
                             <div class="custom-select-option ${savedTheme === 'dark' ? 'selected' : ''}" onclick="setTheme('dark'); document.getElementById('selectedThemeText').innerText='Dark (Black)';">Dark (Black)</div>
                             <div class="custom-select-option ${savedTheme === 'dark-gray' ? 'selected' : ''}" onclick="setTheme('dark-gray'); document.getElementById('selectedThemeText').innerText='Dark Gray';">Dark Gray</div>
@@ -1463,6 +1620,7 @@
         const file = document.getElementById('modalPostImage')?.files[0];
         const formData = new FormData();
         formData.append('content', content);
+        formData.append('privacy', pendingPostPrivacy);
         if (file) formData.append('image', file);
         await api('/api/posts', { method: 'POST', body: formData });
         switchTab('home');
@@ -1607,6 +1765,7 @@
         const content = document.getElementById('postContent')?.value || '';
         const formData = new FormData();
         formData.append('content', content);
+        formData.append('privacy', pendingPostPrivacy);
         if (pendingImage) {
             const blob = await fetch(pendingImage).then(r => r.blob());
             formData.append('image', blob, 'photo.jpg');
