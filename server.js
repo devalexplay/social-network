@@ -5,6 +5,7 @@ const session = require('express-session');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 
 const app = express();
 
@@ -89,6 +90,77 @@ function auth(req, res, next) {
     next();
 }
 
+// ============ GOOGLE OAUTH ============
+const GOOGLE_CLIENT_ID = '198098139640-l799uefca0mqke34g69lknedbh6rrog1.apps.googleusercontent.com';
+const GOOGLE_CLIENT_SECRET = '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';
+
+app.get('/auth/google', (req, res) => {
+    const redirectUri = req.headers.host === 'localhost:3000' 
+        ? 'http://localhost:3000/auth/google/callback'
+        : 'https://me-3tbh.onrender.com/auth/google/callback';
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile`;
+    res.redirect(url);
+});
+
+app.get('/auth/google/callback', async (req, res) => {
+    const { code } = req.query;
+    const redirectUri = req.headers.host === 'localhost:3000'
+        ? 'http://localhost:3000/auth/google/callback'
+        : 'https://me-3tbh.onrender.com/auth/google/callback';
+    
+    try {
+        const tokenRes = await axios.post('https://oauth2.googleapis.com/token', null, {
+            params: {
+                code,
+                client_id: GOOGLE_CLIENT_ID,
+                client_secret: GOOGLE_CLIENT_SECRET,
+                redirect_uri: redirectUri,
+                grant_type: 'authorization_code'
+            }
+        });
+        
+        const { access_token } = tokenRes.data;
+        const userRes = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+            headers: { Authorization: `Bearer ${access_token}` }
+        });
+        
+        const { email, name, picture } = userRes.data;
+        let username = name.replace(/\s/g, '').toLowerCase();
+        
+        db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+            if (user) {
+                req.session.userId = user.id;
+                req.session.username = user.username;
+                res.redirect('/');
+            } else {
+                const hashed = await bcrypt.hash(Math.random().toString(36), 10);
+                db.run('INSERT INTO users (username, email, password, avatar, created_at) VALUES (?, ?, ?, ?, ?)',
+                    [username, email, hashed, picture, Date.now()],
+                    function(err) {
+                        if (err && err.message.includes('UNIQUE')) {
+                            const fallbackUsername = username + Math.floor(Math.random() * 1000);
+                            db.run('INSERT INTO users (username, email, password, avatar, created_at) VALUES (?, ?, ?, ?, ?)',
+                                [fallbackUsername, email, hashed, picture, Date.now()],
+                                function(err) {
+                                    req.session.userId = this.lastID;
+                                    req.session.username = fallbackUsername;
+                                    res.redirect('/');
+                                });
+                        } else {
+                            req.session.userId = this.lastID;
+                            req.session.username = username;
+                            res.redirect('/');
+                        }
+                    });
+            }
+        });
+    } catch (error) {
+        console.error('Google auth error:', error);
+        res.redirect('/?error=auth_failed');
+    }
+});
+
+// ============ AUTH ROUTES ============
 app.post('/api/register', async (req, res) => {
     const { username, email, password } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
@@ -134,6 +206,7 @@ app.get('/api/me', (req, res) => {
     });
 });
 
+// ============ POSTS ============
 app.post('/api/posts', auth, upload.single('image'), (req, res) => {
     const { content } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : null;
@@ -168,6 +241,14 @@ app.get('/api/feed', auth, (req, res) => {
     });
 });
 
+app.delete('/api/posts/:postId', auth, (req, res) => {
+    db.run('DELETE FROM posts WHERE id = ? AND user_id = ?', [req.params.postId, req.session.userId], (err) => {
+        if (err) res.status(500).json({ error: err.message });
+        else res.json({ success: true });
+    });
+});
+
+// ============ LIKES ============
 app.post('/api/like/:postId', auth, (req, res) => {
     db.run('INSERT OR IGNORE INTO likes (user_id, post_id) VALUES (?, ?)',
         [req.session.userId, req.params.postId],
@@ -186,6 +267,7 @@ app.delete('/api/like/:postId', auth, (req, res) => {
         });
 });
 
+// ============ COMMENTS ============
 app.post('/api/comment/:postId', auth, (req, res) => {
     const { content } = req.body;
     db.run('INSERT INTO comments (user_id, post_id, content, created_at) VALUES (?, ?, ?, ?)',
@@ -199,12 +281,40 @@ app.post('/api/comment/:postId', auth, (req, res) => {
         });
 });
 
+// ============ USERS & SEARCH ============
 app.get('/api/users', auth, (req, res) => {
     db.all('SELECT id, username, avatar FROM users WHERE id != ? LIMIT 100', [req.session.userId], (err, users) => {
         res.json(users || []);
     });
 });
 
+app.get('/api/user/:username', (req, res) => {
+    db.get('SELECT id, username, avatar, bio, created_at FROM users WHERE username = ?', [req.params.username], (err, user) => {
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json(user);
+    });
+});
+
+// ============ FOLLOWS ============
+app.get('/api/follows', auth, (req, res) => {
+    db.all('SELECT followee_id FROM follows WHERE follower_id = ?', [req.session.userId], (err, follows) => {
+        res.json(follows || []);
+    });
+});
+
+app.post('/api/follow/:userId', auth, (req, res) => {
+    db.run('INSERT OR IGNORE INTO follows (follower_id, followee_id) VALUES (?, ?)', [req.session.userId, req.params.userId], (err) => {
+        res.json({ success: !err });
+    });
+});
+
+app.delete('/api/follow/:userId', auth, (req, res) => {
+    db.run('DELETE FROM follows WHERE follower_id = ? AND followee_id = ?', [req.session.userId, req.params.userId], (err) => {
+        res.json({ success: !err });
+    });
+});
+
+// ============ MESSAGES ============
 app.get('/api/conversations', auth, (req, res) => {
     const query = `
         SELECT DISTINCT 
@@ -251,13 +361,7 @@ app.post('/api/messages/:userId', auth, (req, res) => {
         });
 });
 
-app.delete('/api/posts/:postId', auth, (req, res) => {
-    db.run('DELETE FROM posts WHERE id = ? AND user_id = ?', [req.params.postId, req.session.userId], (err) => {
-        if (err) res.status(500).json({ error: err.message });
-        else res.json({ success: true });
-    });
-});
-
+// ============ AVATAR ============
 app.post('/api/avatar', auth, upload.single('avatar'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file' });
     const avatarUrl = `/uploads/${req.file.filename}`;
@@ -267,36 +371,12 @@ app.post('/api/avatar', auth, upload.single('avatar'), (req, res) => {
     });
 });
 
-app.get('/api/user/:username', (req, res) => {
-    db.get('SELECT id, username, avatar, bio, created_at FROM users WHERE username = ?', [req.params.username], (err, user) => {
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        res.json(user);
-    });
-});
-
-app.get('/api/follows', auth, (req, res) => {
-    db.all('SELECT followee_id FROM follows WHERE follower_id = ?', [req.session.userId], (err, follows) => {
-        res.json(follows || []);
-    });
-});
-
-app.post('/api/follow/:userId', auth, (req, res) => {
-    db.run('INSERT OR IGNORE INTO follows (follower_id, followee_id) VALUES (?, ?)', [req.session.userId, req.params.userId], (err) => {
-        res.json({ success: !err });
-    });
-});
-
-app.delete('/api/follow/:userId', auth, (req, res) => {
-    db.run('DELETE FROM follows WHERE follower_id = ? AND followee_id = ?', [req.session.userId, req.params.userId], (err) => {
-        res.json({ success: !err });
-    });
-});
-
+// ============ FRONTEND ============
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
