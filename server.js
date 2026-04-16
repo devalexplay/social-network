@@ -8,11 +8,12 @@ const fs = require('fs');
 
 const app = express();
 
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+// ПУТЬ К ПОСТОЯННОМУ ДИСКУ RENDER
+const dataDir = process.env.DISK_PATH || path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+const uploadsDir = path.join(dataDir, 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 const dbPath = path.join(dataDir, 'social.db');
 const db = new sqlite3.Database(dbPath);
@@ -101,8 +102,8 @@ db.serialize(() => {
 });
 
 app.use(express.json());
+app.use('/uploads', express.static(uploadsDir));
 app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
 app.use(session({
     secret: 'freedomnet-secret-key-2024',
     resave: false,
@@ -497,5 +498,6 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📁 Database location: ${dbPath}`);
+    console.log(`📁 Data directory: ${dataDir}`);
+    console.log(`📁 Database path: ${dbPath}`);
 });
