@@ -70,6 +70,9 @@
         .stat-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; transition: color 0.2s ease; }
         .stat-btn:hover { color: var(--text-primary); background: transparent; }
         .stat-btn.liked { color: #f91880; }
+        .share-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; transition: color 0.2s ease; }
+        .share-btn:hover { color: var(--accent); background: transparent; }
+        .share-btn.active { color: var(--accent); }
         .delete-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 6px 12px; border-radius: 9999px; margin-left: auto; transition: color 0.2s ease; }
         .delete-btn:hover { color: #f4212e; background: transparent; }
         .comments-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); }
@@ -102,27 +105,52 @@
         .notification { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; transition: background 0.2s ease; }
         .notification:hover { background: var(--hover-bg); }
         .notification-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
-        .messages-container { display: flex; height: calc(100vh - 70px); }
-        .conversations-list { width: 350px; border-right: 1px solid var(--border-color); overflow-y: auto; }
+        .messages-container { display: flex; flex-direction: column; height: calc(100vh - 70px); }
+        .messages-search { padding: 16px; border-bottom: 1px solid var(--border-color); }
+        .messages-search-input { width: 100%; padding: 12px 20px; background: transparent; border: 1px solid var(--border-color); border-radius: 9999px; color: var(--text-primary); font-size: 16px; outline: none; }
+        .messages-search-input:focus { border-color: var(--accent); }
+        .messages-search-results { max-height: 200px; overflow-y: auto; border-bottom: 1px solid var(--border-color); }
+        .messages-search-result { padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s ease; }
+        .messages-search-result:hover { background: var(--hover-bg); }
+        .conversations-list { overflow-y: auto; max-height: 200px; border-bottom: 1px solid var(--border-color); }
         .conversation { padding: 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s ease; }
         .conversation:hover { background: var(--hover-bg); }
         .conversation-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
         .chat-area { flex: 1; display: flex; flex-direction: column; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
-        .message { max-width: 70%; padding: 10px 14px; border-radius: 18px; font-size: 14px; }
-        .message.outgoing { background: var(--accent); color: white; align-self: flex-end; }
-        .message.incoming { background: var(--border-color); align-self: flex-start; }
-        .chat-input-area { padding: 16px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; }
-        .chat-input-area input { flex: 1; background: transparent; border: 1px solid var(--border-color); border-radius: 9999px; padding: 12px 16px; color: var(--text-primary); outline: none; transition: all 0.2s ease; }
-        .chat-input-area input:focus { border-color: var(--accent); }
+        .chat-header { padding: 16px; border-bottom: 1px solid var(--border-color); font-weight: 700; display: flex; align-items: center; gap: 12px; }
+        .chat-back { cursor: pointer; font-size: 24px; color: var(--text-secondary); transition: color 0.2s ease; }
+        .chat-back:hover { color: var(--accent); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .message-wrapper { display: flex; flex-direction: column; max-width: 80%; }
+        .message-wrapper.outgoing { align-self: flex-end; }
+        .message-wrapper.incoming { align-self: flex-start; }
+        .message-bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; word-wrap: break-word; }
+        .message-bubble.outgoing { background: var(--accent); color: white; }
+        .message-bubble.incoming { background: var(--border-color); }
+        .message-image { max-width: 200px; max-height: 200px; border-radius: 12px; margin-top: 8px; cursor: pointer; }
+        .message-reactions { display: flex; gap: 6px; margin-top: 6px; font-size: 12px; }
+        .reaction-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 12px; transition: background 0.2s ease; }
+        .reaction-btn:hover { background: var(--hover-bg); }
+        .reaction-badge { background: var(--bg-secondary); border-radius: 12px; padding: 2px 6px; font-size: 12px; cursor: pointer; transition: background 0.2s ease; }
+        .reaction-badge:hover { background: var(--hover-bg); }
+        .chat-input-area { padding: 16px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; }
+        .chat-input { flex: 1; background: transparent; border: 1px solid var(--border-color); border-radius: 9999px; padding: 12px 16px; color: var(--text-primary); outline: none; }
+        .chat-input:focus { border-color: var(--accent); }
+        .chat-image-label { cursor: pointer; font-size: 20px; color: var(--accent); transition: opacity 0.2s ease; }
+        .chat-image-label:hover { opacity: 0.8; }
+        .chat-send-btn { background: var(--accent); border: none; border-radius: 9999px; padding: 8px 20px; color: white; cursor: pointer; transition: opacity 0.2s ease; }
+        .chat-send-btn:hover { opacity: 0.9; }
         .custom-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .custom-modal-content { background: #000000; border-radius: 28px; padding: 28px; width: 360px; text-align: center; border: 1px solid #2f3336; }
+        .custom-modal-content { background: #000000; border-radius: 28px; padding: 28px; width: 360px; text-align: center; border: 1px solid #2f3336; max-height: 80vh; overflow-y: auto; }
         .custom-modal-content p { margin-bottom: 20px; font-size: 18px; font-weight: 500; color: var(--text-primary); }
         .custom-modal-content input { width: 100%; padding: 12px; margin: 10px 0; background: #000000; border: 1px solid #2f3336; border-radius: 12px; color: white; outline: none; }
         .custom-modal-content input:focus { border-color: var(--accent); }
         .custom-modal-content textarea { width: 100%; padding: 12px; margin: 10px 0; background: #000000; border: 1px solid #2f3336; border-radius: 12px; color: white; outline: none; resize: vertical; font-family: inherit; }
         .custom-modal-content textarea:focus { border-color: var(--accent); }
         .custom-modal-content select { width: 100%; padding: 12px; margin: 10px 0; background: #000000; border: 1px solid #2f3336; border-radius: 12px; color: white; outline: none; }
+        .share-user-list { max-height: 300px; overflow-y: auto; margin: 16px 0; }
+        .share-user-item { padding: 12px; cursor: pointer; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.2s ease; }
+        .share-user-item:hover { background: var(--hover-bg); }
         .custom-modal-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
         .custom-modal-btn { padding: 10px 24px; border-radius: 9999px; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s ease; }
         .custom-modal-btn-yes { background: #f4212e; color: white; }
@@ -169,7 +197,7 @@
         ::-webkit-scrollbar-thumb { background: #2f3336; border-radius: 4px; transition: background 0.2s ease; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
         @media (max-width: 1000px) { .sidebar { width: 88px; } .sidebar .nav-text { display: none; } .main-content { margin-left: 88px; } }
-        @media (max-width: 640px) { .conversations-list { width: 100%; } .messages-container { flex-direction: column; } }
+        @media (max-width: 640px) { .conversations-list { max-height: 150px; } }
     </style>
 </head>
 <body>
@@ -194,9 +222,13 @@
     let cropTranslateY = 0;
     let isDragging = false;
     let unreadCount = 0;
+    let messagesSearchResults = [];
+    let currentChatMessages = [];
+    let messageReactions = {};
 
     const tabs = ['Home', 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'Feedback', 'More'];
     const tabKeys = ['home', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'feedback', 'more'];
+    const reactionsList = ['❤️', '😂', '😮', '😢', '😡', '👍'];
 
     const allowedDomains = ['gmail.com', 'mail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
@@ -294,6 +326,56 @@
             modal.remove();
             onYes();
         };
+        document.getElementById('confirmCancel').onclick = () => modal.remove();
+    }
+
+    function showShareModal(postId, postContent) {
+        const existing = document.querySelector('.custom-modal');
+        if (existing) existing.remove();
+        
+        const modal = document.createElement('div');
+        modal.className = 'custom-modal';
+        modal.innerHTML = `
+            <div class="custom-modal-content">
+                <p>Share post</p>
+                <div class="share-user-list" id="shareUserList">
+                    ${allUsers.map(u => `
+                        <div class="share-user-item" data-user-id="${u.id}" data-username="${u.username}">
+                            <img class="search-result-avatar" src="${u.avatar || ''}" onerror="this.style.display='none';">
+                            <div><strong>${escapeHtml(u.username)}</strong><div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="modalError" class="error-message" style="display:none;"></div>
+                <div class="custom-modal-buttons">
+                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        document.querySelectorAll('.share-user-item').forEach(el => {
+            el.addEventListener('click', async () => {
+                const toUserId = parseInt(el.dataset.userId);
+                try {
+                    await api('/api/share-post/' + postId, {
+                        method: 'POST',
+                        body: JSON.stringify({ toUserId }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const errorDiv = document.getElementById('modalError');
+                    errorDiv.style.color = '#1d9bf0';
+                    errorDiv.textContent = 'Post shared successfully!';
+                    errorDiv.style.display = 'block';
+                    setTimeout(() => modal.remove(), 1500);
+                } catch(e) {
+                    const errorDiv = document.getElementById('modalError');
+                    errorDiv.textContent = 'Error sharing post';
+                    errorDiv.style.display = 'block';
+                }
+            });
+        });
+        
         document.getElementById('confirmCancel').onclick = () => modal.remove();
     }
 
@@ -938,6 +1020,55 @@
         }
     }
 
+    async function searchMessagesUsers(query) {
+        if (!query.trim()) {
+            messagesSearchResults = [];
+            renderMain();
+            return;
+        }
+        try {
+            const users = await api('/api/users');
+            messagesSearchResults = users.filter(u => u.username.toLowerCase().includes(query.toLowerCase()));
+            renderMain();
+        } catch(e) {
+            messagesSearchResults = [];
+        }
+    }
+
+    async function openChat(userId, username) {
+        currentChatUser = { id: userId, username };
+        const messages = await api(`/api/messages/${userId}`);
+        currentChatMessages = messages;
+        
+        for (const msg of messages) {
+            const reactionsRes = await api(`/api/message-reactions/${msg.id}`);
+            messageReactions[msg.id] = reactionsRes;
+        }
+        
+        renderMain();
+        setTimeout(() => {
+            const container = document.getElementById('chatMessages');
+            if (container) container.scrollTop = container.scrollHeight;
+        }, 50);
+    }
+
+    async function sendMessageWithImage(file, content = '') {
+        const formData = new FormData();
+        formData.append('content', content);
+        if (file) formData.append('image', file);
+        await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: formData });
+        await openChat(currentChatUser.id, currentChatUser.username);
+    }
+
+    async function addMessageReaction(messageId, reaction) {
+        await api(`/api/message-reaction/${messageId}`, {
+            method: 'POST',
+            body: JSON.stringify({ reaction }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        await openChat(currentChatUser.id, currentChatUser.username);
+    }
+
     function renderPostCard(post) {
         const isOwnPost = post.user_id === currentUser.id;
         return `
@@ -961,6 +1092,9 @@
                             </button>
                             <button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">
                                 💬 ${post.comments?.length || 0}
+                            </button>
+                            <button class="share-btn" onclick="event.stopPropagation(); showShareModal(${post.id}, '${escapeHtml(post.content || '')}')">
+                                🔄 Share
                             </button>
                             ${isOwnPost ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 Delete</button>` : ''}
                         </div>
@@ -1047,7 +1181,19 @@
     function renderMessages() {
         return `
             <div class="messages-container">
-                <div class="conversations-list" id="conversationsList">
+                <div class="messages-search">
+                    <input type="text" id="messagesSearchInput" class="messages-search-input" placeholder="Search users to message..." oninput="searchMessagesUsers(this.value)">
+                </div>
+                <div id="messagesSearchResults" class="messages-search-results" style="display:${messagesSearchResults.length > 0 ? 'block' : 'none'}">
+                    ${messagesSearchResults.map(u => `
+                        <div class="messages-search-result" onclick="openChat(${u.id}, '${escapeHtml(u.username)}'); messagesSearchResults = []; renderMain();">
+                            <img class="search-result-avatar" src="${u.avatar || ''}" onerror="this.style.display='none';">
+                            <div><strong>${escapeHtml(u.username)}</strong><div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="conversations-list" ${currentChatUser ? 'style="display:none"' : ''}>
+                    <div style="padding:12px 16px; font-weight:600; border-bottom:1px solid var(--border-color);">Chats</div>
                     ${conversations.map(c => `
                         <div class="conversation" onclick="openChat(${c.other_id}, '${escapeHtml(c.username)}')">
                             <img class="conversation-avatar" src="${c.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(c.username[0].toUpperCase()))">
@@ -1056,13 +1202,36 @@
                     `).join('')}
                     ${conversations.length === 0 ? '<div style="padding:20px; color:var(--text-secondary);">No conversations yet</div>' : ''}
                 </div>
-                <div class="chat-area" id="chatArea" style="display:none;">
-                    <div class="chat-messages" id="chatMessages"></div>
-                    <div class="chat-input-area">
-                        <input type="text" id="chatInput" placeholder="Message...">
-                        <button onclick="sendChatMessage()" style="background:var(--accent); border:none; border-radius:9999px; padding:8px 20px; color:white; cursor:pointer;">Send</button>
+                ${currentChatUser ? `
+                    <div class="chat-area">
+                        <div class="chat-header">
+                            <span class="chat-back" onclick="currentChatUser = null; renderMain();">←</span>
+                            <span>${escapeHtml(currentChatUser.username)}</span>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            ${currentChatMessages.map(m => `
+                                <div class="message-wrapper ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
+                                    <div class="message-bubble ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
+                                        ${escapeHtml(m.content || '')}
+                                        ${m.image ? `<img src="${m.image}" class="message-image" onclick="window.open('${m.image}')">` : ''}
+                                    </div>
+                                    <div class="message-reactions">
+                                        ${reactionsList.map(r => `
+                                            <button class="reaction-btn" onclick="addMessageReaction(${m.id}, '${r}')">${r}</button>
+                                        `).join('')}
+                                        ${(messageReactions[m.id] || []).length > 0 ? 
+                                            `<div class="reaction-badge">${(messageReactions[m.id] || []).map(r => r.reaction).join(' ')}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chatMessageInput" class="chat-input" placeholder="Message..." onkeypress="if(event.key==='Enter') sendMessageWithImage(null, this.value); this.value=''">
+                            <label class="chat-image-label">📷<input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="sendMessageWithImage(this.files[0], '')"></label>
+                            <button class="chat-send-btn" onclick="const input=document.getElementById('chatMessageInput'); sendMessageWithImage(null, input.value); input.value=''">Send</button>
+                        </div>
                     </div>
-                </div>
+                ` : ''}
             </div>
         `;
     }
@@ -1379,24 +1548,7 @@
         renderMain();
     };
 
-    window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; renderMain(); };
-    window.openChat = async (userId, username) => {
-        currentChatUser = { id: userId, username };
-        const messages = await api(`/api/messages/${userId}`);
-        document.getElementById('conversationsList').style.display = 'none';
-        document.getElementById('chatArea').style.display = 'flex';
-        const container = document.getElementById('chatMessages');
-        container.innerHTML = messages.map(m => `<div class="message ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">${escapeHtml(m.content)}</div>`).join('');
-        container.scrollTop = container.scrollHeight;
-    };
-    window.sendChatMessage = async () => {
-        const input = document.getElementById('chatInput');
-        const content = input?.value.trim();
-        if (!content || !currentChatUser) return;
-        await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
-        input.value = '';
-        await openChat(currentChatUser.id, currentChatUser.username);
-    };
+    window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; currentChatUser = null; messagesSearchResults = []; renderMain(); };
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
 
     (async () => {
