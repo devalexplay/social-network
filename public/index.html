@@ -198,8 +198,8 @@
         .checkbox-wrapper:hover .checkmark { border-color: var(--text-primary); }
         .checkbox-wrapper:hover .checkbox-label { color: var(--text-primary); }
         
-        .password-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 20px; transition: color 0.2s ease; display: flex; align-items: center; justify-content: center; }
-        .password-eye:hover { color: var(--text-primary); background: none; }
+        .password-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 0; margin: 0; width: auto; height: auto; display: flex; align-items: center; justify-content: center; transition: color 0.2s ease; line-height: 1; }
+        .password-eye:hover { color: var(--text-primary); background: transparent; }
         .password-wrapper { position: relative; }
         
         .crop-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1001; }
@@ -350,11 +350,9 @@
     let userFollows = [];
     let followersList = [];
     let followingList = [];
-    let cropImageFile = null;
     let cropScale = 1;
     let cropTranslateX = 0;
     let cropTranslateY = 0;
-    let isDragging = false;
     let unreadCount = 0;
     let currentChatMessages = [];
     let messageReactions = {};
