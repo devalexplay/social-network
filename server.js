@@ -5,7 +5,6 @@ const session = require('express-session');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const axios = require('axios');
 
 const app = express();
 
@@ -30,7 +29,8 @@ db.serialize(() => {
         password TEXT,
         avatar TEXT,
         bio TEXT,
-        created_at INTEGER
+        created_at INTEGER,
+        is_creator INTEGER DEFAULT 0
     )`);
     
     db.run(`CREATE TABLE IF NOT EXISTS posts (
@@ -73,6 +73,8 @@ db.serialize(() => {
         followee_id INTEGER,
         PRIMARY KEY(follower_id, followee_id)
     )`);
+    
+    db.run(`UPDATE users SET is_creator = 1 WHERE username = 'devalexplay'`);
 });
 
 app.use(express.json());
@@ -90,77 +92,6 @@ function auth(req, res, next) {
     next();
 }
 
-// ============ GOOGLE OAUTH ============
-const GOOGLE_CLIENT_ID = '198098139640-l799uefca0mqke34g69lknedbh6rrog1.apps.googleusercontent.com';
-const GOOGLE_CLIENT_SECRET = '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';
-
-app.get('/auth/google', (req, res) => {
-    const redirectUri = req.headers.host === 'localhost:3000' 
-        ? 'http://localhost:3000/auth/google/callback'
-        : 'https://me-3tbh.onrender.com/auth/google/callback';
-    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile`;
-    res.redirect(url);
-});
-
-app.get('/auth/google/callback', async (req, res) => {
-    const { code } = req.query;
-    const redirectUri = req.headers.host === 'localhost:3000'
-        ? 'http://localhost:3000/auth/google/callback'
-        : 'https://me-3tbh.onrender.com/auth/google/callback';
-    
-    try {
-        const tokenRes = await axios.post('https://oauth2.googleapis.com/token', null, {
-            params: {
-                code,
-                client_id: GOOGLE_CLIENT_ID,
-                client_secret: GOOGLE_CLIENT_SECRET,
-                redirect_uri: redirectUri,
-                grant_type: 'authorization_code'
-            }
-        });
-        
-        const { access_token } = tokenRes.data;
-        const userRes = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
-            headers: { Authorization: `Bearer ${access_token}` }
-        });
-        
-        const { email, name, picture } = userRes.data;
-        let username = name.replace(/\s/g, '').toLowerCase();
-        
-        db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
-            if (user) {
-                req.session.userId = user.id;
-                req.session.username = user.username;
-                res.redirect('/');
-            } else {
-                const hashed = await bcrypt.hash(Math.random().toString(36), 10);
-                db.run('INSERT INTO users (username, email, password, avatar, created_at) VALUES (?, ?, ?, ?, ?)',
-                    [username, email, hashed, picture, Date.now()],
-                    function(err) {
-                        if (err && err.message.includes('UNIQUE')) {
-                            const fallbackUsername = username + Math.floor(Math.random() * 1000);
-                            db.run('INSERT INTO users (username, email, password, avatar, created_at) VALUES (?, ?, ?, ?, ?)',
-                                [fallbackUsername, email, hashed, picture, Date.now()],
-                                function(err) {
-                                    req.session.userId = this.lastID;
-                                    req.session.username = fallbackUsername;
-                                    res.redirect('/');
-                                });
-                        } else {
-                            req.session.userId = this.lastID;
-                            req.session.username = username;
-                            res.redirect('/');
-                        }
-                    });
-            }
-        });
-    } catch (error) {
-        console.error('Google auth error:', error);
-        res.redirect('/?error=auth_failed');
-    }
-});
-
-// ============ AUTH ROUTES ============
 app.post('/api/register', async (req, res) => {
     const { username, email, password } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
@@ -171,8 +102,9 @@ app.post('/api/register', async (req, res) => {
     if (!/^[a-zA-Z0-9_]+$/.test(username)) return res.status(400).json({ error: 'Username can only contain letters, numbers, underscore' });
     
     const hashed = await bcrypt.hash(password, 10);
-    db.run('INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, ?)',
-        [username, email, hashed, Date.now()],
+    const isCreator = username === 'devalexplay' ? 1 : 0;
+    db.run('INSERT INTO users (username, email, password, created_at, is_creator) VALUES (?, ?, ?, ?, ?)',
+        [username, email, hashed, Date.now(), isCreator],
         function(err) {
             if (err) {
                 if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Username or email already taken' });
@@ -201,12 +133,11 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/api/me', (req, res) => {
     if (!req.session.userId) return res.json({ user: null });
-    db.get('SELECT id, username, email, avatar, bio, created_at FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+    db.get('SELECT id, username, email, avatar, bio, created_at, is_creator FROM users WHERE id = ?', [req.session.userId], (err, user) => {
         res.json({ user });
     });
 });
 
-// ============ POSTS ============
 app.post('/api/posts', auth, upload.single('image'), (req, res) => {
     const { content } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : null;
@@ -220,10 +151,10 @@ app.post('/api/posts', auth, upload.single('image'), (req, res) => {
 
 app.get('/api/feed', auth, (req, res) => {
     const query = `
-        SELECT p.*, u.username, u.avatar,
+        SELECT p.*, u.username, u.avatar, u.is_creator,
                (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count,
                (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND user_id = ?) as user_liked,
-               (SELECT json_group_array(json_object('id', c.id, 'content', c.content, 'username', u2.username, 'avatar', u2.avatar, 'created_at', c.created_at))
+               (SELECT json_group_array(json_object('id', c.id, 'content', c.content, 'username', u2.username, 'avatar', u2.avatar, 'is_creator', u2.is_creator, 'created_at', c.created_at))
                 FROM comments c JOIN users u2 ON c.user_id = u2.id WHERE c.post_id = p.id ORDER BY c.created_at DESC LIMIT 5) as comments
         FROM posts p
         JOIN users u ON p.user_id = u.id
@@ -248,7 +179,6 @@ app.delete('/api/posts/:postId', auth, (req, res) => {
     });
 });
 
-// ============ LIKES ============
 app.post('/api/like/:postId', auth, (req, res) => {
     db.run('INSERT OR IGNORE INTO likes (user_id, post_id) VALUES (?, ?)',
         [req.session.userId, req.params.postId],
@@ -267,35 +197,32 @@ app.delete('/api/like/:postId', auth, (req, res) => {
         });
 });
 
-// ============ COMMENTS ============
 app.post('/api/comment/:postId', auth, (req, res) => {
     const { content } = req.body;
     db.run('INSERT INTO comments (user_id, post_id, content, created_at) VALUES (?, ?, ?, ?)',
         [req.session.userId, req.params.postId, content, Date.now()],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
-            db.get('SELECT c.*, u.username, u.avatar FROM comments c JOIN users u ON c.user_id = u.id WHERE c.id = ?',
+            db.get('SELECT c.*, u.username, u.avatar, u.is_creator FROM comments c JOIN users u ON c.user_id = u.id WHERE c.id = ?',
                 [this.lastID], (err, comment) => {
                     res.json(comment);
                 });
         });
 });
 
-// ============ USERS & SEARCH ============
 app.get('/api/users', auth, (req, res) => {
-    db.all('SELECT id, username, avatar FROM users WHERE id != ? LIMIT 100', [req.session.userId], (err, users) => {
+    db.all('SELECT id, username, avatar, is_creator FROM users WHERE id != ? LIMIT 100', [req.session.userId], (err, users) => {
         res.json(users || []);
     });
 });
 
 app.get('/api/user/:username', (req, res) => {
-    db.get('SELECT id, username, avatar, bio, created_at FROM users WHERE username = ?', [req.params.username], (err, user) => {
+    db.get('SELECT id, username, avatar, bio, created_at, is_creator FROM users WHERE username = ?', [req.params.username], (err, user) => {
         if (!user) return res.status(404).json({ error: 'User not found' });
         res.json(user);
     });
 });
 
-// ============ FOLLOWS ============
 app.get('/api/follows', auth, (req, res) => {
     db.all('SELECT followee_id FROM follows WHERE follower_id = ?', [req.session.userId], (err, follows) => {
         res.json(follows || []);
@@ -314,12 +241,11 @@ app.delete('/api/follow/:userId', auth, (req, res) => {
     });
 });
 
-// ============ MESSAGES ============
 app.get('/api/conversations', auth, (req, res) => {
     const query = `
         SELECT DISTINCT 
             CASE WHEN m.from_id = ? THEN m.to_id ELSE m.from_id END as other_id,
-            u.username, u.avatar,
+            u.username, u.avatar, u.is_creator,
             (SELECT content FROM messages WHERE (from_id = ? AND to_id = other_id) OR (from_id = other_id AND to_id = ?) 
              ORDER BY created_at DESC LIMIT 1) as last_message,
             (SELECT created_at FROM messages WHERE (from_id = ? AND to_id = other_id) OR (from_id = other_id AND to_id = ?) 
@@ -338,7 +264,7 @@ app.get('/api/conversations', auth, (req, res) => {
 });
 
 app.get('/api/messages/:userId', auth, (req, res) => {
-    db.all(`SELECT m.*, u.username 
+    db.all(`SELECT m.*, u.username, u.is_creator
             FROM messages m 
             JOIN users u ON u.id = m.from_id
             WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)
@@ -361,7 +287,6 @@ app.post('/api/messages/:userId', auth, (req, res) => {
         });
 });
 
-// ============ AVATAR ============
 app.post('/api/avatar', auth, upload.single('avatar'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file' });
     const avatarUrl = `/uploads/${req.file.filename}`;
@@ -371,12 +296,11 @@ app.post('/api/avatar', auth, upload.single('avatar'), (req, res) => {
     });
 });
 
-// ============ FRONTEND ============
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
