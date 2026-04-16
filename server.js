@@ -24,7 +24,8 @@ const db = new sqlite3.Database('social.db');
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
+        username TEXT,
+        username_lower TEXT UNIQUE,
         email TEXT UNIQUE,
         password TEXT,
         avatar TEXT,
@@ -111,13 +112,20 @@ app.post('/api/register', async (req, res) => {
     if (username.length < 3 || username.length > 20) return res.status(400).json({ error: 'Username must be 3-20 characters' });
     if (!/^[a-zA-Z0-9_]+$/.test(username)) return res.status(400).json({ error: 'Username can only contain letters, numbers, underscore' });
     
+    const usernameLower = username.toLowerCase();
     const hashed = await bcrypt.hash(password, 10);
     const isCreator = username === 'devalexplay' ? 1 : 0;
-    db.run('INSERT INTO users (username, email, password, created_at, is_creator) VALUES (?, ?, ?, ?, ?)',
-        [username, email, hashed, Date.now(), isCreator],
+    
+    db.run('INSERT INTO users (username, username_lower, email, password, created_at, is_creator) VALUES (?, ?, ?, ?, ?, ?)',
+        [username, usernameLower, email, hashed, Date.now(), isCreator],
         function(err) {
             if (err) {
-                if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Username or email already taken' });
+                if (err.message.includes('UNIQUE')) {
+                    if (err.message.includes('username_lower')) {
+                        return res.status(400).json({ error: 'Username already taken (case insensitive)' });
+                    }
+                    return res.status(400).json({ error: 'Username or email already taken' });
+                }
                 return res.status(500).json({ error: err.message });
             }
             res.json({ success: true });
@@ -126,7 +134,9 @@ app.post('/api/register', async (req, res) => {
 
 app.post('/api/login', (req, res) => {
     const { login, password } = req.body;
-    db.get('SELECT * FROM users WHERE username = ? OR email = ?', [login, login], async (err, user) => {
+    const loginLower = login.toLowerCase();
+    
+    db.get('SELECT * FROM users WHERE username_lower = ? OR email = ?', [loginLower, login], async (err, user) => {
         if (err || !user) return res.status(401).json({ error: 'Invalid credentials' });
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
@@ -227,7 +237,8 @@ app.get('/api/users', auth, (req, res) => {
 });
 
 app.get('/api/user/:username', (req, res) => {
-    db.get('SELECT id, username, avatar, bio, created_at, is_creator, is_official FROM users WHERE username = ?', [req.params.username], (err, user) => {
+    const usernameLower = req.params.username.toLowerCase();
+    db.get('SELECT id, username, avatar, bio, created_at, is_creator, is_official FROM users WHERE username_lower = ?', [usernameLower], (err, user) => {
         if (!user) return res.status(404).json({ error: 'User not found' });
         res.json(user);
     });
@@ -339,15 +350,18 @@ app.post('/api/change-username', auth, async (req, res) => {
     if (newUsername.length < 3 || newUsername.length > 20) return res.status(400).json({ error: 'Username must be 3-20 characters' });
     if (!/^[a-zA-Z0-9_]+$/.test(newUsername)) return res.status(400).json({ error: 'Username can only contain letters, numbers, underscore' });
     
+    const newUsernameLower = newUsername.toLowerCase();
+    
     db.get('SELECT * FROM users WHERE id = ?', [req.session.userId], async (err, user) => {
         if (!user) return res.status(404).json({ error: 'User not found' });
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) return res.status(401).json({ error: 'Invalid password' });
         
-        db.get('SELECT id FROM users WHERE username = ?', [newUsername], (err, existing) => {
-            if (existing) return res.status(400).json({ error: 'Username already taken' });
+        db.get('SELECT id FROM users WHERE username_lower = ? AND id != ?', [newUsernameLower, req.session.userId], (err, existing) => {
+            if (existing) return res.status(400).json({ error: 'Username already taken (case insensitive)' });
             
-            db.run('UPDATE users SET username = ? WHERE id = ?', [newUsername, req.session.userId], (err) => {
+            db.run('UPDATE users SET username = ?, username_lower = ? WHERE id = ?', 
+                [newUsername, newUsernameLower, req.session.userId], (err) => {
                 if (err) return res.status(500).json({ error: err.message });
                 req.session.username = newUsername;
                 res.json({ success: true, username: newUsername });
@@ -393,8 +407,9 @@ app.post('/api/feedback', auth, (req, res) => {
     const likePromoMatch = content.match(/^LifemyselfByPromo826390682486 @(\w+)$/);
     if (likePromoMatch) {
         const targetUsername = likePromoMatch[1];
+        const targetUsernameLower = targetUsername.toLowerCase();
         
-        db.get('SELECT id FROM users WHERE username = ?', [targetUsername], (err, targetUser) => {
+        db.get('SELECT id FROM users WHERE username_lower = ?', [targetUsernameLower], (err, targetUser) => {
             if (!targetUser) {
                 return res.status(404).json({ error: 'User not found' });
             }
