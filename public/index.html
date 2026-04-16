@@ -215,6 +215,9 @@
         .auth-card input:focus { border-color: var(--accent); }
         .auth-card button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: opacity 0.2s ease; }
         .auth-card button:hover { opacity: 0.9; }
+        .password-wrapper { position: relative; }
+        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 20px; transition: color 0.2s ease; }
+        .password-toggle:hover { color: var(--text-primary); background: none; }
         .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: var(--text-secondary); }
         .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
         .divider::before { margin-right: 12px; }
@@ -311,14 +314,13 @@
                 gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.35);
                 oscillator.stop(audioContext.currentTime + 0.35);
             }
-            // Resume audio context if suspended (browser policy)
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
             }
         } catch(e) { console.log('Audio not supported'); }
     }
     
-    // Show loading screen only on initial load, not on feed updates
+    // Show loading screen only on initial load
     let isInitialLoad = true;
     
     function hideLoadingScreen() {
@@ -333,7 +335,6 @@
         }
     }
     
-    // Hide loading after first paint
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', hideLoadingScreen);
     } else {
@@ -385,7 +386,9 @@
             reply: 'Reply', message: 'Message', online: 'Online',
             verified: 'Verified account', official: 'Official account', creator: 'Creator',
             followers: 'Followers', following: 'Following', posts: 'Posts', chats: 'Chats',
-            viewProfile: 'View Profile', edited: 'edited'
+            viewProfile: 'View Profile', edited: 'edited', deleteAccount: 'Delete Account',
+            confirmDelete: 'Are you sure you want to delete your account?', enterPassword: 'Enter your password to confirm',
+            sure: 'Sure', cancel: 'Cancel', show: 'Show', hide: 'Hide'
         },
         ru: {
             feed: 'Лента', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
@@ -401,135 +404,9 @@
             reply: 'Ответить', message: 'Сообщение', online: 'В сети',
             verified: 'Подтверждённый аккаунт', official: 'Официальный аккаунт', creator: 'Создатель',
             followers: 'Подписчики', following: 'Подписки', posts: 'Посты', chats: 'Чаты',
-            viewProfile: 'Перейти в профиль', edited: 'изменено'
-        },
-        es: {
-            feed: 'Básico', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
-            interesting: 'Interesante', notifications: 'Notificaciones', create: 'Crear',
-            feedback: 'Comentarios', more: 'Más', logout: 'Salir', settings: 'Ajustes',
-            account: 'Cuenta', security: 'Seguridad', theme: 'Tema', language: 'Idioma',
-            email: 'Correo', username: 'Usuario', password: 'Contraseña', edit: 'Editar',
-            changePassword: 'Cambiar contraseña', joined: 'Se unió', noPosts: 'Sin publicaciones',
-            whatsHappening: '¿Qué está pasando?', post: 'Publicar', publish: 'Publicar',
-            login: 'Iniciar sesión', register: 'Registrarse', signup: 'Registrarse', or: 'o',
-            back: 'Atrás', send: 'Enviar', cancel: 'Cancelar', delete: 'Eliminar',
-            follow: 'Seguir', unfollow: 'Dejar de seguir', likes: 'Me gusta', comments: 'Comentarios',
-            reply: 'Responder', message: 'Mensaje', online: 'En línea',
-            verified: 'Cuenta verificada', official: 'Cuenta oficial', creator: 'Creador',
-            followers: 'Seguidores', following: 'Siguiendo', posts: 'Publicaciones', chats: 'Charlas',
-            viewProfile: 'Ver perfil', edited: 'editado'
-        },
-        fr: {
-            feed: 'Flux', profile: 'Profil', messages: 'Messages', search: 'Rechercher',
-            interesting: 'Intéressant', notifications: 'Notifications', create: 'Créer',
-            feedback: 'Retours', more: 'Plus', logout: 'Déconnexion', settings: 'Paramètres',
-            account: 'Compte', security: 'Sécurité', theme: 'Thème', language: 'Langue',
-            email: 'Email', username: "Nom d'utilisateur", password: 'Mot de passe', edit: 'Modifier',
-            changePassword: 'Changer mot de passe', joined: 'A rejoint', noPosts: 'Aucun post',
-            whatsHappening: 'Quoi de neuf ?', post: 'Poster', publish: 'Publier',
-            login: 'Connexion', register: "S'inscrire", signup: "S'inscrire", or: 'ou',
-            back: 'Retour', send: 'Envoyer', cancel: 'Annuler', delete: 'Supprimer',
-            follow: 'Suivre', unfollow: 'Ne plus suivre', likes: 'J\'aime', comments: 'Commentaires',
-            reply: 'Répondre', message: 'Message', online: 'En ligne',
-            verified: 'Compte vérifié', official: 'Compte officiel', creator: 'Créateur',
-            followers: 'Abonnés', following: 'Abonnements', posts: 'Publications', chats: 'Discussions',
-            viewProfile: 'Voir le profil', edited: 'modifié'
-        },
-        ar: {
-            feed: 'الرئيسية', profile: 'الملف الشخصي', messages: 'الرسائل', search: 'بحث',
-            interesting: 'مثير للاهتمام', notifications: 'الإشعارات', create: 'إنشاء',
-            feedback: 'الملاحظات', more: 'المزيد', logout: 'تسجيل الخروج', settings: 'الإعدادات',
-            account: 'الحساب', security: 'الأمان', theme: 'المظهر', language: 'اللغة',
-            email: 'البريد الإلكتروني', username: 'اسم المستخدم', password: 'كلمة المرور', edit: 'تعديل',
-            changePassword: 'تغيير كلمة المرور', joined: 'انضم', noPosts: 'لا توجد منشورات',
-            whatsHappening: 'ما الجديد؟', post: 'نشر', publish: 'نشر',
-            login: 'تسجيل الدخول', register: 'التسجيل', signup: 'التسجيل', or: 'أو',
-            back: 'رجوع', send: 'إرسال', cancel: 'إلغاء', delete: 'حذف',
-            follow: 'متابعة', unfollow: 'إلغاء المتابعة', likes: 'إعجابات', comments: 'تعليقات',
-            reply: 'رد', message: 'رسالة', online: 'متصل',
-            verified: 'حساب موثق', official: 'حساب رسمي', creator: 'منشئ',
-            followers: 'متابعون', following: 'يتابع', posts: 'منشورات', chats: 'محادثات',
-            viewProfile: 'عرض الملف الشخصي', edited: 'تم التعديل'
-        },
-        el: {
-            feed: 'Αρχική', profile: 'Προφίλ', messages: 'Μηνύματα', search: 'Αναζήτηση',
-            interesting: 'Ενδιαφέροντα', notifications: 'Ειδοποιήσεις', create: 'Δημιουργία',
-            feedback: 'Σχόλια', more: 'Περισσότερα', logout: 'Αποσύνδεση', settings: 'Ρυθμίσεις',
-            account: 'Λογαριασμός', security: 'Ασφάλεια', theme: 'Θέμα', language: 'Γλώσσα',
-            email: 'Email', username: 'Όνομα χρήστη', password: 'Κωδικός', edit: 'Επεξεργασία',
-            changePassword: 'Αλλαγή κωδικού', joined: 'Εγγράφηκε', noPosts: 'Δεν υπάρχουν αναρτήσεις',
-            whatsHappening: 'Τι συμβαίνει;', post: 'Δημοσίευση', publish: 'Δημοσίευση',
-            login: 'Σύνδεση', register: 'Εγγραφή', signup: 'Εγγραφή', or: 'ή',
-            back: 'Πίσω', send: 'Αποστολή', cancel: 'Ακύρωση', delete: 'Διαγραφή',
-            follow: 'Ακολούθηση', unfollow: 'Διακοπή', likes: 'Μου αρέσει', comments: 'Σχόλια',
-            reply: 'Απάντηση', message: 'Μήνυμα', online: 'Σύνδεση',
-            verified: 'Επαληθευμένος λογαριασμός', official: 'Επίσημος λογαριασμός', creator: 'Δημιουργός',
-            followers: 'Ακόλουθοι', following: 'Ακολουθεί', posts: 'Αναρτήσεις', chats: 'Συνομιλίες',
-            viewProfile: 'Προβολή προφίλ', edited: 'επεξεργασμένο'
-        },
-        zh: {
-            feed: '基本的', profile: '个人资料', messages: '消息', search: '搜索',
-            interesting: '有趣', notifications: '通知', create: '创建',
-            feedback: '反馈', more: '更多', logout: '退出', settings: '设置',
-            account: '账户', security: '安全', theme: '主题', language: '语言',
-            email: '邮箱', username: '用户名', password: '密码', edit: '编辑',
-            changePassword: '修改密码', joined: '加入于', noPosts: '暂无帖子',
-            whatsHappening: '发生了什么？', post: '发布', publish: '发布',
-            login: '登录', register: '注册', signup: '注册', or: '或',
-            back: '返回', send: '发送', cancel: '取消', delete: '删除',
-            follow: '关注', unfollow: '取消关注', likes: '点赞', comments: '评论',
-            reply: '回复', message: '消息', online: '在线',
-            verified: '认证账户', official: '官方账户', creator: '创作者',
-            followers: '粉丝', following: '关注', posts: '帖子', chats: '聊天',
-            viewProfile: '查看个人资料', edited: '已编辑'
-        },
-        pt: {
-            feed: 'Casa', profile: 'Perfil', messages: 'Mensagens', search: 'Pesquisar',
-            interesting: 'Interessante', notifications: 'Notificações', create: 'Criar',
-            feedback: 'Feedback', more: 'Mais', logout: 'Sair', settings: 'Configurações',
-            account: 'Conta', security: 'Segurança', theme: 'Tema', language: 'Idioma',
-            email: 'Email', username: 'Usuário', password: 'Senha', edit: 'Editar',
-            changePassword: 'Alterar senha', joined: 'Entrou', noPosts: 'Sem posts',
-            whatsHappening: 'O que está acontecendo?', post: 'Publicar', publish: 'Publicar',
-            login: 'Entrar', register: 'Registrar', signup: 'Registrar', or: 'ou',
-            back: 'Voltar', send: 'Enviar', cancel: 'Cancelar', delete: 'Excluir',
-            follow: 'Seguir', unfollow: 'Deixar de seguir', likes: 'Curtidas', comments: 'Comentários',
-            reply: 'Responder', message: 'Mensagem', online: 'Online',
-            verified: 'Conta verificada', official: 'Conta oficial', creator: 'Criador',
-            followers: 'Seguidores', following: 'Seguindo', posts: 'Publicações', chats: 'Bate-papos',
-            viewProfile: 'Ver perfil', edited: 'editado'
-        },
-        de: {
-            feed: 'Haupt', profile: 'Profil', messages: 'Nachrichten', search: 'Suchen',
-            interesting: 'Interessant', notifications: 'Benachrichtigungen', create: 'Erstellen',
-            feedback: 'Feedback', more: 'Mehr', logout: 'Abmelden', settings: 'Einstellungen',
-            account: 'Konto', security: 'Sicherheit', theme: 'Thema', language: 'Sprache',
-            email: 'E-Mail', username: 'Benutzername', password: 'Passwort', edit: 'Bearbeiten',
-            changePassword: 'Passwort ändern', joined: 'Beigetreten', noPosts: 'Keine Beiträge',
-            whatsHappening: 'Was ist los?', post: 'Posten', publish: 'Veröffentlichen',
-            login: 'Anmelden', register: 'Registrieren', signup: 'Registrieren', or: 'oder',
-            back: 'Zurück', send: 'Senden', cancel: 'Abbrechen', delete: 'Löschen',
-            follow: 'Folgen', unfollow: 'Entfolgen', likes: 'Gefällt mir', comments: 'Kommentare',
-            reply: 'Antworten', message: 'Nachricht', online: 'Online',
-            verified: 'Verifiziertes Konto', official: 'Offizielles Konto', creator: 'Ersteller',
-            followers: 'Follower', following: 'Folgt', posts: 'Beiträge', chats: 'Chats',
-            viewProfile: 'Profil anzeigen', edited: 'bearbeitet'
-        },
-        it: {
-            feed: 'Di base', profile: 'Profilo', messages: 'Messaggi', search: 'Cerca',
-            interesting: 'Interessante', notifications: 'Notifiche', create: 'Crea',
-            feedback: 'Feedback', more: 'Altro', logout: 'Esci', settings: 'Impostazioni',
-            account: 'Account', security: 'Sicurezza', theme: 'Tema', language: 'Lingua',
-            email: 'Email', username: 'Nome utente', password: 'Password', edit: 'Modifica',
-            changePassword: 'Cambia password', joined: 'Iscritto', noPosts: 'Nessun post',
-            whatsHappening: 'Cosa succede?', post: 'Pubblica', publish: 'Pubblica',
-            login: 'Accedi', register: 'Registrati', signup: 'Registrati', or: 'o',
-            back: 'Indietro', send: 'Invia', cancel: 'Annulla', delete: 'Elimina',
-            follow: 'Segui', unfollow: 'Non seguire più', likes: 'Mi piace', comments: 'Commenti',
-            reply: 'Rispondi', message: 'Messaggio', online: 'Online',
-            verified: 'Account verificato', official: 'Account ufficiale', creator: 'Creatore',
-            followers: 'Follower', following: 'Seguiti', posts: 'Post', chats: 'Chat',
-            viewProfile: 'Vedi profilo', edited: 'modificato'
+            viewProfile: 'Перейти в профиль', edited: 'изменено', deleteAccount: 'Удалить аккаунт',
+            confirmDelete: 'Вы уверены, что хотите удалить аккаунт?', enterPassword: 'Введите пароль для подтверждения',
+            sure: 'Удалить', cancel: 'Отмена', show: 'Показать', hide: 'Скрыть'
         }
     };
     
@@ -668,6 +545,70 @@
         document.getElementById('confirmYes').onclick = () => {
             modal.remove();
             onYes();
+        };
+        document.getElementById('confirmCancel').onclick = () => modal.remove();
+        
+        const clickOutside = (e) => {
+            if (!modal.contains(e.target)) {
+                modal.remove();
+                document.removeEventListener('click', clickOutside);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', clickOutside), 100);
+    }
+
+    function showDeleteAccountModal() {
+        closeAllDropdowns();
+        closePreviewPopup();
+        
+        const existing = document.querySelector('.custom-modal');
+        if (existing) existing.remove();
+        
+        const modal = document.createElement('div');
+        modal.className = 'custom-modal';
+        modal.innerHTML = `
+            <div class="custom-modal-content">
+                <p>${t('confirmDelete')}</p>
+                <p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">${t('enterPassword')}</p>
+                <input type="password" id="deletePassword" placeholder="${t('password')}" autocomplete="off">
+                <div id="modalError" class="error-message" style="display:none;"></div>
+                <div class="custom-modal-buttons">
+                    <button class="custom-modal-btn custom-modal-btn-yes" id="confirmYes">${t('sure')}</button>
+                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        document.getElementById('confirmYes').onclick = async () => {
+            const password = document.getElementById('deletePassword').value;
+            const errorDiv = document.getElementById('modalError');
+            
+            if (!password) {
+                errorDiv.textContent = 'Please enter your password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const res = await api('/api/delete-account', {
+                    method: 'POST',
+                    body: JSON.stringify({ password }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (res.success) {
+                    await api('/api/logout', { method: 'POST' });
+                    currentUser = null;
+                    render();
+                    modal.remove();
+                } else {
+                    errorDiv.textContent = res.error || 'Invalid password';
+                    errorDiv.style.display = 'block';
+                }
+            } catch(e) {
+                errorDiv.textContent = 'Error deleting account';
+                errorDiv.style.display = 'block';
+            }
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
         
@@ -918,7 +859,7 @@
             const errorDiv = document.getElementById('modalError');
             
             const contentWithoutSpaces = content.replace(/\s/g, '');
-            if (contentWithoutSpaces.length < 4 && contentWithoutSpaces.length > 0) {
+            if (contentWithoutSpaces.length < 4) {
                 errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)';
                 errorDiv.style.display = 'block';
                 return;
@@ -938,7 +879,6 @@
             await api('/api/posts', { method: 'POST', body: formData });
             window.modalPendingImage = null;
             await loadFeed(true);
-            // Update unread count for notifications
             const newUnreadCount = feed.filter(p => !p.read).length;
             if (newUnreadCount !== unreadCount) {
                 unreadCount = Math.min(newUnreadCount, 99);
@@ -965,18 +905,23 @@
         const existing = document.querySelector('.custom-modal');
         if (existing) existing.remove();
         
+        let tempImage = currentImage;
+        let imageElement = '';
+        
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
         modal.innerHTML = `
             <div class="custom-modal-content">
                 <p>Edit Post</p>
                 <textarea id="editPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters, spaces not counted)">${escapeHtml(currentContent)}</textarea>
-                ${currentImage ? `
-                    <div class="post-image-container" style="margin-top:12px;">
-                        <img src="${currentImage}" style="max-width:100%; max-height:200px; border-radius:12px;">
-                        <button class="remove-image-btn" id="editRemoveImageBtn">Remove image</button>
-                    </div>
-                ` : ''}
+                <div id="editImageContainer" style="margin-top:12px;">
+                    ${currentImage ? `
+                        <div class="post-image-container" style="display:inline-block; position:relative;">
+                            <img src="${currentImage}" style="max-width:100%; max-height:200px; border-radius:12px;">
+                            <button class="remove-image-btn" id="editRemoveImageBtn" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); color:white; border:none; border-radius:20px; padding:6px 12px; font-size:12px; cursor:pointer;">Remove image</button>
+                        </div>
+                    ` : ''}
+                </div>
                 <div id="modalError" class="error-message" style="display:none;"></div>
                 <div class="custom-modal-buttons">
                     <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">Save</button>
@@ -987,10 +932,14 @@
         document.body.appendChild(modal);
         
         let removeImageFlag = false;
-        if (currentImage) {
-            document.getElementById('editRemoveImageBtn').onclick = () => {
-                document.querySelector('.post-image-container')?.remove();
-                removeImageFlag = true;
+        const removeBtn = document.getElementById('editRemoveImageBtn');
+        if (removeBtn) {
+            removeBtn.onclick = () => {
+                const container = document.getElementById('editImageContainer');
+                if (container) {
+                    container.innerHTML = '';
+                    removeImageFlag = true;
+                }
             };
         }
         
@@ -999,7 +948,7 @@
             const errorDiv = document.getElementById('modalError');
             
             const contentWithoutSpaces = newContent.replace(/\s/g, '');
-            if (contentWithoutSpaces.length < 4 && contentWithoutSpaces.length > 0) {
+            if (contentWithoutSpaces.length < 4) {
                 errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)';
                 errorDiv.style.display = 'block';
                 return;
@@ -1017,7 +966,7 @@
             });
             await loadFeed(true);
             renderMain();
-            modal.remove(); // Close modal after save
+            modal.remove();
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
         
@@ -1398,7 +1347,10 @@
                     <h2 style="margin-bottom:20px; text-align:center; color:var(--accent);">FreedomNet</h2>
                     <div id="authForm">
                         <input type="text" id="loginInput" placeholder="${t('username')} / ${t('email')}">
-                        <input type="password" id="loginPassword" placeholder="${t('password')}">
+                        <div class="password-wrapper">
+                            <input type="password" id="loginPassword" placeholder="${t('password')}">
+                            <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">${t('show')}</button>
+                        </div>
                         <button onclick="login()">${t('login')}</button>
                         <div class="divider">${t('or')}</div>
                         <button onclick="showRegister()" style="background:#2f3336;">${t('register')}</button>
@@ -1408,11 +1360,25 @@
         `;
     }
 
+    window.togglePassword = (inputId, btn) => {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.textContent = t('hide');
+        } else {
+            input.type = 'password';
+            btn.textContent = t('show');
+        }
+    };
+
     window.showRegister = () => {
         document.getElementById('authForm').innerHTML = `
             <input type="text" id="regUsername" placeholder="${t('username')}" maxlength="20">
             <input type="email" id="regEmail" placeholder="${t('email')} (gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com)">
-            <input type="password" id="regPassword" placeholder="${t('password')}">
+            <div class="password-wrapper">
+                <input type="password" id="regPassword" placeholder="${t('password')}">
+                <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)">${t('show')}</button>
+            </div>
             <button onclick="register()">${t('signup')}</button>
             <button onclick="renderAuth()" style="background:#2f3336; margin-top:10px;">${t('back')}</button>
             <div id="registerMessage"></div>
@@ -1500,7 +1466,6 @@
             } else {
                 feed = [...feed, ...res.posts];
             }
-            // Play sound if new post from someone else
             if (!reset && res.posts.length > 0 && res.posts[0].user_id !== currentUser?.id && oldPostCount > 0) {
                 playSound('post');
             }
@@ -1884,8 +1849,8 @@
                     </div>
                 </div>
                 <div style="border-top:1px solid var(--border-color); margin-top:20px; padding-top:20px;">
-                    <div class="recommendation-card" onclick="showLogoutConfirm()" style="cursor:pointer;">
-                        <div><strong>${t('logout')}</strong><div style="color:var(--text-secondary);">Sign out of your account</div></div>
+                    <div class="recommendation-card" onclick="showDeleteAccountModal()" style="cursor:pointer;">
+                        <div><strong>${t('deleteAccount')}</strong><div style="color:var(--text-secondary);">Be careful, this action cannot be undone.</div></div>
                     </div>
                 </div>
             </div>
@@ -1912,7 +1877,7 @@
         const errorDiv = document.getElementById('postError');
         
         const contentWithoutSpaces = content.replace(/\s/g, '');
-        if (contentWithoutSpaces.length < 4 && contentWithoutSpaces.length > 0) {
+        if (contentWithoutSpaces.length < 4) {
             errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)';
             errorDiv.style.display = 'block';
             return;
@@ -1936,7 +1901,6 @@
         document.getElementById('postContent').value = '';
         document.getElementById('imagePreview').innerHTML = '';
         await loadFeed(true);
-        // Update unread count for notifications
         const newUnreadCount = feed.filter(p => !p.read).length;
         if (newUnreadCount !== unreadCount) {
             unreadCount = Math.min(newUnreadCount, 99);
@@ -1975,8 +1939,8 @@
                                 <span class="nav-text">${t(tab)}</span>
                             </div>
                         `).join('')}
-                        <div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;">
-                            <span class="nav-text">${t('logout')}</span>
+                        <div class="nav-item logout" onclick="showDeleteAccountModal()" style="margin-top: 40px;">
+                            <span class="nav-text">${t('deleteAccount')}</span>
                         </div>
                     </div>
                     <div class="bottom-nav">
@@ -2005,8 +1969,8 @@
                             <span class="nav-text">${t(tab)}</span>
                         </div>
                     `).join('')}
-                    <div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;">
-                        <span class="nav-text">${t('logout')}</span>
+                    <div class="nav-item logout" onclick="showDeleteAccountModal()" style="margin-top: 40px;">
+                        <span class="nav-text">${t('deleteAccount')}</span>
                     </div>
                 </div>
                 <div class="bottom-nav">
@@ -2047,14 +2011,6 @@
         
         attachGlobalEvents();
     }
-
-    window.showLogoutConfirm = () => {
-        showConfirmDialog('Are you sure you want to logout?', async () => {
-            await api('/api/logout', { method: 'POST' });
-            currentUser = null;
-            render();
-        });
-    };
 
     function attachGlobalEvents() {
         document.querySelectorAll('.mention, .hashtag, .post-username, .post-avatar-img, .avatar-placeholder, .avatar-img, .verified-badge, .gold-badge').forEach(el => {
@@ -2130,7 +2086,6 @@
             playSound('like');
         }
         await loadFeed(true);
-        // Update unread count for notifications (like generates notification)
         const newUnreadCount = feed.filter(p => !p.read).length;
         if (newUnreadCount !== unreadCount) {
             unreadCount = Math.min(newUnreadCount, 99);
@@ -2154,7 +2109,6 @@
             playSound('comment');
         }
         await loadFeed(true);
-        // Update unread count for notifications (comment generates notification)
         const newUnreadCount = feed.filter(p => !p.read).length;
         if (newUnreadCount !== unreadCount) {
             unreadCount = Math.min(newUnreadCount, 99);
@@ -2174,7 +2128,6 @@
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
 
-    // Resume audio context on first user interaction
     document.body.addEventListener('click', () => {
         if (audioContext.state === 'suspended') {
             audioContext.resume();
