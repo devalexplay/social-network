@@ -95,7 +95,7 @@
         .post-image-container { position: relative; display: inline-block; margin-top: 12px; }
         .post-image { border-radius: 16px; max-width: 100%; max-height: 400px; object-fit: cover; border: 1px solid var(--border-color); transition: transform 0.2s ease; }
         .post-image:hover { transform: scale(1.01); }
-        .remove-image-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); color: white; border: none; border-radius: 20px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: opacity 0.2s ease; opacity: 0; }
+        .remove-image-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); color: white; border: none; border-radius: 20px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; opacity: 0; }
         .post-image-container:hover .remove-image-btn { opacity: 1; }
         .remove-image-btn:hover { background: #f4212e; }
         .post-stats { display: flex; gap: 32px; margin-top: 12px; align-items: center; }
@@ -189,7 +189,19 @@
         .error-message { color: #f4212e; font-size: 13px; margin-top: 8px; text-align: center; }
         .success-message { color: #1d9bf0; font-size: 13px; margin-top: 8px; text-align: center; }
         
-        /* Advanced Avatar Crop Modal (Instagram/Discord style) */
+        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin: 16px 0; cursor: pointer; width: fit-content; }
+        .checkbox-wrapper input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .checkmark { width: 18px; height: 18px; border: 1px solid var(--text-secondary); border-radius: 4px; display: inline-block; position: relative; background: transparent; transition: all 0.2s ease; }
+        .checkbox-wrapper input:checked + .checkmark { border-color: var(--accent); background: var(--accent); }
+        .checkbox-wrapper input:checked + .checkmark::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 12px; }
+        .checkbox-label { color: var(--text-secondary); font-size: 14px; cursor: pointer; transition: color 0.2s ease; }
+        .checkbox-wrapper:hover .checkmark { border-color: var(--text-primary); }
+        .checkbox-wrapper:hover .checkbox-label { color: var(--text-primary); }
+        
+        .password-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 20px; transition: color 0.2s ease; display: flex; align-items: center; justify-content: center; }
+        .password-eye:hover { color: var(--text-primary); background: none; }
+        .password-wrapper { position: relative; }
+        
         .crop-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1001; }
         .crop-modal-content { background: #000000; border-radius: 28px; padding: 24px; width: 500px; max-width: 90%; text-align: center; border: 1px solid #2f3336; }
         .crop-container { position: relative; width: 300px; height: 300px; margin: 16px auto; overflow: hidden; border-radius: 50%; border: 2px solid var(--accent); cursor: grab; background: #1a1a1a; }
@@ -215,9 +227,6 @@
         .auth-card input:focus { border-color: var(--accent); }
         .auth-card button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: opacity 0.2s ease; }
         .auth-card button:hover { opacity: 0.9; }
-        .password-wrapper { position: relative; }
-        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 20px; transition: color 0.2s ease; }
-        .password-toggle:hover { color: var(--text-primary); background: none; }
         .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: var(--text-secondary); }
         .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
         .divider::before { margin-right: 12px; }
@@ -277,7 +286,6 @@
 <div id="root" style="display:none;"></div>
 
 <script>
-    // Sound effects
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let soundEnabled = true;
     
@@ -288,7 +296,6 @@
             const gainNode = audioContext.createGain();
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
             if (type === 'post') {
                 oscillator.frequency.value = 880;
                 gainNode.gain.value = 0.15;
@@ -314,32 +321,20 @@
                 gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.35);
                 oscillator.stop(audioContext.currentTime + 0.35);
             }
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
+            if (audioContext.state === 'suspended') audioContext.resume();
         } catch(e) { console.log('Audio not supported'); }
     }
-    
-    // Show loading screen only on initial load
-    let isInitialLoad = true;
     
     function hideLoadingScreen() {
         const loading = document.getElementById('loading');
         const root = document.getElementById('root');
         if (loading) {
             loading.style.opacity = '0';
-            setTimeout(() => {
-                loading.style.display = 'none';
-                if (root) root.style.display = 'block';
-            }, 500);
+            setTimeout(() => { loading.style.display = 'none'; if (root) root.style.display = 'block'; }, 500);
         }
     }
-    
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', hideLoadingScreen);
-    } else {
-        hideLoadingScreen();
-    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hideLoadingScreen);
+    else hideLoadingScreen();
 
     let currentUser = null;
     let currentTab = 'feed';
@@ -368,7 +363,6 @@
     let feedLoading = false;
     let activeDropdown = null;
     let activePreviewPopup = null;
-    let lastPostCount = 0;
     
     let currentLang = localStorage.getItem('language') || 'en';
     const translations = {
@@ -388,7 +382,7 @@
             followers: 'Followers', following: 'Following', posts: 'Posts', chats: 'Chats',
             viewProfile: 'View Profile', edited: 'edited', deleteAccount: 'Delete Account',
             confirmDelete: 'Are you sure you want to delete your account?', enterPassword: 'Enter your password to confirm',
-            sure: 'Sure', cancel: 'Cancel', show: 'Show', hide: 'Hide'
+            confirm: 'Confirm', cancel: 'Cancel', rememberMe: 'Remember me'
         },
         ru: {
             feed: 'Лента', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
@@ -406,164 +400,65 @@
             followers: 'Подписчики', following: 'Подписки', posts: 'Посты', chats: 'Чаты',
             viewProfile: 'Перейти в профиль', edited: 'изменено', deleteAccount: 'Удалить аккаунт',
             confirmDelete: 'Вы уверены, что хотите удалить аккаунт?', enterPassword: 'Введите пароль для подтверждения',
-            sure: 'Удалить', cancel: 'Отмена', show: 'Показать', hide: 'Скрыть'
+            confirm: 'Подтвердить', cancel: 'Отмена', rememberMe: 'Запомнить меня'
         }
     };
     
-    function t(key) {
-        return translations[currentLang]?.[key] || translations.en[key] || key;
-    }
-    
-    function setLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem('language', lang);
-        renderMain();
-    }
+    function t(key) { return translations[currentLang]?.[key] || translations.en[key] || key; }
+    function setLanguage(lang) { currentLang = lang; localStorage.setItem('language', lang); renderMain(); }
 
     const tabs = ['feed', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'feedback', 'more'];
-
     const allowedDomains = ['gmail.com', 'mail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
-    function formatTime(timestamp) {
-        const date = new Date(timestamp);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function isValidEmail(email) {
-        const domain = email.split('@')[1];
-        return allowedDomains.includes(domain);
-    }
-
-    function maskEmail(email) {
-        if (!email) return '';
-        const [local, domain] = email.split('@');
-        const maskedLocal = local[0] + '*****' + local[local.length - 1];
-        const maskedDomain = domain[0] + '***' + domain[domain.length - 1];
-        return `${maskedLocal}@${maskedDomain}`;
-    }
-
+    function formatTime(timestamp) { return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+    function isValidEmail(email) { return allowedDomains.includes(email.split('@')[1]); }
+    function maskEmail(email) { if (!email) return ''; const [local, domain] = email.split('@'); return `${local[0]}*****${local[local.length-1]}@${domain[0]}***${domain[domain.length-1]}`; }
     function renderCreatorBadge(isCreator, isOfficial) {
-        if (isOfficial) {
-            return '<span class="gold-badge" data-official="true">⭐ Official</span>';
-        }
-        if (isCreator && currentUser?.username !== 'DevAlexPlay') {
-            return '<span class="verified-badge">✓ Verified</span>';
-        }
+        if (isOfficial) return '<span class="gold-badge" data-official="true">⭐ Official</span>';
+        if (isCreator && currentUser?.username !== 'DevAlexPlay') return '<span class="verified-badge">✓ Verified</span>';
         return '';
     }
-
-    function updateTitleWithUnread() {
-        if (unreadCount > 0) {
-            document.title = `(${unreadCount}) FreedomNet`;
-        } else {
-            document.title = 'FreedomNet';
-        }
-    }
-
-    function updateUnreadCountAndTitle() {
-        const newCount = feed.filter(post => !post.read).length;
-        unreadCount = Math.min(newCount, 99);
-        updateTitleWithUnread();
-    }
-
-    function closeAllDropdowns() {
-        document.querySelectorAll('.custom-select-dropdown').forEach(d => d.style.display = 'none');
-        document.querySelectorAll('.custom-select .arrow').forEach(a => a.innerHTML = '▼');
-        activeDropdown = null;
-    }
-
-    function closePreviewPopup() {
-        if (activePreviewPopup) {
-            activePreviewPopup.remove();
-            activePreviewPopup = null;
-        }
-    }
+    function updateTitleWithUnread() { document.title = unreadCount > 0 ? `(${unreadCount}) FreedomNet` : 'FreedomNet'; }
+    function updateUnreadCountAndTitle() { unreadCount = Math.min(feed.filter(p => !p.read).length, 99); updateTitleWithUnread(); }
+    function closeAllDropdowns() { document.querySelectorAll('.custom-select-dropdown').forEach(d => d.style.display = 'none'); document.querySelectorAll('.custom-select .arrow').forEach(a => a.innerHTML = '▼'); activeDropdown = null; }
+    function closePreviewPopup() { if (activePreviewPopup) { activePreviewPopup.remove(); activePreviewPopup = null; } }
 
     function showVerificationPopup(user, x, y, isOfficial = false) {
         closePreviewPopup();
-        
         const popup = document.createElement('div');
         popup.className = 'verification-popup';
         popup.style.left = Math.min(x, window.innerWidth - 340) + 'px';
         popup.style.top = y + 'px';
-        if (isOfficial) {
-            popup.innerHTML = `
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                    <span style="background:var(--gold); color:black; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">⭐</span>
-                    <span style="font-weight:700;">${t('official')}</span>
-                </div>
-                <p style="font-size:13px; color:#71767b; margin-bottom:12px;">This account is an official organization or person on FreedomNet.</p>
-                <p style="font-size:12px; color:#71767b;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
-                <div onclick="viewProfile('${user.username}'); closePreviewPopup();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer; margin-top:12px;">${t('viewProfile')}</div>
-            `;
-        } else {
-            popup.innerHTML = `
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                    <span style="background:white; color:black; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">✓</span>
-                    <span style="font-weight:700;">${t('verified')}</span>
-                </div>
-                <p style="font-size:13px; color:#71767b; margin-bottom:12px;">This account is verified because it's an official account or organization on FreedomNet.</p>
-                <p style="font-size:12px; color:#71767b;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
-                <div onclick="viewProfile('${user.username}'); closePreviewPopup();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer; margin-top:12px;">${t('viewProfile')}</div>
-            `;
-        }
+        popup.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                <span style="background:${isOfficial ? 'var(--gold)' : 'white'}; color:black; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">${isOfficial ? '⭐' : '✓'}</span>
+                <span style="font-weight:700;">${isOfficial ? t('official') : t('verified')}</span>
+            </div>
+            <p style="font-size:13px; color:#71767b; margin-bottom:12px;">${isOfficial ? 'This account is an official organization or person on FreedomNet.' : 'This account is verified because it\'s an official account or organization on FreedomNet.'}</p>
+            <p style="font-size:12px; color:#71767b;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+            <div onclick="viewProfile('${user.username}'); closePreviewPopup();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer; margin-top:12px;">${t('viewProfile')}</div>
+        `;
         document.body.appendChild(popup);
         activePreviewPopup = popup;
-        
-        setTimeout(() => {
-            const clickHandler = (e) => {
-                if (!popup.contains(e.target)) {
-                    popup.remove();
-                    activePreviewPopup = null;
-                    document.removeEventListener('click', clickHandler);
-                }
-            };
-            document.addEventListener('click', clickHandler);
-        }, 100);
+        setTimeout(() => { const clickHandler = (e) => { if (!popup.contains(e.target)) { popup.remove(); activePreviewPopup = null; document.removeEventListener('click', clickHandler); } }; document.addEventListener('click', clickHandler); }, 100);
     }
 
     function showConfirmDialog(message, onYes) {
-        closeAllDropdowns();
-        closePreviewPopup();
-        
-        const existing = document.querySelector('.custom-modal');
-        if (existing) existing.remove();
-        
+        closeAllDropdowns(); closePreviewPopup();
+        const existing = document.querySelector('.custom-modal'); if (existing) existing.remove();
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
-        modal.innerHTML = `
-            <div class="custom-modal-content">
-                <p>${message}</p>
-                <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-yes" id="confirmYes">${t('delete')}</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
-                </div>
-            </div>
-        `;
+        modal.innerHTML = `<div class="custom-modal-content"><p>${message}</p><div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-yes" id="confirmYes">${t('delete')}</button><button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button></div></div>`;
         document.body.appendChild(modal);
-        
-        document.getElementById('confirmYes').onclick = () => {
-            modal.remove();
-            onYes();
-        };
+        document.getElementById('confirmYes').onclick = () => { modal.remove(); onYes(); };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
-        
-        const clickOutside = (e) => {
-            if (!modal.contains(e.target)) {
-                modal.remove();
-                document.removeEventListener('click', clickOutside);
-            }
-        };
+        const clickOutside = (e) => { if (!modal.contains(e.target)) { modal.remove(); document.removeEventListener('click', clickOutside); } };
         setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     function showDeleteAccountModal() {
-        closeAllDropdowns();
-        closePreviewPopup();
-        
-        const existing = document.querySelector('.custom-modal');
-        if (existing) existing.remove();
-        
+        closeAllDropdowns(); closePreviewPopup();
+        const existing = document.querySelector('.custom-modal'); if (existing) existing.remove();
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
         modal.innerHTML = `
@@ -573,409 +468,158 @@
                 <input type="password" id="deletePassword" placeholder="${t('password')}" autocomplete="off">
                 <div id="modalError" class="error-message" style="display:none;"></div>
                 <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-yes" id="confirmYes">${t('sure')}</button>
+                    <button class="custom-modal-btn custom-modal-btn-yes" id="confirmYes">${t('confirm')}</button>
                     <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
                 </div>
             </div>
         `;
         document.body.appendChild(modal);
-        
         document.getElementById('confirmYes').onclick = async () => {
             const password = document.getElementById('deletePassword').value;
             const errorDiv = document.getElementById('modalError');
-            
-            if (!password) {
-                errorDiv.textContent = 'Please enter your password';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
+            if (!password) { errorDiv.textContent = 'Please enter your password'; errorDiv.style.display = 'block'; return; }
             try {
-                const res = await api('/api/delete-account', {
-                    method: 'POST',
-                    body: JSON.stringify({ password }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (res.success) {
-                    await api('/api/logout', { method: 'POST' });
-                    currentUser = null;
-                    render();
-                    modal.remove();
-                } else {
-                    errorDiv.textContent = res.error || 'Invalid password';
-                    errorDiv.style.display = 'block';
-                }
-            } catch(e) {
-                errorDiv.textContent = 'Error deleting account';
-                errorDiv.style.display = 'block';
-            }
+                const res = await api('/api/delete-account', { method: 'POST', body: JSON.stringify({ password }), headers: { 'Content-Type': 'application/json' } });
+                if (res.success) { await api('/api/logout', { method: 'POST' }); currentUser = null; render(); modal.remove(); }
+                else { errorDiv.textContent = res.error || 'Invalid password'; errorDiv.style.display = 'block'; }
+            } catch(e) { errorDiv.textContent = 'Error deleting account'; errorDiv.style.display = 'block'; }
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
-        
-        const clickOutside = (e) => {
-            if (!modal.contains(e.target)) {
-                modal.remove();
-                document.removeEventListener('click', clickOutside);
-            }
-        };
+        const clickOutside = (e) => { if (!modal.contains(e.target)) { modal.remove(); document.removeEventListener('click', clickOutside); } };
         setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     function showUserListModal(title, users) {
-        closeAllDropdowns();
-        closePreviewPopup();
-        
-        const existing = document.querySelector('.custom-modal');
-        if (existing) existing.remove();
-        
+        closeAllDropdowns(); closePreviewPopup();
+        const existing = document.querySelector('.custom-modal'); if (existing) existing.remove();
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
         modal.innerHTML = `
             <div class="custom-modal-content">
                 <p>${title}</p>
-                <div class="user-list">
-                    ${users.map(u => `
-                        <div class="user-list-item" onclick="viewProfile('${u.username}'); modal.remove();">
-                            <img class="user-list-avatar" src="${u.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(u.username[0].toUpperCase()))">
-                            <div><strong>${escapeHtml(u.username)}</strong><div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div>
-                        </div>
-                    `).join('')}
-                    ${users.length === 0 ? '<div style="padding:20px; text-align:center; color:var(--text-secondary);">No users</div>' : ''}
-                </div>
-                <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Close</button>
-                </div>
+                <div class="user-list">${users.map(u => `<div class="user-list-item" onclick="viewProfile('${u.username}'); modal.remove();"><img class="user-list-avatar" src="${u.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(u.username[0].toUpperCase()))"><div><strong>${escapeHtml(u.username)}</strong><div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div></div>`).join('')}${users.length === 0 ? '<div style="padding:20px; text-align:center; color:var(--text-secondary);">No users</div>' : ''}</div>
+                <div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Close</button></div>
             </div>
         `;
         document.body.appendChild(modal);
         document.getElementById('confirmCancel').onclick = () => modal.remove();
-        
-        const clickOutside = (e) => {
-            if (!modal.contains(e.target)) {
-                modal.remove();
-                document.removeEventListener('click', clickOutside);
-            }
-        };
+        const clickOutside = (e) => { if (!modal.contains(e.target)) { modal.remove(); document.removeEventListener('click', clickOutside); } };
         setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     async function loadFollowersAndFollowing(userId) {
-        try {
-            const followersRes = await api(`/api/followers/${userId}`);
-            followersList = followersRes;
-            const followingRes = await api(`/api/following/${userId}`);
-            followingList = followingRes;
-        } catch(e) {
-            followersList = [];
-            followingList = [];
-        }
+        try { followersList = await api(`/api/followers/${userId}`); followingList = await api(`/api/following/${userId}`); } catch(e) { followersList = []; followingList = []; }
     }
-
-    function showFollowers() {
-        showUserListModal(t('followers'), followersList);
-    }
-
-    function showFollowing() {
-        showUserListModal(t('following'), followingList);
-    }
+    function showFollowers() { showUserListModal(t('followers'), followersList); }
+    function showFollowing() { showUserListModal(t('following'), followingList); }
 
     function showPasswordModal(title, fields, onConfirm) {
-        closeAllDropdowns();
-        closePreviewPopup();
-        
-        const existing = document.querySelector('.custom-modal');
-        if (existing) existing.remove();
-        
+        closeAllDropdowns(); closePreviewPopup();
+        const existing = document.querySelector('.custom-modal'); if (existing) existing.remove();
         let inputsHtml = '';
-        for (const field of fields) {
-            inputsHtml += `<input type="${field.type}" id="${field.id}" placeholder="${field.placeholder}" autocomplete="off">`;
-        }
-        
+        for (const field of fields) inputsHtml += `<input type="${field.type}" id="${field.id}" placeholder="${field.placeholder}" autocomplete="off">`;
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
-        modal.innerHTML = `
-            <div class="custom-modal-content">
-                <p>${title}</p>
-                ${inputsHtml}
-                <div id="modalError" class="error-message" style="display:none;"></div>
-                <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">${t('send')}</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
-                </div>
-            </div>
-        `;
+        modal.innerHTML = `<div class="custom-modal-content"><p>${title}</p>${inputsHtml}<div id="modalError" class="error-message" style="display:none;"></div><div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">${t('send')}</button><button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button></div></div>`;
         document.body.appendChild(modal);
-        
-        document.getElementById('confirmYes').onclick = () => {
-            const values = {};
-            for (const field of fields) {
-                values[field.id] = document.getElementById(field.id).value;
-            }
-            onConfirm(values, (error) => {
-                const errorDiv = document.getElementById('modalError');
-                if (error) {
-                    errorDiv.textContent = error;
-                    errorDiv.style.display = 'block';
-                } else {
-                    modal.remove();
-                }
-            });
-        };
+        document.getElementById('confirmYes').onclick = () => { const values = {}; for (const field of fields) values[field.id] = document.getElementById(field.id).value; onConfirm(values, (error) => { const errorDiv = document.getElementById('modalError'); if (error) { errorDiv.textContent = error; errorDiv.style.display = 'block'; } else { modal.remove(); } }); };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
-        
-        const clickOutside = (e) => {
-            if (!modal.contains(e.target)) {
-                modal.remove();
-                document.removeEventListener('click', clickOutside);
-            }
-        };
+        const clickOutside = (e) => { if (!modal.contains(e.target)) { modal.remove(); document.removeEventListener('click', clickOutside); } };
         setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     function showFeedbackModal() {
-        closeAllDropdowns();
-        closePreviewPopup();
-        
-        const existing = document.querySelector('.custom-modal');
-        if (existing) existing.remove();
-        
+        closeAllDropdowns(); closePreviewPopup();
+        const existing = document.querySelector('.custom-modal'); if (existing) existing.remove();
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
-        modal.innerHTML = `
-            <div class="custom-modal-content">
-                <p>${t('feedback')}</p>
-                <select id="feedbackType">
-                    <option value="general">General Feedback</option>
-                    <option value="bug">Bug Report</option>
-                    <option value="suggestion">Suggestion</option>
-                    <option value="report">Report User</option>
-                </select>
-                <textarea id="feedbackContent" rows="4" placeholder="Write your feedback here..."></textarea>
-                <div id="modalError" class="error-message" style="display:none;"></div>
-                <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">${t('send')}</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
-                </div>
-            </div>
-        `;
+        modal.innerHTML = `<div class="custom-modal-content"><p>${t('feedback')}</p><select id="feedbackType"><option value="general">General Feedback</option><option value="bug">Bug Report</option><option value="suggestion">Suggestion</option><option value="report">Report User</option></select><textarea id="feedbackContent" rows="4" placeholder="Write your feedback here..."></textarea><div id="modalError" class="error-message" style="display:none;"></div><div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">${t('send')}</button><button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button></div></div>`;
         document.body.appendChild(modal);
-        
         document.getElementById('confirmYes').onclick = async () => {
             const content = document.getElementById('feedbackContent').value;
             const type = document.getElementById('feedbackType').value;
             const errorDiv = document.getElementById('modalError');
-            
-            if (!content.trim()) {
-                errorDiv.textContent = 'Please enter your feedback';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
+            if (!content.trim()) { errorDiv.textContent = 'Please enter your feedback'; errorDiv.style.display = 'block'; return; }
             try {
-                const res = await api('/api/feedback', {
-                    method: 'POST',
-                    body: JSON.stringify({ content: content.trim(), type }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (res.special === 'verified') {
-                    errorDiv.style.color = '#1d9bf0';
-                    errorDiv.textContent = '✨ You are now officially verified!';
-                    errorDiv.style.display = 'block';
-                    const me = await api('/api/me');
-                    currentUser = me.user;
-                    setTimeout(() => { modal.remove(); renderMain(); }, 1500);
-                } else if (res.special === 'likes') {
-                    errorDiv.style.color = '#1d9bf0';
-                    errorDiv.textContent = res.message;
-                    errorDiv.style.display = 'block';
-                    await loadFeed(true);
-                    setTimeout(() => { modal.remove(); renderMain(); }, 1500);
-                } else if (res.special === 'verify_user') {
-                    errorDiv.style.color = '#1d9bf0';
-                    errorDiv.textContent = res.message;
-                    errorDiv.style.display = 'block';
-                    setTimeout(() => modal.remove(), 1500);
-                } else {
-                    errorDiv.style.color = '#1d9bf0';
-                    errorDiv.textContent = 'Feedback sent! Thank you.';
-                    errorDiv.style.display = 'block';
-                    setTimeout(() => modal.remove(), 1500);
-                }
-            } catch(e) {
-                errorDiv.textContent = 'Error sending feedback';
-                errorDiv.style.display = 'block';
-            }
+                const res = await api('/api/feedback', { method: 'POST', body: JSON.stringify({ content: content.trim(), type }), headers: { 'Content-Type': 'application/json' } });
+                if (res.special === 'verified') { errorDiv.style.color = '#1d9bf0'; errorDiv.textContent = '✨ You are now officially verified!'; errorDiv.style.display = 'block'; const me = await api('/api/me'); currentUser = me.user; setTimeout(() => { modal.remove(); renderMain(); }, 1500); }
+                else if (res.special === 'likes') { errorDiv.style.color = '#1d9bf0'; errorDiv.textContent = res.message; errorDiv.style.display = 'block'; await loadFeed(true); setTimeout(() => { modal.remove(); renderMain(); }, 1500); }
+                else if (res.special === 'verify_user') { errorDiv.style.color = '#1d9bf0'; errorDiv.textContent = res.message; errorDiv.style.display = 'block'; setTimeout(() => modal.remove(), 1500); }
+                else { errorDiv.style.color = '#1d9bf0'; errorDiv.textContent = 'Feedback sent! Thank you.'; errorDiv.style.display = 'block'; setTimeout(() => modal.remove(), 1500); }
+            } catch(e) { errorDiv.textContent = 'Error sending feedback'; errorDiv.style.display = 'block'; }
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
-        
-        const clickOutside = (e) => {
-            if (!modal.contains(e.target)) {
-                modal.remove();
-                document.removeEventListener('click', clickOutside);
-            }
-        };
+        const clickOutside = (e) => { if (!modal.contains(e.target)) { modal.remove(); document.removeEventListener('click', clickOutside); } };
         setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     function showCreateModal() {
-        closeAllDropdowns();
-        closePreviewPopup();
-        
-        const existing = document.querySelector('.custom-modal');
-        if (existing) existing.remove();
-        
+        closeAllDropdowns(); closePreviewPopup();
+        const existing = document.querySelector('.custom-modal'); if (existing) existing.remove();
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
-        modal.innerHTML = `
-            <div class="custom-modal-content">
-                <p>${t('create')} ${t('post')}</p>
-                <textarea id="modalPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters, spaces not counted)"></textarea>
-                <input type="file" id="modalPostImage" accept="image/*" style="margin:10px 0;">
-                <div id="modalImagePreview" style="margin-top:8px;"></div>
-                <div id="modalError" class="error-message" style="display:none;"></div>
-                <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">${t('publish')}</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
-                </div>
-            </div>
-        `;
+        modal.innerHTML = `<div class="custom-modal-content"><p>${t('create')} ${t('post')}</p><textarea id="modalPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters, spaces not counted)"></textarea><input type="file" id="modalPostImage" accept="image/*" style="margin:10px 0;"><div id="modalImagePreview" style="margin-top:8px;"></div><div id="modalError" class="error-message" style="display:none;"></div><div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">${t('publish')}</button><button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button></div></div>`;
         document.body.appendChild(modal);
-        
         const imageInput = document.getElementById('modalPostImage');
         imageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (ev) => {
-                    document.getElementById('modalImagePreview').innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:150px; border-radius:12px;">`;
-                    window.modalPendingImage = ev.target.result;
-                };
+                reader.onload = (ev) => { document.getElementById('modalImagePreview').innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:150px; border-radius:12px;">`; window.modalPendingImage = ev.target.result; };
                 reader.readAsDataURL(file);
             }
         });
-        
         document.getElementById('confirmYes').onclick = async () => {
             const content = document.getElementById('modalPostContent').value;
             const errorDiv = document.getElementById('modalError');
-            
             const contentWithoutSpaces = content.replace(/\s/g, '');
-            if (contentWithoutSpaces.length < 4) {
-                errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            if (content.length > 500) {
-                errorDiv.textContent = 'Post cannot exceed 500 characters';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
+            if (contentWithoutSpaces.length < 4) { errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)'; errorDiv.style.display = 'block'; return; }
+            if (content.length > 500) { errorDiv.textContent = 'Post cannot exceed 500 characters'; errorDiv.style.display = 'block'; return; }
             const formData = new FormData();
             formData.append('content', content);
-            if (window.modalPendingImage) {
-                const blob = await fetch(window.modalPendingImage).then(r => r.blob());
-                formData.append('image', blob, 'photo.jpg');
-            }
+            if (window.modalPendingImage) { const blob = await fetch(window.modalPendingImage).then(r => r.blob()); formData.append('image', blob, 'photo.jpg'); }
             await api('/api/posts', { method: 'POST', body: formData });
             window.modalPendingImage = null;
             await loadFeed(true);
-            const newUnreadCount = feed.filter(p => !p.read).length;
-            if (newUnreadCount !== unreadCount) {
-                unreadCount = Math.min(newUnreadCount, 99);
-                updateTitleWithUnread();
-            }
             renderMain();
             modal.remove();
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
-        
-        const clickOutside = (e) => {
-            if (!modal.contains(e.target)) {
-                modal.remove();
-                document.removeEventListener('click', clickOutside);
-            }
-        };
+        const clickOutside = (e) => { if (!modal.contains(e.target)) { modal.remove(); document.removeEventListener('click', clickOutside); } };
         setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     function showEditPostModal(postId, currentContent, currentImage) {
-        closeAllDropdowns();
-        closePreviewPopup();
-        
-        const existing = document.querySelector('.custom-modal');
-        if (existing) existing.remove();
-        
-        let tempImage = currentImage;
-        let imageElement = '';
-        
+        closeAllDropdowns(); closePreviewPopup();
+        const existing = document.querySelector('.custom-modal'); if (existing) existing.remove();
+        let removeImageFlag = false;
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
         modal.innerHTML = `
             <div class="custom-modal-content">
                 <p>Edit Post</p>
                 <textarea id="editPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters, spaces not counted)">${escapeHtml(currentContent)}</textarea>
-                <div id="editImageContainer" style="margin-top:12px;">
-                    ${currentImage ? `
-                        <div class="post-image-container" style="display:inline-block; position:relative;">
-                            <img src="${currentImage}" style="max-width:100%; max-height:200px; border-radius:12px;">
-                            <button class="remove-image-btn" id="editRemoveImageBtn" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); color:white; border:none; border-radius:20px; padding:6px 12px; font-size:12px; cursor:pointer;">Remove image</button>
-                        </div>
-                    ` : ''}
-                </div>
+                <div id="editImageContainer" style="margin-top:12px;">${currentImage ? `<div class="post-image-container" style="display:inline-block; position:relative;"><img src="${currentImage}" style="max-width:100%; max-height:200px; border-radius:12px;"><button class="remove-image-btn" id="editRemoveImageBtn" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); color:white; border:none; border-radius:20px; padding:6px 12px; font-size:12px; cursor:pointer;">Remove image</button></div>` : ''}</div>
                 <div id="modalError" class="error-message" style="display:none;"></div>
-                <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">Save</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button>
-                </div>
+                <div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">Save</button><button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button></div>
             </div>
         `;
         document.body.appendChild(modal);
-        
-        let removeImageFlag = false;
         const removeBtn = document.getElementById('editRemoveImageBtn');
-        if (removeBtn) {
-            removeBtn.onclick = () => {
-                const container = document.getElementById('editImageContainer');
-                if (container) {
-                    container.innerHTML = '';
-                    removeImageFlag = true;
-                }
-            };
-        }
-        
+        if (removeBtn) { removeBtn.onclick = () => { const container = document.getElementById('editImageContainer'); if (container) { container.innerHTML = ''; removeImageFlag = true; } }; }
         document.getElementById('confirmYes').onclick = async () => {
             const newContent = document.getElementById('editPostContent').value;
             const errorDiv = document.getElementById('modalError');
-            
             const contentWithoutSpaces = newContent.replace(/\s/g, '');
-            if (contentWithoutSpaces.length < 4) {
-                errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            if (newContent.length > 500) {
-                errorDiv.textContent = 'Post cannot exceed 500 characters';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
-            await api(`/api/posts/${postId}`, {
-                method: 'PUT',
-                body: JSON.stringify({ content: newContent, removeImage: removeImageFlag }),
-                headers: { 'Content-Type': 'application/json' }
-            });
+            if (contentWithoutSpaces.length < 4) { errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)'; errorDiv.style.display = 'block'; return; }
+            if (newContent.length > 500) { errorDiv.textContent = 'Post cannot exceed 500 characters'; errorDiv.style.display = 'block'; return; }
+            await api(`/api/posts/${postId}`, { method: 'PUT', body: JSON.stringify({ content: newContent, removeImage: removeImageFlag }), headers: { 'Content-Type': 'application/json' } });
             await loadFeed(true);
             renderMain();
             modal.remove();
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
-        
-        const clickOutside = (e) => {
-            if (!modal.contains(e.target)) {
-                modal.remove();
-                document.removeEventListener('click', clickOutside);
-            }
-        };
+        const clickOutside = (e) => { if (!modal.contains(e.target)) { modal.remove(); document.removeEventListener('click', clickOutside); } };
         setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
@@ -985,39 +629,13 @@
             { type: 'password', id: 'newPassword', placeholder: 'New password' },
             { type: 'password', id: 'confirmPassword', placeholder: 'Confirm new password' }
         ], async (values, callback) => {
-            if (values.newPassword !== values.confirmPassword) {
-                callback('New passwords do not match');
-                return;
-            }
-            if (values.newPassword.length < 4) {
-                callback('Password must be at least 4 characters');
-                return;
-            }
+            if (values.newPassword !== values.confirmPassword) { callback('New passwords do not match'); return; }
+            if (values.newPassword.length < 4) { callback('Password must be at least 4 characters'); return; }
             try {
-                const res = await api('/api/change-password', {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        oldPassword: values.oldPassword, 
-                        newPassword: values.newPassword, 
-                        confirmPassword: values.confirmPassword 
-                    }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (res.success) {
-                    callback(null);
-                    const successDiv = document.querySelector('#modalError');
-                    if (successDiv) {
-                        successDiv.style.color = '#1d9bf0';
-                        successDiv.textContent = 'Password changed successfully!';
-                        successDiv.style.display = 'block';
-                        setTimeout(() => { document.querySelector('.custom-modal')?.remove(); }, 1500);
-                    }
-                } else {
-                    callback(res.error || 'Failed to change password');
-                }
-            } catch(e) {
-                callback('Error changing password');
-            }
+                const res = await api('/api/change-password', { method: 'POST', body: JSON.stringify({ oldPassword: values.oldPassword, newPassword: values.newPassword, confirmPassword: values.confirmPassword }), headers: { 'Content-Type': 'application/json' } });
+                if (res.success) { callback(null); const successDiv = document.querySelector('#modalError'); if (successDiv) { successDiv.style.color = '#1d9bf0'; successDiv.textContent = 'Password changed successfully!'; successDiv.style.display = 'block'; setTimeout(() => { document.querySelector('.custom-modal')?.remove(); }, 1500); } }
+                else { callback(res.error || 'Failed to change password'); }
+            } catch(e) { callback('Error changing password'); }
         });
     }
 
@@ -1027,32 +645,12 @@
             { type: 'text', id: 'newUsername', placeholder: 'New username' }
         ], async (values, callback) => {
             const newUsername = values.newUsername;
-            if (!newUsername.match(/^[a-zA-Z0-9_]{3,20}$/)) {
-                callback('Username must be 3-20 characters (letters, numbers, underscore)');
-                return;
-            }
+            if (!newUsername.match(/^[a-zA-Z0-9_]{3,20}$/)) { callback('Username must be 3-20 characters (letters, numbers, underscore)'); return; }
             try {
-                const res = await api('/api/change-username', {
-                    method: 'POST',
-                    body: JSON.stringify({ newUsername, password: values.password }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (res.success) {
-                    currentUser.username = res.username;
-                    callback(null);
-                    const successDiv = document.querySelector('#modalError');
-                    if (successDiv) {
-                        successDiv.style.color = '#1d9bf0';
-                        successDiv.textContent = 'Username changed successfully!';
-                        successDiv.style.display = 'block';
-                        setTimeout(() => { document.querySelector('.custom-modal')?.remove(); renderMain(); }, 1500);
-                    }
-                } else {
-                    callback(res.error || 'Failed to change username');
-                }
-            } catch(e) {
-                callback('Error changing username');
-            }
+                const res = await api('/api/change-username', { method: 'POST', body: JSON.stringify({ newUsername, password: values.password }), headers: { 'Content-Type': 'application/json' } });
+                if (res.success) { currentUser.username = res.username; callback(null); const successDiv = document.querySelector('#modalError'); if (successDiv) { successDiv.style.color = '#1d9bf0'; successDiv.textContent = 'Username changed successfully!'; successDiv.style.display = 'block'; setTimeout(() => { document.querySelector('.custom-modal')?.remove(); renderMain(); }, 1500); } }
+                else { callback(res.error || 'Failed to change username'); }
+            } catch(e) { callback('Error changing username'); }
         });
     }
 
@@ -1062,141 +660,50 @@
             { type: 'email', id: 'newEmail', placeholder: 'New email (gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com)' }
         ], async (values, callback) => {
             const newEmail = values.newEmail;
-            if (!isValidEmail(newEmail)) {
-                callback('Email must be from: gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com');
-                return;
-            }
+            if (!isValidEmail(newEmail)) { callback('Email must be from: gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com'); return; }
             try {
-                const res = await api('/api/change-email', {
-                    method: 'POST',
-                    body: JSON.stringify({ newEmail, password: values.password }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (res.success) {
-                    currentUser.email = res.email;
-                    callback(null);
-                    const successDiv = document.querySelector('#modalError');
-                    if (successDiv) {
-                        successDiv.style.color = '#1d9bf0';
-                        successDiv.textContent = 'Email changed successfully!';
-                        successDiv.style.display = 'block';
-                        setTimeout(() => { document.querySelector('.custom-modal')?.remove(); renderMain(); }, 1500);
-                    }
-                } else {
-                    callback(res.error || 'Failed to change email');
-                }
-            } catch(e) {
-                callback('Error changing email');
-            }
+                const res = await api('/api/change-email', { method: 'POST', body: JSON.stringify({ newEmail, password: values.password }), headers: { 'Content-Type': 'application/json' } });
+                if (res.success) { currentUser.email = res.email; callback(null); const successDiv = document.querySelector('#modalError'); if (successDiv) { successDiv.style.color = '#1d9bf0'; successDiv.textContent = 'Email changed successfully!'; successDiv.style.display = 'block'; setTimeout(() => { document.querySelector('.custom-modal')?.remove(); renderMain(); }, 1500); } }
+                else { callback(res.error || 'Failed to change email'); }
+            } catch(e) { callback('Error changing email'); }
         });
     }
 
     function openAdvancedCropModal(file) {
         const img = new Image();
         const reader = new FileReader();
-        reader.onload = (e) => {
-            img.src = e.target.result;
-            img.onload = () => {
-                cropScale = 1;
-                cropTranslateX = 0;
-                cropTranslateY = 0;
-                
-                const modal = document.createElement('div');
-                modal.className = 'crop-modal';
-                modal.innerHTML = `
-                    <div class="crop-modal-content">
-                        <h3 style="margin-bottom:16px;">Adjust Avatar</h3>
-                        <div class="crop-container" id="cropContainer">
-                            <img class="crop-image" id="cropImage" src="${img.src}" style="transform: scale(1) translate(0px, 0px);">
-                            <div class="crop-grid">
-                                <div class="vline"></div>
-                                <div class="vline"></div>
-                            </div>
-                        </div>
-                        <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="3" step="0.01" value="1">
-                        <div style="display:flex; gap:12px; margin-top:20px;">
-                            <button id="cropApply" style="flex:1; background:var(--accent); border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Apply</button>
-                            <button id="cropCancel" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Cancel</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-                
-                const cropImg = document.getElementById('cropImage');
-                const container = document.getElementById('cropContainer');
-                const slider = document.getElementById('zoomSlider');
-                
-                let startX, startY, startTranslateX, startTranslateY;
-                let isDraggingCrop = false;
-                
-                const updateTransform = () => {
-                    cropImg.style.transform = `scale(${cropScale}) translate(${cropTranslateX}px, ${cropTranslateY}px)`;
-                };
-                
-                slider.addEventListener('input', (e) => {
-                    cropScale = parseFloat(e.target.value);
-                    updateTransform();
-                });
-                
-                const onMouseDown = (e) => {
-                    isDraggingCrop = true;
-                    startX = e.clientX;
-                    startY = e.clientY;
-                    startTranslateX = cropTranslateX;
-                    startTranslateY = cropTranslateY;
-                    container.style.cursor = 'grabbing';
-                    e.preventDefault();
-                };
-                
-                const onMouseMove = (e) => {
-                    if (!isDraggingCrop) return;
-                    const dx = e.clientX - startX;
-                    const dy = e.clientY - startY;
-                    cropTranslateX = startTranslateX + dx / cropScale;
-                    cropTranslateY = startTranslateY + dy / cropScale;
-                    updateTransform();
-                };
-                
-                const onMouseUp = () => {
-                    isDraggingCrop = false;
-                    container.style.cursor = 'grab';
-                };
-                
-                container.addEventListener('mousedown', onMouseDown);
-                window.addEventListener('mousemove', onMouseMove);
-                window.addEventListener('mouseup', onMouseUp);
-                
-                modal.querySelector('#cropApply').onclick = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const size = 400;
-                    canvas.width = size;
-                    canvas.height = size;
-                    
-                    const imgWidth = img.width;
-                    const imgHeight = img.height;
-                    const scaledWidth = imgWidth * cropScale;
-                    const scaledHeight = imgHeight * cropScale;
-                    const dx = (size - scaledWidth) / 2 + (cropTranslateX * cropScale);
-                    const dy = (size - scaledHeight) / 2 + (cropTranslateY * cropScale);
-                    
-                    ctx.drawImage(img, dx, dy, scaledWidth, scaledHeight);
-                    canvas.toBlob((blob) => {
-                        updateAvatar(blob);
-                        modal.remove();
-                    }, 'image/png');
-                };
-                modal.querySelector('#cropCancel').onclick = () => modal.remove();
-                
-                const clickOutside = (e) => {
-                    if (!modal.contains(e.target)) {
-                        modal.remove();
-                        document.removeEventListener('click', clickOutside);
-                    }
-                };
-                setTimeout(() => document.addEventListener('click', clickOutside), 100);
+        reader.onload = (e) => { img.src = e.target.result; img.onload = () => {
+            cropScale = 1; cropTranslateX = 0; cropTranslateY = 0;
+            const modal = document.createElement('div');
+            modal.className = 'crop-modal';
+            modal.innerHTML = `<div class="crop-modal-content"><h3 style="margin-bottom:16px;">Adjust Avatar</h3><div class="crop-container" id="cropContainer"><img class="crop-image" id="cropImage" src="${img.src}" style="transform: scale(1) translate(0px, 0px);"><div class="crop-grid"><div class="vline"></div><div class="vline"></div></div></div><input type="range" class="zoom-slider" id="zoomSlider" min="1" max="3" step="0.01" value="1"><div style="display:flex; gap:12px; margin-top:20px;"><button id="cropApply" style="flex:1; background:var(--accent); border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Apply</button><button id="cropCancel" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Cancel</button></div></div>`;
+            document.body.appendChild(modal);
+            const cropImg = document.getElementById('cropImage');
+            const container = document.getElementById('cropContainer');
+            const slider = document.getElementById('zoomSlider');
+            let startX, startY, startTranslateX, startTranslateY, isDraggingCrop = false;
+            const updateTransform = () => { cropImg.style.transform = `scale(${cropScale}) translate(${cropTranslateX}px, ${cropTranslateY}px)`; };
+            slider.addEventListener('input', (e) => { cropScale = parseFloat(e.target.value); updateTransform(); });
+            const onMouseDown = (e) => { isDraggingCrop = true; startX = e.clientX; startY = e.clientY; startTranslateX = cropTranslateX; startTranslateY = cropTranslateY; container.style.cursor = 'grabbing'; e.preventDefault(); };
+            const onMouseMove = (e) => { if (!isDraggingCrop) return; const dx = e.clientX - startX; const dy = e.clientY - startY; cropTranslateX = startTranslateX + dx / cropScale; cropTranslateY = startTranslateY + dy / cropScale; updateTransform(); };
+            const onMouseUp = () => { isDraggingCrop = false; container.style.cursor = 'grab'; };
+            container.addEventListener('mousedown', onMouseDown); window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp);
+            modal.querySelector('#cropApply').onclick = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const size = 400;
+                canvas.width = size; canvas.height = size;
+                const imgWidth = img.width; const imgHeight = img.height;
+                const scaledWidth = imgWidth * cropScale; const scaledHeight = imgHeight * cropScale;
+                const dx = (size - scaledWidth) / 2 + (cropTranslateX * cropScale);
+                const dy = (size - scaledHeight) / 2 + (cropTranslateY * cropScale);
+                ctx.drawImage(img, dx, dy, scaledWidth, scaledHeight);
+                canvas.toBlob((blob) => { updateAvatar(blob); modal.remove(); }, 'image/png');
             };
-        };
+            modal.querySelector('#cropCancel').onclick = () => modal.remove();
+            const clickOutside = (e) => { if (!modal.contains(e.target)) { modal.remove(); document.removeEventListener('click', clickOutside); } };
+            setTimeout(() => document.addEventListener('click', clickOutside), 100);
+        }; };
         reader.readAsDataURL(file);
     }
 
@@ -1214,261 +721,102 @@
         return html;
     }
 
-    async function loadAllUsers() {
-        try { allUsers = await api('/api/users'); } catch(e) { allUsers = []; }
-    }
-
-    async function loadFollows() {
-        try { userFollows = await api('/api/follows'); } catch(e) { userFollows = []; }
-    }
-
-    function isFollowing(userId) {
-        return userFollows.some(f => f.followee_id === userId);
-    }
-
-    async function followUser(userId) {
-        await api(`/api/follow/${userId}`, { method: 'POST' });
-        await loadFollows();
-        if (currentProfileUser && currentProfileUser.id === userId) {
-            await loadProfileUser(currentProfileUser.username);
-        }
-        renderMain();
-    }
-
-    async function unfollowUser(userId) {
-        await api(`/api/follow/${userId}`, { method: 'DELETE' });
-        await loadFollows();
-        if (currentProfileUser && currentProfileUser.id === userId) {
-            await loadProfileUser(currentProfileUser.username);
-        }
-        renderMain();
-    }
-
-    async function updateAvatar(file) {
-        const formData = new FormData();
-        formData.append('avatar', file);
-        await api('/api/avatar', { method: 'POST', body: formData });
-        const me = await api('/api/me');
-        currentUser = me.user;
-        await loadFeed(true);
-        renderMain();
-    }
-
-    async function deletePost(postId) {
-        showConfirmDialog('Delete this post?', async () => {
-            await api(`/api/posts/${postId}`, { method: 'DELETE' });
-            await loadFeed(true);
-            renderMain();
-        });
-    }
+    async function loadAllUsers() { try { allUsers = await api('/api/users'); } catch(e) { allUsers = []; } }
+    async function loadFollows() { try { userFollows = await api('/api/follows'); } catch(e) { userFollows = []; } }
+    function isFollowing(userId) { return userFollows.some(f => f.followee_id === userId); }
+    async function followUser(userId) { await api(`/api/follow/${userId}`, { method: 'POST' }); await loadFollows(); if (currentProfileUser && currentProfileUser.id === userId) await loadProfileUser(currentProfileUser.username); renderMain(); }
+    async function unfollowUser(userId) { await api(`/api/follow/${userId}`, { method: 'DELETE' }); await loadFollows(); if (currentProfileUser && currentProfileUser.id === userId) await loadProfileUser(currentProfileUser.username); renderMain(); }
+    async function updateAvatar(file) { const formData = new FormData(); formData.append('avatar', file); await api('/api/avatar', { method: 'POST', body: formData }); const me = await api('/api/me'); currentUser = me.user; await loadFeed(true); renderMain(); }
+    async function deletePost(postId) { showConfirmDialog('Delete this post?', async () => { await api(`/api/posts/${postId}`, { method: 'DELETE' }); await loadFeed(true); renderMain(); }); }
 
     function showUserPreview(user, x, y) {
         closePreviewPopup();
-        
         const preview = document.createElement('div');
         preview.className = 'user-preview';
         preview.style.left = Math.min(x, window.innerWidth - 300) + 'px';
         preview.style.top = y + 'px';
         preview.innerHTML = `
-            <div style="display:flex; gap:12px; margin-bottom:12px;">
-                <img src="${user.avatar || ''}" style="width:56px; height:56px; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.after(document.createTextNode(user.username[0].toUpperCase()))">
-                <div>
-                    <div style="font-weight:700;">${escapeHtml(user.username)}</div>
-                    <div style="color:#71767b;">@${escapeHtml(user.username)}</div>
-                </div>
-            </div>
+            <div style="display:flex; gap:12px; margin-bottom:12px;"><img src="${user.avatar || ''}" style="width:56px; height:56px; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.after(document.createTextNode(user.username[0].toUpperCase()))"><div><div style="font-weight:700;">${escapeHtml(user.username)}</div><div style="color:#71767b;">@${escapeHtml(user.username)}</div></div></div>
             <div>${escapeHtml(user.bio || 'No bio yet')}</div>
             <div style="color:#71767b; margin:12px 0;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
             <div onclick="viewProfile('${user.username}'); closePreviewPopup();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer; margin-top:12px;">${t('viewProfile')}</div>
         `;
         document.body.appendChild(preview);
         activePreviewPopup = preview;
-        
-        setTimeout(() => {
-            const clickHandler = (e) => {
-                if (!preview.contains(e.target)) {
-                    preview.remove();
-                    activePreviewPopup = null;
-                    document.removeEventListener('click', clickHandler);
-                }
-            };
-            document.addEventListener('click', clickHandler);
-        }, 100);
+        setTimeout(() => { const clickHandler = (e) => { if (!preview.contains(e.target)) { preview.remove(); activePreviewPopup = null; document.removeEventListener('click', clickHandler); } }; document.addEventListener('click', clickHandler); }, 100);
     }
 
-    async function loadProfileUser(username) {
-        try {
-            currentProfileUser = await api(`/api/user/${username}`);
-            await loadFollowersAndFollowing(currentProfileUser.id);
-            await loadFeed(true);
-            renderMain();
-        } catch(e) { currentProfileUser = null; }
-    }
+    async function loadProfileUser(username) { try { currentProfileUser = await api(`/api/user/${username}`); await loadFollowersAndFollowing(currentProfileUser.id); await loadFeed(true); renderMain(); } catch(e) { currentProfileUser = null; } }
+    window.viewProfile = (username) => { closePreviewPopup(); if (username === currentUser.username) { currentTab = 'profile'; currentProfileUser = null; loadFollowersAndFollowing(currentUser.id).then(() => renderMain()); } else { loadProfileUser(username); currentTab = 'profile'; renderMain(); } };
 
-    window.viewProfile = (username) => {
-        closePreviewPopup();
-        if (username === currentUser.username) {
-            currentTab = 'profile';
-            currentProfileUser = null;
-            loadFollowersAndFollowing(currentUser.id).then(() => renderMain());
-        } else {
-            loadProfileUser(username);
-            currentTab = 'profile';
-            renderMain();
-        }
-    };
+    function setTheme(theme) { document.body.className = theme; localStorage.setItem('theme', theme); const selectedText = document.getElementById('selectedThemeText'); if (selectedText) { const names = { dark: 'Dark (Black)', 'dark-gray': 'Dark Gray', gray: 'Gray', light: 'Light' }; selectedText.innerText = names[theme]; } renderMain(); }
 
-    function setTheme(theme) {
-        document.body.className = theme;
-        localStorage.setItem('theme', theme);
-        const selectedText = document.getElementById('selectedThemeText');
-        if (selectedText) {
-            const names = { dark: 'Dark (Black)', 'dark-gray': 'Dark Gray', gray: 'Gray', light: 'Light' };
-            selectedText.innerText = names[theme];
-        }
-        renderMain();
-    }
-
-    async function render() {
-        if (!currentUser) {
-            await renderAuth();
-            return;
-        }
-        await loadAllUsers();
-        await loadFollows();
-        await renderMain();
-    }
+    async function render() { if (!currentUser) { await renderAuth(); return; } await loadAllUsers(); await loadFollows(); await renderMain(); }
 
     async function renderAuth() {
         const root = document.getElementById('root');
-        root.innerHTML = `
-            <div class="auth-overlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#000000; display:flex; align-items:center; justify-content:center; z-index:1000;">
-                <div class="auth-card">
-                    <h2 style="margin-bottom:20px; text-align:center; color:var(--accent);">FreedomNet</h2>
-                    <div id="authForm">
-                        <input type="text" id="loginInput" placeholder="${t('username')} / ${t('email')}">
-                        <div class="password-wrapper">
-                            <input type="password" id="loginPassword" placeholder="${t('password')}">
-                            <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">${t('show')}</button>
-                        </div>
-                        <button onclick="login()">${t('login')}</button>
-                        <div class="divider">${t('or')}</div>
-                        <button onclick="showRegister()" style="background:#2f3336;">${t('register')}</button>
-                    </div>
-                </div>
-            </div>
-        `;
+        root.innerHTML = `<div class="auth-overlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#000000; display:flex; align-items:center; justify-content:center; z-index:1000;"><div class="auth-card"><h2 style="margin-bottom:20px; text-align:center; color:var(--accent);">FreedomNet</h2><div id="authForm"><input type="text" id="loginInput" placeholder="${t('username')} / ${t('email')}"><div class="password-wrapper"><input type="password" id="loginPassword" placeholder="${t('password')}"><button type="button" class="password-eye" onclick="togglePassword('loginPassword', this)">👁</button></div><button onclick="login()">${t('login')}</button><div class="divider">${t('or')}</div><button onclick="showRegister()" style="background:#2f3336;">${t('register')}</button></div></div></div>`;
     }
 
-    window.togglePassword = (inputId, btn) => {
-        const input = document.getElementById(inputId);
-        if (input.type === 'password') {
-            input.type = 'text';
-            btn.textContent = t('hide');
-        } else {
-            input.type = 'password';
-            btn.textContent = t('show');
-        }
-    };
+    window.togglePassword = (inputId, btn) => { const input = document.getElementById(inputId); if (input.type === 'password') { input.type = 'text'; } else { input.type = 'password'; } };
 
     window.showRegister = () => {
-        document.getElementById('authForm').innerHTML = `
-            <input type="text" id="regUsername" placeholder="${t('username')}" maxlength="20">
-            <input type="email" id="regEmail" placeholder="${t('email')} (gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com)">
-            <div class="password-wrapper">
-                <input type="password" id="regPassword" placeholder="${t('password')}">
-                <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)">${t('show')}</button>
-            </div>
-            <button onclick="register()">${t('signup')}</button>
-            <button onclick="renderAuth()" style="background:#2f3336; margin-top:10px;">${t('back')}</button>
-            <div id="registerMessage"></div>
-        `;
+        document.getElementById('authForm').innerHTML = `<input type="text" id="regUsername" placeholder="${t('username')}" maxlength="20"><input type="email" id="regEmail" placeholder="${t('email')} (gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com)"><div class="password-wrapper"><input type="password" id="regPassword" placeholder="${t('password')}"><button type="button" class="password-eye" onclick="togglePassword('regPassword', this)">👁</button></div><div class="checkbox-wrapper"><label class="checkbox-wrapper"><input type="checkbox" id="rememberMeCheckbox"><span class="checkmark"></span><span class="checkbox-label">${t('rememberMe')}</span></label></div><button onclick="register()">${t('signup')}</button><button onclick="renderAuth()" style="background:#2f3336; margin-top:10px;">${t('back')}</button><div id="registerMessage"></div>`;
     };
 
     window.register = async () => {
         const username = document.getElementById('regUsername').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
-        
-        if (!username.match(/^[a-zA-Z0-9_]{3,20}$/)) {
-            showMessage('registerMessage', 'Username must be 3-20 characters (letters, numbers, underscore)', true);
-            return;
-        }
-        if (!isValidEmail(email)) {
-            showMessage('registerMessage', 'Email must be from: gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com', true);
-            return;
-        }
-        if (password.length < 4) {
-            showMessage('registerMessage', 'Password must be at least 4 characters', true);
-            return;
-        }
-        
+        const rememberMe = document.getElementById('rememberMeCheckbox')?.checked || false;
+        if (!username.match(/^[a-zA-Z0-9_]{3,20}$/)) { showMessage('registerMessage', 'Username must be 3-20 characters (letters, numbers, underscore)', true); return; }
+        if (!isValidEmail(email)) { showMessage('registerMessage', 'Email must be from: gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com', true); return; }
+        if (password.length < 4) { showMessage('registerMessage', 'Password must be at least 4 characters', true); return; }
         try {
-            await api('/api/register', {
-                method: 'POST',
-                body: JSON.stringify({ username, email, password }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-            showMessage('registerMessage', 'Registration successful! Please login.', false);
-            setTimeout(() => renderAuth(), 1500);
-        } catch(e) {
-            showMessage('registerMessage', 'Username or email already taken', true);
-        }
+            await api('/api/register', { method: 'POST', body: JSON.stringify({ username, email, password }), headers: { 'Content-Type': 'application/json' } });
+            if (rememberMe) {
+                await api('/api/login', { method: 'POST', body: JSON.stringify({ login: username, password }), headers: { 'Content-Type': 'application/json' } });
+                const me = await api('/api/me');
+                currentUser = me.user;
+                await loadFeed(true);
+                await loadConversationsList();
+                await loadFollowersAndFollowing(currentUser.id);
+                render();
+            } else {
+                showMessage('registerMessage', 'Registration successful! Please login.', false);
+                setTimeout(() => renderAuth(), 1500);
+            }
+        } catch(e) { showMessage('registerMessage', 'Username or email already taken', true); }
     };
 
     window.login = async () => {
         const login = document.getElementById('loginInput').value;
         const password = document.getElementById('loginPassword').value;
         try {
-            await api('/api/login', {
-                method: 'POST',
-                body: JSON.stringify({ login, password }),
-                headers: { 'Content-Type': 'application/json' }
-            });
+            await api('/api/login', { method: 'POST', body: JSON.stringify({ login, password }), headers: { 'Content-Type': 'application/json' } });
             const me = await api('/api/me');
             currentUser = me.user;
             await loadFeed(true);
             await loadConversationsList();
             await loadFollowersAndFollowing(currentUser.id);
             render();
-        } catch(e) {
-            showMessage('authForm', 'Invalid username/email or password', true);
-        }
+        } catch(e) { showMessage('authForm', 'Invalid username/email or password', true); }
     };
 
     function showMessage(elementId, message, isError = false) {
         const container = document.getElementById(elementId);
-        if (container) {
-            const existing = container.querySelector('.error-message, .success-message');
-            if (existing) existing.remove();
-            const msgDiv = document.createElement('div');
-            msgDiv.className = isError ? 'error-message' : 'success-message';
-            msgDiv.textContent = message;
-            container.appendChild(msgDiv);
-            setTimeout(() => { if (msgDiv.parentNode) msgDiv.remove(); }, 4000);
-        }
+        if (container) { const existing = container.querySelector('.error-message, .success-message'); if (existing) existing.remove(); const msgDiv = document.createElement('div'); msgDiv.className = isError ? 'error-message' : 'success-message'; msgDiv.textContent = message; container.appendChild(msgDiv); setTimeout(() => { if (msgDiv.parentNode) msgDiv.remove(); }, 4000); }
     }
 
     async function loadFeed(reset = false) {
         const oldPostCount = feed.length;
-        if (reset) {
-            feedOffset = 0;
-            feedHasMore = true;
-            feed = [];
-        }
+        if (reset) { feedOffset = 0; feedHasMore = true; feed = []; }
         if (!feedHasMore || feedLoading) return;
-        
         feedLoading = true;
         try {
             const res = await api(`/api/feed?offset=${feedOffset}&limit=15`);
-            if (reset) {
-                feed = res.posts;
-            } else {
-                feed = [...feed, ...res.posts];
-            }
-            if (!reset && res.posts.length > 0 && res.posts[0].user_id !== currentUser?.id && oldPostCount > 0) {
-                playSound('post');
-            }
+            if (reset) { feed = res.posts; } else { feed = [...feed, ...res.posts]; }
+            if (!reset && res.posts.length > 0 && res.posts[0].user_id !== currentUser?.id && oldPostCount > 0) playSound('post');
             feedHasMore = res.hasMore;
             feedOffset += 15;
             updateUnreadCountAndTitle();
@@ -1476,539 +824,90 @@
         feedLoading = false;
     }
 
-    async function loadConversationsList() {
-        try {
-            conversationsList = await api('/api/chat-users');
-        } catch(e) { conversationsList = []; }
-    }
+    async function loadConversationsList() { try { conversationsList = await api('/api/chat-users'); } catch(e) { conversationsList = []; } }
 
-    async function openChat(userId, username, avatar) {
-        closeAllDropdowns();
-        closePreviewPopup();
-        currentChatUser = { id: userId, username, avatar };
-        const messages = await api(`/api/messages/${userId}`);
-        currentChatMessages = messages;
-        
-        for (const msg of messages) {
-            const reactionsRes = await api(`/api/message-reactions/${msg.id}`);
-            messageReactions[msg.id] = reactionsRes;
-        }
-        
-        renderMain();
-        setTimeout(() => {
-            const container = document.getElementById('chatMessages');
-            if (container) container.scrollTop = container.scrollHeight;
-        }, 100);
-    }
+    async function openChat(userId, username, avatar) { closeAllDropdowns(); closePreviewPopup(); currentChatUser = { id: userId, username, avatar }; const messages = await api(`/api/messages/${userId}`); currentChatMessages = messages; for (const msg of messages) { const reactionsRes = await api(`/api/message-reactions/${msg.id}`); messageReactions[msg.id] = reactionsRes; } renderMain(); setTimeout(() => { const container = document.getElementById('chatMessages'); if (container) container.scrollTop = container.scrollHeight; }, 100); }
 
-    async function sendMessageWithImage(file, content = '') {
-        if (!content.trim() && !file) return;
-        const formData = new FormData();
-        formData.append('content', content);
-        if (file) formData.append('image', file);
-        await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: formData });
-        playSound('message');
-        await openChat(currentChatUser.id, currentChatUser.username);
-        await loadConversationsList();
-    }
+    async function sendMessageWithImage(file, content = '') { if (!content.trim() && !file) return; const formData = new FormData(); formData.append('content', content); if (file) formData.append('image', file); await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: formData }); playSound('message'); await openChat(currentChatUser.id, currentChatUser.username); await loadConversationsList(); }
 
-    async function addMessageReaction(messageId, reaction) {
-        await api(`/api/message-reaction/${messageId}`, {
-            method: 'POST',
-            body: JSON.stringify({ reaction }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-        await openChat(currentChatUser.id, currentChatUser.username);
-    }
+    async function addMessageReaction(messageId, reaction) { await api(`/api/message-reaction/${messageId}`, { method: 'POST', body: JSON.stringify({ reaction }), headers: { 'Content-Type': 'application/json' } }); await openChat(currentChatUser.id, currentChatUser.username); }
 
     function renderPostCard(post) {
         const isOwnPost = post.user_id === currentUser.id;
         const canDelete = isOwnPost || currentUser?.username === 'DevAlexPlay';
         const showEditBtn = isOwnPost;
-        return `
-            <div class="post-card" data-post-id="${post.id}">
-                <div class="post-header">
-                    ${post.avatar ? 
-                        `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` :
-                        `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'', bio:'', created_at:${post.created_at}}, event.clientX, event.clientY);">${(post.username || 'U')[0].toUpperCase()}</div>`
-                    }
-                    <div class="post-body">
-                        <div class="post-user">
-                            <span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}
-                            <span class="post-username">@${escapeHtml(post.username)}</span>
-                            <span class="post-time">${new Date(post.created_at).toLocaleString()}</span>
-                            ${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}
-                            ${showEditBtn ? `<button class="edit-post-btn" onclick="event.stopPropagation(); showEditPostModal(${post.id}, '${escapeHtml(post.content || '')}', '${post.image || ''}')">✎</button>` : ''}
-                        </div>
-                        <div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>
-                        ${post.image ? `
-                            <div class="post-image-container">
-                                <img src="${post.image}" class="post-image" onclick="event.stopPropagation(); window.open('${post.image}')">
-                                ${isOwnPost ? `<button class="remove-image-btn" onclick="event.stopPropagation(); showEditPostModal(${post.id}, '${escapeHtml(post.content || '')}', '${post.image}')">Remove</button>` : ''}
-                            </div>
-                        ` : ''}
-                        <div class="post-stats">
-                            <button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${post.id})">
-                                ♥ ${post.likes_count || 0}
-                            </button>
-                            <button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">
-                                💬 ${post.comments?.length || 0}
-                            </button>
-                            ${canDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 ${t('delete')}</button>` : ''}
-                        </div>
-                        <div id="comments-${post.id}" style="display:none;" class="comments-section">
-                            ${(post.comments || []).map(c => `
-                                <div class="comment">
-                                    ${c.avatar ? 
-                                        `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none';">` :
-                                        `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${(c.username || 'U')[0].toUpperCase()}</div>`
-                                    }
-                                    <div><strong onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div>
-                                </div>
-                            `).join('')}
-                            <div class="comment-input">
-                                <input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}..." onclick="event.stopPropagation()">
-                                <button onclick="event.stopPropagation(); addComment(${post.id})" style="background:none; border:none; color:var(--accent); cursor:pointer;">→</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+        return `<div class="post-card" data-post-id="${post.id}"><div class="post-header">${post.avatar ? `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` : `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'', bio:'', created_at:${post.created_at}}, event.clientX, event.clientY);">${(post.username || 'U')[0].toUpperCase()}</div>`}<div class="post-body"><div class="post-user"><span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}<span class="post-username">@${escapeHtml(post.username)}</span><span class="post-time">${new Date(post.created_at).toLocaleString()}</span>${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}${showEditBtn ? `<button class="edit-post-btn" onclick="event.stopPropagation(); showEditPostModal(${post.id}, '${escapeHtml(post.content || '')}', '${post.image || ''}')">✎</button>` : ''}</div><div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>${post.image ? `<div class="post-image-container"><img src="${post.image}" class="post-image" onclick="event.stopPropagation(); window.open('${post.image}')">${isOwnPost ? `<button class="remove-image-btn" onclick="event.stopPropagation(); showEditPostModal(${post.id}, '${escapeHtml(post.content || '')}', '${post.image}')">Remove</button>` : ''}</div>` : ''}<div class="post-stats"><button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${post.id})">♥ ${post.likes_count || 0}</button><button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">💬 ${post.comments?.length || 0}</button>${canDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 ${t('delete')}</button>` : ''}</div><div id="comments-${post.id}" style="display:none;" class="comments-section">${(post.comments || []).map(c => `<div class="comment">${c.avatar ? `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none';">` : `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${(c.username || 'U')[0].toUpperCase()}</div>`}<div><strong onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div></div>`).join('')}<div class="comment-input"><input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}..." onclick="event.stopPropagation()"><button onclick="event.stopPropagation(); addComment(${post.id})" style="background:none; border:none; color:var(--accent); cursor:pointer;">→</button></div></div></div></div></div>`;
     }
 
-    function renderHome() {
-        return `
-            <div class="feed-container" id="feedContainer">
-                <div class="create-post">
-                    ${currentUser?.avatar ? 
-                        `<img class="avatar-img" src="${currentUser.avatar}" onclick="openAvatarUpload()" onerror="this.style.display='none'; this.after(document.createTextNode(currentUser.username[0].toUpperCase()))">` :
-                        `<div class="avatar-placeholder" onclick="openAvatarUpload()">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>`
-                    }
-                    <div class="post-input-area">
-                        <textarea id="postContent" rows="2" placeholder="${t('whatsHappening')} (4-500 characters, spaces not counted)"></textarea>
-                        <div id="suggestionsContainer" style="position:relative;"></div>
-                        <div id="imagePreview" style="margin-top:8px;"></div>
-                        <div id="postError" class="error-message" style="display:none;"></div>
-                        <div class="post-actions-bar">
-                            <label class="image-upload">📷 <input type="file" id="postImage" accept="image/*" style="display:none;"></label>
-                            <button class="publish-btn" onclick="publishPost()">${t('publish')}</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="feedPosts"></div>
-                ${feedHasMore ? '<div id="feedLoader" style="text-align:center; padding:20px; color:var(--text-secondary);">Loading more posts...</div>' : '<div style="text-align:center; padding:20px; color:var(--text-secondary);">You\'ve seen all posts</div>'}
-            </div>
-        `;
-    }
+    function renderHome() { return `<div class="feed-container" id="feedContainer"><div class="create-post">${currentUser?.avatar ? `<img class="avatar-img" src="${currentUser.avatar}" onclick="openAvatarUpload()" onerror="this.style.display='none'; this.after(document.createTextNode(currentUser.username[0].toUpperCase()))">` : `<div class="avatar-placeholder" onclick="openAvatarUpload()">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>`}<div class="post-input-area"><textarea id="postContent" rows="2" placeholder="${t('whatsHappening')} (4-500 characters, spaces not counted)"></textarea><div id="suggestionsContainer" style="position:relative;"></div><div id="imagePreview" style="margin-top:8px;"></div><div id="postError" class="error-message" style="display:none;"></div><div class="post-actions-bar"><label class="image-upload">📷 <input type="file" id="postImage" accept="image/*" style="display:none;"></label><button class="publish-btn" onclick="publishPost()">${t('publish')}</button></div></div></div><div id="feedPosts"></div>${feedHasMore ? '<div id="feedLoader" style="text-align:center; padding:20px; color:var(--text-secondary);">Loading more posts...</div>' : '<div style="text-align:center; padding:20px; color:var(--text-secondary);">You\'ve seen all posts</div>'}</div>`; }
 
     function renderProfilePage() {
         const user = currentProfileUser || currentUser;
         const isOwnProfile = !currentProfileUser || currentProfileUser.id === currentUser.id;
         const following = currentProfileUser ? isFollowing(currentProfileUser.id) : false;
         const userPosts = feed.filter(p => p.user_id === user.id);
-        const followersCount = followersList.length;
-        const followingCount = followingList.length;
-        
-        return `
-            <div class="profile-container">
-                <div class="profile-header">
-                    ${user.avatar ? 
-                        `<img class="profile-avatar" src="${user.avatar}" onclick="${isOwnProfile ? 'openAvatarUpload()' : ''}" onerror="this.style.display='none';">` :
-                        `<div class="avatar-placeholder" style="width:120px; height:120px; font-size:48px; margin:0 auto 16px;" onclick="${isOwnProfile ? 'openAvatarUpload()' : ''}">${(user.username || 'U')[0].toUpperCase()}</div>`
-                    }
-                    <h2>${escapeHtml(user.username)}</h2>
-                    <div style="display:flex; align-items:center; justify-content:center; gap:4px; margin:4px 0;">
-                        <span style="color:var(--text-secondary);">@${escapeHtml(user.username)}</span>
-                        ${renderCreatorBadge(user.is_creator, user.is_official)}
-                    </div>
-                    <p>${escapeHtml(user.bio || 'No bio yet')}</p>
-                    <div class="profile-stats">
-                        <div class="stat-item" onclick="showFollowers()">
-                            <div class="stat-number">${followersCount}</div>
-                            <div class="stat-label">${t('followers')}</div>
-                        </div>
-                        <div class="stat-item" onclick="showFollowing()">
-                            <div class="stat-number">${followingCount}</div>
-                            <div class="stat-label">${t('following')}</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">${userPosts.length}</div>
-                            <div class="stat-label">${t('posts')}</div>
-                        </div>
-                    </div>
-                    <p style="color:var(--text-secondary); font-size:13px;">${t('joined')} ${new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
-                    ${!isOwnProfile ? `
-                        ${following ? 
-                            `<button class="unfollow-btn" onclick="unfollowUser(${user.id})">${t('unfollow')}</button>` :
-                            `<button class="follow-btn" onclick="followUser(${user.id})">${t('follow')}</button>`
-                        }
-                    ` : ''}
-                </div>
-                <div style="border-top: 1px solid var(--border-color);">
-                    ${userPosts.map(post => renderPostCard(post)).join('')}
-                    ${userPosts.length === 0 ? '<div style="padding:40px; text-align:center; color:var(--text-secondary);">' + t('noPosts') + '</div>' : ''}
-                </div>
-            </div>
-        `;
+        return `<div class="profile-container"><div class="profile-header">${user.avatar ? `<img class="profile-avatar" src="${user.avatar}" onclick="${isOwnProfile ? 'openAvatarUpload()' : ''}" onerror="this.style.display='none';">` : `<div class="avatar-placeholder" style="width:120px; height:120px; font-size:48px; margin:0 auto 16px;" onclick="${isOwnProfile ? 'openAvatarUpload()' : ''}">${(user.username || 'U')[0].toUpperCase()}</div>`}<h2>${escapeHtml(user.username)}</h2><div style="display:flex; align-items:center; justify-content:center; gap:4px; margin:4px 0;"><span style="color:var(--text-secondary);">@${escapeHtml(user.username)}</span>${renderCreatorBadge(user.is_creator, user.is_official)}</div><p>${escapeHtml(user.bio || 'No bio yet')}</p><div class="profile-stats"><div class="stat-item" onclick="showFollowers()"><div class="stat-number">${followersList.length}</div><div class="stat-label">${t('followers')}</div></div><div class="stat-item" onclick="showFollowing()"><div class="stat-number">${followingList.length}</div><div class="stat-label">${t('following')}</div></div><div class="stat-item"><div class="stat-number">${userPosts.length}</div><div class="stat-label">${t('posts')}</div></div></div><p style="color:var(--text-secondary); font-size:13px;">${t('joined')} ${new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>${!isOwnProfile ? (following ? `<button class="unfollow-btn" onclick="unfollowUser(${user.id})">${t('unfollow')}</button>` : `<button class="follow-btn" onclick="followUser(${user.id})">${t('follow')}</button>`) : ''}</div><div style="border-top: 1px solid var(--border-color);">${userPosts.map(post => renderPostCard(post)).join('')}${userPosts.length === 0 ? '<div style="padding:40px; text-align:center; color:var(--text-secondary);">' + t('noPosts') + '</div>' : ''}</div></div>`;
     }
 
     function renderMessages() {
-        return `
-            <div class="messages-container">
-                <div class="conversations-sidebar" id="conversationsSidebar">
-                    <div class="conversations-header">
-                        <input type="text" id="conversationsSearch" class="conversations-search" placeholder="Search...">
-                    </div>
-                    <div class="conversations-list" id="conversationsList">
-                        ${conversationsList.map(c => `
-                            <div class="conversation-item ${currentChatUser && currentChatUser.id === c.other_id ? 'active' : ''}" onclick="openChat(${c.other_id}, '${escapeHtml(c.username)}', '${c.avatar || ''}')">
-                                <img class="conversation-avatar" src="${c.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(c.username[0].toUpperCase()))">
-                                <div class="conversation-info">
-                                    <div class="conversation-name">${escapeHtml(c.username)}${renderCreatorBadge(c.is_creator, c.is_official)}</div>
-                                    <div class="conversation-last-message">${escapeHtml(c.last_message || '')}</div>
-                                </div>
-                                ${c.unread > 0 ? `<div class="conversation-unread">${c.unread}</div>` : ''}
-                            </div>
-                        `).join('')}
-                        ${conversationsList.length === 0 ? '<div style="padding:20px; text-align:center; color:var(--text-secondary);">No conversations yet</div>' : ''}
-                    </div>
-                </div>
-                <div class="chat-area">
-                    ${currentChatUser ? `
-                        <div class="chat-header">
-                            <span class="chat-back-mobile" onclick="document.getElementById('conversationsSidebar').classList.add('open')">←</span>
-                            <img class="chat-user-avatar" src="${currentChatUser.avatar || ''}" onerror="this.style.display='none';">
-                            <div class="chat-user-name">${escapeHtml(currentChatUser.username)}${renderCreatorBadge(currentChatUser.is_creator, currentChatUser.is_official)}</div>
-                        </div>
-                        <div class="chat-messages" id="chatMessages">
-                            ${currentChatMessages.map(m => `
-                                <div class="message-group">
-                                    <div class="message-row ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
-                                        <div class="message-bubble ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
-                                            ${escapeHtml(m.content || '')}
-                                            ${m.image ? `<img src="${m.image}" class="message-image" onclick="window.open('${m.image}')">` : ''}
-                                        </div>
-                                    </div>
-                                    <div class="message-row ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
-                                        <div class="message-time">${formatTime(m.created_at)}</div>
-                                    </div>
-                                    <div class="message-reactions ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
-                                        ${['❤️', '😂', '😮', '😢', '😡', '👍'].map(r => `
-                                            <button class="reaction-btn" onclick="addMessageReaction(${m.id}, '${r}')">${r}</button>
-                                        `).join('')}
-                                        ${(messageReactions[m.id] || []).length > 0 ? 
-                                            `<div class="reaction-badge">${(messageReactions[m.id] || []).map(r => r.reaction).join(' ')}</div>` : ''}
-                                    </div>
-                                </div>
-                            `).join('')}
-                            ${currentChatMessages.length === 0 ? '<div class="empty-chat">Send a message to start chatting!</div>' : ''}
-                        </div>
-                        <div class="chat-input-area">
-                            <input type="text" id="chatMessageInput" class="chat-input" placeholder="Message..." onkeypress="if(event.key==='Enter'){ const val=this.value; this.value=''; sendMessageWithImage(null, val); }">
-                            <label class="chat-image-label">📷<input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="sendMessageWithImage(this.files[0], '')"></label>
-                            <button class="chat-send-btn" onclick="const input=document.getElementById('chatMessageInput'); const val=input.value; input.value=''; sendMessageWithImage(null, val);">➤</button>
-                        </div>
-                    ` : `
-                        <div class="empty-chat">Select a conversation to start messaging</div>
-                    `}
-                </div>
-            </div>
-        `;
+        return `<div class="messages-container"><div class="conversations-sidebar" id="conversationsSidebar"><div class="conversations-header"><input type="text" id="conversationsSearch" class="conversations-search" placeholder="Search..."></div><div class="conversations-list" id="conversationsList">${conversationsList.map(c => `<div class="conversation-item ${currentChatUser && currentChatUser.id === c.other_id ? 'active' : ''}" onclick="openChat(${c.other_id}, '${escapeHtml(c.username)}', '${c.avatar || ''}')"><img class="conversation-avatar" src="${c.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(c.username[0].toUpperCase()))"><div class="conversation-info"><div class="conversation-name">${escapeHtml(c.username)}${renderCreatorBadge(c.is_creator, c.is_official)}</div><div class="conversation-last-message">${escapeHtml(c.last_message || '')}</div></div>${c.unread > 0 ? `<div class="conversation-unread">${c.unread}</div>` : ''}</div>`).join('')}${conversationsList.length === 0 ? '<div style="padding:20px; text-align:center; color:var(--text-secondary);">No conversations yet</div>' : ''}</div></div><div class="chat-area">${currentChatUser ? `<div class="chat-header"><span class="chat-back-mobile" onclick="document.getElementById('conversationsSidebar').classList.add('open')">←</span><img class="chat-user-avatar" src="${currentChatUser.avatar || ''}" onerror="this.style.display='none';"><div class="chat-user-name">${escapeHtml(currentChatUser.username)}${renderCreatorBadge(currentChatUser.is_creator, currentChatUser.is_official)}</div></div><div class="chat-messages" id="chatMessages">${currentChatMessages.map(m => `<div class="message-group"><div class="message-row ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}"><div class="message-bubble ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">${escapeHtml(m.content || '')}${m.image ? `<img src="${m.image}" class="message-image" onclick="window.open('${m.image}')">` : ''}</div></div><div class="message-row ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}"><div class="message-time">${formatTime(m.created_at)}</div></div><div class="message-reactions ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">${['❤️', '😂', '😮', '😢', '😡', '👍'].map(r => `<button class="reaction-btn" onclick="addMessageReaction(${m.id}, '${r}')">${r}</button>`).join('')}${(messageReactions[m.id] || []).length > 0 ? `<div class="reaction-badge">${(messageReactions[m.id] || []).map(r => r.reaction).join(' ')}</div>` : ''}</div></div>`).join('')}${currentChatMessages.length === 0 ? '<div class="empty-chat">Send a message to start chatting!</div>' : ''}</div><div class="chat-input-area"><input type="text" id="chatMessageInput" class="chat-input" placeholder="Message..." onkeypress="if(event.key==='Enter'){ const val=this.value; this.value=''; sendMessageWithImage(null, val); }"><label class="chat-image-label">📷<input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="sendMessageWithImage(this.files[0], '')"></label><button class="chat-send-btn" onclick="const input=document.getElementById('chatMessageInput'); const val=input.value; input.value=''; sendMessageWithImage(null, val);">➤</button></div></div>` : `<div class="empty-chat">Select a conversation to start messaging</div>`}</div></div>`;
     }
 
-    function renderSearch() {
-        return `
-            <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search users or posts..." oninput="searchQuery = this.value; performSearch();">
-                <div id="searchResults" style="margin-top:20px;">
-                    ${searchResults.length > 0 ? '<h3 style="margin-bottom:12px;">Users</h3>' : ''}
-                    ${searchResults.map(u => `
-                        <div class="search-result" onclick="viewProfile('${u.username}')">
-                            <img class="search-result-avatar" src="${u.avatar || ''}" onerror="this.style.display='none';">
-                            <div><strong>${escapeHtml(u.username)}</strong>${renderCreatorBadge(u.is_creator, u.is_official)}<div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div>
-                        </div>
-                    `).join('')}
-                    ${searchPosts.length > 0 ? '<h3 style="margin-bottom:12px; margin-top:20px;">Posts</h3>' : ''}
-                    ${searchPosts.map(post => `
-                        <div class="search-post-result" onclick="viewProfile('${post.username}')">
-                            <div><strong>${escapeHtml(post.username)}</strong><div style="color:var(--text-secondary); font-size:12px;">${new Date(post.created_at).toLocaleString()}</div></div>
-                            <div style="margin-top:8px;">${escapeHtml(post.content?.substring(0, 100))}${post.content?.length > 100 ? '...' : ''}</div>
-                        </div>
-                    `).join('')}
-                    ${searchQuery && searchResults.length === 0 && searchPosts.length === 0 ? '<div style="padding:20px; color:var(--text-secondary);">No results found</div>' : ''}
-                </div>
-            </div>
-        `;
-    }
+    function renderSearch() { return `<div class="search-container"><input type="text" id="searchInput" class="search-input" placeholder="Search users or posts..." oninput="searchQuery = this.value; performSearch();"><div id="searchResults" style="margin-top:20px;">${searchResults.length > 0 ? '<h3 style="margin-bottom:12px;">Users</h3>' : ''}${searchResults.map(u => `<div class="search-result" onclick="viewProfile('${u.username}')"><img class="search-result-avatar" src="${u.avatar || ''}" onerror="this.style.display='none';"><div><strong>${escapeHtml(u.username)}</strong>${renderCreatorBadge(u.is_creator, u.is_official)}<div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div></div>`).join('')}${searchPosts.length > 0 ? '<h3 style="margin-bottom:12px; margin-top:20px;">Posts</h3>' : ''}${searchPosts.map(post => `<div class="search-post-result" onclick="viewProfile('${post.username}')"><div><strong>${escapeHtml(post.username)}</strong><div style="color:var(--text-secondary); font-size:12px;">${new Date(post.created_at).toLocaleString()}</div></div><div style="margin-top:8px;">${escapeHtml(post.content?.substring(0, 100))}${post.content?.length > 100 ? '...' : ''}</div></div>`).join('')}${searchQuery && searchResults.length === 0 && searchPosts.length === 0 ? '<div style="padding:20px; color:var(--text-secondary);">No results found</div>' : ''}</div></div>`; }
 
-    function renderInteresting() {
-        return `<div class="feed-container">${feed.slice(0,5).map(post => `<div class="recommendation-card"><img class="recommendation-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">@${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)}<div>${parseMentionsAndHashtags(post.content || '')}</div><button onclick="followUser(${post.user_id})" style="margin-top:8px; background:var(--accent); border:none; padding:4px 16px; border-radius:20px; color:white; cursor:pointer;">${t('follow')}</button></div></div>`).join('')}</div>`;
-    }
-
-    function renderNotifications() {
-        return `<div class="feed-container">${feed.slice(0,8).map(post => `<div class="notification"><img class="notification-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)} liked your post</div></div>`).join('')}</div>`;
-    }
-
-    function renderFeedback() {
-        return `
-            <div class="feed-container" style="padding:20px;">
-                <div class="recommendation-card" onclick="showFeedbackModal()" style="cursor:pointer;">
-                    <div><strong>📝 ${t('feedback')}</strong><div style="color:var(--text-secondary);">Report bugs, suggest features, or report users</div></div>
-                </div>
-            </div>
-        `;
-    }
+    function renderInteresting() { return `<div class="feed-container">${feed.slice(0,5).map(post => `<div class="recommendation-card"><img class="recommendation-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">@${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)}<div>${parseMentionsAndHashtags(post.content || '')}</div><button onclick="followUser(${post.user_id})" style="margin-top:8px; background:var(--accent); border:none; padding:4px 16px; border-radius:20px; color:white; cursor:pointer;">${t('follow')}</button></div></div>`).join('')}</div>`; }
+    function renderNotifications() { return `<div class="feed-container">${feed.slice(0,8).map(post => `<div class="notification"><img class="notification-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)} liked your post</div></div>`).join('')}</div>`; }
+    function renderFeedback() { return `<div class="feed-container" style="padding:20px;"><div class="recommendation-card" onclick="showFeedbackModal()" style="cursor:pointer;"><div><strong>📝 ${t('feedback')}</strong><div style="color:var(--text-secondary);">Report bugs, suggest features, or report users</div></div></div></div>`; }
 
     function renderMore() {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         const themeNames = { dark: 'Dark (Black)', 'dark-gray': 'Dark Gray', gray: 'Gray', light: 'Light' };
-        
         setTimeout(() => {
-            const themeSelect = document.getElementById('themeSelect');
-            const langSelect = document.getElementById('languageSelect');
-            
-            if (themeSelect) {
-                themeSelect.onclick = (e) => {
-                    e.stopPropagation();
-                    closeAllDropdowns();
-                    const dropdown = document.getElementById('themeDropdown');
-                    if (dropdown) {
-                        const isOpen = dropdown.style.display === 'block';
-                        dropdown.style.display = isOpen ? 'none' : 'block';
-                        themeSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲';
-                        if (!isOpen) activeDropdown = dropdown;
-                    }
-                };
-            }
-            if (langSelect) {
-                langSelect.onclick = (e) => {
-                    e.stopPropagation();
-                    closeAllDropdowns();
-                    const dropdown = document.getElementById('languageDropdown');
-                    if (dropdown) {
-                        const isOpen = dropdown.style.display === 'block';
-                        dropdown.style.display = isOpen ? 'none' : 'block';
-                        langSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲';
-                        if (!isOpen) activeDropdown = dropdown;
-                    }
-                };
-            }
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.custom-select')) {
-                    closeAllDropdowns();
-                }
-            });
+            const themeSelect = document.getElementById('themeSelect'); const langSelect = document.getElementById('languageSelect');
+            if (themeSelect) { themeSelect.onclick = (e) => { e.stopPropagation(); closeAllDropdowns(); const dropdown = document.getElementById('themeDropdown'); if (dropdown) { const isOpen = dropdown.style.display === 'block'; dropdown.style.display = isOpen ? 'none' : 'block'; themeSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲'; if (!isOpen) activeDropdown = dropdown; } }; }
+            if (langSelect) { langSelect.onclick = (e) => { e.stopPropagation(); closeAllDropdowns(); const dropdown = document.getElementById('languageDropdown'); if (dropdown) { const isOpen = dropdown.style.display === 'block'; dropdown.style.display = isOpen ? 'none' : 'block'; langSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲'; if (!isOpen) activeDropdown = dropdown; } }; }
+            document.addEventListener('click', (e) => { if (!e.target.closest('.custom-select')) closeAllDropdowns(); });
         }, 10);
-        
-        const languages = [
-            { code: 'en', name: 'English' },
-            { code: 'ru', name: 'Русский' },
-            { code: 'es', name: 'Español' },
-            { code: 'fr', name: 'Français' },
-            { code: 'ar', name: 'العربية' },
-            { code: 'el', name: 'Ελληνικά' },
-            { code: 'zh', name: '中文' },
-            { code: 'pt', name: 'Português' },
-            { code: 'de', name: 'Deutsch' },
-            { code: 'it', name: 'Italiano' }
-        ];
-        
-        return `
-            <div class="feed-container" style="padding:20px;">
-                <div class="profile-header" style="border-bottom: none;">
-                    <div style="text-align:left; margin-bottom:20px;">
-                        <h3>${t('account')}</h3>
-                        <div><span class="email-masked">${t('email')}: ${maskEmail(currentUser?.email)}</span><span class="edit-link" onclick="showChangeEmailModal()">${t('edit')}</span></div>
-                        <div style="margin-top:12px;"><span style="color:var(--text-primary);">${t('username')}: @${escapeHtml(currentUser?.username)}</span><span class="edit-link" onclick="showChangeUsernameModal()">${t('edit')}</span></div>
-                    </div>
-                    <div style="text-align:left; margin-bottom:20px;">
-                        <h3>${t('security')}</h3>
-                        <div><span class="edit-link" onclick="showChangePasswordModal()">${t('changePassword')}</span></div>
-                    </div>
-                    <h3 style="text-align:left; margin-bottom:20px;">${t('theme')}</h3>
-                    <div class="custom-select" id="themeSelect">
-                        <span id="selectedThemeText">${themeNames[savedTheme]}</span>
-                        <span class="arrow">▼</span>
-                        <div class="custom-select-dropdown" id="themeDropdown" style="display:none;">
-                            <div class="custom-select-option ${savedTheme === 'dark' ? 'selected' : ''}" onclick="setTheme('dark'); document.getElementById('selectedThemeText').innerText='Dark (Black)';">Dark (Black)</div>
-                            <div class="custom-select-option ${savedTheme === 'dark-gray' ? 'selected' : ''}" onclick="setTheme('dark-gray'); document.getElementById('selectedThemeText').innerText='Dark Gray';">Dark Gray</div>
-                            <div class="custom-select-option ${savedTheme === 'gray' ? 'selected' : ''}" onclick="setTheme('gray'); document.getElementById('selectedThemeText').innerText='Gray';">Gray</div>
-                            <div class="custom-select-option ${savedTheme === 'light' ? 'selected' : ''}" onclick="setTheme('light'); document.getElementById('selectedThemeText').innerText='Light';">Light</div>
-                        </div>
-                    </div>
-                    <h3 style="text-align:left; margin-bottom:20px; margin-top:20px;">${t('language')}</h3>
-                    <div class="custom-select" id="languageSelect">
-                        <span id="selectedLanguageText">${languages.find(l => l.code === currentLang)?.name || 'English'}</span>
-                        <span class="arrow">▼</span>
-                        <div class="custom-select-dropdown" id="languageDropdown" style="display:none;">
-                            ${languages.map(lang => `
-                                <div class="custom-select-option ${currentLang === lang.code ? 'selected' : ''}" onclick="setLanguage('${lang.code}'); document.getElementById('selectedLanguageText').innerText='${lang.name}';">${lang.name}</div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-                <div style="border-top:1px solid var(--border-color); margin-top:20px; padding-top:20px;">
-                    <div class="recommendation-card" onclick="showDeleteAccountModal()" style="cursor:pointer;">
-                        <div><strong>${t('deleteAccount')}</strong><div style="color:var(--text-secondary);">Be careful, this action cannot be undone.</div></div>
-                    </div>
-                </div>
-            </div>
-        `;
+        const languages = [{ code: 'en', name: 'English' }, { code: 'ru', name: 'Русский' }, { code: 'es', name: 'Español' }, { code: 'fr', name: 'Français' }, { code: 'ar', name: 'العربية' }, { code: 'el', name: 'Ελληνικά' }, { code: 'zh', name: '中文' }, { code: 'pt', name: 'Português' }, { code: 'de', name: 'Deutsch' }, { code: 'it', name: 'Italiano' }];
+        return `<div class="feed-container" style="padding:20px;"><div class="profile-header" style="border-bottom: none;"><div style="text-align:left; margin-bottom:20px;"><h3>${t('account')}</h3><div><span class="email-masked">${t('email')}: ${maskEmail(currentUser?.email)}</span><span class="edit-link" onclick="showChangeEmailModal()">${t('edit')}</span></div><div style="margin-top:12px;"><span style="color:var(--text-primary);">${t('username')}: @${escapeHtml(currentUser?.username)}</span><span class="edit-link" onclick="showChangeUsernameModal()">${t('edit')}</span></div></div><div style="text-align:left; margin-bottom:20px;"><h3>${t('security')}</h3><div><span class="edit-link" onclick="showChangePasswordModal()">${t('changePassword')}</span></div></div><h3 style="text-align:left; margin-bottom:20px;">${t('theme')}</h3><div class="custom-select" id="themeSelect"><span id="selectedThemeText">${themeNames[savedTheme]}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="themeDropdown" style="display:none;"><div class="custom-select-option ${savedTheme === 'dark' ? 'selected' : ''}" onclick="setTheme('dark'); document.getElementById('selectedThemeText').innerText='Dark (Black)';">Dark (Black)</div><div class="custom-select-option ${savedTheme === 'dark-gray' ? 'selected' : ''}" onclick="setTheme('dark-gray'); document.getElementById('selectedThemeText').innerText='Dark Gray';">Dark Gray</div><div class="custom-select-option ${savedTheme === 'gray' ? 'selected' : ''}" onclick="setTheme('gray'); document.getElementById('selectedThemeText').innerText='Gray';">Gray</div><div class="custom-select-option ${savedTheme === 'light' ? 'selected' : ''}" onclick="setTheme('light'); document.getElementById('selectedThemeText').innerText='Light';">Light</div></div></div><h3 style="text-align:left; margin-bottom:20px; margin-top:20px;">${t('language')}</h3><div class="custom-select" id="languageSelect"><span id="selectedLanguageText">${languages.find(l => l.code === currentLang)?.name || 'English'}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="languageDropdown" style="display:none;">${languages.map(lang => `<div class="custom-select-option ${currentLang === lang.code ? 'selected' : ''}" onclick="setLanguage('${lang.code}'); document.getElementById('selectedLanguageText').innerText='${lang.name}';">${lang.name}</div>`).join('')}</div></div></div><div style="border-top:1px solid var(--border-color); margin-top:20px; padding-top:20px;"><div class="recommendation-card" onclick="showDeleteAccountModal()" style="cursor:pointer;"><div><strong>${t('deleteAccount')}</strong><div style="color:var(--text-secondary);">Be careful, this action cannot be undone.</div></div></div></div></div>`;
     }
 
-    function openAvatarUpload() {
-        closeAllDropdowns();
-        closePreviewPopup();
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*,image/gif';
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                openAdvancedCropModal(file);
-            }
-        };
-        input.click();
-    }
+    function openAvatarUpload() { closeAllDropdowns(); closePreviewPopup(); const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*,image/gif'; input.onchange = (e) => { const file = e.target.files[0]; if (file) openAdvancedCropModal(file); }; input.click(); }
 
     window.publishPost = async () => {
         const content = document.getElementById('postContent').value;
         const errorDiv = document.getElementById('postError');
-        
         const contentWithoutSpaces = content.replace(/\s/g, '');
-        if (contentWithoutSpaces.length < 4) {
-            errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)';
-            errorDiv.style.display = 'block';
-            return;
-        }
-        if (content.length > 500) {
-            errorDiv.textContent = 'Post cannot exceed 500 characters';
-            errorDiv.style.display = 'block';
-            return;
-        }
+        if (contentWithoutSpaces.length < 4) { errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)'; errorDiv.style.display = 'block'; return; }
+        if (content.length > 500) { errorDiv.textContent = 'Post cannot exceed 500 characters'; errorDiv.style.display = 'block'; return; }
         errorDiv.style.display = 'none';
-        
         const formData = new FormData();
         formData.append('content', content);
-        if (pendingImage) {
-            const blob = await fetch(pendingImage).then(r => r.blob());
-            formData.append('image', blob, 'photo.jpg');
-        }
+        if (pendingImage) { const blob = await fetch(pendingImage).then(r => r.blob()); formData.append('image', blob, 'photo.jpg'); }
         await api('/api/posts', { method: 'POST', body: formData });
         playSound('post');
         pendingImage = null;
         document.getElementById('postContent').value = '';
         document.getElementById('imagePreview').innerHTML = '';
         await loadFeed(true);
-        const newUnreadCount = feed.filter(p => !p.read).length;
-        if (newUnreadCount !== unreadCount) {
-            unreadCount = Math.min(newUnreadCount, 99);
-            updateTitleWithUnread();
-        }
         renderMain();
     };
 
-    function updateFeedPosts() {
-        const container = document.getElementById('feedPosts');
-        if (container) {
-            container.innerHTML = feed.map(post => renderPostCard(post)).join('');
-        }
-        const loader = document.getElementById('feedLoader');
-        if (loader && !feedHasMore) {
-            loader.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary);">You\'ve seen all posts</div>';
-        }
-    }
+    function updateFeedPosts() { const container = document.getElementById('feedPosts'); if (container) container.innerHTML = feed.map(post => renderPostCard(post)).join(''); const loader = document.getElementById('feedLoader'); if (loader && !feedHasMore) loader.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary);">You\'ve seen all posts</div>'; }
 
     async function renderMain() {
         await loadFeed();
         await loadConversationsList();
-        
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.className = savedTheme;
-        
         const root = document.getElementById('root');
-        
         if (currentTab === 'profile') {
-            root.innerHTML = `
-                <div class="app">
-                    <div class="sidebar">
-                        <div class="logo">FreedomNet</div>
-                        ${tabs.map((tab, idx) => `
-                            <div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                                <span class="nav-text">${t(tab)}</span>
-                            </div>
-                        `).join('')}
-                        <div class="nav-item logout" onclick="showDeleteAccountModal()" style="margin-top: 40px;">
-                            <span class="nav-text">${t('deleteAccount')}</span>
-                        </div>
-                    </div>
-                    <div class="bottom-nav">
-                        ${tabs.slice(0, 5).map((tab, idx) => `
-                            <div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                                <span>${t(tab)}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="main-content">
-                        <div class="header">${t('profile')}</div>
-                        ${renderProfilePage()}
-                    </div>
-                </div>
-            `;
+            root.innerHTML = `<div class="app"><div class="sidebar"><div class="logo">FreedomNet</div>${tabs.map((tab, idx) => `<div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span class="nav-text">${t(tab)}</span></div>`).join('')}<div class="nav-item logout" onclick="showDeleteAccountModal()" style="margin-top: 40px;"><span class="nav-text">${t('deleteAccount')}</span></div></div><div class="bottom-nav">${tabs.slice(0, 5).map((tab, idx) => `<div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span>${t(tab)}</span></div>`).join('')}</div><div class="main-content"><div class="header">${t('profile')}</div>${renderProfilePage()}</div></div>`;
             attachGlobalEvents();
             return;
         }
-        
-        root.innerHTML = `
-            <div class="app">
-                <div class="sidebar">
-                    <div class="logo">FreedomNet</div>
-                    ${tabs.map((tab, idx) => `
-                        <div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                            <span class="nav-text">${t(tab)}</span>
-                        </div>
-                    `).join('')}
-                    <div class="nav-item logout" onclick="showDeleteAccountModal()" style="margin-top: 40px;">
-                        <span class="nav-text">${t('deleteAccount')}</span>
-                    </div>
-                </div>
-                <div class="bottom-nav">
-                    ${tabs.slice(0, 5).map((tab, idx) => `
-                        <div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                            <span>${t(tab)}</span>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="main-content">
-                    <div class="header">${currentTab === 'more' ? t('settings') : t(currentTab)}</div>
-                    ${currentTab === 'feed' ? renderHome() : ''}
-                    ${currentTab === 'messages' ? renderMessages() : ''}
-                    ${currentTab === 'search' ? renderSearch() : ''}
-                    ${currentTab === 'interesting' ? renderInteresting() : ''}
-                    ${currentTab === 'notifications' ? renderNotifications() : ''}
-                    ${currentTab === 'create' ? '<div class="feed-container" style="padding:20px;"><div class="recommendation-card" onclick="showCreateModal()" style="cursor:pointer;"><div><strong>✏️ ' + t('create') + ' ' + t('post') + '</strong><div style="color:var(--text-secondary);">Share what\'s happening</div></div></div></div>' : ''}
-                    ${currentTab === 'feedback' ? renderFeedback() : ''}
-                    ${currentTab === 'more' ? renderMore() : ''}
-                </div>
-            </div>
-        `;
-        
-        if (currentTab === 'feed') {
-            updateFeedPosts();
-            attachHomeEvents();
-            const feedContainer = document.getElementById('feedContainer');
-            if (feedContainer) {
-                const onScroll = () => {
-                    if (feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 100) {
-                        loadFeed();
-                        updateFeedPosts();
-                    }
-                };
-                feedContainer.addEventListener('scroll', onScroll);
-            }
-        }
-        
+        root.innerHTML = `<div class="app"><div class="sidebar"><div class="logo">FreedomNet</div>${tabs.map((tab, idx) => `<div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span class="nav-text">${t(tab)}</span></div>`).join('')}<div class="nav-item logout" onclick="showDeleteAccountModal()" style="margin-top: 40px;"><span class="nav-text">${t('deleteAccount')}</span></div></div><div class="bottom-nav">${tabs.slice(0, 5).map((tab, idx) => `<div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span>${t(tab)}</span></div>`).join('')}</div><div class="main-content"><div class="header">${currentTab === 'more' ? t('settings') : t(currentTab)}</div>${currentTab === 'feed' ? renderHome() : ''}${currentTab === 'messages' ? renderMessages() : ''}${currentTab === 'search' ? renderSearch() : ''}${currentTab === 'interesting' ? renderInteresting() : ''}${currentTab === 'notifications' ? renderNotifications() : ''}${currentTab === 'create' ? '<div class="feed-container" style="padding:20px;"><div class="recommendation-card" onclick="showCreateModal()" style="cursor:pointer;"><div><strong>✏️ ' + t('create') + ' ' + t('post') + '</strong><div style="color:var(--text-secondary);">Share what\'s happening</div></div></div></div>' : ''}${currentTab === 'feedback' ? renderFeedback() : ''}${currentTab === 'more' ? renderMore() : ''}</div></div>`;
+        if (currentTab === 'feed') { updateFeedPosts(); attachHomeEvents(); const feedContainer = document.getElementById('feedContainer'); if (feedContainer) { const onScroll = () => { if (feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 100) { loadFeed(); updateFeedPosts(); } }; feedContainer.addEventListener('scroll', onScroll); } }
         attachGlobalEvents();
     }
 
@@ -2082,62 +981,29 @@
         const post = feed.find(p => p.id === postId);
         if (post.user_liked) await api(`/api/like/${postId}`, { method: 'DELETE' });
         else await api(`/api/like/${postId}`, { method: 'POST' });
-        if (post.user_id !== currentUser.id) {
-            playSound('like');
-        }
+        if (post.user_id !== currentUser.id) playSound('like');
         await loadFeed(true);
-        const newUnreadCount = feed.filter(p => !p.read).length;
-        if (newUnreadCount !== unreadCount) {
-            unreadCount = Math.min(newUnreadCount, 99);
-            updateTitleWithUnread();
-        }
         renderMain();
     };
-
-    window.toggleComments = (postId) => {
-        const el = document.getElementById(`comments-${postId}`);
-        if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-    };
-
+    window.toggleComments = (postId) => { const el = document.getElementById(`comments-${postId}`); if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'; };
     window.addComment = async (postId) => {
         const input = document.getElementById(`commentInput-${postId}`);
         const content = input?.value.trim();
         if (!content) return;
         const post = feed.find(p => p.id === postId);
         await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
-        if (post?.user_id !== currentUser.id) {
-            playSound('comment');
-        }
+        if (post?.user_id !== currentUser.id) playSound('comment');
         await loadFeed(true);
-        const newUnreadCount = feed.filter(p => !p.read).length;
-        if (newUnreadCount !== unreadCount) {
-            unreadCount = Math.min(newUnreadCount, 99);
-            updateTitleWithUnread();
-        }
         renderMain();
     };
-
-    window.switchTab = (tab) => { 
-        currentTab = tab; 
-        currentProfileUser = null; 
-        currentChatUser = null; 
-        closeAllDropdowns();
-        closePreviewPopup();
-        renderMain(); 
+    window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; currentChatUser = null; closeAllDropdowns(); closePreviewPopup(); renderMain(); };
+    window.performSearch = async () => {
+        if (!searchQuery.trim()) { searchResults = []; searchPosts = []; renderMain(); return; }
+        try { const res = await api(`/api/search?q=${encodeURIComponent(searchQuery)}`); searchResults = res.users; searchPosts = res.posts; renderMain(); } catch(e) { searchResults = []; searchPosts = []; renderMain(); }
     };
-    
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
-
-    document.body.addEventListener('click', () => {
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
-    }, { once: true });
-
-    (async () => {
-        try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(true); await loadFollowersAndFollowing(currentUser.id); } } catch(e) {}
-        render();
-    })();
+    document.body.addEventListener('click', () => { if (audioContext.state === 'suspended') audioContext.resume(); }, { once: true });
+    (async () => { try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(true); await loadFollowersAndFollowing(currentUser.id); } } catch(e) {} render(); })();
 </script>
 </body>
 </html>
