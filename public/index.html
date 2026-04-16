@@ -462,11 +462,16 @@
     function setLanguage(lang) {
         currentLang = lang;
         localStorage.setItem('language', lang);
+        // Update tab names dynamically
+        const tabNamesMap = {
+            feed: t('feed'), profile: 'Profile', messages: 'Messages', search: 'Search',
+            interesting: 'Interesting', notifications: 'Notifications', create: 'Create',
+            feedback: 'Feedback', more: 'More'
+        };
         renderMain();
     }
 
     const tabs = ['feed', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'feedback', 'more'];
-    const tabNames = [t('feed'), 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'Feedback', 'More'];
 
     const allowedDomains = ['gmail.com', 'mail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
@@ -1773,9 +1778,9 @@
                 <div class="app">
                     <div class="sidebar">
                         <div class="logo">FreedomNet</div>
-                        ${tabNames.map((tab, idx) => `
+                        ${tabs.map((tab, idx) => `
                             <div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                                <span class="nav-text">${tab}</span>
+                                <span class="nav-text">${t(tab)}</span>
                             </div>
                         `).join('')}
                         <div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;">
@@ -1783,9 +1788,9 @@
                         </div>
                     </div>
                     <div class="bottom-nav">
-                        ${tabNames.slice(0, 5).map((tab, idx) => `
+                        ${tabs.slice(0, 5).map((tab, idx) => `
                             <div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                                <span>${tab}</span>
+                                <span>${t(tab)}</span>
                             </div>
                         `).join('')}
                     </div>
@@ -1803,9 +1808,9 @@
             <div class="app">
                 <div class="sidebar">
                     <div class="logo">FreedomNet</div>
-                    ${tabNames.map((tab, idx) => `
+                    ${tabs.map((tab, idx) => `
                         <div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                            <span class="nav-text">${tab}</span>
+                            <span class="nav-text">${t(tab)}</span>
                         </div>
                     `).join('')}
                     <div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;">
@@ -1813,9 +1818,9 @@
                     </div>
                 </div>
                 <div class="bottom-nav">
-                    ${tabNames.slice(0, 5).map((tab, idx) => `
+                    ${tabs.slice(0, 5).map((tab, idx) => `
                         <div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                            <span>${tab}</span>
+                            <span>${t(tab)}</span>
                         </div>
                     `).join('')}
                 </div>
