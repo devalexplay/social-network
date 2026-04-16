@@ -129,41 +129,36 @@
         .notification { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; transition: background 0.2s ease; }
         .notification:hover { background: var(--hover-bg); }
         .notification-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
-        .messages-container { display: flex; flex-direction: column; height: calc(100vh - 70px); }
-        .messages-search { padding: 16px; border-bottom: 1px solid var(--border-color); }
-        .messages-search-input { width: 100%; padding: 12px 20px; background: transparent; border: 1px solid var(--border-color); border-radius: 9999px; color: var(--text-primary); font-size: 16px; outline: none; }
-        .messages-search-input:focus { border-color: var(--accent); }
-        .messages-search-results { max-height: 200px; overflow-y: auto; border-bottom: 1px solid var(--border-color); }
-        .messages-search-result { padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s ease; }
-        .messages-search-result:hover { background: var(--hover-bg); }
-        .conversations-list { overflow-y: auto; max-height: 200px; border-bottom: 1px solid var(--border-color); }
-        .conversation { padding: 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s ease; }
-        .conversation:hover { background: var(--hover-bg); }
-        .conversation-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
-        .chat-area { flex: 1; display: flex; flex-direction: column; }
-        .chat-header { padding: 16px; border-bottom: 1px solid var(--border-color); font-weight: 700; display: flex; align-items: center; gap: 12px; }
-        .chat-back { cursor: pointer; font-size: 24px; color: var(--text-secondary); transition: color 0.2s ease; }
-        .chat-back:hover { color: var(--accent); }
+        .messages-container { display: flex; height: calc(100vh - 70px); background: var(--bg-primary); }
+        .chat-sidebar { width: 320px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .chat-sidebar-header { padding: 16px; border-bottom: 1px solid var(--border-color); font-weight: 700; }
+        .chat-users-list { flex: 1; overflow-y: auto; }
+        .chat-user-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--border-color); }
+        .chat-user-item:hover { background: var(--hover-bg); }
+        .chat-user-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+        .chat-user-info { flex: 1; }
+        .chat-user-name { font-weight: 700; }
+        .chat-user-last-message { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-main { flex: 1; display: flex; flex-direction: column; }
+        .chat-main-header { padding: 16px; border-bottom: 1px solid var(--border-color); font-weight: 700; display: flex; align-items: center; gap: 12px; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .message-wrapper { display: flex; flex-direction: column; max-width: 80%; }
+        .message-wrapper { display: flex; flex-direction: column; max-width: 70%; }
         .message-wrapper.outgoing { align-self: flex-end; }
         .message-wrapper.incoming { align-self: flex-start; }
         .message-bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; word-wrap: break-word; }
         .message-bubble.outgoing { background: var(--accent); color: white; }
         .message-bubble.incoming { background: var(--border-color); }
         .message-image { max-width: 200px; max-height: 200px; border-radius: 12px; margin-top: 8px; cursor: pointer; }
-        .message-reactions { display: flex; gap: 6px; margin-top: 6px; font-size: 12px; }
+        .message-reactions { display: flex; gap: 6px; margin-top: 6px; font-size: 12px; flex-wrap: wrap; }
         .reaction-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 12px; transition: background 0.2s ease; }
         .reaction-btn:hover { background: var(--hover-bg); }
         .reaction-badge { background: var(--bg-secondary); border-radius: 12px; padding: 2px 6px; font-size: 12px; cursor: pointer; transition: background 0.2s ease; }
-        .reaction-badge:hover { background: var(--hover-bg); }
         .chat-input-area { padding: 16px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; }
         .chat-input { flex: 1; background: transparent; border: 1px solid var(--border-color); border-radius: 9999px; padding: 12px 16px; color: var(--text-primary); outline: none; }
         .chat-input:focus { border-color: var(--accent); }
         .chat-image-label { cursor: pointer; font-size: 20px; color: var(--accent); transition: opacity 0.2s ease; }
         .chat-image-label:hover { opacity: 0.8; }
         .chat-send-btn { background: var(--accent); border: none; border-radius: 9999px; padding: 8px 20px; color: white; cursor: pointer; transition: opacity 0.2s ease; }
-        .chat-send-btn:hover { opacity: 0.9; }
         
         .custom-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
         .custom-modal-content { background: #000000; border-radius: 28px; padding: 28px; width: 400px; text-align: center; border: 1px solid #2f3336; max-height: 80vh; overflow-y: auto; }
@@ -236,6 +231,9 @@
             .stat-label { font-size: 11px; }
             .custom-modal-content { width: 90%; padding: 20px; }
             .publish-btn { padding: 6px 16px; font-size: 14px; }
+            .chat-sidebar { width: 100%; position: absolute; left: 0; top: 0; height: 100%; z-index: 10; background: var(--bg-primary); transform: translateX(-100%); transition: transform 0.3s ease; }
+            .chat-sidebar.open { transform: translateX(0); }
+            .chat-back-mobile { display: block; }
         }
         @media (max-width: 480px) {
             .bottom-nav-item span { font-size: 11px; }
@@ -266,9 +264,9 @@
     }, 2000);
 
     let currentUser = null;
-    let currentTab = 'home';
+    let currentTab = 'feed';
     let feed = [];
-    let conversations = [];
+    let chatUsers = [];
     let currentChatUser = null;
     let pendingImage = null;
     let searchQuery = '';
@@ -285,14 +283,16 @@
     let cropTranslateY = 0;
     let isDragging = false;
     let unreadCount = 0;
-    let messagesSearchResults = [];
     let currentChatMessages = [];
     let messageReactions = {};
+    let feedOffset = 0;
+    let feedHasMore = true;
+    let feedLoading = false;
     
     let currentLang = localStorage.getItem('language') || 'en';
     const translations = {
         en: {
-            home: 'Home', profile: 'Profile', messages: 'Messages', search: 'Search',
+            feed: 'Feed', profile: 'Profile', messages: 'Messages', search: 'Search',
             interesting: 'Interesting', notifications: 'Notifications', create: 'Create',
             feedback: 'Feedback', more: 'More', logout: 'Logout', settings: 'Settings',
             account: 'Account', security: 'Security', theme: 'Theme', language: 'Language',
@@ -302,12 +302,12 @@
             login: 'Login', register: 'Register', signup: 'Sign up', or: 'or',
             back: 'Back', send: 'Send', cancel: 'Cancel', delete: 'Delete',
             follow: 'Follow', unfollow: 'Unfollow', likes: 'Likes', comments: 'Comments',
-            share: 'Share', reply: 'Reply', message: 'Message', online: 'Online',
+            reply: 'Reply', message: 'Message', online: 'Online',
             verified: 'Verified account', official: 'Official account', creator: 'Creator',
-            followers: 'Followers', following: 'Following', posts: 'Posts'
+            followers: 'Followers', following: 'Following', posts: 'Posts', chats: 'Chats'
         },
         ru: {
-            home: 'Главная', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
+            feed: 'Лента', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
             interesting: 'Интересное', notifications: 'Уведомления', create: 'Создать',
             feedback: 'Отзывы', more: 'Ещё', logout: 'Выйти', settings: 'Настройки',
             account: 'Аккаунт', security: 'Безопасность', theme: 'Тема', language: 'Язык',
@@ -317,12 +317,12 @@
             login: 'Войти', register: 'Регистрация', signup: 'Зарегистрироваться', or: 'или',
             back: 'Назад', send: 'Отправить', cancel: 'Отмена', delete: 'Удалить',
             follow: 'Подписаться', unfollow: 'Отписаться', likes: 'Нравится', comments: 'Комментарии',
-            share: 'Поделиться', reply: 'Ответить', message: 'Сообщение', online: 'В сети',
+            reply: 'Ответить', message: 'Сообщение', online: 'В сети',
             verified: 'Подтверждённый аккаунт', official: 'Официальный аккаунт', creator: 'Создатель',
-            followers: 'Подписчики', following: 'Подписки', posts: 'Посты'
+            followers: 'Подписчики', following: 'Подписки', posts: 'Посты', chats: 'Чаты'
         },
         es: {
-            home: 'Inicio', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
+            feed: 'Feed', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
             interesting: 'Interesante', notifications: 'Notificaciones', create: 'Crear',
             feedback: 'Comentarios', more: 'Más', logout: 'Salir', settings: 'Ajustes',
             account: 'Cuenta', security: 'Seguridad', theme: 'Tema', language: 'Idioma',
@@ -332,114 +332,9 @@
             login: 'Iniciar sesión', register: 'Registrarse', signup: 'Registrarse', or: 'o',
             back: 'Atrás', send: 'Enviar', cancel: 'Cancelar', delete: 'Eliminar',
             follow: 'Seguir', unfollow: 'Dejar de seguir', likes: 'Me gusta', comments: 'Comentarios',
-            share: 'Compartir', reply: 'Responder', message: 'Mensaje', online: 'En línea',
+            reply: 'Responder', message: 'Mensaje', online: 'En línea',
             verified: 'Cuenta verificada', official: 'Cuenta oficial', creator: 'Creador',
-            followers: 'Seguidores', following: 'Siguiendo', posts: 'Publicaciones'
-        },
-        fr: {
-            home: 'Accueil', profile: 'Profil', messages: 'Messages', search: 'Rechercher',
-            interesting: 'Intéressant', notifications: 'Notifications', create: 'Créer',
-            feedback: 'Retours', more: 'Plus', logout: 'Déconnexion', settings: 'Paramètres',
-            account: 'Compte', security: 'Sécurité', theme: 'Thème', language: 'Langue',
-            email: 'Email', username: "Nom d'utilisateur", password: 'Mot de passe', edit: 'Modifier',
-            changePassword: 'Changer mot de passe', joined: 'A rejoint', noPosts: 'Aucun post',
-            whatsHappening: 'Quoi de neuf ?', post: 'Poster', publish: 'Publier',
-            login: 'Connexion', register: "S'inscrire", signup: "S'inscrire", or: 'ou',
-            back: 'Retour', send: 'Envoyer', cancel: 'Annuler', delete: 'Supprimer',
-            follow: 'Suivre', unfollow: 'Ne plus suivre', likes: 'J\'aime', comments: 'Commentaires',
-            share: 'Partager', reply: 'Répondre', message: 'Message', online: 'En ligne',
-            verified: 'Compte vérifié', official: 'Compte officiel', creator: 'Créateur',
-            followers: 'Abonnés', following: 'Abonnements', posts: 'Publications'
-        },
-        ar: {
-            home: 'الرئيسية', profile: 'الملف الشخصي', messages: 'الرسائل', search: 'بحث',
-            interesting: 'مثير للاهتمام', notifications: 'الإشعارات', create: 'إنشاء',
-            feedback: 'الملاحظات', more: 'المزيد', logout: 'تسجيل الخروج', settings: 'الإعدادات',
-            account: 'الحساب', security: 'الأمان', theme: 'المظهر', language: 'اللغة',
-            email: 'البريد الإلكتروني', username: 'اسم المستخدم', password: 'كلمة المرور', edit: 'تعديل',
-            changePassword: 'تغيير كلمة المرور', joined: 'انضم', noPosts: 'لا توجد منشورات',
-            whatsHappening: 'ما الجديد؟', post: 'نشر', publish: 'نشر',
-            login: 'تسجيل الدخول', register: 'التسجيل', signup: 'التسجيل', or: 'أو',
-            back: 'رجوع', send: 'إرسال', cancel: 'إلغاء', delete: 'حذف',
-            follow: 'متابعة', unfollow: 'إلغاء المتابعة', likes: 'إعجابات', comments: 'تعليقات',
-            share: 'مشاركة', reply: 'رد', message: 'رسالة', online: 'متصل',
-            verified: 'حساب موثق', official: 'حساب رسمي', creator: 'منشئ',
-            followers: 'متابعون', following: 'يتابع', posts: 'منشورات'
-        },
-        el: {
-            home: 'Αρχική', profile: 'Προφίλ', messages: 'Μηνύματα', search: 'Αναζήτηση',
-            interesting: 'Ενδιαφέροντα', notifications: 'Ειδοποιήσεις', create: 'Δημιουργία',
-            feedback: 'Σχόλια', more: 'Περισσότερα', logout: 'Αποσύνδεση', settings: 'Ρυθμίσεις',
-            account: 'Λογαριασμός', security: 'Ασφάλεια', theme: 'Θέμα', language: 'Γλώσσα',
-            email: 'Email', username: 'Όνομα χρήστη', password: 'Κωδικός', edit: 'Επεξεργασία',
-            changePassword: 'Αλλαγή κωδικού', joined: 'Εγγράφηκε', noPosts: 'Δεν υπάρχουν αναρτήσεις',
-            whatsHappening: 'Τι συμβαίνει;', post: 'Δημοσίευση', publish: 'Δημοσίευση',
-            login: 'Σύνδεση', register: 'Εγγραφή', signup: 'Εγγραφή', or: 'ή',
-            back: 'Πίσω', send: 'Αποστολή', cancel: 'Ακύρωση', delete: 'Διαγραφή',
-            follow: 'Ακολούθηση', unfollow: 'Διακοπή', likes: 'Μου αρέσει', comments: 'Σχόλια',
-            share: 'Κοινοποίηση', reply: 'Απάντηση', message: 'Μήνυμα', online: 'Σύνδεση',
-            verified: 'Επαληθευμένος λογαριασμός', official: 'Επίσημος λογαριασμός', creator: 'Δημιουργός',
-            followers: 'Ακόλουθοι', following: 'Ακολουθεί', posts: 'Αναρτήσεις'
-        },
-        zh: {
-            home: '主页', profile: '个人资料', messages: '消息', search: '搜索',
-            interesting: '有趣', notifications: '通知', create: '创建',
-            feedback: '反馈', more: '更多', logout: '退出', settings: '设置',
-            account: '账户', security: '安全', theme: '主题', language: '语言',
-            email: '邮箱', username: '用户名', password: '密码', edit: '编辑',
-            changePassword: '修改密码', joined: '加入于', noPosts: '暂无帖子',
-            whatsHappening: '发生了什么？', post: '发布', publish: '发布',
-            login: '登录', register: '注册', signup: '注册', or: '或',
-            back: '返回', send: '发送', cancel: '取消', delete: '删除',
-            follow: '关注', unfollow: '取消关注', likes: '点赞', comments: '评论',
-            share: '分享', reply: '回复', message: '消息', online: '在线',
-            verified: '认证账户', official: '官方账户', creator: '创作者',
-            followers: '粉丝', following: '关注', posts: '帖子'
-        },
-        pt: {
-            home: 'Início', profile: 'Perfil', messages: 'Mensagens', search: 'Pesquisar',
-            interesting: 'Interessante', notifications: 'Notificações', create: 'Criar',
-            feedback: 'Feedback', more: 'Mais', logout: 'Sair', settings: 'Configurações',
-            account: 'Conta', security: 'Segurança', theme: 'Tema', language: 'Idioma',
-            email: 'Email', username: 'Usuário', password: 'Senha', edit: 'Editar',
-            changePassword: 'Alterar senha', joined: 'Entrou', noPosts: 'Sem posts',
-            whatsHappening: 'O que está acontecendo?', post: 'Publicar', publish: 'Publicar',
-            login: 'Entrar', register: 'Registrar', signup: 'Registrar', or: 'ou',
-            back: 'Voltar', send: 'Enviar', cancel: 'Cancelar', delete: 'Excluir',
-            follow: 'Seguir', unfollow: 'Deixar de seguir', likes: 'Curtidas', comments: 'Comentários',
-            share: 'Compartilhar', reply: 'Responder', message: 'Mensagem', online: 'Online',
-            verified: 'Conta verificada', official: 'Conta oficial', creator: 'Criador',
-            followers: 'Seguidores', following: 'Seguindo', posts: 'Publicações'
-        },
-        de: {
-            home: 'Startseite', profile: 'Profil', messages: 'Nachrichten', search: 'Suchen',
-            interesting: 'Interessant', notifications: 'Benachrichtigungen', create: 'Erstellen',
-            feedback: 'Feedback', more: 'Mehr', logout: 'Abmelden', settings: 'Einstellungen',
-            account: 'Konto', security: 'Sicherheit', theme: 'Thema', language: 'Sprache',
-            email: 'E-Mail', username: 'Benutzername', password: 'Passwort', edit: 'Bearbeiten',
-            changePassword: 'Passwort ändern', joined: 'Beigetreten', noPosts: 'Keine Beiträge',
-            whatsHappening: 'Was ist los?', post: 'Posten', publish: 'Veröffentlichen',
-            login: 'Anmelden', register: 'Registrieren', signup: 'Registrieren', or: 'oder',
-            back: 'Zurück', send: 'Senden', cancel: 'Abbrechen', delete: 'Löschen',
-            follow: 'Folgen', unfollow: 'Entfolgen', likes: 'Gefällt mir', comments: 'Kommentare',
-            share: 'Teilen', reply: 'Antworten', message: 'Nachricht', online: 'Online',
-            verified: 'Verifiziertes Konto', official: 'Offizielles Konto', creator: 'Ersteller',
-            followers: 'Follower', following: 'Folgt', posts: 'Beiträge'
-        },
-        it: {
-            home: 'Home', profile: 'Profilo', messages: 'Messaggi', search: 'Cerca',
-            interesting: 'Interessante', notifications: 'Notifiche', create: 'Crea',
-            feedback: 'Feedback', more: 'Altro', logout: 'Esci', settings: 'Impostazioni',
-            account: 'Account', security: 'Sicurezza', theme: 'Tema', language: 'Lingua',
-            email: 'Email', username: 'Nome utente', password: 'Password', edit: 'Modifica',
-            changePassword: 'Cambia password', joined: 'Iscritto', noPosts: 'Nessun post',
-            whatsHappening: 'Cosa succede?', post: 'Pubblica', publish: 'Pubblica',
-            login: 'Accedi', register: 'Registrati', signup: 'Registrati', or: 'o',
-            back: 'Indietro', send: 'Invia', cancel: 'Annulla', delete: 'Elimina',
-            follow: 'Segui', unfollow: 'Non seguire più', likes: 'Mi piace', comments: 'Commenti',
-            share: 'Condividi', reply: 'Rispondi', message: 'Messaggio', online: 'Online',
-            verified: 'Account verificato', official: 'Account ufficiale', creator: 'Creatore',
-            followers: 'Follower', following: 'Seguiti', posts: 'Post'
+            followers: 'Seguidores', following: 'Siguiendo', posts: 'Publicaciones', chats: 'Charlas'
         }
     };
     
@@ -453,8 +348,8 @@
         renderMain();
     }
 
-    const tabs = ['home', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'feedback', 'more'];
-    const tabNames = ['Home', 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'Feedback', 'More'];
+    const tabs = ['feed', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'feedback', 'more'];
+    const tabNames = ['Лента', 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'Feedback', 'More'];
 
     const allowedDomains = ['gmail.com', 'mail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
@@ -770,7 +665,7 @@
             }
             await api('/api/posts', { method: 'POST', body: formData });
             window.modalPendingImage = null;
-            await loadFeed();
+            await loadFeed(true);
             renderMain();
             modal.remove();
         };
@@ -1036,14 +931,14 @@
         await api('/api/avatar', { method: 'POST', body: formData });
         const me = await api('/api/me');
         currentUser = me.user;
-        await loadFeed();
+        await loadFeed(true);
         renderMain();
     }
 
     async function deletePost(postId) {
         showConfirmDialog('Delete this post?', async () => {
             await api(`/api/posts/${postId}`, { method: 'DELETE' });
-            await loadFeed();
+            await loadFeed(true);
             renderMain();
         });
     }
@@ -1085,7 +980,7 @@
         try {
             currentProfileUser = await api(`/api/user/${username}`);
             await loadFollowersAndFollowing(currentProfileUser.id);
-            await loadFeed();
+            await loadFeed(true);
             renderMain();
         } catch(e) { currentProfileUser = null; }
     }
@@ -1194,8 +1089,8 @@
             });
             const me = await api('/api/me');
             currentUser = me.user;
-            await loadFeed();
-            await loadConversations();
+            await loadFeed(true);
+            await loadChatUsers();
             await loadFollowersAndFollowing(currentUser.id);
             render();
         } catch(e) {
@@ -1216,48 +1111,33 @@
         }
     }
 
-    async function loadFeed() {
-        try { feed = await api('/api/feed'); } catch(e) { feed = []; }
-        updateUnreadCount();
-    }
-
-    async function loadConversations() {
-        try { conversations = await api('/api/conversations'); } catch(e) { conversations = []; }
-    }
-
-    async function performSearch() {
-        const query = searchQuery.toLowerCase();
-        if (query.length === 0) { 
-            searchResults = []; 
-            searchPosts = [];
-            renderMain(); 
-            return; 
+    async function loadFeed(reset = false) {
+        if (reset) {
+            feedOffset = 0;
+            feedHasMore = true;
+            feed = [];
         }
+        if (!feedHasMore || feedLoading) return;
         
+        feedLoading = true;
         try {
-            const users = await api('/api/users');
-            searchResults = users.filter(u => u.username.toLowerCase().includes(query));
-            searchPosts = feed.filter(p => p.content && p.content.toLowerCase().includes(query));
-            renderMain();
-        } catch(e) { 
-            searchResults = []; 
-            searchPosts = [];
-        }
+            const res = await api(`/api/feed?offset=${feedOffset}&limit=15`);
+            if (reset) {
+                feed = res.posts;
+            } else {
+                feed = [...feed, ...res.posts];
+            }
+            feedHasMore = res.hasMore;
+            feedOffset += 15;
+            updateUnreadCount();
+        } catch(e) { console.error(e); }
+        feedLoading = false;
     }
 
-    async function searchMessagesUsers(query) {
-        if (!query.trim()) {
-            messagesSearchResults = [];
-            renderMain();
-            return;
-        }
+    async function loadChatUsers() {
         try {
-            const users = await api('/api/users');
-            messagesSearchResults = users.filter(u => u.username.toLowerCase().includes(query.toLowerCase()));
-            renderMain();
-        } catch(e) {
-            messagesSearchResults = [];
-        }
+            chatUsers = await api('/api/chat-users');
+        } catch(e) { chatUsers = []; }
     }
 
     async function openChat(userId, username) {
@@ -1283,6 +1163,7 @@
         if (file) formData.append('image', file);
         await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: formData });
         await openChat(currentChatUser.id, currentChatUser.username);
+        await loadChatUsers();
     }
 
     async function addMessageReaction(messageId, reaction) {
@@ -1344,7 +1225,7 @@
 
     function renderHome() {
         return `
-            <div class="feed-container">
+            <div class="feed-container" id="feedContainer">
                 <div class="create-post">
                     ${currentUser?.avatar ? 
                         `<img class="avatar-img" src="${currentUser.avatar}" onclick="openAvatarUpload()" onerror="this.style.display='none'; this.after(document.createTextNode(currentUser.username[0].toUpperCase()))">` :
@@ -1361,7 +1242,8 @@
                         </div>
                     </div>
                 </div>
-                ${feed.map(post => renderPostCard(post)).join('')}
+                <div id="feedPosts"></div>
+                ${feedHasMore ? '<div id="feedLoader" style="text-align:center; padding:20px; color:var(--text-secondary);">Loading more posts...</div>' : '<div style="text-align:center; padding:20px; color:var(--text-secondary);">You\'ve seen all posts</div>'}
             </div>
         `;
     }
@@ -1420,31 +1302,27 @@
     function renderMessages() {
         return `
             <div class="messages-container">
-                <div class="messages-search">
-                    <input type="text" id="messagesSearchInput" class="messages-search-input" placeholder="Search users to message..." oninput="searchMessagesUsers(this.value)">
+                <div class="chat-sidebar">
+                    <div class="chat-sidebar-header">${t('chats')}</div>
+                    <div class="chat-users-list">
+                        ${chatUsers.map(u => `
+                            <div class="chat-user-item" onclick="openChat(${u.id}, '${escapeHtml(u.username)}')">
+                                <img class="chat-user-avatar" src="${u.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(u.username[0].toUpperCase()))">
+                                <div class="chat-user-info">
+                                    <div class="chat-user-name">${escapeHtml(u.username)}${renderCreatorBadge(u.is_creator, u.is_official)}</div>
+                                    <div class="chat-user-last-message">${escapeHtml(u.last_message || '')}</div>
+                                </div>
+                                ${u.unread > 0 ? `<div class="unread-badge" style="background:var(--accent); color:white; border-radius:50%; padding:2px 6px; font-size:11px;">${u.unread}</div>` : ''}
+                            </div>
+                        `).join('')}
+                        ${chatUsers.length === 0 ? '<div style="padding:20px; text-align:center; color:var(--text-secondary);">No chats yet. Follow someone to start chatting!</div>' : ''}
+                    </div>
                 </div>
-                <div id="messagesSearchResults" class="messages-search-results" style="display:${messagesSearchResults.length > 0 ? 'block' : 'none'}">
-                    ${messagesSearchResults.map(u => `
-                        <div class="messages-search-result" onclick="openChat(${u.id}, '${escapeHtml(u.username)}'); messagesSearchResults = []; renderMain();">
-                            <img class="search-result-avatar" src="${u.avatar || ''}" onerror="this.style.display='none';">
-                            <div><strong>${escapeHtml(u.username)}</strong><div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="conversations-list" ${currentChatUser ? 'style="display:none"' : ''}>
-                    <div style="padding:12px 16px; font-weight:600; border-bottom:1px solid var(--border-color);">Chats</div>
-                    ${conversations.map(c => `
-                        <div class="conversation" onclick="openChat(${c.other_id}, '${escapeHtml(c.username)}')">
-                            <img class="conversation-avatar" src="${c.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(c.username[0].toUpperCase()))">
-                            <div><strong>${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)}<div style="font-size:12px; color:var(--text-secondary);">${escapeHtml(c.last_message || 'No messages')}</div></div>
-                        </div>
-                    `).join('')}
-                    ${conversations.length === 0 ? '<div style="padding:20px; color:var(--text-secondary);">No conversations yet</div>' : ''}
-                </div>
-                ${currentChatUser ? `
-                    <div class="chat-area">
-                        <div class="chat-header">
-                            <span class="chat-back" onclick="currentChatUser = null; renderMain();">←</span>
+                <div class="chat-main">
+                    ${currentChatUser ? `
+                        <div class="chat-main-header">
+                            <span class="chat-back-mobile" style="cursor:pointer; display:none;" onclick="document.querySelector('.chat-sidebar').classList.add('open')">←</span>
+                            <img class="chat-user-avatar" src="${currentChatUser.avatar || ''}" style="width:40px; height:40px;" onerror="this.style.display='none';">
                             <span>${escapeHtml(currentChatUser.username)}</span>
                         </div>
                         <div class="chat-messages" id="chatMessages">
@@ -1469,8 +1347,12 @@
                             <label class="chat-image-label">📷<input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="sendMessageWithImage(this.files[0], '')"></label>
                             <button class="chat-send-btn" onclick="const input=document.getElementById('chatMessageInput'); sendMessageWithImage(null, input.value); input.value=''">${t('send')}</button>
                         </div>
-                    </div>
-                ` : ''}
+                    ` : `
+                        <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-secondary);">
+                            Select a chat to start messaging
+                        </div>
+                    `}
+                </div>
             </div>
         `;
     }
@@ -1649,13 +1531,24 @@
         pendingImage = null;
         document.getElementById('postContent').value = '';
         document.getElementById('imagePreview').innerHTML = '';
-        await loadFeed();
+        await loadFeed(true);
         renderMain();
     };
 
+    function updateFeedPosts() {
+        const container = document.getElementById('feedPosts');
+        if (container) {
+            container.innerHTML = feed.map(post => renderPostCard(post)).join('');
+        }
+        const loader = document.getElementById('feedLoader');
+        if (loader && !feedHasMore) {
+            loader.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary);">You\'ve seen all posts</div>';
+        }
+    }
+
     async function renderMain() {
         await loadFeed();
-        await loadConversations();
+        await loadChatUsers();
         
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.className = savedTheme;
@@ -1669,7 +1562,7 @@
                         <div class="logo">FreedomNet</div>
                         ${tabNames.map((tab, idx) => `
                             <div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                                <span class="nav-text">${t(tabs[idx])}</span>
+                                <span class="nav-text">${tab}</span>
                             </div>
                         `).join('')}
                         <div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;">
@@ -1679,7 +1572,7 @@
                     <div class="bottom-nav">
                         ${tabNames.slice(0, 5).map((tab, idx) => `
                             <div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                                <span>${t(tabs[idx])}</span>
+                                <span>${tab}</span>
                             </div>
                         `).join('')}
                     </div>
@@ -1699,7 +1592,7 @@
                     <div class="logo">FreedomNet</div>
                     ${tabNames.map((tab, idx) => `
                         <div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                            <span class="nav-text">${t(tabs[idx])}</span>
+                            <span class="nav-text">${tab}</span>
                         </div>
                     `).join('')}
                     <div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;">
@@ -1709,13 +1602,13 @@
                 <div class="bottom-nav">
                     ${tabNames.slice(0, 5).map((tab, idx) => `
                         <div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
-                            <span>${t(tabs[idx])}</span>
+                            <span>${tab}</span>
                         </div>
                     `).join('')}
                 </div>
                 <div class="main-content">
                     <div class="header">${currentTab === 'more' ? t('settings') : t(currentTab)}</div>
-                    ${currentTab === 'home' ? renderHome() : ''}
+                    ${currentTab === 'feed' ? renderHome() : ''}
                     ${currentTab === 'messages' ? renderMessages() : ''}
                     ${currentTab === 'search' ? renderSearch() : ''}
                     ${currentTab === 'interesting' ? renderInteresting() : ''}
@@ -1727,8 +1620,21 @@
             </div>
         `;
         
+        if (currentTab === 'feed') {
+            updateFeedPosts();
+            attachHomeEvents();
+            const feedContainer = document.getElementById('feedContainer');
+            if (feedContainer) {
+                feedContainer.addEventListener('scroll', () => {
+                    if (feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 100) {
+                        loadFeed();
+                        updateFeedPosts();
+                    }
+                });
+            }
+        }
+        
         attachGlobalEvents();
-        if (currentTab === 'home') attachHomeEvents();
     }
 
     window.showLogoutConfirm = () => {
@@ -1818,7 +1724,7 @@
         const post = feed.find(p => p.id === postId);
         if (post.user_liked) await api(`/api/like/${postId}`, { method: 'DELETE' });
         else await api(`/api/like/${postId}`, { method: 'POST' });
-        await loadFeed();
+        await loadFeed(true);
         renderMain();
     };
 
@@ -1832,15 +1738,15 @@
         const content = input?.value.trim();
         if (!content) return;
         await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
-        await loadFeed();
+        await loadFeed(true);
         renderMain();
     };
 
-    window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; currentChatUser = null; messagesSearchResults = []; renderMain(); };
+    window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; currentChatUser = null; renderMain(); };
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
 
     (async () => {
-        try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(); await loadFollowersAndFollowing(currentUser.id); } } catch(e) {}
+        try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(true); await loadFollowersAndFollowing(currentUser.id); } } catch(e) {}
         render();
     })();
 </script>
