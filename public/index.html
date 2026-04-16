@@ -274,6 +274,50 @@
 <div id="root" style="display:none;"></div>
 
 <script>
+    // Sound effects
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let soundEnabled = true;
+    
+    function playSound(type) {
+        if (!soundEnabled) return;
+        try {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            if (type === 'post') {
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.15;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.4);
+                oscillator.stop(audioContext.currentTime + 0.4);
+            } else if (type === 'like') {
+                oscillator.frequency.value = 660;
+                gainNode.gain.value = 0.12;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } else if (type === 'comment') {
+                oscillator.frequency.value = 523.25;
+                gainNode.gain.value = 0.1;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.25);
+                oscillator.stop(audioContext.currentTime + 0.25);
+            } else if (type === 'message') {
+                oscillator.frequency.value = 440;
+                gainNode.gain.value = 0.12;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.35);
+                oscillator.stop(audioContext.currentTime + 0.35);
+            }
+            // Resume audio context if suspended (browser policy)
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        } catch(e) { console.log('Audio not supported'); }
+    }
+    
     // Show loading screen only on initial load, not on feed updates
     let isInitialLoad = true;
     
@@ -323,6 +367,7 @@
     let feedLoading = false;
     let activeDropdown = null;
     let activePreviewPopup = null;
+    let lastPostCount = 0;
     
     let currentLang = localStorage.getItem('language') || 'en';
     const translations = {
@@ -843,7 +888,7 @@
         modal.innerHTML = `
             <div class="custom-modal-content">
                 <p>${t('create')} ${t('post')}</p>
-                <textarea id="modalPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters)"></textarea>
+                <textarea id="modalPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters, spaces not counted)"></textarea>
                 <input type="file" id="modalPostImage" accept="image/*" style="margin:10px 0;">
                 <div id="modalImagePreview" style="margin-top:8px;"></div>
                 <div id="modalError" class="error-message" style="display:none;"></div>
@@ -925,7 +970,7 @@
         modal.innerHTML = `
             <div class="custom-modal-content">
                 <p>Edit Post</p>
-                <textarea id="editPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters)">${escapeHtml(currentContent)}</textarea>
+                <textarea id="editPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters, spaces not counted)">${escapeHtml(currentContent)}</textarea>
                 ${currentImage ? `
                     <div class="post-image-container" style="margin-top:12px;">
                         <img src="${currentImage}" style="max-width:100%; max-height:200px; border-radius:12px;">
@@ -1439,6 +1484,7 @@
     }
 
     async function loadFeed(reset = false) {
+        const oldPostCount = feed.length;
         if (reset) {
             feedOffset = 0;
             feedHasMore = true;
@@ -1453,6 +1499,10 @@
                 feed = res.posts;
             } else {
                 feed = [...feed, ...res.posts];
+            }
+            // Play sound if new post from someone else
+            if (!reset && res.posts.length > 0 && res.posts[0].user_id !== currentUser?.id && oldPostCount > 0) {
+                playSound('post');
             }
             feedHasMore = res.hasMore;
             feedOffset += 15;
@@ -1492,6 +1542,7 @@
         formData.append('content', content);
         if (file) formData.append('image', file);
         await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: formData });
+        playSound('message');
         await openChat(currentChatUser.id, currentChatUser.username);
         await loadConversationsList();
     }
@@ -1880,6 +1931,7 @@
             formData.append('image', blob, 'photo.jpg');
         }
         await api('/api/posts', { method: 'POST', body: formData });
+        playSound('post');
         pendingImage = null;
         document.getElementById('postContent').value = '';
         document.getElementById('imagePreview').innerHTML = '';
@@ -2074,6 +2126,9 @@
         const post = feed.find(p => p.id === postId);
         if (post.user_liked) await api(`/api/like/${postId}`, { method: 'DELETE' });
         else await api(`/api/like/${postId}`, { method: 'POST' });
+        if (post.user_id !== currentUser.id) {
+            playSound('like');
+        }
         await loadFeed(true);
         // Update unread count for notifications (like generates notification)
         const newUnreadCount = feed.filter(p => !p.read).length;
@@ -2093,7 +2148,11 @@
         const input = document.getElementById(`commentInput-${postId}`);
         const content = input?.value.trim();
         if (!content) return;
+        const post = feed.find(p => p.id === postId);
         await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
+        if (post?.user_id !== currentUser.id) {
+            playSound('comment');
+        }
         await loadFeed(true);
         // Update unread count for notifications (comment generates notification)
         const newUnreadCount = feed.filter(p => !p.read).length;
@@ -2114,6 +2173,13 @@
     };
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
+
+    // Resume audio context on first user interaction
+    document.body.addEventListener('click', () => {
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+    }, { once: true });
 
     (async () => {
         try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(true); await loadFollowersAndFollowing(currentUser.id); } } catch(e) {}
