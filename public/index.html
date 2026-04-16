@@ -41,22 +41,11 @@
             z-index: 10000;
             transition: opacity 0.5s ease;
         }
-        .loading-content {
-            text-align: center;
-        }
-        .loading-logo {
-            font-size: 48px;
-            font-weight: 800;
-            color: var(--accent);
-            letter-spacing: -2px;
-            animation: pulse 1s ease infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(0.98); }
-        }
+        .loading-content { text-align: center; }
+        .loading-logo { font-size: 48px; font-weight: 800; color: var(--accent); letter-spacing: -2px; animation: pulse 1s ease infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.98); } }
         
-        .app { display: flex; min-height: 100vh; max-width: 1280px; margin: 0 auto; position: relative; }
+        /* Desktop Sidebar */
         .sidebar { width: 275px; position: fixed; height: 100vh; padding: 20px 12px; border-right: 1px solid var(--border-color); background: var(--bg-primary); overflow-y: auto; transition: background 0.2s ease, border-color 0.2s ease; }
         .logo { font-size: 28px; font-weight: 800; margin-bottom: 30px; padding: 12px; color: var(--accent); letter-spacing: -1px; }
         .nav-item { display: flex; align-items: center; gap: 16px; padding: 12px; margin: 4px 0; border-radius: 9999px; cursor: pointer; font-size: 20px; font-weight: 400; width: fit-content; color: var(--text-secondary); background: transparent; transition: color 0.2s ease; }
@@ -64,8 +53,29 @@
         .nav-item.active { font-weight: 700; color: var(--accent); }
         .nav-item.logout:hover { color: #f4212e; }
         .nav-text { font-size: 20px; }
-        .main-content { margin-left: 275px; flex: 1; min-height: 100vh; border-right: 1px solid var(--border-color); transition: border-color 0.2s ease; }
+        
+        /* Mobile Bottom Navigation */
+        .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-primary); border-top: 1px solid var(--border-color); padding: 8px 16px; z-index: 100; justify-content: space-around; }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; cursor: pointer; color: var(--text-secondary); transition: color 0.2s ease; font-size: 12px; }
+        .bottom-nav-item.active { color: var(--accent); }
+        .bottom-nav-icon { font-size: 24px; }
+        
+        .main-content { margin-left: 275px; flex: 1; min-height: 100vh; border-right: 1px solid var(--border-color); transition: border-color 0.2s ease; padding-bottom: 0; }
         .header { position: sticky; top: 0; background: var(--bg-primary); backdrop-filter: blur(12px); padding: 16px 20px; border-bottom: 1px solid var(--border-color); font-size: 20px; font-weight: 800; z-index: 10; color: var(--text-primary); transition: background 0.2s ease, color 0.2s ease; }
+        
+        /* Stats on profile */
+        .profile-stats { display: flex; justify-content: center; gap: 32px; margin: 16px 0; }
+        .stat-item { text-align: center; cursor: pointer; transition: opacity 0.2s ease; }
+        .stat-item:hover { opacity: 0.7; }
+        .stat-number { font-weight: 700; font-size: 18px; }
+        .stat-label { color: var(--text-secondary); font-size: 13px; }
+        
+        /* User list modal */
+        .user-list { max-height: 300px; overflow-y: auto; margin: 16px 0; }
+        .user-list-item { display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border-radius: 12px; transition: background 0.2s ease; }
+        .user-list-item:hover { background: var(--hover-bg); }
+        .user-list-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        
         .feed-container { max-width: 600px; margin: 0 auto; }
         .create-post { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; }
         .avatar-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; cursor: pointer; transition: opacity 0.2s ease; }
@@ -220,8 +230,17 @@
         ::-webkit-scrollbar-track { background: #000000; }
         ::-webkit-scrollbar-thumb { background: #2f3336; border-radius: 4px; transition: background 0.2s ease; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-        @media (max-width: 1000px) { .sidebar { width: 88px; } .sidebar .nav-text { display: none; } .main-content { margin-left: 88px; } }
-        @media (max-width: 640px) { .conversations-list { max-height: 150px; } }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; border-right: none; padding-bottom: 70px; }
+            .bottom-nav { display: flex; }
+        }
+        @media (max-width: 640px) {
+            .conversations-list { max-height: 150px; }
+            .custom-modal-content { width: 90%; padding: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -258,6 +277,8 @@
     let allUsers = [];
     let currentProfileUser = null;
     let userFollows = [];
+    let followersList = [];
+    let followingList = [];
     let cropImageFile = null;
     let cropScale = 1;
     let cropTranslateX = 0;
@@ -283,7 +304,8 @@
             back: 'Back', send: 'Send', cancel: 'Cancel', delete: 'Delete',
             follow: 'Follow', unfollow: 'Unfollow', likes: 'Likes', comments: 'Comments',
             share: 'Share', reply: 'Reply', message: 'Message', online: 'Online',
-            verified: 'Verified account', official: 'Official account', creator: 'Creator'
+            verified: 'Verified account', official: 'Official account', creator: 'Creator',
+            followers: 'Followers', following: 'Following', posts: 'Posts'
         },
         ru: {
             home: 'Главная', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
@@ -297,7 +319,8 @@
             back: 'Назад', send: 'Отправить', cancel: 'Отмена', delete: 'Удалить',
             follow: 'Подписаться', unfollow: 'Отписаться', likes: 'Нравится', comments: 'Комментарии',
             share: 'Поделиться', reply: 'Ответить', message: 'Сообщение', online: 'В сети',
-            verified: 'Подтверждённый аккаунт', official: 'Официальный аккаунт', creator: 'Создатель'
+            verified: 'Подтверждённый аккаунт', official: 'Официальный аккаунт', creator: 'Создатель',
+            followers: 'Подписчики', following: 'Подписки', posts: 'Посты'
         },
         es: {
             home: 'Inicio', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
@@ -311,91 +334,8 @@
             back: 'Atrás', send: 'Enviar', cancel: 'Cancelar', delete: 'Eliminar',
             follow: 'Seguir', unfollow: 'Dejar de seguir', likes: 'Me gusta', comments: 'Comentarios',
             share: 'Compartir', reply: 'Responder', message: 'Mensaje', online: 'En línea',
-            verified: 'Cuenta verificada', official: 'Cuenta oficial', creator: 'Creador'
-        },
-        fr: {
-            home: 'Accueil', profile: 'Profil', messages: 'Messages', search: 'Rechercher',
-            interesting: 'Intéressant', notifications: 'Notifications', create: 'Créer',
-            feedback: 'Retours', more: 'Plus', logout: 'Déconnexion', settings: 'Paramètres',
-            account: 'Compte', security: 'Sécurité', theme: 'Thème', language: 'Langue',
-            email: 'Email', username: "Nom d'utilisateur", password: 'Mot de passe', edit: 'Modifier',
-            changePassword: 'Changer mot de passe', joined: 'A rejoint', noPosts: 'Aucun post',
-            whatsHappening: 'Quoi de neuf ?', post: 'Poster', publish: 'Publier',
-            login: 'Connexion', register: "S'inscrire", signup: "S'inscrire", or: 'ou',
-            back: 'Retour', send: 'Envoyer', cancel: 'Annuler', delete: 'Supprimer',
-            follow: 'Suivre', unfollow: 'Ne plus suivre', likes: 'J\'aime', comments: 'Commentaires',
-            share: 'Partager', reply: 'Répondre', message: 'Message', online: 'En ligne',
-            verified: 'Compte vérifié', official: 'Compte officiel', creator: 'Créateur'
-        },
-        ar: {
-            home: 'الرئيسية', profile: 'الملف الشخصي', messages: 'الرسائل', search: 'بحث',
-            interesting: 'مثير للاهتمام', notifications: 'الإشعارات', create: 'إنشاء',
-            feedback: 'الملاحظات', more: 'المزيد', logout: 'تسجيل الخروج', settings: 'الإعدادات',
-            account: 'الحساب', security: 'الأمان', theme: 'المظهر', language: 'اللغة',
-            email: 'البريد الإلكتروني', username: 'اسم المستخدم', password: 'كلمة المرور', edit: 'تعديل',
-            changePassword: 'تغيير كلمة المرور', joined: 'انضم', noPosts: 'لا توجد منشورات',
-            whatsHappening: 'ما الجديد؟', post: 'نشر', publish: 'نشر',
-            login: 'تسجيل الدخول', register: 'التسجيل', signup: 'التسجيل', or: 'أو',
-            back: 'رجوع', send: 'إرسال', cancel: 'إلغاء', delete: 'حذف',
-            follow: 'متابعة', unfollow: 'إلغاء المتابعة', likes: 'إعجابات', comments: 'تعليقات',
-            share: 'مشاركة', reply: 'رد', message: 'رسالة', online: 'متصل',
-            verified: 'حساب موثق', official: 'حساب رسمي', creator: 'منشئ'
-        },
-        zh: {
-            home: '主页', profile: '个人资料', messages: '消息', search: '搜索',
-            interesting: '有趣', notifications: '通知', create: '创建',
-            feedback: '反馈', more: '更多', logout: '退出', settings: '设置',
-            account: '账户', security: '安全', theme: '主题', language: '语言',
-            email: '邮箱', username: '用户名', password: '密码', edit: '编辑',
-            changePassword: '修改密码', joined: '加入于', noPosts: '暂无帖子',
-            whatsHappening: '发生了什么？', post: '发布', publish: '发布',
-            login: '登录', register: '注册', signup: '注册', or: '或',
-            back: '返回', send: '发送', cancel: '取消', delete: '删除',
-            follow: '关注', unfollow: '取消关注', likes: '点赞', comments: '评论',
-            share: '分享', reply: '回复', message: '消息', online: '在线',
-            verified: '认证账户', official: '官方账户', creator: '创作者'
-        },
-        pt: {
-            home: 'Início', profile: 'Perfil', messages: 'Mensagens', search: 'Pesquisar',
-            interesting: 'Interessante', notifications: 'Notificações', create: 'Criar',
-            feedback: 'Feedback', more: 'Mais', logout: 'Sair', settings: 'Configurações',
-            account: 'Conta', security: 'Segurança', theme: 'Tema', language: 'Idioma',
-            email: 'Email', username: 'Usuário', password: 'Senha', edit: 'Editar',
-            changePassword: 'Alterar senha', joined: 'Entrou', noPosts: 'Sem posts',
-            whatsHappening: 'O que está acontecendo?', post: 'Publicar', publish: 'Publicar',
-            login: 'Entrar', register: 'Registrar', signup: 'Registrar', or: 'ou',
-            back: 'Voltar', send: 'Enviar', cancel: 'Cancelar', delete: 'Excluir',
-            follow: 'Seguir', unfollow: 'Deixar de seguir', likes: 'Curtidas', comments: 'Comentários',
-            share: 'Compartilhar', reply: 'Responder', message: 'Mensagem', online: 'Online',
-            verified: 'Conta verificada', official: 'Conta oficial', creator: 'Criador'
-        },
-        de: {
-            home: 'Startseite', profile: 'Profil', messages: 'Nachrichten', search: 'Suchen',
-            interesting: 'Interessant', notifications: 'Benachrichtigungen', create: 'Erstellen',
-            feedback: 'Feedback', more: 'Mehr', logout: 'Abmelden', settings: 'Einstellungen',
-            account: 'Konto', security: 'Sicherheit', theme: 'Thema', language: 'Sprache',
-            email: 'E-Mail', username: 'Benutzername', password: 'Passwort', edit: 'Bearbeiten',
-            changePassword: 'Passwort ändern', joined: 'Beigetreten', noPosts: 'Keine Beiträge',
-            whatsHappening: 'Was ist los?', post: 'Posten', publish: 'Veröffentlichen',
-            login: 'Anmelden', register: 'Registrieren', signup: 'Registrieren', or: 'oder',
-            back: 'Zurück', send: 'Senden', cancel: 'Abbrechen', delete: 'Löschen',
-            follow: 'Folgen', unfollow: 'Entfolgen', likes: 'Gefällt mir', comments: 'Kommentare',
-            share: 'Teilen', reply: 'Antworten', message: 'Nachricht', online: 'Online',
-            verified: 'Verifiziertes Konto', official: 'Offizielles Konto', creator: 'Ersteller'
-        },
-        it: {
-            home: 'Home', profile: 'Profilo', messages: 'Messaggi', search: 'Cerca',
-            interesting: 'Interessante', notifications: 'Notifiche', create: 'Crea',
-            feedback: 'Feedback', more: 'Altro', logout: 'Esci', settings: 'Impostazioni',
-            account: 'Account', security: 'Sicurezza', theme: 'Tema', language: 'Lingua',
-            email: 'Email', username: 'Nome utente', password: 'Password', edit: 'Modifica',
-            changePassword: 'Cambia password', joined: 'Iscritto', noPosts: 'Nessun post',
-            whatsHappening: 'Cosa succede?', post: 'Pubblica', publish: 'Pubblica',
-            login: 'Accedi', register: 'Registrati', signup: 'Registrati', or: 'o',
-            back: 'Indietro', send: 'Invia', cancel: 'Annulla', delete: 'Elimina',
-            follow: 'Segui', unfollow: 'Non seguire più', likes: 'Mi piace', comments: 'Commenti',
-            share: 'Condividi', reply: 'Rispondi', message: 'Messaggio', online: 'Online',
-            verified: 'Account verificato', official: 'Account ufficiale', creator: 'Creatore'
+            verified: 'Cuenta verificada', official: 'Cuenta oficial', creator: 'Creador',
+            followers: 'Seguidores', following: 'Siguiendo', posts: 'Publicaciones'
         }
     };
     
@@ -509,6 +449,53 @@
             onYes();
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
+    }
+
+    function showUserListModal(title, users) {
+        const existing = document.querySelector('.custom-modal');
+        if (existing) existing.remove();
+        
+        const modal = document.createElement('div');
+        modal.className = 'custom-modal';
+        modal.innerHTML = `
+            <div class="custom-modal-content">
+                <p>${title}</p>
+                <div class="user-list">
+                    ${users.map(u => `
+                        <div class="user-list-item" onclick="viewProfile('${u.username}'); document.querySelector('.custom-modal')?.remove();">
+                            <img class="user-list-avatar" src="${u.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(u.username[0].toUpperCase()))">
+                            <div><strong>${escapeHtml(u.username)}</strong><div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div>
+                        </div>
+                    `).join('')}
+                    ${users.length === 0 ? '<div style="padding:20px; text-align:center; color:var(--text-secondary);">No users</div>' : ''}
+                </div>
+                <div class="custom-modal-buttons">
+                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('close') || 'Close'}</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('confirmCancel').onclick = () => modal.remove();
+    }
+
+    async function loadFollowersAndFollowing(userId) {
+        try {
+            const followersRes = await api(`/api/followers/${userId}`);
+            followersList = followersRes;
+            const followingRes = await api(`/api/following/${userId}`);
+            followingList = followingRes;
+        } catch(e) {
+            followersList = [];
+            followingList = [];
+        }
+    }
+
+    function showFollowers() {
+        showUserListModal(t('followers'), followersList);
+    }
+
+    function showFollowing() {
+        showUserListModal(t('following'), followingList);
     }
 
     function showPasswordModal(title, fields, onConfirm) {
@@ -729,7 +716,7 @@
     }
 
     function showChangeUsernameModal() {
-        showPasswordModal(t('changeUsername'), [
+        showPasswordModal('Change Username', [
             { type: 'password', id: 'password', placeholder: 'Enter your password' },
             { type: 'text', id: 'newUsername', placeholder: 'New username' }
         ], async (values, callback) => {
@@ -764,7 +751,7 @@
     }
 
     function showChangeEmailModal() {
-        showPasswordModal(t('changeEmail'), [
+        showPasswordModal('Change Email', [
             { type: 'password', id: 'password', placeholder: 'Enter your password' },
             { type: 'email', id: 'newEmail', placeholder: 'New email (gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com)' }
         ], async (values, callback) => {
@@ -993,6 +980,7 @@
     async function loadProfileUser(username) {
         try {
             currentProfileUser = await api(`/api/user/${username}`);
+            await loadFollowersAndFollowing(currentProfileUser.id);
             await loadFeed();
             renderMain();
         } catch(e) { currentProfileUser = null; }
@@ -1002,7 +990,7 @@
         if (username === currentUser.username) {
             currentTab = 'profile';
             currentProfileUser = null;
-            renderMain();
+            loadFollowersAndFollowing(currentUser.id).then(() => renderMain());
         } else {
             loadProfileUser(username);
             currentTab = 'profile';
@@ -1104,6 +1092,7 @@
             currentUser = me.user;
             await loadFeed();
             await loadConversations();
+            await loadFollowersAndFollowing(currentUser.id);
             render();
         } catch(e) {
             showMessage('authForm', 'Invalid username/email or password', true);
@@ -1277,6 +1266,8 @@
         const isOwnProfile = !currentProfileUser || currentProfileUser.id === currentUser.id;
         const following = currentProfileUser ? isFollowing(currentProfileUser.id) : false;
         const userPosts = feed.filter(p => p.user_id === user.id);
+        const followersCount = followersList.length;
+        const followingCount = followingList.length;
         
         return `
             <div class="profile-container">
@@ -1291,7 +1282,21 @@
                         ${renderCreatorBadge(user.is_creator, user.is_official)}
                     </div>
                     <p>${escapeHtml(user.bio || 'No bio yet')}</p>
-                    <p style="color:var(--text-secondary); font-size:13px; margin-top:8px;">${t('joined')} ${new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                    <div class="profile-stats">
+                        <div class="stat-item" onclick="showFollowers()">
+                            <div class="stat-number">${followersCount}</div>
+                            <div class="stat-label">${t('followers')}</div>
+                        </div>
+                        <div class="stat-item" onclick="showFollowing()">
+                            <div class="stat-number">${followingCount}</div>
+                            <div class="stat-label">${t('following')}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${userPosts.length}</div>
+                            <div class="stat-label">${t('posts')}</div>
+                        </div>
+                    </div>
+                    <p style="color:var(--text-secondary); font-size:13px;">${t('joined')} ${new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
                     ${!isOwnProfile ? `
                         ${following ? 
                             `<button class="unfollow-btn" onclick="unfollowUser(${user.id})">${t('unfollow')}</button>` :
@@ -1565,6 +1570,14 @@
                             <span class="nav-text">${t('logout')}</span>
                         </div>
                     </div>
+                    <div class="bottom-nav">
+                        ${tabNames.slice(0, 5).map((tab, idx) => `
+                            <div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
+                                <div class="bottom-nav-icon">${getIcon(tabs[idx])}</div>
+                                <span>${t(tabs[idx])}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                     <div class="main-content">
                         <div class="header">${t('profile')}</div>
                         ${renderProfilePage()}
@@ -1588,6 +1601,14 @@
                         <span class="nav-text">${t('logout')}</span>
                     </div>
                 </div>
+                <div class="bottom-nav">
+                    ${tabNames.slice(0, 5).map((tab, idx) => `
+                        <div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
+                            <div class="bottom-nav-icon">${getIcon(tabs[idx])}</div>
+                            <span>${t(tabs[idx])}</span>
+                        </div>
+                    `).join('')}
+                </div>
                 <div class="main-content">
                     <div class="header">${currentTab === 'more' ? t('settings') : t(currentTab)}</div>
                     ${currentTab === 'home' ? renderHome() : ''}
@@ -1604,6 +1625,14 @@
         
         attachGlobalEvents();
         if (currentTab === 'home') attachHomeEvents();
+    }
+    
+    function getIcon(tab) {
+        const icons = {
+            home: '🏠', profile: '👤', messages: '💬', search: '🔍',
+            interesting: '✨', notifications: '🔔', create: '➕', feedback: '📝', more: '☰'
+        };
+        return icons[tab] || '•';
     }
 
     window.showLogoutConfirm = () => {
@@ -1715,7 +1744,7 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
 
     (async () => {
-        try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(); } } catch(e) {}
+        try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(); await loadFollowersAndFollowing(currentUser.id); } } catch(e) {}
         render();
     })();
 </script>
