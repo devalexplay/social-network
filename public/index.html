@@ -26,6 +26,36 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        .loading-content {
+            text-align: center;
+        }
+        .loading-logo {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -2px;
+            animation: pulse 1s ease infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.98); }
+        }
+        
         .app { display: flex; min-height: 100vh; max-width: 1280px; margin: 0 auto; position: relative; }
         .sidebar { width: 275px; position: fixed; height: 100vh; padding: 20px 12px; border-right: 1px solid var(--border-color); background: var(--bg-primary); overflow-y: auto; transition: background 0.2s ease, border-color 0.2s ease; }
         .logo { font-size: 28px; font-weight: 800; margin-bottom: 30px; padding: 12px; color: var(--accent); letter-spacing: -1px; }
@@ -102,21 +132,43 @@
         .notification { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; transition: background 0.2s ease; }
         .notification:hover { background: var(--hover-bg); }
         .notification-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
-        .messages-container { display: flex; height: calc(100vh - 70px); }
-        .conversations-list { width: 350px; border-right: 1px solid var(--border-color); overflow-y: auto; }
+        .messages-container { display: flex; flex-direction: column; height: calc(100vh - 70px); }
+        .messages-search { padding: 16px; border-bottom: 1px solid var(--border-color); }
+        .messages-search-input { width: 100%; padding: 12px 20px; background: transparent; border: 1px solid var(--border-color); border-radius: 9999px; color: var(--text-primary); font-size: 16px; outline: none; }
+        .messages-search-input:focus { border-color: var(--accent); }
+        .messages-search-results { max-height: 200px; overflow-y: auto; border-bottom: 1px solid var(--border-color); }
+        .messages-search-result { padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s ease; }
+        .messages-search-result:hover { background: var(--hover-bg); }
+        .conversations-list { overflow-y: auto; max-height: 200px; border-bottom: 1px solid var(--border-color); }
         .conversation { padding: 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s ease; }
         .conversation:hover { background: var(--hover-bg); }
         .conversation-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
         .chat-area { flex: 1; display: flex; flex-direction: column; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
-        .message { max-width: 70%; padding: 10px 14px; border-radius: 18px; font-size: 14px; }
-        .message.outgoing { background: var(--accent); color: white; align-self: flex-end; }
-        .message.incoming { background: var(--border-color); align-self: flex-start; }
-        .chat-input-area { padding: 16px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; }
-        .chat-input-area input { flex: 1; background: transparent; border: 1px solid var(--border-color); border-radius: 9999px; padding: 12px 16px; color: var(--text-primary); outline: none; transition: all 0.2s ease; }
-        .chat-input-area input:focus { border-color: var(--accent); }
+        .chat-header { padding: 16px; border-bottom: 1px solid var(--border-color); font-weight: 700; display: flex; align-items: center; gap: 12px; }
+        .chat-back { cursor: pointer; font-size: 24px; color: var(--text-secondary); transition: color 0.2s ease; }
+        .chat-back:hover { color: var(--accent); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .message-wrapper { display: flex; flex-direction: column; max-width: 80%; }
+        .message-wrapper.outgoing { align-self: flex-end; }
+        .message-wrapper.incoming { align-self: flex-start; }
+        .message-bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; word-wrap: break-word; }
+        .message-bubble.outgoing { background: var(--accent); color: white; }
+        .message-bubble.incoming { background: var(--border-color); }
+        .message-image { max-width: 200px; max-height: 200px; border-radius: 12px; margin-top: 8px; cursor: pointer; }
+        .message-reactions { display: flex; gap: 6px; margin-top: 6px; font-size: 12px; }
+        .reaction-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 12px; transition: background 0.2s ease; }
+        .reaction-btn:hover { background: var(--hover-bg); }
+        .reaction-badge { background: var(--bg-secondary); border-radius: 12px; padding: 2px 6px; font-size: 12px; cursor: pointer; transition: background 0.2s ease; }
+        .reaction-badge:hover { background: var(--hover-bg); }
+        .chat-input-area { padding: 16px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; }
+        .chat-input { flex: 1; background: transparent; border: 1px solid var(--border-color); border-radius: 9999px; padding: 12px 16px; color: var(--text-primary); outline: none; }
+        .chat-input:focus { border-color: var(--accent); }
+        .chat-image-label { cursor: pointer; font-size: 20px; color: var(--accent); transition: opacity 0.2s ease; }
+        .chat-image-label:hover { opacity: 0.8; }
+        .chat-send-btn { background: var(--accent); border: none; border-radius: 9999px; padding: 8px 20px; color: white; cursor: pointer; transition: opacity 0.2s ease; }
+        .chat-send-btn:hover { opacity: 0.9; }
         .custom-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .custom-modal-content { background: #000000; border-radius: 28px; padding: 28px; width: 360px; text-align: center; border: 1px solid #2f3336; }
+        .custom-modal-content { background: #000000; border-radius: 28px; padding: 28px; width: 400px; text-align: center; border: 1px solid #2f3336; max-height: 80vh; overflow-y: auto; }
         .custom-modal-content p { margin-bottom: 20px; font-size: 18px; font-weight: 500; color: var(--text-primary); }
         .custom-modal-content input { width: 100%; padding: 12px; margin: 10px 0; background: #000000; border: 1px solid #2f3336; border-radius: 12px; color: white; outline: none; }
         .custom-modal-content input:focus { border-color: var(--accent); }
@@ -169,13 +221,31 @@
         ::-webkit-scrollbar-thumb { background: #2f3336; border-radius: 4px; transition: background 0.2s ease; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
         @media (max-width: 1000px) { .sidebar { width: 88px; } .sidebar .nav-text { display: none; } .main-content { margin-left: 88px; } }
-        @media (max-width: 640px) { .conversations-list { width: 100%; } .messages-container { flex-direction: column; } }
+        @media (max-width: 640px) { .conversations-list { max-height: 150px; } }
     </style>
 </head>
 <body>
-<div id="root"></div>
+<div id="loading" class="loading-screen">
+    <div class="loading-content">
+        <div class="loading-logo">FreedomNet</div>
+    </div>
+</div>
+<div id="root" style="display:none;"></div>
 
 <script>
+    // Hide loading screen after 2 seconds
+    setTimeout(() => {
+        const loading = document.getElementById('loading');
+        const root = document.getElementById('root');
+        if (loading) {
+            loading.style.opacity = '0';
+            setTimeout(() => {
+                loading.style.display = 'none';
+                root.style.display = 'block';
+            }, 500);
+        }
+    }, 2000);
+
     let currentUser = null;
     let currentTab = 'home';
     let feed = [];
@@ -194,9 +264,153 @@
     let cropTranslateY = 0;
     let isDragging = false;
     let unreadCount = 0;
+    let messagesSearchResults = [];
+    let currentChatMessages = [];
+    let messageReactions = {};
+    
+    // Language translations
+    let currentLang = localStorage.getItem('language') || 'en';
+    const translations = {
+        en: {
+            home: 'Home', profile: 'Profile', messages: 'Messages', search: 'Search',
+            interesting: 'Interesting', notifications: 'Notifications', create: 'Create',
+            feedback: 'Feedback', more: 'More', logout: 'Logout', settings: 'Settings',
+            account: 'Account', security: 'Security', theme: 'Theme', language: 'Language',
+            email: 'Email', username: 'Username', password: 'Password', edit: 'Edit',
+            changePassword: 'Change Password', joined: 'Joined', noPosts: 'No posts yet',
+            whatsHappening: "What's happening?", post: 'Post', publish: 'Publish',
+            login: 'Login', register: 'Register', signup: 'Sign up', or: 'or',
+            back: 'Back', send: 'Send', cancel: 'Cancel', delete: 'Delete',
+            follow: 'Follow', unfollow: 'Unfollow', likes: 'Likes', comments: 'Comments',
+            share: 'Share', reply: 'Reply', message: 'Message', online: 'Online',
+            verified: 'Verified account', official: 'Official account', creator: 'Creator'
+        },
+        ru: {
+            home: 'Главная', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
+            interesting: 'Интересное', notifications: 'Уведомления', create: 'Создать',
+            feedback: 'Отзывы', more: 'Ещё', logout: 'Выйти', settings: 'Настройки',
+            account: 'Аккаунт', security: 'Безопасность', theme: 'Тема', language: 'Язык',
+            email: 'Почта', username: 'Имя пользователя', password: 'Пароль', edit: 'Изменить',
+            changePassword: 'Сменить пароль', joined: 'Присоединился', noPosts: 'Нет постов',
+            whatsHappening: 'Что нового?', post: 'Пост', publish: 'Опубликовать',
+            login: 'Войти', register: 'Регистрация', signup: 'Зарегистрироваться', or: 'или',
+            back: 'Назад', send: 'Отправить', cancel: 'Отмена', delete: 'Удалить',
+            follow: 'Подписаться', unfollow: 'Отписаться', likes: 'Нравится', comments: 'Комментарии',
+            share: 'Поделиться', reply: 'Ответить', message: 'Сообщение', online: 'В сети',
+            verified: 'Подтверждённый аккаунт', official: 'Официальный аккаунт', creator: 'Создатель'
+        },
+        es: {
+            home: 'Inicio', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
+            interesting: 'Interesante', notifications: 'Notificaciones', create: 'Crear',
+            feedback: 'Comentarios', more: 'Más', logout: 'Salir', settings: 'Ajustes',
+            account: 'Cuenta', security: 'Seguridad', theme: 'Tema', language: 'Idioma',
+            email: 'Correo', username: 'Usuario', password: 'Contraseña', edit: 'Editar',
+            changePassword: 'Cambiar contraseña', joined: 'Se unió', noPosts: 'Sin publicaciones',
+            whatsHappening: '¿Qué está pasando?', post: 'Publicar', publish: 'Publicar',
+            login: 'Iniciar sesión', register: 'Registrarse', signup: 'Registrarse', or: 'o',
+            back: 'Atrás', send: 'Enviar', cancel: 'Cancelar', delete: 'Eliminar',
+            follow: 'Seguir', unfollow: 'Dejar de seguir', likes: 'Me gusta', comments: 'Comentarios',
+            share: 'Compartir', reply: 'Responder', message: 'Mensaje', online: 'En línea',
+            verified: 'Cuenta verificada', official: 'Cuenta oficial', creator: 'Creador'
+        },
+        fr: {
+            home: 'Accueil', profile: 'Profil', messages: 'Messages', search: 'Rechercher',
+            interesting: 'Intéressant', notifications: 'Notifications', create: 'Créer',
+            feedback: 'Retours', more: 'Plus', logout: 'Déconnexion', settings: 'Paramètres',
+            account: 'Compte', security: 'Sécurité', theme: 'Thème', language: 'Langue',
+            email: 'Email', username: "Nom d'utilisateur", password: 'Mot de passe', edit: 'Modifier',
+            changePassword: 'Changer mot de passe', joined: 'A rejoint', noPosts: 'Aucun post',
+            whatsHappening: 'Quoi de neuf ?', post: 'Poster', publish: 'Publier',
+            login: 'Connexion', register: "S'inscrire", signup: "S'inscrire", or: 'ou',
+            back: 'Retour', send: 'Envoyer', cancel: 'Annuler', delete: 'Supprimer',
+            follow: 'Suivre', unfollow: 'Ne plus suivre', likes: 'J\'aime', comments: 'Commentaires',
+            share: 'Partager', reply: 'Répondre', message: 'Message', online: 'En ligne',
+            verified: 'Compte vérifié', official: 'Compte officiel', creator: 'Créateur'
+        },
+        ar: {
+            home: 'الرئيسية', profile: 'الملف الشخصي', messages: 'الرسائل', search: 'بحث',
+            interesting: 'مثير للاهتمام', notifications: 'الإشعارات', create: 'إنشاء',
+            feedback: 'الملاحظات', more: 'المزيد', logout: 'تسجيل الخروج', settings: 'الإعدادات',
+            account: 'الحساب', security: 'الأمان', theme: 'المظهر', language: 'اللغة',
+            email: 'البريد الإلكتروني', username: 'اسم المستخدم', password: 'كلمة المرور', edit: 'تعديل',
+            changePassword: 'تغيير كلمة المرور', joined: 'انضم', noPosts: 'لا توجد منشورات',
+            whatsHappening: 'ما الجديد؟', post: 'نشر', publish: 'نشر',
+            login: 'تسجيل الدخول', register: 'التسجيل', signup: 'التسجيل', or: 'أو',
+            back: 'رجوع', send: 'إرسال', cancel: 'إلغاء', delete: 'حذف',
+            follow: 'متابعة', unfollow: 'إلغاء المتابعة', likes: 'إعجابات', comments: 'تعليقات',
+            share: 'مشاركة', reply: 'رد', message: 'رسالة', online: 'متصل',
+            verified: 'حساب موثق', official: 'حساب رسمي', creator: 'منشئ'
+        },
+        zh: {
+            home: '主页', profile: '个人资料', messages: '消息', search: '搜索',
+            interesting: '有趣', notifications: '通知', create: '创建',
+            feedback: '反馈', more: '更多', logout: '退出', settings: '设置',
+            account: '账户', security: '安全', theme: '主题', language: '语言',
+            email: '邮箱', username: '用户名', password: '密码', edit: '编辑',
+            changePassword: '修改密码', joined: '加入于', noPosts: '暂无帖子',
+            whatsHappening: '发生了什么？', post: '发布', publish: '发布',
+            login: '登录', register: '注册', signup: '注册', or: '或',
+            back: '返回', send: '发送', cancel: '取消', delete: '删除',
+            follow: '关注', unfollow: '取消关注', likes: '点赞', comments: '评论',
+            share: '分享', reply: '回复', message: '消息', online: '在线',
+            verified: '认证账户', official: '官方账户', creator: '创作者'
+        },
+        pt: {
+            home: 'Início', profile: 'Perfil', messages: 'Mensagens', search: 'Pesquisar',
+            interesting: 'Interessante', notifications: 'Notificações', create: 'Criar',
+            feedback: 'Feedback', more: 'Mais', logout: 'Sair', settings: 'Configurações',
+            account: 'Conta', security: 'Segurança', theme: 'Tema', language: 'Idioma',
+            email: 'Email', username: 'Usuário', password: 'Senha', edit: 'Editar',
+            changePassword: 'Alterar senha', joined: 'Entrou', noPosts: 'Sem posts',
+            whatsHappening: 'O que está acontecendo?', post: 'Publicar', publish: 'Publicar',
+            login: 'Entrar', register: 'Registrar', signup: 'Registrar', or: 'ou',
+            back: 'Voltar', send: 'Enviar', cancel: 'Cancelar', delete: 'Excluir',
+            follow: 'Seguir', unfollow: 'Deixar de seguir', likes: 'Curtidas', comments: 'Comentários',
+            share: 'Compartilhar', reply: 'Responder', message: 'Mensagem', online: 'Online',
+            verified: 'Conta verificada', official: 'Conta oficial', creator: 'Criador'
+        },
+        de: {
+            home: 'Startseite', profile: 'Profil', messages: 'Nachrichten', search: 'Suchen',
+            interesting: 'Interessant', notifications: 'Benachrichtigungen', create: 'Erstellen',
+            feedback: 'Feedback', more: 'Mehr', logout: 'Abmelden', settings: 'Einstellungen',
+            account: 'Konto', security: 'Sicherheit', theme: 'Thema', language: 'Sprache',
+            email: 'E-Mail', username: 'Benutzername', password: 'Passwort', edit: 'Bearbeiten',
+            changePassword: 'Passwort ändern', joined: 'Beigetreten', noPosts: 'Keine Beiträge',
+            whatsHappening: 'Was ist los?', post: 'Posten', publish: 'Veröffentlichen',
+            login: 'Anmelden', register: 'Registrieren', signup: 'Registrieren', or: 'oder',
+            back: 'Zurück', send: 'Senden', cancel: 'Abbrechen', delete: 'Löschen',
+            follow: 'Folgen', unfollow: 'Entfolgen', likes: 'Gefällt mir', comments: 'Kommentare',
+            share: 'Teilen', reply: 'Antworten', message: 'Nachricht', online: 'Online',
+            verified: 'Verifiziertes Konto', official: 'Offizielles Konto', creator: 'Ersteller'
+        },
+        it: {
+            home: 'Home', profile: 'Profilo', messages: 'Messaggi', search: 'Cerca',
+            interesting: 'Interessante', notifications: 'Notifiche', create: 'Crea',
+            feedback: 'Feedback', more: 'Altro', logout: 'Esci', settings: 'Impostazioni',
+            account: 'Account', security: 'Sicurezza', theme: 'Tema', language: 'Lingua',
+            email: 'Email', username: 'Nome utente', password: 'Password', edit: 'Modifica',
+            changePassword: 'Cambia password', joined: 'Iscritto', noPosts: 'Nessun post',
+            whatsHappening: 'Cosa succede?', post: 'Pubblica', publish: 'Pubblica',
+            login: 'Accedi', register: 'Registrati', signup: 'Registrati', or: 'o',
+            back: 'Indietro', send: 'Invia', cancel: 'Annulla', delete: 'Elimina',
+            follow: 'Segui', unfollow: 'Non seguire più', likes: 'Mi piace', comments: 'Commenti',
+            share: 'Condividi', reply: 'Rispondi', message: 'Messaggio', online: 'Online',
+            verified: 'Account verificato', official: 'Account ufficiale', creator: 'Creatore'
+        }
+    };
+    
+    function t(key) {
+        return translations[currentLang]?.[key] || translations.en[key] || key;
+    }
+    
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('language', lang);
+        renderMain();
+    }
 
-    const tabs = ['Home', 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'Feedback', 'More'];
-    const tabKeys = ['home', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'feedback', 'more'];
+    const tabs = ['home', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'feedback', 'more'];
+    const tabNames = ['Home', 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'Feedback', 'More'];
 
     const allowedDomains = ['gmail.com', 'mail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
@@ -245,19 +459,19 @@
             popup.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                     <span style="background:var(--gold); color:black; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">⭐</span>
-                    <span style="font-weight:700;">Official account</span>
+                    <span style="font-weight:700;">${t('official')}</span>
                 </div>
                 <p style="font-size:13px; color:#71767b; margin-bottom:12px;">This account is an official organization or person on FreedomNet.</p>
-                <p style="font-size:12px; color:#71767b;">Joined ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                <p style="font-size:12px; color:#71767b;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
             `;
         } else {
             popup.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                     <span style="background:white; color:black; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">✓</span>
-                    <span style="font-weight:700;">Verified account</span>
+                    <span style="font-weight:700;">${t('verified')}</span>
                 </div>
                 <p style="font-size:13px; color:#71767b; margin-bottom:12px;">This account is verified because it's an official account or organization on FreedomNet.</p>
-                <p style="font-size:12px; color:#71767b;">Joined ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                <p style="font-size:12px; color:#71767b;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
             `;
         }
         document.body.appendChild(popup);
@@ -283,8 +497,8 @@
             <div class="custom-modal-content">
                 <p>${message}</p>
                 <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-yes" id="confirmYes">Yes</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button>
+                    <button class="custom-modal-btn custom-modal-btn-yes" id="confirmYes">${t('delete')}</button>
+                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
                 </div>
             </div>
         `;
@@ -314,8 +528,8 @@
                 ${inputsHtml}
                 <div id="modalError" class="error-message" style="display:none;"></div>
                 <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">Confirm</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button>
+                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">${t('send')}</button>
+                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
                 </div>
             </div>
         `;
@@ -347,7 +561,7 @@
         modal.className = 'custom-modal';
         modal.innerHTML = `
             <div class="custom-modal-content">
-                <p>Send Feedback</p>
+                <p>${t('feedback')}</p>
                 <select id="feedbackType">
                     <option value="general">General Feedback</option>
                     <option value="bug">Bug Report</option>
@@ -357,8 +571,8 @@
                 <textarea id="feedbackContent" rows="4" placeholder="Write your feedback here..."></textarea>
                 <div id="modalError" class="error-message" style="display:none;"></div>
                 <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">Send</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button>
+                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">${t('send')}</button>
+                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
                 </div>
             </div>
         `;
@@ -416,14 +630,14 @@
         modal.className = 'custom-modal';
         modal.innerHTML = `
             <div class="custom-modal-content">
-                <p>Create new post</p>
-                <textarea id="modalPostContent" rows="3" placeholder="What's happening? (4-500 characters)"></textarea>
+                <p>${t('create')} ${t('post')}</p>
+                <textarea id="modalPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters)"></textarea>
                 <input type="file" id="modalPostImage" accept="image/*" style="margin:10px 0;">
                 <div id="modalImagePreview" style="margin-top:8px;"></div>
                 <div id="modalError" class="error-message" style="display:none;"></div>
                 <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">Post</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button>
+                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">${t('publish')}</button>
+                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button>
                 </div>
             </div>
         `;
@@ -473,7 +687,7 @@
     }
 
     function showChangePasswordModal() {
-        showPasswordModal('Change Password', [
+        showPasswordModal(t('changePassword'), [
             { type: 'password', id: 'oldPassword', placeholder: 'Old password' },
             { type: 'password', id: 'newPassword', placeholder: 'New password' },
             { type: 'password', id: 'confirmPassword', placeholder: 'Confirm new password' }
@@ -515,7 +729,7 @@
     }
 
     function showChangeUsernameModal() {
-        showPasswordModal('Change Username', [
+        showPasswordModal(t('changeUsername'), [
             { type: 'password', id: 'password', placeholder: 'Enter your password' },
             { type: 'text', id: 'newUsername', placeholder: 'New username' }
         ], async (values, callback) => {
@@ -550,7 +764,7 @@
     }
 
     function showChangeEmailModal() {
-        showPasswordModal('Change Email', [
+        showPasswordModal(t('changeEmail'), [
             { type: 'password', id: 'password', placeholder: 'Enter your password' },
             { type: 'email', id: 'newEmail', placeholder: 'New email (gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com)' }
         ], async (values, callback) => {
@@ -760,8 +974,8 @@
                 </div>
             </div>
             <div>${escapeHtml(user.bio || 'No bio yet')}</div>
-            <div style="color:#71767b; margin:12px 0;">Joined ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
-            <div onclick="viewProfile('${user.username}'); document.querySelector('.user-preview')?.remove();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer;">View Profile</div>
+            <div style="color:#71767b; margin:12px 0;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
+            <div onclick="viewProfile('${user.username}'); document.querySelector('.user-preview')?.remove();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer;">${t('profile')}</div>
         `;
         document.body.appendChild(preview);
         
@@ -824,11 +1038,11 @@
                 <div class="auth-card">
                     <h2 style="margin-bottom:20px; text-align:center; color:var(--accent);">FreedomNet</h2>
                     <div id="authForm">
-                        <input type="text" id="loginInput" placeholder="Username / Email">
-                        <input type="password" id="loginPassword" placeholder="Password">
-                        <button onclick="login()">Login</button>
-                        <div class="divider">or</div>
-                        <button onclick="showRegister()" style="background:#2f3336;">Create account</button>
+                        <input type="text" id="loginInput" placeholder="${t('username')} / ${t('email')}">
+                        <input type="password" id="loginPassword" placeholder="${t('password')}">
+                        <button onclick="login()">${t('login')}</button>
+                        <div class="divider">${t('or')}</div>
+                        <button onclick="showRegister()" style="background:#2f3336;">${t('register')}</button>
                     </div>
                 </div>
             </div>
@@ -837,11 +1051,11 @@
 
     window.showRegister = () => {
         document.getElementById('authForm').innerHTML = `
-            <input type="text" id="regUsername" placeholder="Username" maxlength="20">
-            <input type="email" id="regEmail" placeholder="Email (gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com)">
-            <input type="password" id="regPassword" placeholder="Password">
-            <button onclick="register()">Sign up</button>
-            <button onclick="renderAuth()" style="background:#2f3336; margin-top:10px;">Back to login</button>
+            <input type="text" id="regUsername" placeholder="${t('username')}" maxlength="20">
+            <input type="email" id="regEmail" placeholder="${t('email')} (gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com)">
+            <input type="password" id="regPassword" placeholder="${t('password')}">
+            <button onclick="register()">${t('signup')}</button>
+            <button onclick="renderAuth()" style="background:#2f3336; margin-top:10px;">${t('back')}</button>
             <div id="registerMessage"></div>
         `;
     };
@@ -938,6 +1152,55 @@
         }
     }
 
+    async function searchMessagesUsers(query) {
+        if (!query.trim()) {
+            messagesSearchResults = [];
+            renderMain();
+            return;
+        }
+        try {
+            const users = await api('/api/users');
+            messagesSearchResults = users.filter(u => u.username.toLowerCase().includes(query.toLowerCase()));
+            renderMain();
+        } catch(e) {
+            messagesSearchResults = [];
+        }
+    }
+
+    async function openChat(userId, username) {
+        currentChatUser = { id: userId, username };
+        const messages = await api(`/api/messages/${userId}`);
+        currentChatMessages = messages;
+        
+        for (const msg of messages) {
+            const reactionsRes = await api(`/api/message-reactions/${msg.id}`);
+            messageReactions[msg.id] = reactionsRes;
+        }
+        
+        renderMain();
+        setTimeout(() => {
+            const container = document.getElementById('chatMessages');
+            if (container) container.scrollTop = container.scrollHeight;
+        }, 50);
+    }
+
+    async function sendMessageWithImage(file, content = '') {
+        const formData = new FormData();
+        formData.append('content', content);
+        if (file) formData.append('image', file);
+        await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: formData });
+        await openChat(currentChatUser.id, currentChatUser.username);
+    }
+
+    async function addMessageReaction(messageId, reaction) {
+        await api(`/api/message-reaction/${messageId}`, {
+            method: 'POST',
+            body: JSON.stringify({ reaction }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        await openChat(currentChatUser.id, currentChatUser.username);
+    }
+
     function renderPostCard(post) {
         const isOwnPost = post.user_id === currentUser.id;
         return `
@@ -962,7 +1225,7 @@
                             <button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">
                                 💬 ${post.comments?.length || 0}
                             </button>
-                            ${isOwnPost ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 Delete</button>` : ''}
+                            ${isOwnPost ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 ${t('delete')}</button>` : ''}
                         </div>
                         <div id="comments-${post.id}" style="display:none;" class="comments-section">
                             ${(post.comments || []).map(c => `
@@ -975,7 +1238,7 @@
                                 </div>
                             `).join('')}
                             <div class="comment-input">
-                                <input type="text" id="commentInput-${post.id}" placeholder="Add a comment..." onclick="event.stopPropagation()">
+                                <input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}..." onclick="event.stopPropagation()">
                                 <button onclick="event.stopPropagation(); addComment(${post.id})" style="background:none; border:none; color:var(--accent); cursor:pointer;">→</button>
                             </div>
                         </div>
@@ -994,13 +1257,13 @@
                         `<div class="avatar-placeholder" onclick="openAvatarUpload()">${currentUser?.username?.[0]?.toUpperCase() || 'U'}</div>`
                     }
                     <div class="post-input-area">
-                        <textarea id="postContent" rows="2" placeholder="What's happening? (4-500 characters)"></textarea>
+                        <textarea id="postContent" rows="2" placeholder="${t('whatsHappening')} (4-500 characters)"></textarea>
                         <div id="suggestionsContainer" style="position:relative;"></div>
                         <div id="imagePreview" style="margin-top:8px;"></div>
                         <div id="postError" class="error-message" style="display:none;"></div>
                         <div class="post-actions-bar">
                             <label class="image-upload">📷 <input type="file" id="postImage" accept="image/*" style="display:none;"></label>
-                            <button class="publish-btn" onclick="publishPost()">Post</button>
+                            <button class="publish-btn" onclick="publishPost()">${t('publish')}</button>
                         </div>
                     </div>
                 </div>
@@ -1028,17 +1291,17 @@
                         ${renderCreatorBadge(user.is_creator, user.is_official)}
                     </div>
                     <p>${escapeHtml(user.bio || 'No bio yet')}</p>
-                    <p style="color:var(--text-secondary); font-size:13px; margin-top:8px;">Joined ${new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                    <p style="color:var(--text-secondary); font-size:13px; margin-top:8px;">${t('joined')} ${new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
                     ${!isOwnProfile ? `
                         ${following ? 
-                            `<button class="unfollow-btn" onclick="unfollowUser(${user.id})">Unfollow</button>` :
-                            `<button class="follow-btn" onclick="followUser(${user.id})">Follow</button>`
+                            `<button class="unfollow-btn" onclick="unfollowUser(${user.id})">${t('unfollow')}</button>` :
+                            `<button class="follow-btn" onclick="followUser(${user.id})">${t('follow')}</button>`
                         }
                     ` : ''}
                 </div>
                 <div style="border-top: 1px solid var(--border-color);">
                     ${userPosts.map(post => renderPostCard(post)).join('')}
-                    ${userPosts.length === 0 ? '<div style="padding:40px; text-align:center; color:var(--text-secondary);">No posts yet</div>' : ''}
+                    ${userPosts.length === 0 ? '<div style="padding:40px; text-align:center; color:var(--text-secondary);">' + t('noPosts') + '</div>' : ''}
                 </div>
             </div>
         `;
@@ -1047,7 +1310,19 @@
     function renderMessages() {
         return `
             <div class="messages-container">
-                <div class="conversations-list" id="conversationsList">
+                <div class="messages-search">
+                    <input type="text" id="messagesSearchInput" class="messages-search-input" placeholder="Search users to message..." oninput="searchMessagesUsers(this.value)">
+                </div>
+                <div id="messagesSearchResults" class="messages-search-results" style="display:${messagesSearchResults.length > 0 ? 'block' : 'none'}">
+                    ${messagesSearchResults.map(u => `
+                        <div class="messages-search-result" onclick="openChat(${u.id}, '${escapeHtml(u.username)}'); messagesSearchResults = []; renderMain();">
+                            <img class="search-result-avatar" src="${u.avatar || ''}" onerror="this.style.display='none';">
+                            <div><strong>${escapeHtml(u.username)}</strong><div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="conversations-list" ${currentChatUser ? 'style="display:none"' : ''}>
+                    <div style="padding:12px 16px; font-weight:600; border-bottom:1px solid var(--border-color);">Chats</div>
                     ${conversations.map(c => `
                         <div class="conversation" onclick="openChat(${c.other_id}, '${escapeHtml(c.username)}')">
                             <img class="conversation-avatar" src="${c.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(c.username[0].toUpperCase()))">
@@ -1056,13 +1331,36 @@
                     `).join('')}
                     ${conversations.length === 0 ? '<div style="padding:20px; color:var(--text-secondary);">No conversations yet</div>' : ''}
                 </div>
-                <div class="chat-area" id="chatArea" style="display:none;">
-                    <div class="chat-messages" id="chatMessages"></div>
-                    <div class="chat-input-area">
-                        <input type="text" id="chatInput" placeholder="Message...">
-                        <button onclick="sendChatMessage()" style="background:var(--accent); border:none; border-radius:9999px; padding:8px 20px; color:white; cursor:pointer;">Send</button>
+                ${currentChatUser ? `
+                    <div class="chat-area">
+                        <div class="chat-header">
+                            <span class="chat-back" onclick="currentChatUser = null; renderMain();">←</span>
+                            <span>${escapeHtml(currentChatUser.username)}</span>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            ${currentChatMessages.map(m => `
+                                <div class="message-wrapper ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
+                                    <div class="message-bubble ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">
+                                        ${escapeHtml(m.content || '')}
+                                        ${m.image ? `<img src="${m.image}" class="message-image" onclick="window.open('${m.image}')">` : ''}
+                                    </div>
+                                    <div class="message-reactions">
+                                        ${['❤️', '😂', '😮', '😢', '😡', '👍'].map(r => `
+                                            <button class="reaction-btn" onclick="addMessageReaction(${m.id}, '${r}')">${r}</button>
+                                        `).join('')}
+                                        ${(messageReactions[m.id] || []).length > 0 ? 
+                                            `<div class="reaction-badge">${(messageReactions[m.id] || []).map(r => r.reaction).join(' ')}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chatMessageInput" class="chat-input" placeholder="${t('message')}..." onkeypress="if(event.key==='Enter') sendMessageWithImage(null, this.value); this.value=''">
+                            <label class="chat-image-label">📷<input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="sendMessageWithImage(this.files[0], '')"></label>
+                            <button class="chat-send-btn" onclick="const input=document.getElementById('chatMessageInput'); sendMessageWithImage(null, input.value); input.value=''">${t('send')}</button>
+                        </div>
                     </div>
-                </div>
+                ` : ''}
             </div>
         `;
     }
@@ -1093,7 +1391,7 @@
     }
 
     function renderInteresting() {
-        return `<div class="feed-container">${feed.slice(0,5).map(post => `<div class="recommendation-card"><img class="recommendation-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">@${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)}<div>${parseMentionsAndHashtags(post.content || '')}</div><button onclick="followUser(${post.user_id})" style="margin-top:8px; background:var(--accent); border:none; padding:4px 16px; border-radius:20px; color:white; cursor:pointer;">Follow</button></div></div>`).join('')}</div>`;
+        return `<div class="feed-container">${feed.slice(0,5).map(post => `<div class="recommendation-card"><img class="recommendation-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">@${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)}<div>${parseMentionsAndHashtags(post.content || '')}</div><button onclick="followUser(${post.user_id})" style="margin-top:8px; background:var(--accent); border:none; padding:4px 16px; border-radius:20px; color:white; cursor:pointer;">${t('follow')}</button></div></div>`).join('')}</div>`;
     }
 
     function renderNotifications() {
@@ -1104,7 +1402,7 @@
         return `
             <div class="feed-container" style="padding:20px;">
                 <div class="recommendation-card" onclick="showFeedbackModal()" style="cursor:pointer;">
-                    <div><strong>📝 Send Feedback</strong><div style="color:var(--text-secondary);">Report bugs, suggest features, or report users</div></div>
+                    <div><strong>📝 ${t('feedback')}</strong><div style="color:var(--text-secondary);">Report bugs, suggest features, or report users</div></div>
                 </div>
             </div>
         `;
@@ -1132,21 +1430,45 @@
                     if (select) select.querySelector('.arrow').innerHTML = '▼';
                 });
             }
+            const langSelect = document.getElementById('languageSelect');
+            if (langSelect) {
+                langSelect.onclick = (e) => {
+                    e.stopPropagation();
+                    const dropdown = document.getElementById('languageDropdown');
+                    if (dropdown) {
+                        const isOpen = dropdown.style.display === 'block';
+                        dropdown.style.display = isOpen ? 'none' : 'block';
+                        langSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲';
+                    }
+                };
+            }
         }, 10);
+        
+        const languages = [
+            { code: 'en', name: 'English' },
+            { code: 'ru', name: 'Русский' },
+            { code: 'es', name: 'Español' },
+            { code: 'fr', name: 'Français' },
+            { code: 'ar', name: 'العربية' },
+            { code: 'zh', name: '中文' },
+            { code: 'pt', name: 'Português' },
+            { code: 'de', name: 'Deutsch' },
+            { code: 'it', name: 'Italiano' }
+        ];
         
         return `
             <div class="feed-container" style="padding:20px;">
                 <div class="profile-header" style="border-bottom: none;">
                     <div style="text-align:left; margin-bottom:20px;">
-                        <h3>Account</h3>
-                        <div><span class="email-masked">Email: ${maskEmail(currentUser?.email)}</span><span class="edit-link" onclick="showChangeEmailModal()">Edit</span></div>
-                        <div style="margin-top:12px;"><span style="color:var(--text-primary);">Username: @${escapeHtml(currentUser?.username)}</span><span class="edit-link" onclick="showChangeUsernameModal()">Edit</span></div>
+                        <h3>${t('account')}</h3>
+                        <div><span class="email-masked">${t('email')}: ${maskEmail(currentUser?.email)}</span><span class="edit-link" onclick="showChangeEmailModal()">${t('edit')}</span></div>
+                        <div style="margin-top:12px;"><span style="color:var(--text-primary);">${t('username')}: @${escapeHtml(currentUser?.username)}</span><span class="edit-link" onclick="showChangeUsernameModal()">${t('edit')}</span></div>
                     </div>
                     <div style="text-align:left; margin-bottom:20px;">
-                        <h3>Security</h3>
-                        <div><span class="edit-link" onclick="showChangePasswordModal()">Change Password</span></div>
+                        <h3>${t('security')}</h3>
+                        <div><span class="edit-link" onclick="showChangePasswordModal()">${t('changePassword')}</span></div>
                     </div>
-                    <h3 style="text-align:left; margin-bottom:20px;">Theme</h3>
+                    <h3 style="text-align:left; margin-bottom:20px;">${t('theme')}</h3>
                     <div class="custom-select" id="themeSelect">
                         <span id="selectedThemeText">${themeNames[savedTheme]}</span>
                         <span class="arrow">▼</span>
@@ -1157,10 +1479,20 @@
                             <div class="custom-select-option ${savedTheme === 'light' ? 'selected' : ''}" onclick="setTheme('light'); document.getElementById('selectedThemeText').innerText='Light';">Light</div>
                         </div>
                     </div>
+                    <h3 style="text-align:left; margin-bottom:20px; margin-top:20px;">${t('language')}</h3>
+                    <div class="custom-select" id="languageSelect">
+                        <span id="selectedLanguageText">${languages.find(l => l.code === currentLang)?.name || 'English'}</span>
+                        <span class="arrow">▼</span>
+                        <div class="custom-select-dropdown" id="languageDropdown" style="display:none;">
+                            ${languages.map(lang => `
+                                <div class="custom-select-option ${currentLang === lang.code ? 'selected' : ''}" onclick="setLanguage('${lang.code}'); document.getElementById('selectedLanguageText').innerText='${lang.name}';">${lang.name}</div>
+                            `).join('')}
+                        </div>
+                    </div>
                 </div>
                 <div style="border-top:1px solid var(--border-color); margin-top:20px; padding-top:20px;">
                     <div class="recommendation-card" onclick="showLogoutConfirm()" style="cursor:pointer;">
-                        <div><strong>Logout</strong><div style="color:var(--text-secondary);">Sign out of your account</div></div>
+                        <div><strong>${t('logout')}</strong><div style="color:var(--text-secondary);">Sign out of your account</div></div>
                     </div>
                 </div>
             </div>
@@ -1224,17 +1556,17 @@
                 <div class="app">
                     <div class="sidebar">
                         <div class="logo">FreedomNet</div>
-                        ${tabs.map((tab, idx) => `
-                            <div class="nav-item ${currentTab === tabKeys[idx] ? 'active' : ''}" onclick="switchTab('${tabKeys[idx]}')">
-                                <span class="nav-text">${tab}</span>
+                        ${tabNames.map((tab, idx) => `
+                            <div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
+                                <span class="nav-text">${t(tabs[idx])}</span>
                             </div>
                         `).join('')}
                         <div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;">
-                            <span class="nav-text">Logout</span>
+                            <span class="nav-text">${t('logout')}</span>
                         </div>
                     </div>
                     <div class="main-content">
-                        <div class="header">Profile</div>
+                        <div class="header">${t('profile')}</div>
                         ${renderProfilePage()}
                     </div>
                 </div>
@@ -1247,23 +1579,23 @@
             <div class="app">
                 <div class="sidebar">
                     <div class="logo">FreedomNet</div>
-                    ${tabs.map((tab, idx) => `
-                        <div class="nav-item ${currentTab === tabKeys[idx] ? 'active' : ''}" onclick="switchTab('${tabKeys[idx]}')">
-                            <span class="nav-text">${tab}</span>
+                    ${tabNames.map((tab, idx) => `
+                        <div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')">
+                            <span class="nav-text">${t(tabs[idx])}</span>
                         </div>
                     `).join('')}
                     <div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;">
-                        <span class="nav-text">Logout</span>
+                        <span class="nav-text">${t('logout')}</span>
                     </div>
                 </div>
                 <div class="main-content">
-                    <div class="header">${currentTab === 'more' ? 'Settings' : (currentTab.charAt(0).toUpperCase() + currentTab.slice(1))}</div>
+                    <div class="header">${currentTab === 'more' ? t('settings') : t(currentTab)}</div>
                     ${currentTab === 'home' ? renderHome() : ''}
                     ${currentTab === 'messages' ? renderMessages() : ''}
                     ${currentTab === 'search' ? renderSearch() : ''}
                     ${currentTab === 'interesting' ? renderInteresting() : ''}
                     ${currentTab === 'notifications' ? renderNotifications() : ''}
-                    ${currentTab === 'create' ? '<div class="feed-container" style="padding:20px;"><div class="recommendation-card" onclick="showCreateModal()" style="cursor:pointer;"><div><strong>✏️ Create Post</strong><div style="color:var(--text-secondary);">Share what\'s happening</div></div></div></div>' : ''}
+                    ${currentTab === 'create' ? '<div class="feed-container" style="padding:20px;"><div class="recommendation-card" onclick="showCreateModal()" style="cursor:pointer;"><div><strong>✏️ ' + t('create') + ' ' + t('post') + '</strong><div style="color:var(--text-secondary);">Share what\'s happening</div></div></div></div>' : ''}
                     ${currentTab === 'feedback' ? renderFeedback() : ''}
                     ${currentTab === 'more' ? renderMore() : ''}
                 </div>
@@ -1379,24 +1711,7 @@
         renderMain();
     };
 
-    window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; renderMain(); };
-    window.openChat = async (userId, username) => {
-        currentChatUser = { id: userId, username };
-        const messages = await api(`/api/messages/${userId}`);
-        document.getElementById('conversationsList').style.display = 'none';
-        document.getElementById('chatArea').style.display = 'flex';
-        const container = document.getElementById('chatMessages');
-        container.innerHTML = messages.map(m => `<div class="message ${m.from_id === currentUser.id ? 'outgoing' : 'incoming'}">${escapeHtml(m.content)}</div>`).join('');
-        container.scrollTop = container.scrollHeight;
-    };
-    window.sendChatMessage = async () => {
-        const input = document.getElementById('chatInput');
-        const content = input?.value.trim();
-        if (!content || !currentChatUser) return;
-        await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
-        input.value = '';
-        await openChat(currentChatUser.id, currentChatUser.username);
-    };
+    window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; currentChatUser = null; messagesSearchResults = []; renderMain(); };
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
 
     (async () => {
