@@ -183,6 +183,7 @@ app.post('/api/posts', auth, upload.single('image'), (req, res) => {
 });
 
 app.get('/api/feed', auth, (req, res) => {
+    const { offset = 0, limit = 15 } = req.query;
     const query = `
         SELECT p.*, u.username, u.avatar, u.is_creator, u.is_official,
                (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count,
@@ -192,16 +193,20 @@ app.get('/api/feed', auth, (req, res) => {
         FROM posts p
         JOIN users u ON p.user_id = u.id
         ORDER BY p.created_at DESC
-        LIMIT 100
+        LIMIT ? OFFSET ?
     `;
-    db.all(query, [req.session.userId], (err, posts) => {
+    db.all(query, [req.session.userId, limit, offset], (err, posts) => {
         if (err) return res.status(500).json({ error: err.message });
-        const parsedPosts = posts.map(p => ({
-            ...p,
-            user_liked: p.user_liked === 1,
-            comments: p.comments ? JSON.parse(p.comments) : []
-        }));
-        res.json(parsedPosts);
+        
+        db.get('SELECT COUNT(*) as total FROM posts', [], (err, count) => {
+            const total = count ? count.total : 0;
+            const parsedPosts = posts.map(p => ({
+                ...p,
+                user_liked: p.user_liked === 1,
+                comments: p.comments ? JSON.parse(p.comments) : []
+            }));
+            res.json({ posts: parsedPosts, hasMore: offset + limit < total });
+        });
     });
 });
 
@@ -283,26 +288,23 @@ app.delete('/api/follow/:userId', auth, (req, res) => {
     });
 });
 
-app.get('/api/conversations', auth, (req, res) => {
-    const query = `
-        SELECT DISTINCT 
-            CASE WHEN m.from_id = ? THEN m.to_id ELSE m.from_id END as other_id,
-            u.username, u.avatar, u.is_creator, u.is_official,
-            (SELECT content FROM messages WHERE (from_id = ? AND to_id = other_id) OR (from_id = other_id AND to_id = ?) 
-             ORDER BY created_at DESC LIMIT 1) as last_message,
-            (SELECT created_at FROM messages WHERE (from_id = ? AND to_id = other_id) OR (from_id = other_id AND to_id = ?) 
-             ORDER BY created_at DESC LIMIT 1) as last_time,
-            (SELECT COUNT(*) FROM messages WHERE to_id = ? AND from_id = other_id AND read = 0) as unread
-        FROM messages m
-        JOIN users u ON u.id = CASE WHEN m.from_id = ? THEN m.to_id ELSE m.from_id END
-        WHERE m.from_id = ? OR m.to_id = ?
-        GROUP BY other_id
+// ПОЛУЧИТЬ СПИСОК ПОДПИСОК (ДЛЯ ЧАТОВ - КАК В TELEGRAM)
+app.get('/api/chat-users', auth, (req, res) => {
+    db.all(`
+        SELECT u.id, u.username, u.avatar, u.is_creator, u.is_official,
+               (SELECT content FROM messages WHERE (from_id = ? AND to_id = u.id) OR (from_id = u.id AND to_id = ?) 
+                ORDER BY created_at DESC LIMIT 1) as last_message,
+               (SELECT created_at FROM messages WHERE (from_id = ? AND to_id = u.id) OR (from_id = u.id AND to_id = ?) 
+                ORDER BY created_at DESC LIMIT 1) as last_time,
+               (SELECT COUNT(*) FROM messages WHERE to_id = ? AND from_id = u.id AND read = 0) as unread
+        FROM follows f
+        JOIN users u ON f.followee_id = u.id
+        WHERE f.follower_id = ?
         ORDER BY last_time DESC
-    `;
-    db.all(query, [req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId], 
-        (err, convs) => {
-            res.json(convs || []);
-        });
+    `, [req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId], 
+    (err, users) => {
+        res.json(users || []);
+    });
 });
 
 app.get('/api/messages/:userId', auth, (req, res) => {
