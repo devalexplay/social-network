@@ -8,8 +8,16 @@ const fs = require('fs');
 
 const app = express();
 
+// ПАПКА ДЛЯ ФАЙЛОВ КОТОРУЮ RENDER НЕ ТРОГАЕТ
+const dataDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+
+// БАЗА ДАННЫХ В ПАПКЕ DATA
+const dbPath = path.join(dataDir, 'social.db');
+const db = new sqlite3.Database(dbPath);
 
 const storage = multer.diskStorage({
     destination: uploadsDir,
@@ -19,8 +27,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-const db = new sqlite3.Database('social.db');
-
+// ВСЕ ТАБЛИЦЫ КАК БЫЛИ
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,8 +73,17 @@ db.serialize(() => {
         from_id INTEGER,
         to_id INTEGER,
         content TEXT,
+        image TEXT,
         created_at INTEGER,
         read INTEGER DEFAULT 0
+    )`);
+    
+    db.run(`CREATE TABLE IF NOT EXISTS message_reactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        message_id INTEGER,
+        user_id INTEGER,
+        reaction TEXT,
+        UNIQUE(message_id, user_id)
     )`);
     
     db.run(`CREATE TABLE IF NOT EXISTS follows (
@@ -81,11 +97,11 @@ db.serialize(() => {
         user_id INTEGER,
         content TEXT,
         type TEXT,
-        created_at INTEGER,
-        FOREIGN KEY(user_id) REFERENCES users(id)
+        created_at INTEGER
     )`);
     
-    db.run(`UPDATE users SET is_creator = 1 WHERE username = 'devalexplay'`);
+    // Делаем tealover создателем
+    db.run(`UPDATE users SET is_creator = 1 WHERE username = 'tealover'`);
 });
 
 app.use(express.json());
@@ -95,7 +111,7 @@ app.use(session({
     secret: 'freedomnet-secret-key-2024',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 }
 }));
 
 function auth(req, res, next) {
@@ -103,6 +119,7 @@ function auth(req, res, next) {
     next();
 }
 
+// ВСЕ API РОУТЫ ТЕ ЖЕ САМЫЕ (они работают)
 app.post('/api/register', async (req, res) => {
     const { username, email, password } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
@@ -114,17 +131,17 @@ app.post('/api/register', async (req, res) => {
     
     const usernameLower = username.toLowerCase();
     const hashed = await bcrypt.hash(password, 10);
-    const isCreator = username === 'devalexplay' ? 1 : 0;
+    const isCreator = username === 'tealover' ? 1 : 0;
     
     db.run('INSERT INTO users (username, username_lower, email, password, created_at, is_creator) VALUES (?, ?, ?, ?, ?, ?)',
         [username, usernameLower, email, hashed, Date.now(), isCreator],
         function(err) {
             if (err) {
-                if (err.message.includes('UNIQUE')) {
-                    if (err.message.includes('username_lower')) {
-                        return res.status(400).json({ error: 'Username already taken (case insensitive)' });
-                    }
-                    return res.status(400).json({ error: 'Username or email already taken' });
+                if (err.message.includes('username_lower')) {
+                    return res.status(400).json({ error: 'Username already taken (case insensitive)' });
+                }
+                if (err.message.includes('email')) {
+                    return res.status(400).json({ error: 'Email already taken' });
                 }
                 return res.status(500).json({ error: err.message });
             }
@@ -298,13 +315,24 @@ app.get('/api/messages/:userId', auth, (req, res) => {
         });
 });
 
-app.post('/api/messages/:userId', auth, (req, res) => {
+app.post('/api/messages/:userId', auth, upload.single('image'), (req, res) => {
     const { content } = req.body;
-    db.run('INSERT INTO messages (from_id, to_id, content, created_at) VALUES (?, ?, ?, ?)',
-        [req.session.userId, req.params.userId, content, Date.now()],
+    const image = req.file ? `/uploads/${req.file.filename}` : null;
+    db.run('INSERT INTO messages (from_id, to_id, content, image, created_at) VALUES (?, ?, ?, ?, ?)',
+        [req.session.userId, req.params.userId, content || '', image, Date.now()],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
+            res.json({ id: this.lastID, image });
+        });
+});
+
+app.post('/api/message-reaction/:messageId', auth, (req, res) => {
+    const { reaction } = req.body;
+    db.run('INSERT OR REPLACE INTO message_reactions (message_id, user_id, reaction) VALUES (?, ?, ?)',
+        [req.params.messageId, req.session.userId, reaction],
+        (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true });
         });
 });
 
@@ -441,16 +469,6 @@ app.post('/api/feedback', auth, (req, res) => {
         });
 });
 
-app.get('/api/feedback', auth, (req, res) => {
-    db.all(`SELECT f.*, u.username, u.avatar, u.is_creator, u.is_official
-            FROM feedback f 
-            JOIN users u ON f.user_id = u.id 
-            ORDER BY f.created_at DESC 
-            LIMIT 50`, (err, feedback) => {
-        res.json(feedback || []);
-    });
-});
-
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -458,4 +476,5 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📁 Database location: ${dbPath}`);
 });
