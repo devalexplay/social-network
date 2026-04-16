@@ -97,7 +97,7 @@ db.serialize(() => {
         created_at INTEGER
     )`);
     
-    db.run(`UPDATE users SET is_creator = 1 WHERE username = 'tealover'`);
+    db.run(`UPDATE users SET is_creator = 1 WHERE username = 'DevAlexPlay'`);
 });
 
 app.use(express.json());
@@ -126,7 +126,7 @@ app.post('/api/register', async (req, res) => {
     
     const usernameLower = username.toLowerCase();
     const hashed = await bcrypt.hash(password, 10);
-    const isCreator = username === 'tealover' ? 1 : 0;
+    const isCreator = username === 'DevAlexPlay' ? 1 : 0;
     
     db.run('INSERT INTO users (username, username_lower, email, password, created_at, is_creator) VALUES (?, ?, ?, ?, ?, ?)',
         [username, usernameLower, email, hashed, Date.now(), isCreator],
@@ -205,9 +205,17 @@ app.get('/api/feed', auth, (req, res) => {
 });
 
 app.delete('/api/posts/:postId', auth, (req, res) => {
-    db.run('DELETE FROM posts WHERE id = ? AND user_id = ?', [req.params.postId, req.session.userId], (err) => {
-        if (err) res.status(500).json({ error: err.message });
-        else res.json({ success: true });
+    db.get('SELECT user_id FROM posts WHERE id = ?', [req.params.postId], (err, post) => {
+        if (err || !post) return res.status(404).json({ error: 'Post not found' });
+        
+        if (post.user_id === req.session.userId || req.session.username === 'DevAlexPlay') {
+            db.run('DELETE FROM posts WHERE id = ?', [req.params.postId], (err) => {
+                if (err) res.status(500).json({ error: err.message });
+                else res.json({ success: true });
+            });
+        } else {
+            res.status(403).json({ error: 'You can only delete your own posts' });
+        }
     });
 });
 
@@ -264,11 +272,6 @@ app.get('/api/follows', auth, (req, res) => {
 
 app.post('/api/follow/:userId', auth, (req, res) => {
     db.run('INSERT OR IGNORE INTO follows (follower_id, followee_id) VALUES (?, ?)', [req.session.userId, req.params.userId], (err) => {
-        if (!err) {
-            db.get('SELECT username FROM users WHERE id = ?', [req.params.userId], (err, user) => {
-                console.log(`User ${req.session.username} followed ${user?.username}`);
-            });
-        }
         res.json({ success: !err });
     });
 });
