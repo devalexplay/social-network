@@ -159,6 +159,7 @@
         .chat-image-label { cursor: pointer; font-size: 20px; color: var(--accent); transition: opacity 0.2s ease; }
         .chat-image-label:hover { opacity: 0.8; }
         .chat-send-btn { background: var(--accent); border: none; border-radius: 9999px; padding: 8px 20px; color: white; cursor: pointer; transition: opacity 0.2s ease; }
+        .chat-send-btn:hover { opacity: 0.9; }
         
         .custom-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
         .custom-modal-content { background: #000000; border-radius: 28px; padding: 28px; width: 400px; text-align: center; border: 1px solid #2f3336; max-height: 80vh; overflow-y: auto; }
@@ -233,7 +234,6 @@
             .publish-btn { padding: 6px 16px; font-size: 14px; }
             .chat-sidebar { width: 100%; position: absolute; left: 0; top: 0; height: 100%; z-index: 10; background: var(--bg-primary); transform: translateX(-100%); transition: transform 0.3s ease; }
             .chat-sidebar.open { transform: translateX(0); }
-            .chat-back-mobile { display: block; }
         }
         @media (max-width: 480px) {
             .bottom-nav-item span { font-size: 11px; }
@@ -288,6 +288,8 @@
     let feedOffset = 0;
     let feedHasMore = true;
     let feedLoading = false;
+    let activeDropdown = null;
+    let activePreviewPopup = null;
     
     let currentLang = localStorage.getItem('language') || 'en';
     const translations = {
@@ -304,7 +306,8 @@
             follow: 'Follow', unfollow: 'Unfollow', likes: 'Likes', comments: 'Comments',
             reply: 'Reply', message: 'Message', online: 'Online',
             verified: 'Verified account', official: 'Official account', creator: 'Creator',
-            followers: 'Followers', following: 'Following', posts: 'Posts', chats: 'Chats'
+            followers: 'Followers', following: 'Following', posts: 'Posts', chats: 'Chats',
+            viewProfile: 'View Profile'
         },
         ru: {
             feed: 'Лента', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
@@ -319,7 +322,8 @@
             follow: 'Подписаться', unfollow: 'Отписаться', likes: 'Нравится', comments: 'Комментарии',
             reply: 'Ответить', message: 'Сообщение', online: 'В сети',
             verified: 'Подтверждённый аккаунт', official: 'Официальный аккаунт', creator: 'Создатель',
-            followers: 'Подписчики', following: 'Подписки', posts: 'Посты', chats: 'Чаты'
+            followers: 'Подписчики', following: 'Подписки', posts: 'Посты', chats: 'Чаты',
+            viewProfile: 'Перейти в профиль'
         },
         es: {
             feed: 'Feed', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
@@ -334,7 +338,120 @@
             follow: 'Seguir', unfollow: 'Dejar de seguir', likes: 'Me gusta', comments: 'Comentarios',
             reply: 'Responder', message: 'Mensaje', online: 'En línea',
             verified: 'Cuenta verificada', official: 'Cuenta oficial', creator: 'Creador',
-            followers: 'Seguidores', following: 'Siguiendo', posts: 'Publicaciones', chats: 'Charlas'
+            followers: 'Seguidores', following: 'Siguiendo', posts: 'Publicaciones', chats: 'Charlas',
+            viewProfile: 'Ver perfil'
+        },
+        fr: {
+            feed: 'Flux', profile: 'Profil', messages: 'Messages', search: 'Rechercher',
+            interesting: 'Intéressant', notifications: 'Notifications', create: 'Créer',
+            feedback: 'Retours', more: 'Plus', logout: 'Déconnexion', settings: 'Paramètres',
+            account: 'Compte', security: 'Sécurité', theme: 'Thème', language: 'Langue',
+            email: 'Email', username: "Nom d'utilisateur", password: 'Mot de passe', edit: 'Modifier',
+            changePassword: 'Changer mot de passe', joined: 'A rejoint', noPosts: 'Aucun post',
+            whatsHappening: 'Quoi de neuf ?', post: 'Poster', publish: 'Publier',
+            login: 'Connexion', register: "S'inscrire", signup: "S'inscrire", or: 'ou',
+            back: 'Retour', send: 'Envoyer', cancel: 'Annuler', delete: 'Supprimer',
+            follow: 'Suivre', unfollow: 'Ne plus suivre', likes: 'J\'aime', comments: 'Commentaires',
+            reply: 'Répondre', message: 'Message', online: 'En ligne',
+            verified: 'Compte vérifié', official: 'Compte officiel', creator: 'Créateur',
+            followers: 'Abonnés', following: 'Abonnements', posts: 'Publications', chats: 'Discussions',
+            viewProfile: 'Voir le profil'
+        },
+        ar: {
+            feed: 'الرئيسية', profile: 'الملف الشخصي', messages: 'الرسائل', search: 'بحث',
+            interesting: 'مثير للاهتمام', notifications: 'الإشعارات', create: 'إنشاء',
+            feedback: 'الملاحظات', more: 'المزيد', logout: 'تسجيل الخروج', settings: 'الإعدادات',
+            account: 'الحساب', security: 'الأمان', theme: 'المظهر', language: 'اللغة',
+            email: 'البريد الإلكتروني', username: 'اسم المستخدم', password: 'كلمة المرور', edit: 'تعديل',
+            changePassword: 'تغيير كلمة المرور', joined: 'انضم', noPosts: 'لا توجد منشورات',
+            whatsHappening: 'ما الجديد؟', post: 'نشر', publish: 'نشر',
+            login: 'تسجيل الدخول', register: 'التسجيل', signup: 'التسجيل', or: 'أو',
+            back: 'رجوع', send: 'إرسال', cancel: 'إلغاء', delete: 'حذف',
+            follow: 'متابعة', unfollow: 'إلغاء المتابعة', likes: 'إعجابات', comments: 'تعليقات',
+            reply: 'رد', message: 'رسالة', online: 'متصل',
+            verified: 'حساب موثق', official: 'حساب رسمي', creator: 'منشئ',
+            followers: 'متابعون', following: 'يتابع', posts: 'منشورات', chats: 'محادثات',
+            viewProfile: 'عرض الملف الشخصي'
+        },
+        el: {
+            feed: 'Feed', profile: 'Προφίλ', messages: 'Μηνύματα', search: 'Αναζήτηση',
+            interesting: 'Ενδιαφέροντα', notifications: 'Ειδοποιήσεις', create: 'Δημιουργία',
+            feedback: 'Σχόλια', more: 'Περισσότερα', logout: 'Αποσύνδεση', settings: 'Ρυθμίσεις',
+            account: 'Λογαριασμός', security: 'Ασφάλεια', theme: 'Θέμα', language: 'Γλώσσα',
+            email: 'Email', username: 'Όνομα χρήστη', password: 'Κωδικός', edit: 'Επεξεργασία',
+            changePassword: 'Αλλαγή κωδικού', joined: 'Εγγράφηκε', noPosts: 'Δεν υπάρχουν αναρτήσεις',
+            whatsHappening: 'Τι συμβαίνει;', post: 'Δημοσίευση', publish: 'Δημοσίευση',
+            login: 'Σύνδεση', register: 'Εγγραφή', signup: 'Εγγραφή', or: 'ή',
+            back: 'Πίσω', send: 'Αποστολή', cancel: 'Ακύρωση', delete: 'Διαγραφή',
+            follow: 'Ακολούθηση', unfollow: 'Διακοπή', likes: 'Μου αρέσει', comments: 'Σχόλια',
+            reply: 'Απάντηση', message: 'Μήνυμα', online: 'Σύνδεση',
+            verified: 'Επαληθευμένος λογαριασμός', official: 'Επίσημος λογαριασμός', creator: 'Δημιουργός',
+            followers: 'Ακόλουθοι', following: 'Ακολουθεί', posts: 'Αναρτήσεις', chats: 'Συνομιλίες',
+            viewProfile: 'Προβολή προφίλ'
+        },
+        zh: {
+            feed: 'Feed', profile: '个人资料', messages: '消息', search: '搜索',
+            interesting: '有趣', notifications: '通知', create: '创建',
+            feedback: '反馈', more: '更多', logout: '退出', settings: '设置',
+            account: '账户', security: '安全', theme: '主题', language: '语言',
+            email: '邮箱', username: '用户名', password: '密码', edit: '编辑',
+            changePassword: '修改密码', joined: '加入于', noPosts: '暂无帖子',
+            whatsHappening: '发生了什么？', post: '发布', publish: '发布',
+            login: '登录', register: '注册', signup: '注册', or: '或',
+            back: '返回', send: '发送', cancel: '取消', delete: '删除',
+            follow: '关注', unfollow: '取消关注', likes: '点赞', comments: '评论',
+            reply: '回复', message: '消息', online: '在线',
+            verified: '认证账户', official: '官方账户', creator: '创作者',
+            followers: '粉丝', following: '关注', posts: '帖子', chats: '聊天',
+            viewProfile: '查看个人资料'
+        },
+        pt: {
+            feed: 'Feed', profile: 'Perfil', messages: 'Mensagens', search: 'Pesquisar',
+            interesting: 'Interessante', notifications: 'Notificações', create: 'Criar',
+            feedback: 'Feedback', more: 'Mais', logout: 'Sair', settings: 'Configurações',
+            account: 'Conta', security: 'Segurança', theme: 'Tema', language: 'Idioma',
+            email: 'Email', username: 'Usuário', password: 'Senha', edit: 'Editar',
+            changePassword: 'Alterar senha', joined: 'Entrou', noPosts: 'Sem posts',
+            whatsHappening: 'O que está acontecendo?', post: 'Publicar', publish: 'Publicar',
+            login: 'Entrar', register: 'Registrar', signup: 'Registrar', or: 'ou',
+            back: 'Voltar', send: 'Enviar', cancel: 'Cancelar', delete: 'Excluir',
+            follow: 'Seguir', unfollow: 'Deixar de seguir', likes: 'Curtidas', comments: 'Comentários',
+            reply: 'Responder', message: 'Mensagem', online: 'Online',
+            verified: 'Conta verificada', official: 'Conta oficial', creator: 'Criador',
+            followers: 'Seguidores', following: 'Seguindo', posts: 'Publicações', chats: 'Bate-papos',
+            viewProfile: 'Ver perfil'
+        },
+        de: {
+            feed: 'Feed', profile: 'Profil', messages: 'Nachrichten', search: 'Suchen',
+            interesting: 'Interessant', notifications: 'Benachrichtigungen', create: 'Erstellen',
+            feedback: 'Feedback', more: 'Mehr', logout: 'Abmelden', settings: 'Einstellungen',
+            account: 'Konto', security: 'Sicherheit', theme: 'Thema', language: 'Sprache',
+            email: 'E-Mail', username: 'Benutzername', password: 'Passwort', edit: 'Bearbeiten',
+            changePassword: 'Passwort ändern', joined: 'Beigetreten', noPosts: 'Keine Beiträge',
+            whatsHappening: 'Was ist los?', post: 'Posten', publish: 'Veröffentlichen',
+            login: 'Anmelden', register: 'Registrieren', signup: 'Registrieren', or: 'oder',
+            back: 'Zurück', send: 'Senden', cancel: 'Abbrechen', delete: 'Löschen',
+            follow: 'Folgen', unfollow: 'Entfolgen', likes: 'Gefällt mir', comments: 'Kommentare',
+            reply: 'Antworten', message: 'Nachricht', online: 'Online',
+            verified: 'Verifiziertes Konto', official: 'Offizielles Konto', creator: 'Ersteller',
+            followers: 'Follower', following: 'Folgt', posts: 'Beiträge', chats: 'Chats',
+            viewProfile: 'Profil anzeigen'
+        },
+        it: {
+            feed: 'Feed', profile: 'Profilo', messages: 'Messaggi', search: 'Cerca',
+            interesting: 'Interessante', notifications: 'Notifiche', create: 'Crea',
+            feedback: 'Feedback', more: 'Altro', logout: 'Esci', settings: 'Impostazioni',
+            account: 'Account', security: 'Sicurezza', theme: 'Tema', language: 'Lingua',
+            email: 'Email', username: 'Nome utente', password: 'Password', edit: 'Modifica',
+            changePassword: 'Cambia password', joined: 'Iscritto', noPosts: 'Nessun post',
+            whatsHappening: 'Cosa succede?', post: 'Pubblica', publish: 'Pubblica',
+            login: 'Accedi', register: 'Registrati', signup: 'Registrati', or: 'o',
+            back: 'Indietro', send: 'Invia', cancel: 'Annulla', delete: 'Elimina',
+            follow: 'Segui', unfollow: 'Non seguire più', likes: 'Mi piace', comments: 'Commenti',
+            reply: 'Rispondi', message: 'Messaggio', online: 'Online',
+            verified: 'Account verificato', official: 'Account ufficiale', creator: 'Creatore',
+            followers: 'Follower', following: 'Seguiti', posts: 'Post', chats: 'Chat',
+            viewProfile: 'Vedi profilo'
         }
     };
     
@@ -349,7 +466,7 @@
     }
 
     const tabs = ['feed', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'feedback', 'more'];
-    const tabNames = ['Лента', 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'Feedback', 'More'];
+    const tabNames = [t('feed'), 'Profile', 'Messages', 'Search', 'Interesting', 'Notifications', 'Create', 'Feedback', 'More'];
 
     const allowedDomains = ['gmail.com', 'mail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
@@ -386,9 +503,21 @@
         document.title = title;
     }
 
+    function closeAllDropdowns() {
+        document.querySelectorAll('.custom-select-dropdown').forEach(d => d.style.display = 'none');
+        document.querySelectorAll('.custom-select .arrow').forEach(a => a.innerHTML = '▼');
+        activeDropdown = null;
+    }
+
+    function closePreviewPopup() {
+        if (activePreviewPopup) {
+            activePreviewPopup.remove();
+            activePreviewPopup = null;
+        }
+    }
+
     function showVerificationPopup(user, x, y, isOfficial = false) {
-        const existing = document.querySelector('.verification-popup');
-        if (existing) existing.remove();
+        closePreviewPopup();
         
         const popup = document.createElement('div');
         popup.className = 'verification-popup';
@@ -402,6 +531,7 @@
                 </div>
                 <p style="font-size:13px; color:#71767b; margin-bottom:12px;">This account is an official organization or person on FreedomNet.</p>
                 <p style="font-size:12px; color:#71767b;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                <div onclick="viewProfile('${user.username}'); closePreviewPopup();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer; margin-top:12px;">${t('viewProfile')}</div>
             `;
         } else {
             popup.innerHTML = `
@@ -411,14 +541,17 @@
                 </div>
                 <p style="font-size:13px; color:#71767b; margin-bottom:12px;">This account is verified because it's an official account or organization on FreedomNet.</p>
                 <p style="font-size:12px; color:#71767b;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                <div onclick="viewProfile('${user.username}'); closePreviewPopup();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer; margin-top:12px;">${t('viewProfile')}</div>
             `;
         }
         document.body.appendChild(popup);
+        activePreviewPopup = popup;
         
         setTimeout(() => {
             const clickHandler = (e) => {
                 if (!popup.contains(e.target)) {
                     popup.remove();
+                    activePreviewPopup = null;
                     document.removeEventListener('click', clickHandler);
                 }
             };
@@ -427,6 +560,9 @@
     }
 
     function showConfirmDialog(message, onYes) {
+        closeAllDropdowns();
+        closePreviewPopup();
+        
         const existing = document.querySelector('.custom-modal');
         if (existing) existing.remove();
         
@@ -448,9 +584,20 @@
             onYes();
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
+        
+        const clickOutside = (e) => {
+            if (!modal.contains(e.target)) {
+                modal.remove();
+                document.removeEventListener('click', clickOutside);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     function showUserListModal(title, users) {
+        closeAllDropdowns();
+        closePreviewPopup();
+        
         const existing = document.querySelector('.custom-modal');
         if (existing) existing.remove();
         
@@ -461,7 +608,7 @@
                 <p>${title}</p>
                 <div class="user-list">
                     ${users.map(u => `
-                        <div class="user-list-item" onclick="viewProfile('${u.username}'); document.querySelector('.custom-modal')?.remove();">
+                        <div class="user-list-item" onclick="viewProfile('${u.username}'); modal.remove();">
                             <img class="user-list-avatar" src="${u.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(u.username[0].toUpperCase()))">
                             <div><strong>${escapeHtml(u.username)}</strong><div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div>
                         </div>
@@ -475,6 +622,14 @@
         `;
         document.body.appendChild(modal);
         document.getElementById('confirmCancel').onclick = () => modal.remove();
+        
+        const clickOutside = (e) => {
+            if (!modal.contains(e.target)) {
+                modal.remove();
+                document.removeEventListener('click', clickOutside);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     async function loadFollowersAndFollowing(userId) {
@@ -498,6 +653,9 @@
     }
 
     function showPasswordModal(title, fields, onConfirm) {
+        closeAllDropdowns();
+        closePreviewPopup();
+        
         const existing = document.querySelector('.custom-modal');
         if (existing) existing.remove();
         
@@ -537,9 +695,20 @@
             });
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
+        
+        const clickOutside = (e) => {
+            if (!modal.contains(e.target)) {
+                modal.remove();
+                document.removeEventListener('click', clickOutside);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     function showFeedbackModal() {
+        closeAllDropdowns();
+        closePreviewPopup();
+        
         const existing = document.querySelector('.custom-modal');
         if (existing) existing.remove();
         
@@ -592,8 +761,13 @@
                     errorDiv.style.color = '#1d9bf0';
                     errorDiv.textContent = res.message;
                     errorDiv.style.display = 'block';
-                    await loadFeed();
+                    await loadFeed(true);
                     setTimeout(() => { modal.remove(); renderMain(); }, 1500);
+                } else if (res.special === 'verify_user') {
+                    errorDiv.style.color = '#1d9bf0';
+                    errorDiv.textContent = res.message;
+                    errorDiv.style.display = 'block';
+                    setTimeout(() => modal.remove(), 1500);
                 } else {
                     errorDiv.style.color = '#1d9bf0';
                     errorDiv.textContent = 'Feedback sent! Thank you.';
@@ -606,9 +780,20 @@
             }
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
+        
+        const clickOutside = (e) => {
+            if (!modal.contains(e.target)) {
+                modal.remove();
+                document.removeEventListener('click', clickOutside);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     function showCreateModal() {
+        closeAllDropdowns();
+        closePreviewPopup();
+        
         const existing = document.querySelector('.custom-modal');
         if (existing) existing.remove();
         
@@ -670,6 +855,14 @@
             modal.remove();
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
+        
+        const clickOutside = (e) => {
+            if (!modal.contains(e.target)) {
+                modal.remove();
+                document.removeEventListener('click', clickOutside);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
     function showChangePasswordModal() {
@@ -877,6 +1070,14 @@
                 img.src = URL.createObjectURL(cropImageFile);
             };
             modal.querySelector('#cropCancel').onclick = () => modal.remove();
+            
+            const clickOutside = (e) => {
+                if (!modal.contains(e.target)) {
+                    modal.remove();
+                    document.removeEventListener('click', clickOutside);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', clickOutside), 100);
         };
         reader.readAsDataURL(file);
     }
@@ -944,8 +1145,7 @@
     }
 
     function showUserPreview(user, x, y) {
-        const existing = document.querySelector('.user-preview');
-        if (existing) existing.remove();
+        closePreviewPopup();
         
         const preview = document.createElement('div');
         preview.className = 'user-preview';
@@ -961,14 +1161,16 @@
             </div>
             <div>${escapeHtml(user.bio || 'No bio yet')}</div>
             <div style="color:#71767b; margin:12px 0;">${t('joined')} ${new Date(user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
-            <div onclick="viewProfile('${user.username}'); document.querySelector('.user-preview')?.remove();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer;">${t('profile')}</div>
+            <div onclick="viewProfile('${user.username}'); closePreviewPopup();" style="background:var(--accent); color:white; padding:8px; border-radius:9999px; text-align:center; cursor:pointer; margin-top:12px;">${t('viewProfile')}</div>
         `;
         document.body.appendChild(preview);
+        activePreviewPopup = preview;
         
         setTimeout(() => {
             const clickHandler = (e) => {
                 if (!preview.contains(e.target)) {
                     preview.remove();
+                    activePreviewPopup = null;
                     document.removeEventListener('click', clickHandler);
                 }
             };
@@ -986,6 +1188,7 @@
     }
 
     window.viewProfile = (username) => {
+        closePreviewPopup();
         if (username === currentUser.username) {
             currentTab = 'profile';
             currentProfileUser = null;
@@ -1140,8 +1343,10 @@
         } catch(e) { chatUsers = []; }
     }
 
-    async function openChat(userId, username) {
-        currentChatUser = { id: userId, username };
+    async function openChat(userId, username, avatar) {
+        closeAllDropdowns();
+        closePreviewPopup();
+        currentChatUser = { id: userId, username, avatar };
         const messages = await api(`/api/messages/${userId}`);
         currentChatMessages = messages;
         
@@ -1154,10 +1359,11 @@
         setTimeout(() => {
             const container = document.getElementById('chatMessages');
             if (container) container.scrollTop = container.scrollHeight;
-        }, 50);
+        }, 100);
     }
 
     async function sendMessageWithImage(file, content = '') {
+        if (!content.trim() && !file) return;
         const formData = new FormData();
         formData.append('content', content);
         if (file) formData.append('image', file);
@@ -1179,16 +1385,16 @@
         const isOwnPost = post.user_id === currentUser.id;
         const canDelete = isOwnPost || currentUser?.username === 'DevAlexPlay';
         return `
-            <div class="post-card" data-post-id="${post.id}" onclick="if(event.target.tagName!=='BUTTON' && event.target.tagName!=='IMG') viewProfile('${post.username}')">
+            <div class="post-card" data-post-id="${post.id}">
                 <div class="post-header">
                     ${post.avatar ? 
-                        `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); viewProfile('${post.username}')" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` :
-                        `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); viewProfile('${post.username}')">${(post.username || 'U')[0].toUpperCase()}</div>`
+                        `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` :
+                        `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'', bio:'', created_at:${post.created_at}}, event.clientX, event.clientY);">${(post.username || 'U')[0].toUpperCase()}</div>`
                     }
                     <div class="post-body">
                         <div class="post-user">
-                            <span class="post-username" data-username="${post.username}" onclick="event.stopPropagation(); viewProfile('${post.username}')">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}
-                            <span class="post-username" onclick="event.stopPropagation(); viewProfile('${post.username}')">@${escapeHtml(post.username)}</span>
+                            <span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}
+                            <span class="post-username">@${escapeHtml(post.username)}</span>
                             <span class="post-time">${new Date(post.created_at).toLocaleString()}</span>
                         </div>
                         <div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>
@@ -1206,10 +1412,10 @@
                             ${(post.comments || []).map(c => `
                                 <div class="comment">
                                     ${c.avatar ? 
-                                        `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); viewProfile('${c.username}')" onerror="this.style.display='none';">` :
-                                        `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); viewProfile('${c.username}')">${(c.username || 'U')[0].toUpperCase()}</div>`
+                                        `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none';">` :
+                                        `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${(c.username || 'U')[0].toUpperCase()}</div>`
                                     }
-                                    <div><strong onclick="event.stopPropagation(); viewProfile('${c.username}')">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div>
+                                    <div><strong onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div>
                                 </div>
                             `).join('')}
                             <div class="comment-input">
@@ -1302,11 +1508,11 @@
     function renderMessages() {
         return `
             <div class="messages-container">
-                <div class="chat-sidebar">
+                <div class="chat-sidebar" id="chatSidebar">
                     <div class="chat-sidebar-header">${t('chats')}</div>
                     <div class="chat-users-list">
                         ${chatUsers.map(u => `
-                            <div class="chat-user-item" onclick="openChat(${u.id}, '${escapeHtml(u.username)}')">
+                            <div class="chat-user-item" onclick="openChat(${u.id}, '${escapeHtml(u.username)}', '${u.avatar || ''}')">
                                 <img class="chat-user-avatar" src="${u.avatar || ''}" onerror="this.style.display='none'; this.after(document.createTextNode(u.username[0].toUpperCase()))">
                                 <div class="chat-user-info">
                                     <div class="chat-user-name">${escapeHtml(u.username)}${renderCreatorBadge(u.is_creator, u.is_official)}</div>
@@ -1321,7 +1527,7 @@
                 <div class="chat-main">
                     ${currentChatUser ? `
                         <div class="chat-main-header">
-                            <span class="chat-back-mobile" style="cursor:pointer; display:none;" onclick="document.querySelector('.chat-sidebar').classList.add('open')">←</span>
+                            <span class="chat-back-mobile" style="cursor:pointer; display:none;" onclick="document.getElementById('chatSidebar').classList.add('open')">←</span>
                             <img class="chat-user-avatar" src="${currentChatUser.avatar || ''}" style="width:40px; height:40px;" onerror="this.style.display='none';">
                             <span>${escapeHtml(currentChatUser.username)}</span>
                         </div>
@@ -1343,9 +1549,9 @@
                             `).join('')}
                         </div>
                         <div class="chat-input-area">
-                            <input type="text" id="chatMessageInput" class="chat-input" placeholder="${t('message')}..." onkeypress="if(event.key==='Enter') sendMessageWithImage(null, this.value); this.value=''">
+                            <input type="text" id="chatMessageInput" class="chat-input" placeholder="${t('message')}..." onkeypress="if(event.key==='Enter'){ const val=this.value; this.value=''; sendMessageWithImage(null, val); }">
                             <label class="chat-image-label">📷<input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="sendMessageWithImage(this.files[0], '')"></label>
-                            <button class="chat-send-btn" onclick="const input=document.getElementById('chatMessageInput'); sendMessageWithImage(null, input.value); input.value=''">${t('send')}</button>
+                            <button class="chat-send-btn" onclick="const input=document.getElementById('chatMessageInput'); const val=input.value; input.value=''; sendMessageWithImage(null, val);">${t('send')}</button>
                         </div>
                     ` : `
                         <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-secondary);">
@@ -1405,35 +1611,40 @@
         const themeNames = { dark: 'Dark (Black)', 'dark-gray': 'Dark Gray', gray: 'Gray', light: 'Light' };
         
         setTimeout(() => {
-            const select = document.getElementById('themeSelect');
-            if (select) {
-                select.onclick = (e) => {
+            const themeSelect = document.getElementById('themeSelect');
+            const langSelect = document.getElementById('languageSelect');
+            
+            if (themeSelect) {
+                themeSelect.onclick = (e) => {
                     e.stopPropagation();
+                    closeAllDropdowns();
                     const dropdown = document.getElementById('themeDropdown');
                     if (dropdown) {
                         const isOpen = dropdown.style.display === 'block';
                         dropdown.style.display = isOpen ? 'none' : 'block';
-                        select.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲';
+                        themeSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲';
+                        if (!isOpen) activeDropdown = dropdown;
                     }
                 };
-                document.addEventListener('click', () => {
-                    const dropdown = document.getElementById('themeDropdown');
-                    if (dropdown) dropdown.style.display = 'none';
-                    if (select) select.querySelector('.arrow').innerHTML = '▼';
-                });
             }
-            const langSelect = document.getElementById('languageSelect');
             if (langSelect) {
                 langSelect.onclick = (e) => {
                     e.stopPropagation();
+                    closeAllDropdowns();
                     const dropdown = document.getElementById('languageDropdown');
                     if (dropdown) {
                         const isOpen = dropdown.style.display === 'block';
                         dropdown.style.display = isOpen ? 'none' : 'block';
                         langSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲';
+                        if (!isOpen) activeDropdown = dropdown;
                     }
                 };
             }
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.custom-select')) {
+                    closeAllDropdowns();
+                }
+            });
         }, 10);
         
         const languages = [
@@ -1493,6 +1704,8 @@
     }
 
     function openAvatarUpload() {
+        closeAllDropdowns();
+        closePreviewPopup();
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*,image/gif';
@@ -1625,12 +1838,13 @@
             attachHomeEvents();
             const feedContainer = document.getElementById('feedContainer');
             if (feedContainer) {
-                feedContainer.addEventListener('scroll', () => {
+                const onScroll = () => {
                     if (feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 100) {
                         loadFeed();
                         updateFeedPosts();
                     }
-                });
+                };
+                feedContainer.addEventListener('scroll', onScroll);
             }
         }
         
@@ -1649,21 +1863,12 @@
         document.querySelectorAll('.mention, .hashtag, .post-username, .post-avatar-img, .avatar-placeholder, .avatar-img, .verified-badge, .gold-badge').forEach(el => {
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (el.classList.contains('verified-badge')) {
+                if (el.classList.contains('verified-badge') || el.classList.contains('gold-badge')) {
                     const username = el.closest('[data-username]')?.dataset?.username || el.closest('.post-user')?.querySelector('.post-username')?.dataset?.username;
                     if (username) {
                         const user = allUsers.find(u => u.username === username) || { username, created_at: Date.now(), is_creator: true };
                         const rect = el.getBoundingClientRect();
-                        showVerificationPopup(user, rect.left, rect.bottom + 5, false);
-                    }
-                    return;
-                }
-                if (el.classList.contains('gold-badge')) {
-                    const username = el.closest('[data-username]')?.dataset?.username || el.closest('.post-user')?.querySelector('.post-username')?.dataset?.username;
-                    if (username) {
-                        const user = allUsers.find(u => u.username === username) || { username, created_at: Date.now(), is_official: true };
-                        const rect = el.getBoundingClientRect();
-                        showVerificationPopup(user, rect.left, rect.bottom + 5, true);
+                        showVerificationPopup(user, rect.left, rect.bottom + 5, el.classList.contains('gold-badge'));
                     }
                     return;
                 }
@@ -1742,7 +1947,15 @@
         renderMain();
     };
 
-    window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; currentChatUser = null; renderMain(); };
+    window.switchTab = (tab) => { 
+        currentTab = tab; 
+        currentProfileUser = null; 
+        currentChatUser = null; 
+        closeAllDropdowns();
+        closePreviewPopup();
+        renderMain(); 
+    };
+    
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
 
     (async () => {
