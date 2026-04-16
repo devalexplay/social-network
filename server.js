@@ -66,30 +66,8 @@ db.serialize(() => {
         from_id INTEGER,
         to_id INTEGER,
         content TEXT,
-        image TEXT,
         created_at INTEGER,
         read INTEGER DEFAULT 0
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS message_reactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        message_id INTEGER,
-        user_id INTEGER,
-        reaction TEXT,
-        FOREIGN KEY(message_id) REFERENCES messages(id),
-        FOREIGN KEY(user_id) REFERENCES users(id),
-        UNIQUE(message_id, user_id)
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS shared_posts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        post_id INTEGER,
-        from_user_id INTEGER,
-        to_user_id INTEGER,
-        created_at INTEGER,
-        FOREIGN KEY(post_id) REFERENCES posts(id),
-        FOREIGN KEY(from_user_id) REFERENCES users(id),
-        FOREIGN KEY(to_user_id) REFERENCES users(id)
     )`);
     
     db.run(`CREATE TABLE IF NOT EXISTS follows (
@@ -307,9 +285,7 @@ app.get('/api/conversations', auth, (req, res) => {
 });
 
 app.get('/api/messages/:userId', auth, (req, res) => {
-    db.all(`SELECT m.*, u.username, u.is_creator, u.is_official,
-            (SELECT json_group_array(json_object('user_id', r.user_id, 'reaction', r.reaction)) 
-             FROM message_reactions r WHERE r.message_id = m.id) as reactions
+    db.all(`SELECT m.*, u.username, u.is_creator, u.is_official
             FROM messages m 
             JOIN users u ON u.id = m.from_id
             WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)
@@ -318,54 +294,18 @@ app.get('/api/messages/:userId', auth, (req, res) => {
         (err, messages) => {
             db.run('UPDATE messages SET read = 1 WHERE to_id = ? AND from_id = ?', 
                 [req.session.userId, req.params.userId]);
-            const parsedMessages = messages.map(m => ({
-                ...m,
-                reactions: m.reactions ? JSON.parse(m.reactions) : []
-            }));
-            res.json(parsedMessages || []);
+            res.json(messages || []);
         });
 });
 
-app.post('/api/messages/:userId', auth, upload.single('image'), (req, res) => {
+app.post('/api/messages/:userId', auth, (req, res) => {
     const { content } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : null;
-    db.run('INSERT INTO messages (from_id, to_id, content, image, created_at) VALUES (?, ?, ?, ?, ?)',
-        [req.session.userId, req.params.userId, content || '', image, Date.now()],
+    db.run('INSERT INTO messages (from_id, to_id, content, created_at) VALUES (?, ?, ?, ?)',
+        [req.session.userId, req.params.userId, content, Date.now()],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID, image });
+            res.json({ id: this.lastID });
         });
-});
-
-app.post('/api/message-reaction/:messageId', auth, (req, res) => {
-    const { reaction } = req.body;
-    db.run('INSERT OR REPLACE INTO message_reactions (message_id, user_id, reaction) VALUES (?, ?, ?)',
-        [req.params.messageId, req.session.userId, reaction],
-        (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true });
-        });
-});
-
-app.post('/api/share-post/:postId', auth, (req, res) => {
-    const { toUserId } = req.body;
-    db.run('INSERT INTO shared_posts (post_id, from_user_id, to_user_id, created_at) VALUES (?, ?, ?, ?)',
-        [req.params.postId, req.session.userId, toUserId, Date.now()],
-        (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true });
-        });
-});
-
-app.get('/api/shared-posts/:userId', auth, (req, res) => {
-    db.all(`SELECT sp.*, p.content, p.image, u.username as from_username, u.avatar as from_avatar
-            FROM shared_posts sp
-            JOIN posts p ON sp.post_id = p.id
-            JOIN users u ON sp.from_user_id = u.id
-            WHERE sp.to_user_id = ?
-            ORDER BY sp.created_at DESC`, [req.params.userId], (err, shares) => {
-        res.json(shares || []);
-    });
 });
 
 app.post('/api/avatar', auth, upload.single('avatar'), (req, res) => {
