@@ -931,7 +931,7 @@
                         <img src="${currentImage}" style="max-width:100%; max-height:200px; border-radius:12px;">
                         <button class="remove-image-btn" id="editRemoveImageBtn">Remove image</button>
                     </div>
-                ` : ''}
+                ` : '<div id="editNoImageMsg" style="color:var(--text-secondary); font-size:12px; margin-top:8px;">No image attached</div>'}
                 <div id="modalError" class="error-message" style="display:none;"></div>
                 <div class="custom-modal-buttons">
                     <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">Save</button>
@@ -943,10 +943,18 @@
         
         let removeImageFlag = false;
         if (currentImage) {
-            document.getElementById('editRemoveImageBtn').onclick = () => {
-                document.querySelector('.post-image-container')?.remove();
-                removeImageFlag = true;
-            };
+            const removeBtn = document.getElementById('editRemoveImageBtn');
+            if (removeBtn) {
+                removeBtn.onclick = () => {
+                    document.querySelector('.post-image-container')?.remove();
+                    const noImageMsg = document.createElement('div');
+                    noImageMsg.id = 'editNoImageMsg';
+                    noImageMsg.style.cssText = 'color:var(--text-secondary); font-size:12px; margin-top:8px;';
+                    noImageMsg.innerText = 'Image will be removed';
+                    modal.querySelector('.custom-modal-content').appendChild(noImageMsg);
+                    removeImageFlag = true;
+                };
+            }
         }
         
         document.getElementById('confirmYes').onclick = async () => {
