@@ -93,7 +93,7 @@
         .publish-btn { background: var(--accent); color: white; border: none; padding: 8px 20px; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: opacity 0.2s ease; }
         .publish-btn:hover { opacity: 0.9; }
         
-        .post-card { border-bottom: 1px solid var(--border-color); padding: 12px 16px; transition: background 0.2s ease; cursor: pointer; position: relative; }
+        .post-card { border-bottom: 1px solid var(--border-color); padding: 12px 16px; transition: background 0.2s ease; cursor: pointer; position: relative; animation: fadeInUp 0.3s ease; }
         .post-card:hover { background: var(--hover-bg); }
         .post-header { display: flex; gap: 12px; }
         .post-avatar-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; cursor: pointer; transition: opacity 0.2s ease; }
@@ -119,10 +119,12 @@
         .stat-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; transition: color 0.2s ease; }
         .stat-btn:hover { color: var(--text-primary); background: transparent; }
         .stat-btn.liked { color: #f91880; }
-        .delete-btn { background: none; border: none; color: #f4212e; cursor: pointer; font-size: 14px; padding: 6px 12px; border-radius: 9999px; margin-left: auto; transition: none; }
-        .delete-btn:hover { color: #ff5555; background: transparent; }
+        .delete-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 6px 12px; border-radius: 9999px; margin-left: auto; transition: color 0.2s ease; }
+        .delete-btn:hover { color: #f4212e; background: transparent; }
+        .delete-comment-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 12px; padding: 2px 6px; border-radius: 9999px; margin-left: 8px; transition: color 0.2s ease; }
+        .delete-comment-btn:hover { color: #f4212e; background: transparent; }
         .comments-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); }
-        .comment { font-size: 14px; margin: 8px 0; display: flex; align-items: center; gap: 8px; animation: fadeIn 0.2s ease; }
+        .comment { font-size: 14px; margin: 8px 0; display: flex; align-items: center; gap: 8px; animation: fadeIn 0.2s ease; flex-wrap: wrap; }
         .comment-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
         .comment strong { color: var(--accent); cursor: pointer; transition: opacity 0.2s ease; }
         .comment strong:hover { opacity: 0.8; }
@@ -257,8 +259,8 @@
         .notification-settings { margin-top: 24px; }
         .notification-settings h3 { text-align: left; margin-bottom: 16px; }
         
-        .logout-btn { color: #f4212e !important; }
-        .logout-btn:hover { color: #ff5555 !important; }
+        .logout-btn { color: var(--text-secondary); }
+        .logout-btn:hover { color: #f4212e !important; }
         
         @media (max-width: 768px) {
             .sidebar { display: none; }
@@ -351,6 +353,8 @@
     let lastActivity = Date.now();
     let notificationSetting = localStorage.getItem('notificationSetting') || 'all';
     let fakeOnlineCount = 15;
+    let ws = null;
+    let reconnectTimeout = null;
     
     let currentLang = localStorage.getItem('language') || 'en';
     const translations = {
@@ -373,7 +377,7 @@
             mentionsOnly: 'Mentions only', none: 'None', deleteAccount: 'Delete Account',
             deleteAccountWarning: 'This action cannot be undone. Your username and email will become available for others.',
             confirmDelete: 'Confirm Delete', emailLabel: 'Email', passwordLabel: 'Password',
-            deletePermanently: 'Delete Permanently', quit: 'Quit'
+            deletePermanently: 'Delete Permanently', quit: 'Quit', cannotMessageSelf: 'You cannot message yourself'
         },
         ru: {
             feed: 'Лента', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
@@ -394,7 +398,7 @@
             mentionsOnly: 'Только упоминания', none: 'Никакие', deleteAccount: 'Удалить аккаунт',
             deleteAccountWarning: 'Это действие нельзя отменить. Ваше имя пользователя и email станут доступны другим.',
             confirmDelete: 'Подтверждение удаления', emailLabel: 'Email', passwordLabel: 'Пароль',
-            deletePermanently: 'Удалить навсегда', quit: 'Выйти'
+            deletePermanently: 'Удалить навсегда', quit: 'Выйти', cannotMessageSelf: 'Нельзя отправлять сообщения самому себе'
         },
         es: {
             feed: 'Inicio', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
@@ -415,7 +419,7 @@
             mentionsOnly: 'Solo menciones', none: 'Ninguna', deleteAccount: 'Eliminar cuenta',
             deleteAccountWarning: 'Esta acción no se puede deshacer. Tu nombre de usuario y email estarán disponibles para otros.',
             confirmDelete: 'Confirmar eliminación', emailLabel: 'Email', passwordLabel: 'Contraseña',
-            deletePermanently: 'Eliminar permanentemente', quit: 'Salir'
+            deletePermanently: 'Eliminar permanentemente', quit: 'Salir', cannotMessageSelf: 'No puedes enviarte un mensaje a ti mismo'
         },
         fr: {
             feed: 'Flux', profile: 'Profil', messages: 'Messages', search: 'Rechercher',
@@ -436,7 +440,7 @@
             mentionsOnly: 'Mentions seulement', none: 'Aucune', deleteAccount: 'Supprimer le compte',
             deleteAccountWarning: 'Cette action est irréversible. Votre nom d\'utilisateur et votre email deviendront disponibles pour d\'autres.',
             confirmDelete: 'Confirmer la suppression', emailLabel: 'Email', passwordLabel: 'Mot de passe',
-            deletePermanently: 'Supprimer définitivement', quit: 'Quitter'
+            deletePermanently: 'Supprimer définitivement', quit: 'Quitter', cannotMessageSelf: 'Vous ne pouvez pas vous envoyer de message'
         },
         ar: {
             feed: 'الرئيسية', profile: 'الملف الشخصي', messages: 'الرسائل', search: 'بحث',
@@ -457,7 +461,7 @@
             mentionsOnly: 'الإشارات فقط', none: 'لا شيء', deleteAccount: 'حذف الحساب',
             deleteAccountWarning: 'لا يمكن التراجع عن هذا الإجراء. سيصبح اسم المستخدم والبريد الإلكتروني متاحين للآخرين.',
             confirmDelete: 'تأكيد الحذف', emailLabel: 'البريد الإلكتروني', passwordLabel: 'كلمة المرور',
-            deletePermanently: 'حذف نهائي', quit: 'خروج'
+            deletePermanently: 'حذف نهائي', quit: 'خروج', cannotMessageSelf: 'لا يمكنك مراسلة نفسك'
         },
         el: {
             feed: 'Αρχική', profile: 'Προφίλ', messages: 'Μηνύματα', search: 'Αναζήτηση',
@@ -478,7 +482,7 @@
             mentionsOnly: 'Μόνο αναφορές', none: 'Καμία', deleteAccount: 'Διαγραφή λογαριασμού',
             deleteAccountWarning: 'Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Το όνομα χρήστη και το email σας θα γίνουν διαθέσιμα σε άλλους.',
             confirmDelete: 'Επιβεβαίωση διαγραφής', emailLabel: 'Email', passwordLabel: 'Κωδικός',
-            deletePermanently: 'Οριστική διαγραφή', quit: 'Έξοδος'
+            deletePermanently: 'Οριστική διαγραφή', quit: 'Έξοδος', cannotMessageSelf: 'Δεν μπορείτε να στείλετε μήνυμα στον εαυτό σας'
         },
         zh: {
             feed: '主页', profile: '个人资料', messages: '消息', search: '搜索',
@@ -499,7 +503,7 @@
             mentionsOnly: '仅提及', none: '无', deleteAccount: '删除账户',
             deleteAccountWarning: '此操作不可撤销。您的用户名和邮箱将可供其他人使用。',
             confirmDelete: '确认删除', emailLabel: '邮箱', passwordLabel: '密码',
-            deletePermanently: '永久删除', quit: '退出'
+            deletePermanently: '永久删除', quit: '退出', cannotMessageSelf: '不能给自己发消息'
         },
         pt: {
             feed: 'Início', profile: 'Perfil', messages: 'Mensagens', search: 'Pesquisar',
@@ -520,7 +524,7 @@
             mentionsOnly: 'Apenas menções', none: 'Nenhuma', deleteAccount: 'Excluir conta',
             deleteAccountWarning: 'Esta ação não pode ser desfeita. Seu nome de usuário e email ficarão disponíveis para outros.',
             confirmDelete: 'Confirmar exclusão', emailLabel: 'Email', passwordLabel: 'Senha',
-            deletePermanently: 'Excluir permanentemente', quit: 'Sair'
+            deletePermanently: 'Excluir permanentemente', quit: 'Sair', cannotMessageSelf: 'Você não pode enviar mensagem para si mesmo'
         },
         de: {
             feed: 'Startseite', profile: 'Profil', messages: 'Nachrichten', search: 'Suchen',
@@ -541,7 +545,7 @@
             mentionsOnly: 'Nur Erwähnungen', none: 'Keine', deleteAccount: 'Konto löschen',
             deleteAccountWarning: 'Diese Aktion kann nicht rückgängig gemacht werden. Ihr Benutzername und Ihre E-Mail-Adresse werden für andere verfügbar sein.',
             confirmDelete: 'Löschen bestätigen', emailLabel: 'E-Mail', passwordLabel: 'Passwort',
-            deletePermanently: 'Dauerhaft löschen', quit: 'Beenden'
+            deletePermanently: 'Dauerhaft löschen', quit: 'Beenden', cannotMessageSelf: 'Sie können sich keine Nachricht senden'
         },
         it: {
             feed: 'Home', profile: 'Profilo', messages: 'Messaggi', search: 'Cerca',
@@ -562,7 +566,7 @@
             mentionsOnly: 'Solo menzioni', none: 'Nessuna', deleteAccount: 'Elimina account',
             deleteAccountWarning: 'Questa azione non può essere annullata. Il tuo nome utente ed email saranno disponibili per altri.',
             confirmDelete: 'Conferma eliminazione', emailLabel: 'Email', passwordLabel: 'Password',
-            deletePermanently: 'Elimina definitivamente', quit: 'Esci'
+            deletePermanently: 'Elimina definitivamente', quit: 'Esci', cannotMessageSelf: 'Non puoi inviare un messaggio a te stesso'
         }
     };
     
@@ -588,7 +592,74 @@
         return false;
     }
     
-    // Logo pulse animation with random interval 50-300 seconds
+    // WebSocket connection for real-time updates
+    function connectWebSocket() {
+        if (ws && ws.readyState === WebSocket.OPEN) return;
+        
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+        
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+            if (reconnectTimeout) clearTimeout(reconnectTimeout);
+        };
+        
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'new_post') {
+                    // Add new post to feed instantly
+                    feed.unshift(data.post);
+                    if (currentTab === 'feed') {
+                        updateFeedPosts();
+                    }
+                    showToast('New post from ' + data.post.username);
+                } else if (data.type === 'new_comment') {
+                    // Update comments on the post
+                    const postIndex = feed.findIndex(p => p.id === data.post_id);
+                    if (postIndex !== -1) {
+                        feed[postIndex].comments = data.comments;
+                        if (currentTab === 'feed') {
+                            updateFeedPosts();
+                        }
+                    }
+                } else if (data.type === 'post_deleted') {
+                    const postIndex = feed.findIndex(p => p.id === data.post_id);
+                    if (postIndex !== -1) {
+                        feed.splice(postIndex, 1);
+                        if (currentTab === 'feed') {
+                            updateFeedPosts();
+                        }
+                    }
+                } else if (data.type === 'like_update') {
+                    const postIndex = feed.findIndex(p => p.id === data.post_id);
+                    if (postIndex !== -1) {
+                        feed[postIndex].likes_count = data.likes_count;
+                        feed[postIndex].user_liked = data.user_liked;
+                        if (currentTab === 'feed') {
+                            updateFeedPosts();
+                        }
+                    }
+                }
+            } catch(e) { console.error('WebSocket message error:', e); }
+        };
+        
+        ws.onclose = () => {
+            console.log('WebSocket disconnected, reconnecting...');
+            reconnectTimeout = setTimeout(connectWebSocket, 3000);
+        };
+        
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+    }
+    
+    function sendWebSocketMessage(type, data) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type, ...data }));
+        }
+    }
+    
     function startLogoPulse() {
         const logo = document.querySelector('.logo');
         if (!logo) return;
@@ -598,7 +669,6 @@
             setTimeout(() => {
                 logo.classList.remove('logo-pulse');
             }, 3000);
-            
             const nextInterval = Math.floor(Math.random() * (300000 - 50000 + 1) + 50000);
             setTimeout(applyPulse, nextInterval);
         }
@@ -778,8 +848,10 @@
             if (content.length > 500) { errorDiv.textContent = 'Post cannot exceed 500 characters'; errorDiv.style.display = 'block'; return; }
             const formData = new FormData(); formData.append('content', content);
             if (window.modalPendingImage) { const blob = await fetch(window.modalPendingImage).then(r => r.blob()); formData.append('image', blob, 'photo.jpg'); }
-            await api('/api/posts', { method: 'POST', body: formData });
-            window.modalPendingImage = null; await loadFeed(true);
+            const newPost = await api('/api/posts', { method: 'POST', body: formData });
+            window.modalPendingImage = null; 
+            await loadFeed(true);
+            sendWebSocketMessage('new_post', { post: newPost });
             renderMain(); modal.remove();
         };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
@@ -952,7 +1024,22 @@
     async function followUser(userId) { await api(`/api/follow/${userId}`, { method: 'POST' }); await loadFollows(); if (currentProfileUser && currentProfileUser.id === userId) await loadProfileUser(currentProfileUser.username); renderMain(); }
     async function unfollowUser(userId) { await api(`/api/follow/${userId}`, { method: 'DELETE' }); await loadFollows(); if (currentProfileUser && currentProfileUser.id === userId) await loadProfileUser(currentProfileUser.username); renderMain(); }
     async function updateAvatar(file) { const formData = new FormData(); formData.append('avatar', file); await api('/api/avatar', { method: 'POST', body: formData }); const me = await api('/api/me'); currentUser = me.user; await loadFeed(true); renderMain(); }
-    async function deletePost(postId) { showConfirmDialog('Delete this post?', async () => { await api(`/api/posts/${postId}`, { method: 'DELETE' }); await loadFeed(true); renderMain(); }); }
+    async function deletePost(postId) { 
+        showConfirmDialog('Delete this post?', async () => { 
+            await api(`/api/posts/${postId}`, { method: 'DELETE' });
+            sendWebSocketMessage('post_deleted', { post_id: postId });
+            await loadFeed(true); 
+            renderMain(); 
+        }); 
+    }
+    
+    async function deleteComment(postId, commentId) {
+        showConfirmDialog('Delete this comment?', async () => {
+            await api(`/api/comment/${commentId}`, { method: 'DELETE' });
+            await loadFeed(true);
+            renderMain();
+        });
+    }
     
     function showUserPreview(user, x, y) {
         closePreviewPopup();
@@ -1008,6 +1095,7 @@
             await api('/api/login', { method: 'POST', body: JSON.stringify({ login, password }), headers: { 'Content-Type': 'application/json' } });
             const me = await api('/api/me'); currentUser = me.user;
             await loadFeed(true); await loadConversationsList(); await loadFollowersAndFollowing(currentUser.id);
+            connectWebSocket();
             render();
         } catch(e) { showMessage('authForm', 'Invalid username/email or password', true); }
     };
@@ -1041,6 +1129,10 @@
     async function loadConversationsList() { try { conversationsList = await api('/api/chat-users'); } catch(e) { conversationsList = []; } }
     
     async function openChat(userId, username, avatar) {
+        if (userId === currentUser.id) {
+            showToast(t('cannotMessageSelf'), true);
+            return;
+        }
         closeAllDropdowns(); closePreviewPopup();
         currentChatUser = { id: userId, username, avatar };
         const messages = await api(`/api/messages/${userId}`);
@@ -1052,6 +1144,10 @@
     
     async function sendMessageWithImage(file, content = '') {
         if (!content.trim() && !file) return;
+        if (currentChatUser.id === currentUser.id) {
+            showToast(t('cannotMessageSelf'), true);
+            return;
+        }
         const formData = new FormData(); formData.append('content', content); if (file) formData.append('image', file);
         await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: formData });
         await openChat(currentChatUser.id, currentChatUser.username); await loadConversationsList();
@@ -1065,7 +1161,7 @@
     function renderPostCard(post) {
         const isOwnPost = post.user_id === currentUser.id;
         const canDelete = isOwnPost || currentUser?.username === 'DevAlexPlay';
-        return `<div class="post-card" data-post-id="${post.id}"><div class="post-header">${post.avatar ? `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` : `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'', bio:'', created_at:${post.created_at}}, event.clientX, event.clientY);">${(post.username || 'U')[0].toUpperCase()}</div>`}<div class="post-body"><div class="post-user"><span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}<span class="post-username">@${escapeHtml(post.username)}</span><span class="post-time">${new Date(post.created_at).toLocaleString()}</span>${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}</div><div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>${post.image ? `<div class="post-image-container"><img src="${post.image}" class="post-image" onclick="event.stopPropagation(); window.open('${post.image}')"></div>` : ''}<div class="post-stats"><button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${post.id})">♥ ${post.likes_count || 0}</button><button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">💬 ${post.comments?.length || 0}</button>${canDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 ${t('delete')}</button>` : ''}</div><div id="comments-${post.id}" style="display:none;" class="comments-section">${(post.comments || []).map(c => `<div class="comment">${c.avatar ? `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none';">` : `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${(c.username || 'U')[0].toUpperCase()}</div>`}<div><strong onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div></div>`).join('')}<div class="comment-input"><input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}..." onclick="event.stopPropagation()"><button class="comment-send-btn" onclick="event.stopPropagation(); addComment(${post.id})">➔</button></div></div></div></div></div>`;
+        return `<div class="post-card" data-post-id="${post.id}"><div class="post-header">${post.avatar ? `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` : `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'', bio:'', created_at:${post.created_at}}, event.clientX, event.clientY);">${(post.username || 'U')[0].toUpperCase()}</div>`}<div class="post-body"><div class="post-user"><span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}<span class="post-username">@${escapeHtml(post.username)}</span><span class="post-time">${new Date(post.created_at).toLocaleString()}</span>${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}</div><div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>${post.image ? `<div class="post-image-container"><img src="${post.image}" class="post-image" onclick="event.stopPropagation(); window.open('${post.image}')"></div>` : ''}<div class="post-stats"><button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${post.id})">♥ ${post.likes_count || 0}</button><button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">💬 ${post.comments?.length || 0}</button>${canDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 ${t('delete')}</button>` : ''}</div><div id="comments-${post.id}" style="display:none;" class="comments-section">${(post.comments || []).map(c => `<div class="comment">${c.avatar ? `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none';">` : `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${(c.username || 'U')[0].toUpperCase()}</div>`}<div><strong onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div>${(c.user_id === currentUser.id || currentUser?.username === 'DevAlexPlay' || post.user_id === currentUser.id) ? `<button class="delete-comment-btn" onclick="event.stopPropagation(); deleteComment(${post.id}, ${c.id})">✕</button>` : ''}</div>`).join('')}<div class="comment-input"><input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}..." onclick="event.stopPropagation()"><button class="comment-send-btn" onclick="event.stopPropagation(); addComment(${post.id})">➔</button></div></div></div></div></div>`;
     }
     
     function renderHome() {
@@ -1139,9 +1235,11 @@
         errorDiv.style.display = 'none';
         const formData = new FormData(); formData.append('content', content);
         if (pendingImage) { const blob = await fetch(pendingImage).then(r => r.blob()); formData.append('image', blob, 'photo.jpg'); }
-        await api('/api/posts', { method: 'POST', body: formData });
+        const newPost = await api('/api/posts', { method: 'POST', body: formData });
         pendingImage = null; document.getElementById('postContent').value = ''; document.getElementById('imagePreview').innerHTML = '';
-        await loadFeed(true); renderMain();
+        await loadFeed(true);
+        sendWebSocketMessage('new_post', { post: newPost });
+        renderMain();
     };
     
     function updateFeedPosts() { const container = document.getElementById('feedPosts'); if (container) container.innerHTML = feed.map(post => renderPostCard(post)).join(''); const loader = document.getElementById('feedLoader'); if (loader && !feedHasMore) loader.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary);">You\'ve seen all posts</div>'; }
@@ -1177,7 +1275,7 @@
         startLogoPulse();
     }
     
-    window.showLogoutConfirm = () => { showConfirmDialog('Are you sure you want to logout?', async () => { await api('/api/logout', { method: 'POST' }); currentUser = null; render(); }, true); };
+    window.showLogoutConfirm = () => { showConfirmDialog('Are you sure you want to logout?', async () => { await api('/api/logout', { method: 'POST' }); if (ws) ws.close(); currentUser = null; render(); }, true); };
     
     function attachGlobalEvents() {
         document.querySelectorAll('.mention, .hashtag, .post-username, .post-avatar-img, .avatar-placeholder, .avatar-img, .verified-badge, .gold-badge').forEach(el => {
@@ -1223,9 +1321,9 @@
         if (imageInput) { imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { pendingImage = ev.target.result; document.getElementById('imagePreview').innerHTML = `<img src="${pendingImage}" style="max-width:100%; max-height:150px; border-radius:12px;">`; }; reader.readAsDataURL(file); } }); }
     }
     
-    window.toggleLike = async (postId) => { const post = feed.find(p => p.id === postId); if (post.user_liked) await api(`/api/like/${postId}`, { method: 'DELETE' }); else await api(`/api/like/${postId}`, { method: 'POST' }); await loadFeed(true); renderMain(); };
+    window.toggleLike = async (postId) => { const post = feed.find(p => p.id === postId); if (post.user_liked) await api(`/api/like/${postId}`, { method: 'DELETE' }); else await api(`/api/like/${postId}`, { method: 'POST' }); await loadFeed(true); sendWebSocketMessage('like_update', { post_id: postId, likes_count: post.likes_count + (post.user_liked ? -1 : 1), user_liked: !post.user_liked }); renderMain(); };
     window.toggleComments = (postId) => { const el = document.getElementById(`comments-${postId}`); if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'; };
-    window.addComment = async (postId) => { const input = document.getElementById(`commentInput-${postId}`); const content = input?.value.trim(); if (!content) return; await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } }); await loadFeed(true); renderMain(); };
+    window.addComment = async (postId) => { const input = document.getElementById(`commentInput-${postId}`); const content = input?.value.trim(); if (!content) return; await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } }); await loadFeed(true); sendWebSocketMessage('new_comment', { post_id: postId }); renderMain(); };
     window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; currentChatUser = null; closeAllDropdowns(); closePreviewPopup(); renderMain(); };
     window.performSearch = async () => { if (!searchQuery.trim()) { searchResults = []; searchPosts = []; renderMain(); return; } try { const res = await api(`/api/search?q=${encodeURIComponent(searchQuery)}`); searchResults = res.users || []; searchPosts = res.posts || []; renderMain(); } catch(e) { searchResults = []; searchPosts = []; } };
     
@@ -1233,7 +1331,7 @@
     
     startFakeOnlineCounter();
     
-    (async () => { try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(true); await loadFollowersAndFollowing(currentUser.id); } } catch(e) {} render(); })();
+    (async () => { try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(true); await loadFollowersAndFollowing(currentUser.id); connectWebSocket(); } } catch(e) {} render(); })();
 </script>
 </body>
 </html>
