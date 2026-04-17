@@ -25,7 +25,6 @@
         body.light { --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --text-primary: #000000; --text-secondary: #536471; --border-color: #e1e8ed; --hover-bg: #f0f0f0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg-primary); color: var(--text-primary); overflow-x: hidden; transition: background 0.2s ease, color 0.2s ease; }
         
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -93,7 +92,7 @@
         .publish-btn { background: var(--accent); color: white; border: none; padding: 8px 20px; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: opacity 0.2s ease; }
         .publish-btn:hover { opacity: 0.9; }
         
-        .post-card { border-bottom: 1px solid var(--border-color); padding: 12px 16px; transition: background 0.2s ease; cursor: pointer; position: relative; animation: fadeInUp 0.3s ease; }
+        .post-card { border-bottom: 1px solid var(--border-color); padding: 12px 16px; transition: background 0.2s ease; cursor: pointer; position: relative; }
         .post-card:hover { background: var(--hover-bg); }
         .post-header { display: flex; gap: 12px; }
         .post-avatar-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; cursor: pointer; transition: opacity 0.2s ease; }
@@ -124,7 +123,7 @@
         .delete-comment-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 12px; padding: 2px 6px; border-radius: 9999px; margin-left: 8px; transition: color 0.2s ease; }
         .delete-comment-btn:hover { color: #f4212e; background: transparent; }
         .comments-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); }
-        .comment { font-size: 14px; margin: 8px 0; display: flex; align-items: center; gap: 8px; animation: fadeIn 0.2s ease; flex-wrap: wrap; }
+        .comment { font-size: 14px; margin: 8px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .comment-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
         .comment strong { color: var(--accent); cursor: pointer; transition: opacity 0.2s ease; }
         .comment strong:hover { opacity: 0.8; }
@@ -262,6 +261,20 @@
         .logout-btn { color: var(--text-secondary); }
         .logout-btn:hover { color: #f4212e !important; }
         
+        .crop-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1001; animation: fadeIn 0.2s ease; }
+        .crop-modal-content { background: #000000; border-radius: 28px; padding: 24px; width: 500px; max-width: 90%; text-align: center; border: 1px solid #2f3336; }
+        .crop-container { position: relative; width: 300px; height: 300px; margin: 16px auto; overflow: hidden; border-radius: 50%; border: 2px solid var(--accent); cursor: grab; background: #1a1a1a; }
+        .crop-container:active { cursor: grabbing; }
+        .crop-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: none; transform-origin: center; }
+        .crop-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+        .crop-grid::before, .crop-grid::after { content: ''; position: absolute; background: rgba(255,255,255,0.3); }
+        .crop-grid::before { top: 33.33%; left: 0; right: 0; height: 1px; }
+        .crop-grid::after { top: 66.66%; left: 0; right: 0; height: 1px; }
+        .crop-grid .vline { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.3); }
+        .crop-grid .vline:nth-child(1) { left: 33.33%; }
+        .crop-grid .vline:nth-child(2) { left: 66.66%; }
+        .zoom-slider { width: 100%; margin: 16px 0; accent-color: var(--accent); }
+        
         @media (max-width: 768px) {
             .sidebar { display: none; }
             .main-content { margin-left: 0; border-right: none; padding-bottom: 70px; }
@@ -286,11 +299,14 @@
             .auth-card { width: 95%; padding: 25px; }
             .search-icon { font-size: 24px; }
             .conversations-search-icon { font-size: 22px; }
+            .crop-modal-content { width: 95%; padding: 20px; }
+            .crop-container { width: 250px; height: 250px; }
         }
         @media (max-width: 480px) {
             .bottom-nav-item span { font-size: 11px; }
             .bottom-nav-item { padding: 6px; }
             .post-stats { gap: 16px; }
+            .crop-container { width: 200px; height: 200px; }
         }
     </style>
 </head>
@@ -355,6 +371,8 @@
     let fakeOnlineCount = 15;
     let ws = null;
     let reconnectTimeout = null;
+    let isDraggingCrop = false;
+    let cropStartX, cropStartY, cropStartTranslateX, cropStartTranslateY;
     
     let currentLang = localStorage.getItem('language') || 'en';
     const translations = {
@@ -608,14 +626,11 @@
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === 'new_post') {
-                    // Add new post to feed instantly
                     feed.unshift(data.post);
                     if (currentTab === 'feed') {
                         updateFeedPosts();
                     }
-                    showToast('New post from ' + data.post.username);
                 } else if (data.type === 'new_comment') {
-                    // Update comments on the post
                     const postIndex = feed.findIndex(p => p.id === data.post_id);
                     if (postIndex !== -1) {
                         feed[postIndex].comments = data.comments;
@@ -970,34 +985,109 @@
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
     }
 
+    // Avatar crop editor - fixed
     function openAdvancedCropModal(file) {
         const img = new Image();
         const reader = new FileReader();
         reader.onload = (e) => {
             img.src = e.target.result;
             img.onload = () => {
-                cropScale = 1; cropTranslateX = 0; cropTranslateY = 0;
+                cropScale = 1;
+                cropTranslateX = 0;
+                cropTranslateY = 0;
+                
                 const modal = document.createElement('div');
                 modal.className = 'crop-modal';
-                modal.innerHTML = `<div class="crop-modal-content"><h3 style="margin-bottom:16px;">Adjust Avatar</h3><div class="crop-container" id="cropContainer"><img class="crop-image" id="cropImage" src="${img.src}" style="transform: scale(1) translate(0px, 0px);"><div class="crop-grid"><div class="vline"></div><div class="vline"></div></div></div><input type="range" class="zoom-slider" id="zoomSlider" min="1" max="3" step="0.01" value="1"><div style="display:flex; gap:12px; margin-top:20px;"><button id="cropApply" style="flex:1; background:var(--accent); border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Apply</button><button id="cropCancel" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Cancel</button></div></div>`;
+                modal.innerHTML = `
+                    <div class="crop-modal-content">
+                        <h3 style="margin-bottom:16px;">Adjust Avatar</h3>
+                        <div class="crop-container" id="cropContainer">
+                            <img class="crop-image" id="cropImage" src="${img.src}" style="transform: scale(1) translate(0px, 0px);">
+                            <div class="crop-grid">
+                                <div class="vline"></div>
+                                <div class="vline"></div>
+                            </div>
+                        </div>
+                        <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="3" step="0.01" value="1">
+                        <div style="display:flex; gap:12px; margin-top:20px;">
+                            <button id="cropApply" style="flex:1; background:var(--accent); border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Apply</button>
+                            <button id="cropCancel" style="flex:1; background:#2f3336; border:none; padding:10px; border-radius:9999px; color:white; cursor:pointer;">Cancel</button>
+                        </div>
+                    </div>
+                `;
                 document.body.appendChild(modal);
-                const cropImg = document.getElementById('cropImage'); const container = document.getElementById('cropContainer'); const slider = document.getElementById('zoomSlider');
-                let startX, startY, startTranslateX, startTranslateY, isDraggingCrop = false;
-                const updateTransform = () => { cropImg.style.transform = `scale(${cropScale}) translate(${cropTranslateX}px, ${cropTranslateY}px)`; };
-                slider.addEventListener('input', (e) => { cropScale = parseFloat(e.target.value); updateTransform(); });
-                const onMouseDown = (e) => { isDraggingCrop = true; startX = e.clientX; startY = e.clientY; startTranslateX = cropTranslateX; startTranslateY = cropTranslateY; container.style.cursor = 'grabbing'; e.preventDefault(); };
-                const onMouseMove = (e) => { if (!isDraggingCrop) return; const dx = e.clientX - startX; const dy = e.clientY - startY; cropTranslateX = startTranslateX + dx / cropScale; cropTranslateY = startTranslateY + dy / cropScale; updateTransform(); };
-                const onMouseUp = () => { isDraggingCrop = false; container.style.cursor = 'grab'; };
-                container.addEventListener('mousedown', onMouseDown); window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp);
-                modal.querySelector('#cropApply').onclick = () => {
-                    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const size = 400; canvas.width = size; canvas.height = size;
-                    const imgWidth = img.width, imgHeight = img.height, scaledWidth = imgWidth * cropScale, scaledHeight = imgHeight * cropScale;
-                    const dx = (size - scaledWidth) / 2 + (cropTranslateX * cropScale), dy = (size - scaledHeight) / 2 + (cropTranslateY * cropScale);
-                    ctx.drawImage(img, dx, dy, scaledWidth, scaledHeight);
-                    canvas.toBlob((blob) => { updateAvatar(blob); modal.remove(); }, 'image/png');
+                
+                const cropImg = document.getElementById('cropImage');
+                const container = document.getElementById('cropContainer');
+                const slider = document.getElementById('zoomSlider');
+                
+                const updateTransform = () => {
+                    cropImg.style.transform = `scale(${cropScale}) translate(${cropTranslateX}px, ${cropTranslateY}px)`;
                 };
+                
+                slider.addEventListener('input', (e) => {
+                    cropScale = parseFloat(e.target.value);
+                    updateTransform();
+                });
+                
+                const onMouseDown = (e) => {
+                    isDraggingCrop = true;
+                    cropStartX = e.clientX;
+                    cropStartY = e.clientY;
+                    cropStartTranslateX = cropTranslateX;
+                    cropStartTranslateY = cropTranslateY;
+                    container.style.cursor = 'grabbing';
+                    e.preventDefault();
+                };
+                
+                const onMouseMove = (e) => {
+                    if (!isDraggingCrop) return;
+                    const dx = e.clientX - cropStartX;
+                    const dy = e.clientY - cropStartY;
+                    cropTranslateX = cropStartTranslateX + dx / cropScale;
+                    cropTranslateY = cropStartTranslateY + dy / cropScale;
+                    updateTransform();
+                };
+                
+                const onMouseUp = () => {
+                    isDraggingCrop = false;
+                    container.style.cursor = 'grab';
+                };
+                
+                container.addEventListener('mousedown', onMouseDown);
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseup', onMouseUp);
+                
+                modal.querySelector('#cropApply').onclick = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const size = 400;
+                    canvas.width = size;
+                    canvas.height = size;
+                    
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
+                    const scaledWidth = imgWidth * cropScale;
+                    const scaledHeight = imgHeight * cropScale;
+                    const dx = (size - scaledWidth) / 2 + (cropTranslateX * cropScale);
+                    const dy = (size - scaledHeight) / 2 + (cropTranslateY * cropScale);
+                    
+                    ctx.drawImage(img, dx, dy, scaledWidth, scaledHeight);
+                    canvas.toBlob((blob) => {
+                        updateAvatar(blob);
+                        modal.remove();
+                    }, 'image/png');
+                };
+                
                 modal.querySelector('#cropCancel').onclick = () => modal.remove();
-                setTimeout(() => document.addEventListener('click', (e) => { if (!modal.contains(e.target)) modal.remove(); }), 100);
+                
+                const clickOutside = (e) => {
+                    if (!modal.contains(e.target)) {
+                        modal.remove();
+                        document.removeEventListener('click', clickOutside);
+                    }
+                };
+                setTimeout(() => document.addEventListener('click', clickOutside), 100);
             };
         };
         reader.readAsDataURL(file);
@@ -1224,7 +1314,20 @@
         return `<div class="feed-container" style="padding:20px;"><div class="profile-header" style="border-bottom: none;"><div style="text-align:left; margin-bottom:20px;"><h3>${t('account')}</h3><div><span class="email-masked">${t('email')}: ${maskEmail(currentUser?.email)}</span><span class="edit-link" onclick="showChangeEmailModal()">${t('edit')}</span></div><div style="margin-top:12px;"><span style="color:var(--text-primary);">${t('username')}: @${escapeHtml(currentUser?.username)}</span><span class="edit-link" onclick="showChangeUsernameModal()">${t('edit')}</span></div></div><div style="text-align:left; margin-bottom:20px;"><h3>${t('security')}</h3><div><span class="edit-link" onclick="showChangePasswordModal()">${t('changePassword')}</span></div></div><h3 style="text-align:left; margin-bottom:20px;">${t('theme')}</h3><div class="custom-select" id="themeSelect"><span id="selectedThemeText">${themeNames[savedTheme]}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="themeDropdown" style="display:none;"><div class="custom-select-option ${savedTheme === 'dark' ? 'selected' : ''}" onclick="setTheme('dark'); document.getElementById('selectedThemeText').innerText='Dark (Black)';">Dark (Black)</div><div class="custom-select-option ${savedTheme === 'dark-gray' ? 'selected' : ''}" onclick="setTheme('dark-gray'); document.getElementById('selectedThemeText').innerText='Dark Gray';">Dark Gray</div><div class="custom-select-option ${savedTheme === 'gray' ? 'selected' : ''}" onclick="setTheme('gray'); document.getElementById('selectedThemeText').innerText='Gray';">Gray</div><div class="custom-select-option ${savedTheme === 'light' ? 'selected' : ''}" onclick="setTheme('light'); document.getElementById('selectedThemeText').innerText='Light';">Light</div></div></div><h3 style="text-align:left; margin-bottom:20px; margin-top:20px;">${t('language')}</h3><div class="custom-select" id="languageSelect"><span id="selectedLanguageText">${languages.find(l => l.code === currentLang)?.name || 'English'}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="languageDropdown" style="display:none;">${languages.map(lang => `<div class="custom-select-option ${currentLang === lang.code ? 'selected' : ''}" onclick="setLanguage('${lang.code}'); document.getElementById('selectedLanguageText').innerText='${lang.name}';">${lang.name}</div>`).join('')}</div></div><div class="notification-settings"><h3>${t('notificationsSettings')}</h3><div class="custom-select" id="notificationsSelect"><span id="selectedNotifText">${notificationSetting === 'all' ? t('allNotifications') : (notificationSetting === 'mentions' ? t('mentionsOnly') : t('none'))}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="notificationsDropdown" style="display:none;"><div class="custom-select-option ${notificationSetting === 'all' ? 'selected' : ''}" onclick="setNotificationSetting('all'); document.getElementById('selectedNotifText').innerText='${t('allNotifications')}';">${t('allNotifications')}</div><div class="custom-select-option ${notificationSetting === 'mentions' ? 'selected' : ''}" onclick="setNotificationSetting('mentions'); document.getElementById('selectedNotifText').innerText='${t('mentionsOnly')}';">${t('mentionsOnly')}</div><div class="custom-select-option ${notificationSetting === 'none' ? 'selected' : ''}" onclick="setNotificationSetting('none'); document.getElementById('selectedNotifText').innerText='${t('none')}';">${t('none')}</div></div></div></div><h3 style="text-align:left; margin-bottom:16px; margin-top:24px;">Features</h3><div class="static-card" onclick="showStatsModal()" style="cursor:pointer; margin-bottom:10px;"><div><strong>${t('stats')}</strong><div style="color:var(--text-secondary);">View your account statistics</div></div></div></div><div class="static-card" onclick="showDeleteAccountModal()" style="cursor:pointer; margin-bottom:10px; border-color:#f4212e;"><div><strong style="color:#f4212e;">${t('deleteAccount')}</strong><div style="color:var(--text-secondary);">${t('deleteAccountWarning')}</div></div></div><div class="footer-note">© 2026 FreedomNet</div></div>`;
     }
     
-    function openAvatarUpload() { closeAllDropdowns(); closePreviewPopup(); const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*,image/gif'; input.onchange = (e) => { const file = e.target.files[0]; if (file) openAdvancedCropModal(file); }; input.click(); }
+    function openAvatarUpload() { 
+        closeAllDropdowns(); 
+        closePreviewPopup(); 
+        const input = document.createElement('input'); 
+        input.type = 'file'; 
+        input.accept = 'image/*,image/gif'; 
+        input.onchange = (e) => { 
+            const file = e.target.files[0]; 
+            if (file) {
+                openAdvancedCropModal(file);
+            }
+        }; 
+        input.click(); 
+    }
     
     window.publishPost = async () => {
         const content = document.getElementById('postContent').value;
