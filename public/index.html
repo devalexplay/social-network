@@ -90,8 +90,6 @@
         .post-time { color: var(--text-secondary); font-size: 13px; }
         .edited-badge { font-size: 11px; color: var(--text-secondary); font-style: italic; margin-left: 6px; }
         .post-content { font-size: 15px; margin: 8px 0; line-height: 1.4; }
-        .edit-post-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 4px 6px; border-radius: 9999px; transition: color 0.2s ease; margin-left: 8px; }
-        .edit-post-btn:hover { color: var(--accent); background: none; }
         .mention { color: var(--accent); cursor: pointer; transition: opacity 0.2s ease; }
         .mention:hover { opacity: 0.8; }
         .hashtag { color: var(--accent); cursor: pointer; transition: opacity 0.2s ease; }
@@ -225,12 +223,18 @@
         .suggestions-dropdown { position: absolute; background: #000000; border: 1px solid #2f3336; border-radius: 12px; max-height: 200px; overflow-y: auto; z-index: 150; width: 300px; }
         .suggestion-item { padding: 10px 12px; cursor: pointer; transition: background 0.2s ease; color: var(--text-primary); }
         .suggestion-item:hover { background: var(--hover-bg); }
-        .clear-cache-red { color: #f4212e; font-weight: 500; }
         .footer-note { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 12px; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #000000; }
         ::-webkit-scrollbar-thumb { background: #2f3336; border-radius: 4px; transition: background 0.2s ease; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+        
+        .custom-select { position: relative; width: 100%; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 9999px; padding: 12px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: border-color 0.2s ease; }
+        .custom-select:hover { border-color: var(--accent); }
+        .custom-select-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 16px; margin-top: 8px; z-index: 100; overflow: hidden; }
+        .custom-select-option { padding: 12px 16px; cursor: pointer; transition: background 0.2s ease; color: var(--text-primary); }
+        .custom-select-option:hover { background: var(--hover-bg); }
+        .custom-select-option.selected { color: var(--accent); }
         
         @media (max-width: 768px) {
             .sidebar { display: none; }
@@ -325,6 +329,8 @@
     let focusModeEnabled = false;
     let onlineUsers = new Set();
     let lastActivity = Date.now();
+    let totalTimeSpentSeconds = 0; // Total time spent in app since registration (in seconds)
+    let sessionStartTime = Date.now();
     
     let currentLang = localStorage.getItem('language') || 'en';
     const translations = {
@@ -343,10 +349,7 @@
             verified: 'Verified account', official: 'Official account', creator: 'Creator',
             followers: 'Followers', following: 'Following', posts: 'Posts', chats: 'Chats',
             viewProfile: 'View Profile', stayLoggedIn: "Don't log out of account",
-            clearCache: 'Clear Cache', exportData: 'Export My Data', focusMode: 'Focus Mode',
-            about: 'About FreedomNet', version: 'Version 2.0', stats: 'Statistics',
-            cacheCleared: 'Cache cleared successfully!', dataExported: 'Data exported!',
-            focusModeOn: 'Focus mode enabled', focusModeOff: 'Focus mode disabled'
+            stats: 'Statistics', timeSpent: 'Time in app', onlineCount: 'Online now'
         },
         ru: {
             feed: 'Лента', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
@@ -363,10 +366,7 @@
             verified: 'Подтверждённый аккаунт', official: 'Официальный аккаунт', creator: 'Создатель',
             followers: 'Подписчики', following: 'Подписки', posts: 'Посты', chats: 'Чаты',
             viewProfile: 'Перейти в профиль', stayLoggedIn: 'Не выходить из аккаунта',
-            clearCache: 'Очистить кэш', exportData: 'Экспорт данных', focusMode: 'Режим фокуса',
-            about: 'О FreedomNet', version: 'Версия 2.0', stats: 'Статистика',
-            cacheCleared: 'Кэш очищен!', dataExported: 'Данные экспортированы!',
-            focusModeOn: 'Режим фокуса включён', focusModeOff: 'Режим фокуса выключен'
+            stats: 'Статистика', timeSpent: 'Времени в приложении', onlineCount: 'Сейчас онлайн'
         },
         es: {
             feed: 'Básico', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
@@ -383,10 +383,7 @@
             verified: 'Cuenta verificada', official: 'Cuenta oficial', creator: 'Creador',
             followers: 'Seguidores', following: 'Siguiendo', posts: 'Publicaciones', chats: 'Charlas',
             viewProfile: 'Ver perfil', stayLoggedIn: 'No cerrar sesión',
-            clearCache: 'Limpiar caché', exportData: 'Exportar datos', focusMode: 'Modo enfoque',
-            about: 'Acerca de', version: 'Versión 2.0', stats: 'Estadísticas',
-            cacheCleared: '¡Caché limpiada!', dataExported: '¡Datos exportados!',
-            focusModeOn: 'Modo enfoque activado', focusModeOff: 'Modo enfoque desactivado'
+            stats: 'Estadísticas', timeSpent: 'Tiempo en la app', onlineCount: 'En línea ahora'
         }
     };
     
@@ -830,13 +827,62 @@
         setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
+    // Track total time spent in app
+    function updateTotalTimeSpent() {
+        if (currentUser) {
+            const now = Date.now();
+            const sessionDuration = Math.floor((now - sessionStartTime) / 1000);
+            totalTimeSpentSeconds += sessionDuration;
+            sessionStartTime = now;
+            
+            // Save to localStorage
+            const savedTime = localStorage.getItem(`totalTime_${currentUser.id}`);
+            if (savedTime) {
+                totalTimeSpentSeconds += parseInt(savedTime);
+            }
+            localStorage.setItem(`totalTime_${currentUser.id}`, totalTimeSpentSeconds.toString());
+        }
+    }
+    
+    // Load saved total time
+    function loadTotalTimeSpent() {
+        if (currentUser) {
+            const savedTime = localStorage.getItem(`totalTime_${currentUser.id}`);
+            if (savedTime) {
+                totalTimeSpentSeconds = parseInt(savedTime);
+            } else {
+                totalTimeSpentSeconds = 0;
+            }
+        }
+        sessionStartTime = Date.now();
+        
+        // Save every minute
+        setInterval(() => {
+            if (currentUser) {
+                const now = Date.now();
+                const sessionDuration = Math.floor((now - sessionStartTime) / 1000);
+                totalTimeSpentSeconds += sessionDuration;
+                sessionStartTime = now;
+                localStorage.setItem(`totalTime_${currentUser.id}`, totalTimeSpentSeconds.toString());
+            }
+        }, 60000);
+    }
+    
+    window.addEventListener('beforeunload', () => {
+        if (currentUser) {
+            const now = Date.now();
+            const sessionDuration = Math.floor((now - sessionStartTime) / 1000);
+            totalTimeSpentSeconds += sessionDuration;
+            localStorage.setItem(`totalTime_${currentUser.id}`, totalTimeSpentSeconds.toString());
+        }
+    });
+
     // Play firecracker sound (sharp pop)
     function playFirecrackerSound() {
         try {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const now = audioContext.currentTime;
             
-            // Sharp crack sound
             const crackOsc = audioContext.createOscillator();
             const crackGain = audioContext.createGain();
             crackOsc.connect(crackGain);
@@ -847,7 +893,6 @@
             crackGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
             crackOsc.stop(now + 0.15);
             
-            // Second pop
             setTimeout(() => {
                 const popOsc = audioContext.createOscillator();
                 const popGain = audioContext.createGain();
@@ -1050,54 +1095,33 @@
         });
     }
 
-    // Clear cache with confirmation
-    function clearAppCache() {
-        showConfirmDialog('Are you sure you want to clear cache? This may affect loading speed on some pages.', async () => {
-            if ('caches' in window) {
-                const keys = await caches.keys();
-                keys.forEach(key => caches.delete(key));
-            }
-            localStorage.removeItem('theme');
-            localStorage.removeItem('language');
-            showToast(t('cacheCleared'));
-        }, true);
-    }
-
-    // Statistics modal with live time
+    // Statistics modal with total time spent
     function showStatsModal() {
         const postCount = feed.filter(p => p.user_id === currentUser.id).length;
         const likeCount = feed.reduce((acc, p) => acc + (p.likes_count || 0), 0);
         const commentCount = feed.reduce((acc, p) => acc + (p.comments?.length || 0), 0);
         const joinDate = new Date(currentUser.created_at);
         
+        // Update total time before showing
+        const now = Date.now();
+        const sessionDuration = Math.floor((now - sessionStartTime) / 1000);
+        const displayTotalSeconds = totalTimeSpentSeconds + sessionDuration;
+        
+        const hours = Math.floor(displayTotalSeconds / 3600);
+        const minutes = Math.floor((displayTotalSeconds % 3600) / 60);
+        const seconds = displayTotalSeconds % 60;
+        const timeSpentStr = `${hours}h ${minutes}m ${seconds}s`;
+        
         let onlineCount = 1;
         for (const user of allUsers) { if (user.id !== currentUser.id && onlineUsers.has(user.id)) onlineCount++; }
         
-        function updateLiveTime() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const timeEl = document.getElementById('liveTime');
-            if (timeEl) timeEl.textContent = timeStr;
-        }
-        updateLiveTime();
-        const interval = setInterval(updateLiveTime, 1000);
-        
         closeAllDropdowns();
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
-        modal.innerHTML = `<div class="custom-modal-content"><p>Statistics</p><div style="text-align:left; margin:20px 0;"><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Posts</span><span style="font-weight:700;">${postCount}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Likes</span><span style="font-weight:700;">${likeCount}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Comments</span><span style="font-weight:700;">${commentCount}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Followers</span><span style="font-weight:700;">${followersList.length}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Following</span><span style="font-weight:700;">${followingList.length}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Registered</span><span style="font-weight:700;">${joinDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0;"><span>Online Users</span><span style="font-weight:700; color:var(--online-green);">${onlineCount}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0;"><span>Live Time</span><span style="font-weight:700; font-family:monospace;" id="liveTime">--:--:--</span></div></div><div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-cancel" id="closeStats">Close</button></div></div>`;
+        modal.innerHTML = `<div class="custom-modal-content"><p>${t('stats')}</p><div style="text-align:left; margin:20px 0;"><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Posts</span><span style="font-weight:700;">${postCount}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Likes</span><span style="font-weight:700;">${likeCount}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Comments</span><span style="font-weight:700;">${commentCount}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Followers</span><span style="font-weight:700;">${followersList.length}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Following</span><span style="font-weight:700;">${followingList.length}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>Registered</span><span style="font-weight:700;">${joinDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>${t('timeSpent')}</span><span style="font-weight:700; font-family:monospace;">${timeSpentStr}</span></div><div style="display:flex; justify-content:space-between; padding:8px 0;"><span>${t('onlineCount')}</span><span style="font-weight:700; color:var(--online-green);">${onlineCount}</span></div></div><div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-cancel" id="closeStats">Close</button></div></div>`;
         document.body.appendChild(modal);
-        document.getElementById('closeStats').onclick = () => { clearInterval(interval); modal.remove(); };
-        modal.addEventListener('click', (e) => { if (e.target === modal) { clearInterval(interval); modal.remove(); } });
-    }
-
-    function showAboutModal() {
-        closeAllDropdowns();
-        const modal = document.createElement('div');
-        modal.className = 'custom-modal';
-        modal.innerHTML = `<div class="custom-modal-content"><p>About FreedomNet</p><div style="text-align:center; margin:20px 0;"><div style="font-size:48px; margin-bottom:10px;">🚀</div><div style="font-weight:700; font-size:20px;">FreedomNet</div><div style="color:var(--text-secondary);">Version 2.0</div><div style="margin-top:16px; color:var(--text-secondary);">A modern social network platform</div><div style="margin-top:8px; color:var(--text-secondary);">© 2024 FreedomNet Team</div></div><div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-cancel" id="closeAbout">Close</button></div></div>`;
-        document.body.appendChild(modal);
-        document.getElementById('closeAbout').onclick = () => modal.remove();
+        document.getElementById('closeStats').onclick = () => modal.remove();
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
     }
 
     function openAdvancedCropModal(file) {
@@ -1410,14 +1434,11 @@
                 headers: { 'Content-Type': 'application/json' }
             });
             
-            // Play confetti and firecracker sound
             playConfetti();
             
-            // Show loading screen
             const loading = document.getElementById('loading');
             if (loading) loading.style.display = 'flex';
             
-            // Auto login after 2 seconds
             setTimeout(async () => {
                 try {
                     await api('/api/login', {
@@ -1430,6 +1451,7 @@
                     await loadFeed(true);
                     await loadConversationsList();
                     await loadFollowersAndFollowing(currentUser.id);
+                    loadTotalTimeSpent();
                     hideLoadingScreen();
                     render();
                 } catch(e) {
@@ -1456,6 +1478,7 @@
             await loadFeed(true);
             await loadConversationsList();
             await loadFollowersAndFollowing(currentUser.id);
+            loadTotalTimeSpent();
             render();
         } catch(e) {
             showMessage('authForm', 'Invalid username/email or password', true);
@@ -1545,7 +1568,7 @@
     function renderPostCard(post) {
         const isOwnPost = post.user_id === currentUser.id;
         const canDelete = isOwnPost || currentUser?.username === 'DevAlexPlay';
-        const showEditBtn = isOwnPost;
+        // Edit button removed - no pencil icon
         return `
             <div class="post-card" data-post-id="${post.id}">
                 <div class="post-header">
@@ -1559,7 +1582,6 @@
                             <span class="post-username">@${escapeHtml(post.username)}</span>
                             <span class="post-time">${new Date(post.created_at).toLocaleString()}</span>
                             ${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}
-                            ${showEditBtn ? `<button class="edit-post-btn" onclick="event.stopPropagation(); showEditPostModal(${post.id}, '${escapeHtml(post.content || '')}', '${post.image || ''}')">✎</button>` : ''}
                         </div>
                         <div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>
                         ${post.image ? `
@@ -1950,16 +1972,8 @@
                     
                     <h3 style="text-align:left; margin-bottom:16px; margin-top:24px;">Features</h3>
                     
-                    <div class="recommendation-card" onclick="clearAppCache()" style="cursor:pointer; margin-bottom:10px;">
-                        <div><strong class="clear-cache-red">Clear Cache</strong><div style="color:var(--text-secondary);">Clear local cache and storage</div></div>
-                    </div>
-                    
                     <div class="recommendation-card" onclick="showStatsModal()" style="cursor:pointer; margin-bottom:10px;">
-                        <div><strong>Statistics</strong><div style="color:var(--text-secondary);">View your account statistics</div></div>
-                    </div>
-                    
-                    <div class="recommendation-card" onclick="showAboutModal()" style="cursor:pointer; margin-bottom:10px;">
-                        <div><strong>About FreedomNet</strong><div style="color:var(--text-secondary);">About this platform</div></div>
+                        <div><strong>${t('stats')}</strong><div style="color:var(--text-secondary);">View your account statistics</div></div>
                     </div>
                 </div>
                 <div class="footer-note">FreedomNet v2.0</div>
@@ -2143,6 +2157,7 @@
 
     window.showLogoutConfirm = () => {
         showConfirmDialog('Are you sure you want to logout?', async () => {
+            updateTotalTimeSpent();
             await api('/api/logout', { method: 'POST' });
             currentUser = null;
             focusModeEnabled = false;
@@ -2279,7 +2294,7 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
 
     (async () => {
-        try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(true); await loadFollowersAndFollowing(currentUser.id); } } catch(e) {}
+        try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(true); await loadFollowersAndFollowing(currentUser.id); loadTotalTimeSpent(); } } catch(e) {}
         render();
     })();
 </script>
