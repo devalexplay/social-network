@@ -84,10 +84,7 @@
         .post-username { color: var(--text-secondary); font-weight: 400; font-size: 14px; cursor: pointer; transition: color 0.2s ease; }
         .post-username:hover { color: var(--accent); text-decoration: underline; }
         .post-time { color: var(--text-secondary); font-size: 13px; }
-        .edited-badge { font-size: 11px; color: var(--text-secondary); font-style: italic; margin-left: 6px; }
         .post-content { font-size: 15px; margin: 8px 0; line-height: 1.4; }
-        .edit-post-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 4px 6px; border-radius: 9999px; transition: color 0.2s ease; margin-left: 8px; }
-        .edit-post-btn:hover { color: var(--accent); background: none; }
         .mention { color: var(--accent); cursor: pointer; transition: opacity 0.2s ease; }
         .mention:hover { opacity: 0.8; }
         .hashtag { color: var(--accent); cursor: pointer; transition: opacity 0.2s ease; }
@@ -189,6 +186,14 @@
         .error-message { color: #f4212e; font-size: 13px; margin-top: 8px; text-align: center; }
         .success-message { color: #1d9bf0; font-size: 13px; margin-top: 8px; text-align: center; }
         
+        /* Custom checkbox */
+        .checkbox-label { display: flex; align-items: center; gap: 12px; margin: 15px 0; cursor: pointer; justify-content: center; }
+        .checkbox-label input { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: var(--accent); }
+        .checkbox-text { color: var(--text-secondary); font-size: 14px; }
+        
+        /* Confetti canvas */
+        #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10001; }
+        
         /* Advanced Avatar Crop Modal (Instagram/Discord style) */
         .crop-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1001; }
         .crop-modal-content { background: #000000; border-radius: 28px; padding: 24px; width: 500px; max-width: 90%; text-align: center; border: 1px solid #2f3336; }
@@ -210,7 +215,7 @@
         .custom-select-option { padding: 12px 16px; cursor: pointer; transition: background 0.2s ease; color: var(--text-primary); }
         .custom-select-option:hover { background: var(--hover-bg); }
         .custom-select-option.selected { color: var(--accent); }
-        .auth-card { background: #000000; border: 1px solid #2f3336; border-radius: 20px; padding: 40px; width: 400px; }
+        .auth-card { background: #000000; border: 1px solid #2f3336; border-radius: 20px; padding: 40px; width: 400px; max-width: 90%; }
         .auth-card input { width: 100%; padding: 12px; margin: 10px 0; background: #000000; border: 1px solid #2f3336; border-radius: 8px; color: #ffffff; outline: none; transition: border-color 0.2s ease; }
         .auth-card input:focus { border-color: var(--accent); }
         .auth-card button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: opacity 0.2s ease; }
@@ -257,6 +262,7 @@
             .conversations-sidebar.open { transform: translateX(0); }
             .chat-back-mobile { display: inline-block; }
             .message-bubble { max-width: 85%; }
+            .auth-card { width: 95%; padding: 25px; }
         }
         @media (max-width: 480px) {
             .bottom-nav-item span { font-size: 11px; }
@@ -266,6 +272,7 @@
     </style>
 </head>
 <body>
+<canvas id="confettiCanvas" style="display: none;"></canvas>
 <div id="loading" class="loading-screen" style="display:flex;">
     <div class="loading-content">
         <div class="loading-logo">FreedomNet</div>
@@ -323,6 +330,7 @@
     let feedLoading = false;
     let activeDropdown = null;
     let activePreviewPopup = null;
+    let stayLoggedIn = false;
     
     let currentLang = localStorage.getItem('language') || 'en';
     const translations = {
@@ -340,7 +348,7 @@
             reply: 'Reply', message: 'Message', online: 'Online',
             verified: 'Verified account', official: 'Official account', creator: 'Creator',
             followers: 'Followers', following: 'Following', posts: 'Posts', chats: 'Chats',
-            viewProfile: 'View Profile', edited: 'edited'
+            viewProfile: 'View Profile', stayLoggedIn: "Don't log out of account"
         },
         ru: {
             feed: 'Лента', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
@@ -356,7 +364,7 @@
             reply: 'Ответить', message: 'Сообщение', online: 'В сети',
             verified: 'Подтверждённый аккаунт', official: 'Официальный аккаунт', creator: 'Создатель',
             followers: 'Подписчики', following: 'Подписки', posts: 'Посты', chats: 'Чаты',
-            viewProfile: 'Перейти в профиль', edited: 'изменено'
+            viewProfile: 'Перейти в профиль', stayLoggedIn: 'Не выходить из аккаунта'
         },
         es: {
             feed: 'Básico', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
@@ -372,7 +380,7 @@
             reply: 'Responder', message: 'Mensaje', online: 'En línea',
             verified: 'Cuenta verificada', official: 'Cuenta oficial', creator: 'Creador',
             followers: 'Seguidores', following: 'Siguiendo', posts: 'Publicaciones', chats: 'Charlas',
-            viewProfile: 'Ver perfil', edited: 'editado'
+            viewProfile: 'Ver perfil', stayLoggedIn: 'No cerrar sesión'
         },
         fr: {
             feed: 'Flux', profile: 'Profil', messages: 'Messages', search: 'Rechercher',
@@ -388,7 +396,7 @@
             reply: 'Répondre', message: 'Message', online: 'En ligne',
             verified: 'Compte vérifié', official: 'Compte officiel', creator: 'Créateur',
             followers: 'Abonnés', following: 'Abonnements', posts: 'Publications', chats: 'Discussions',
-            viewProfile: 'Voir le profil', edited: 'modifié'
+            viewProfile: 'Voir le profil', stayLoggedIn: 'Ne pas se déconnecter'
         },
         ar: {
             feed: 'الرئيسية', profile: 'الملف الشخصي', messages: 'الرسائل', search: 'بحث',
@@ -404,7 +412,7 @@
             reply: 'رد', message: 'رسالة', online: 'متصل',
             verified: 'حساب موثق', official: 'حساب رسمي', creator: 'منشئ',
             followers: 'متابعون', following: 'يتابع', posts: 'منشورات', chats: 'محادثات',
-            viewProfile: 'عرض الملف الشخصي', edited: 'تم التعديل'
+            viewProfile: 'عرض الملف الشخصي', stayLoggedIn: 'لا تقم بتسجيل الخروج'
         },
         el: {
             feed: 'Αρχική', profile: 'Προφίλ', messages: 'Μηνύματα', search: 'Αναζήτηση',
@@ -420,7 +428,7 @@
             reply: 'Απάντηση', message: 'Μήνυμα', online: 'Σύνδεση',
             verified: 'Επαληθευμένος λογαριασμός', official: 'Επίσημος λογαριασμός', creator: 'Δημιουργός',
             followers: 'Ακόλουθοι', following: 'Ακολουθεί', posts: 'Αναρτήσεις', chats: 'Συνομιλίες',
-            viewProfile: 'Προβολή προφίλ', edited: 'επεξεργασμένο'
+            viewProfile: 'Προβολή προφίλ', stayLoggedIn: 'Μην αποσυνδεθείτε'
         },
         zh: {
             feed: '基本的', profile: '个人资料', messages: '消息', search: '搜索',
@@ -436,7 +444,7 @@
             reply: '回复', message: '消息', online: '在线',
             verified: '认证账户', official: '官方账户', creator: '创作者',
             followers: '粉丝', following: '关注', posts: '帖子', chats: '聊天',
-            viewProfile: '查看个人资料', edited: '已编辑'
+            viewProfile: '查看个人资料', stayLoggedIn: '不要退出账户'
         },
         pt: {
             feed: 'Casa', profile: 'Perfil', messages: 'Mensagens', search: 'Pesquisar',
@@ -452,7 +460,7 @@
             reply: 'Responder', message: 'Mensagem', online: 'Online',
             verified: 'Conta verificada', official: 'Conta oficial', creator: 'Criador',
             followers: 'Seguidores', following: 'Seguindo', posts: 'Publicações', chats: 'Bate-papos',
-            viewProfile: 'Ver perfil', edited: 'editado'
+            viewProfile: 'Ver perfil', stayLoggedIn: 'Não sair da conta'
         },
         de: {
             feed: 'Haupt', profile: 'Profil', messages: 'Nachrichten', search: 'Suchen',
@@ -468,7 +476,7 @@
             reply: 'Antworten', message: 'Nachricht', online: 'Online',
             verified: 'Verifiziertes Konto', official: 'Offizielles Konto', creator: 'Ersteller',
             followers: 'Follower', following: 'Folgt', posts: 'Beiträge', chats: 'Chats',
-            viewProfile: 'Profil anzeigen', edited: 'bearbeitet'
+            viewProfile: 'Profil anzeigen', stayLoggedIn: 'Nicht abmelden'
         },
         it: {
             feed: 'Di base', profile: 'Profilo', messages: 'Messaggi', search: 'Cerca',
@@ -484,7 +492,7 @@
             reply: 'Rispondi', message: 'Messaggio', online: 'Online',
             verified: 'Account verificato', official: 'Account ufficiale', creator: 'Creatore',
             followers: 'Follower', following: 'Seguiti', posts: 'Post', chats: 'Chat',
-            viewProfile: 'Vedi profilo', edited: 'modificato'
+            viewProfile: 'Vedi profilo', stayLoggedIn: 'Non disconnettere'
         }
     };
     
@@ -893,7 +901,6 @@
             await api('/api/posts', { method: 'POST', body: formData });
             window.modalPendingImage = null;
             await loadFeed(true);
-            // Update unread count for notifications
             const newUnreadCount = feed.filter(p => !p.read).length;
             if (newUnreadCount !== unreadCount) {
                 unreadCount = Math.min(newUnreadCount, 99);
@@ -913,84 +920,76 @@
         setTimeout(() => document.addEventListener('click', clickOutside), 100);
     }
 
-    function showEditPostModal(postId, currentContent, currentImage) {
-        closeAllDropdowns();
-        closePreviewPopup();
+    // Confetti effect with sound
+    function playConfetti() {
+        // Play pop sound
+        const audio = new Audio();
+        audio.src = 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==';
+        try {
+            audio.play().catch(e => console.log('Audio play failed'));
+        } catch(e) {}
         
-        const existing = document.querySelector('.custom-modal');
-        if (existing) existing.remove();
+        // Show canvas
+        const canvas = document.getElementById('confettiCanvas');
+        canvas.style.display = 'block';
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const ctx = canvas.getContext('2d');
         
-        const modal = document.createElement('div');
-        modal.className = 'custom-modal';
-        modal.innerHTML = `
-            <div class="custom-modal-content">
-                <p>Edit Post</p>
-                <textarea id="editPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters)">${escapeHtml(currentContent)}</textarea>
-                ${currentImage ? `
-                    <div class="post-image-container" style="margin-top:12px;">
-                        <img src="${currentImage}" style="max-width:100%; max-height:200px; border-radius:12px;">
-                        <button class="remove-image-btn" id="editRemoveImageBtn">Remove image</button>
-                    </div>
-                ` : '<div id="editNoImageMsg" style="color:var(--text-secondary); font-size:12px; margin-top:8px;">No image attached</div>'}
-                <div id="modalError" class="error-message" style="display:none;"></div>
-                <div class="custom-modal-buttons">
-                    <button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">Save</button>
-                    <button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+        const particles = [];
+        const colors = ['#ffd700', '#1d9bf0', '#f91880', '#00ff00', '#ff6600', '#ff00ff', '#00ffff', '#ffffff'];
         
-        let removeImageFlag = false;
-        if (currentImage) {
-            const removeBtn = document.getElementById('editRemoveImageBtn');
-            if (removeBtn) {
-                removeBtn.onclick = () => {
-                    document.querySelector('.post-image-container')?.remove();
-                    const noImageMsg = document.createElement('div');
-                    noImageMsg.id = 'editNoImageMsg';
-                    noImageMsg.style.cssText = 'color:var(--text-secondary); font-size:12px; margin-top:8px;';
-                    noImageMsg.innerText = 'Image will be removed';
-                    modal.querySelector('.custom-modal-content').appendChild(noImageMsg);
-                    removeImageFlag = true;
-                };
+        for (let i = 0; i < 200; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                size: Math.random() * 6 + 3,
+                speedX: (Math.random() - 0.5) * 4,
+                speedY: Math.random() * 8 + 5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * 15
+            });
+        }
+        
+        let animationId;
+        let startTime = Date.now();
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            let allDead = true;
+            for (let p of particles) {
+                if (p.y < canvas.height + 100) {
+                    allDead = false;
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.rotation += p.rotationSpeed;
+                    
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+                    ctx.restore();
+                }
+            }
+            
+            if (allDead || Date.now() - startTime > 3000) {
+                cancelAnimationFrame(animationId);
+                canvas.style.display = 'none';
+            } else {
+                animationId = requestAnimationFrame(animate);
             }
         }
         
-        document.getElementById('confirmYes').onclick = async () => {
-            const newContent = document.getElementById('editPostContent').value;
-            const errorDiv = document.getElementById('modalError');
-            
-            const contentWithoutSpaces = newContent.replace(/\s/g, '');
-            if (contentWithoutSpaces.length < 4 && contentWithoutSpaces.length > 0) {
-                errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            if (newContent.length > 500) {
-                errorDiv.textContent = 'Post cannot exceed 500 characters';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
-            await api(`/api/posts/${postId}`, {
-                method: 'PUT',
-                body: JSON.stringify({ content: newContent, removeImage: removeImageFlag }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-            await loadFeed(true);
-            renderMain();
-            modal.remove(); // Close modal after save
-        };
-        document.getElementById('confirmCancel').onclick = () => modal.remove();
+        animate();
         
-        const clickOutside = (e) => {
-            if (!modal.contains(e.target)) {
-                modal.remove();
-                document.removeEventListener('click', clickOutside);
-            }
-        };
-        setTimeout(() => document.addEventListener('click', clickOutside), 100);
+        // Hide canvas after 3 seconds
+        setTimeout(() => {
+            cancelAnimationFrame(animationId);
+            canvas.style.display = 'none';
+        }, 3000);
     }
 
     function showChangePasswordModal() {
@@ -1376,6 +1375,10 @@
             <input type="text" id="regUsername" placeholder="${t('username')}" maxlength="20">
             <input type="email" id="regEmail" placeholder="${t('email')} (gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com)">
             <input type="password" id="regPassword" placeholder="${t('password')}">
+            <label class="checkbox-label">
+                <input type="checkbox" id="stayLoggedInCheckbox">
+                <span class="checkbox-text">${t('stayLoggedIn')}</span>
+            </label>
             <button onclick="register()">${t('signup')}</button>
             <button onclick="renderAuth()" style="background:#2f3336; margin-top:10px;">${t('back')}</button>
             <div id="registerMessage"></div>
@@ -1386,6 +1389,8 @@
         const username = document.getElementById('regUsername').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
+        const stayLoggedInCheckbox = document.getElementById('stayLoggedInCheckbox');
+        const stayLoggedIn = stayLoggedInCheckbox ? stayLoggedInCheckbox.checked : false;
         
         if (!username.match(/^[a-zA-Z0-9_]{3,20}$/)) {
             showMessage('registerMessage', 'Username must be 3-20 characters (letters, numbers, underscore)', true);
@@ -1403,11 +1408,36 @@
         try {
             await api('/api/register', {
                 method: 'POST',
-                body: JSON.stringify({ username, email, password }),
+                body: JSON.stringify({ username, email, password, stayLoggedIn }),
                 headers: { 'Content-Type': 'application/json' }
             });
-            showMessage('registerMessage', 'Registration successful! Please login.', false);
-            setTimeout(() => renderAuth(), 1500);
+            showMessage('registerMessage', 'Registration successful!', false);
+            
+            // Play confetti effect
+            playConfetti();
+            
+            // Auto login after registration if stayLoggedIn is checked
+            if (stayLoggedIn) {
+                setTimeout(async () => {
+                    try {
+                        await api('/api/login', {
+                            method: 'POST',
+                            body: JSON.stringify({ login: username, password }),
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        const me = await api('/api/me');
+                        currentUser = me.user;
+                        await loadFeed(true);
+                        await loadConversationsList();
+                        await loadFollowersAndFollowing(currentUser.id);
+                        render();
+                    } catch(e) {
+                        setTimeout(() => renderAuth(), 1000);
+                    }
+                }, 1500);
+            } else {
+                setTimeout(() => renderAuth(), 1500);
+            }
         } catch(e) {
             showMessage('registerMessage', 'Username or email already taken', true);
         }
@@ -1516,7 +1546,7 @@
     function renderPostCard(post) {
         const isOwnPost = post.user_id === currentUser.id;
         const canDelete = isOwnPost || currentUser?.username === 'DevAlexPlay';
-        const showEditBtn = isOwnPost;
+        // Edit button completely removed
         return `
             <div class="post-card" data-post-id="${post.id}">
                 <div class="post-header">
@@ -1529,8 +1559,6 @@
                             <span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}
                             <span class="post-username">@${escapeHtml(post.username)}</span>
                             <span class="post-time">${new Date(post.created_at).toLocaleString()}</span>
-                            ${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}
-                            ${showEditBtn ? `<button class="edit-post-btn" onclick="event.stopPropagation(); showEditPostModal(${post.id}, '${escapeHtml(post.content || '')}', '${post.image || ''}')">✎</button>` : ''}
                         </div>
                         <div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>
                         ${post.image ? `
@@ -1568,6 +1596,8 @@
             </div>
         `;
     }
+
+    // Edit post modal removed - no longer needed
 
     function renderHome() {
         return `
@@ -1892,7 +1922,6 @@
         document.getElementById('postContent').value = '';
         document.getElementById('imagePreview').innerHTML = '';
         await loadFeed(true);
-        // Update unread count for notifications
         const newUnreadCount = feed.filter(p => !p.read).length;
         if (newUnreadCount !== unreadCount) {
             unreadCount = Math.min(newUnreadCount, 99);
@@ -2083,7 +2112,6 @@
         if (post.user_liked) await api(`/api/like/${postId}`, { method: 'DELETE' });
         else await api(`/api/like/${postId}`, { method: 'POST' });
         await loadFeed(true);
-        // Update unread count for notifications (like generates notification)
         const newUnreadCount = feed.filter(p => !p.read).length;
         if (newUnreadCount !== unreadCount) {
             unreadCount = Math.min(newUnreadCount, 99);
@@ -2103,7 +2131,6 @@
         if (!content) return;
         await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
         await loadFeed(true);
-        // Update unread count for notifications (comment generates notification)
         const newUnreadCount = feed.filter(p => !p.read).length;
         if (newUnreadCount !== unreadCount) {
             unreadCount = Math.min(newUnreadCount, 99);
