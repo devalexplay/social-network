@@ -29,7 +29,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes neonPulse {
             0% { text-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffaa00, 0 0 20px #ffaa00; }
             50% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffaa00, 0 0 40px #ffaa00; }
@@ -47,7 +46,8 @@
         .nav-item { display: flex; align-items: center; gap: 16px; padding: 12px; margin: 4px 0; border-radius: 9999px; cursor: pointer; font-size: 20px; font-weight: 400; width: fit-content; color: var(--text-secondary); background: transparent; transition: color 0.2s ease; }
         .nav-item:hover { color: var(--text-primary); background: transparent; }
         .nav-item.active { font-weight: 700; color: var(--accent); }
-        .nav-item.logout:hover { color: #f4212e; }
+        .nav-item.logout { color: var(--text-secondary); }
+        .nav-item.logout:hover { color: #f4212e; background: transparent; }
         .nav-text { font-size: 20px; }
         
         .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-primary); border-top: 1px solid var(--border-color); padding: 12px 20px; z-index: 100; justify-content: space-around; }
@@ -83,7 +83,7 @@
         .publish-btn { background: var(--accent); color: white; border: none; padding: 8px 20px; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: opacity 0.2s ease; }
         .publish-btn:hover { opacity: 0.9; }
         
-        .post-card { border-bottom: 1px solid var(--border-color); padding: 12px 16px; transition: background 0.2s ease; cursor: pointer; position: relative; animation: fadeInUp 0.3s ease; }
+        .post-card { border-bottom: 1px solid var(--border-color); padding: 12px 16px; transition: background 0.2s ease; cursor: pointer; position: relative; }
         .post-card:hover { background: var(--hover-bg); }
         .post-header { display: flex; gap: 12px; }
         .post-avatar-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; cursor: pointer; transition: opacity 0.2s ease; }
@@ -95,8 +95,6 @@
         .post-time { color: var(--text-secondary); font-size: 13px; }
         .edited-badge { font-size: 11px; color: var(--text-secondary); font-style: italic; margin-left: 6px; }
         .post-content { font-size: 15px; margin: 8px 0; line-height: 1.4; }
-        .edit-post-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; padding: 4px 6px; border-radius: 9999px; transition: color 0.2s ease; margin-left: 8px; }
-        .edit-post-btn:hover { color: var(--accent); background: none; }
         .mention { color: var(--accent); cursor: pointer; transition: opacity 0.2s ease; }
         .mention:hover { opacity: 0.8; }
         .hashtag { color: var(--accent); cursor: pointer; transition: opacity 0.2s ease; }
@@ -143,10 +141,12 @@
         .search-result-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
         .search-post-result { padding: 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s ease; }
         .search-post-result:hover { background: var(--hover-bg); }
-        .recommendation-card { background: transparent; border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease; cursor: pointer; animation: fadeInUp 0.3s ease; }
-        .recommendation-card:hover { background: var(--hover-bg); transform: translateY(-2px); }
-        .recommendation-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
-        .notification { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; transition: background 0.2s ease; animation: fadeInUp 0.3s ease; }
+        
+        .static-card { background: transparent; border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; transition: background 0.2s ease; cursor: pointer; }
+        .static-card:hover { background: var(--hover-bg); }
+        .static-card-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+        
+        .notification { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; transition: background 0.2s ease; }
         .notification:hover { background: var(--hover-bg); }
         .notification-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
         
@@ -172,7 +172,7 @@
         .chat-user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
         .chat-user-name { font-weight: 600; font-size: 16px; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
-        .message-group { display: flex; flex-direction: column; margin-bottom: 8px; animation: fadeInUp 0.2s ease; }
+        .message-group { display: flex; flex-direction: column; margin-bottom: 8px; }
         .message-row { display: flex; align-items: flex-end; gap: 8px; }
         .message-row.outgoing { justify-content: flex-end; }
         .message-bubble { max-width: 70%; padding: 10px 14px; border-radius: 18px; font-size: 14px; word-wrap: break-word; }
@@ -244,6 +244,9 @@
         
         .notification-settings { margin-top: 24px; }
         .notification-settings h3 { text-align: left; margin-bottom: 16px; }
+        
+        .quit-btn { color: #f4212e !important; }
+        .quit-btn:hover { color: #ff5555 !important; }
         
         @media (max-width: 768px) {
             .sidebar { display: none; }
@@ -321,11 +324,9 @@
     let userFollows = [];
     let followersList = [];
     let followingList = [];
-    let cropImageFile = null;
     let cropScale = 1;
     let cropTranslateX = 0;
     let cropTranslateY = 0;
-    let isDragging = false;
     let unreadCount = 0;
     let currentChatMessages = [];
     let messageReactions = {};
@@ -337,7 +338,7 @@
     let onlineUsers = new Set();
     let lastActivity = Date.now();
     let notificationSetting = localStorage.getItem('notificationSetting') || 'all';
-    let fakeOnlineCount = 15; // начальное значение
+    let fakeOnlineCount = 15;
     
     let currentLang = localStorage.getItem('language') || 'en';
     const translations = {
@@ -360,7 +361,7 @@
             mentionsOnly: 'Mentions only', none: 'None', deleteAccount: 'Delete Account',
             deleteAccountWarning: 'This action cannot be undone. Your username and email will become available for others.',
             confirmDelete: 'Confirm Delete', emailLabel: 'Email', passwordLabel: 'Password',
-            deletePermanently: 'Delete Permanently'
+            deletePermanently: 'Delete Permanently', quit: 'Quit'
         },
         ru: {
             feed: 'Лента', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
@@ -381,10 +382,10 @@
             mentionsOnly: 'Только упоминания', none: 'Никакие', deleteAccount: 'Удалить аккаунт',
             deleteAccountWarning: 'Это действие нельзя отменить. Ваше имя пользователя и email станут доступны другим.',
             confirmDelete: 'Подтверждение удаления', emailLabel: 'Email', passwordLabel: 'Пароль',
-            deletePermanently: 'Удалить навсегда'
+            deletePermanently: 'Удалить навсегда', quit: 'Выйти'
         },
         es: {
-            feed: 'Básico', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
+            feed: 'Inicio', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
             interesting: 'Interesante', notifications: 'Notificaciones', create: 'Crear',
             feedback: 'Comentarios', more: 'Más', logout: 'Salir', settings: 'Ajustes',
             account: 'Cuenta', security: 'Seguridad', theme: 'Tema', language: 'Idioma',
@@ -402,7 +403,154 @@
             mentionsOnly: 'Solo menciones', none: 'Ninguna', deleteAccount: 'Eliminar cuenta',
             deleteAccountWarning: 'Esta acción no se puede deshacer. Tu nombre de usuario y email estarán disponibles para otros.',
             confirmDelete: 'Confirmar eliminación', emailLabel: 'Email', passwordLabel: 'Contraseña',
-            deletePermanently: 'Eliminar permanentemente'
+            deletePermanently: 'Eliminar permanentemente', quit: 'Salir'
+        },
+        fr: {
+            feed: 'Flux', profile: 'Profil', messages: 'Messages', search: 'Rechercher',
+            interesting: 'Intéressant', notifications: 'Notifications', create: 'Créer',
+            feedback: 'Retours', more: 'Plus', logout: 'Déconnexion', settings: 'Paramètres',
+            account: 'Compte', security: 'Sécurité', theme: 'Thème', language: 'Langue',
+            email: 'Email', username: "Nom d'utilisateur", password: 'Mot de passe', edit: 'Modifier',
+            changePassword: 'Changer mot de passe', joined: 'A rejoint', noPosts: 'Aucun post',
+            whatsHappening: 'Quoi de neuf ?', post: 'Poster', publish: 'Publier',
+            login: 'Connexion', register: "S'inscrire", signup: "S'inscrire", or: 'ou',
+            back: 'Retour', send: 'Envoyer', cancel: 'Annuler', delete: 'Supprimer',
+            follow: 'Suivre', unfollow: 'Ne plus suivre', likes: 'J\'aime', comments: 'Commentaires',
+            reply: 'Répondre', message: 'Message', online: 'En ligne',
+            verified: 'Compte vérifié', official: 'Compte officiel', creator: 'Créateur',
+            followers: 'Abonnés', following: 'Abonnements', posts: 'Publications', chats: 'Discussions',
+            viewProfile: 'Voir le profil', stats: 'Statistiques', onlineCount: 'En ligne maintenant',
+            notificationsSettings: 'Paramètres de notification', allNotifications: 'Toutes les notifications',
+            mentionsOnly: 'Mentions seulement', none: 'Aucune', deleteAccount: 'Supprimer le compte',
+            deleteAccountWarning: 'Cette action est irréversible. Votre nom d\'utilisateur et votre email deviendront disponibles pour d\'autres.',
+            confirmDelete: 'Confirmer la suppression', emailLabel: 'Email', passwordLabel: 'Mot de passe',
+            deletePermanently: 'Supprimer définitivement', quit: 'Quitter'
+        },
+        ar: {
+            feed: 'الرئيسية', profile: 'الملف الشخصي', messages: 'الرسائل', search: 'بحث',
+            interesting: 'مثير للاهتمام', notifications: 'الإشعارات', create: 'إنشاء',
+            feedback: 'الملاحظات', more: 'المزيد', logout: 'تسجيل الخروج', settings: 'الإعدادات',
+            account: 'الحساب', security: 'الأمان', theme: 'المظهر', language: 'اللغة',
+            email: 'البريد الإلكتروني', username: 'اسم المستخدم', password: 'كلمة المرور', edit: 'تعديل',
+            changePassword: 'تغيير كلمة المرور', joined: 'انضم', noPosts: 'لا توجد منشورات',
+            whatsHappening: 'ما الجديد؟', post: 'نشر', publish: 'نشر',
+            login: 'تسجيل الدخول', register: 'التسجيل', signup: 'التسجيل', or: 'أو',
+            back: 'رجوع', send: 'إرسال', cancel: 'إلغاء', delete: 'حذف',
+            follow: 'متابعة', unfollow: 'إلغاء المتابعة', likes: 'إعجابات', comments: 'تعليقات',
+            reply: 'رد', message: 'رسالة', online: 'متصل',
+            verified: 'حساب موثق', official: 'حساب رسمي', creator: 'منشئ',
+            followers: 'متابعون', following: 'يتابع', posts: 'منشورات', chats: 'محادثات',
+            viewProfile: 'عرض الملف الشخصي', stats: 'إحصائيات', onlineCount: 'متصل الآن',
+            notificationsSettings: 'إعدادات الإشعارات', allNotifications: 'جميع الإشعارات',
+            mentionsOnly: 'الإشارات فقط', none: 'لا شيء', deleteAccount: 'حذف الحساب',
+            deleteAccountWarning: 'لا يمكن التراجع عن هذا الإجراء. سيصبح اسم المستخدم والبريد الإلكتروني متاحين للآخرين.',
+            confirmDelete: 'تأكيد الحذف', emailLabel: 'البريد الإلكتروني', passwordLabel: 'كلمة المرور',
+            deletePermanently: 'حذف نهائي', quit: 'خروج'
+        },
+        el: {
+            feed: 'Αρχική', profile: 'Προφίλ', messages: 'Μηνύματα', search: 'Αναζήτηση',
+            interesting: 'Ενδιαφέροντα', notifications: 'Ειδοποιήσεις', create: 'Δημιουργία',
+            feedback: 'Σχόλια', more: 'Περισσότερα', logout: 'Αποσύνδεση', settings: 'Ρυθμίσεις',
+            account: 'Λογαριασμός', security: 'Ασφάλεια', theme: 'Θέμα', language: 'Γλώσσα',
+            email: 'Email', username: 'Όνομα χρήστη', password: 'Κωδικός', edit: 'Επεξεργασία',
+            changePassword: 'Αλλαγή κωδικού', joined: 'Εγγράφηκε', noPosts: 'Δεν υπάρχουν αναρτήσεις',
+            whatsHappening: 'Τι συμβαίνει;', post: 'Δημοσίευση', publish: 'Δημοσίευση',
+            login: 'Σύνδεση', register: 'Εγγραφή', signup: 'Εγγραφή', or: 'ή',
+            back: 'Πίσω', send: 'Αποστολή', cancel: 'Ακύρωση', delete: 'Διαγραφή',
+            follow: 'Ακολούθηση', unfollow: 'Διακοπή', likes: 'Μου αρέσει', comments: 'Σχόλια',
+            reply: 'Απάντηση', message: 'Μήνυμα', online: 'Σύνδεση',
+            verified: 'Επαληθευμένος λογαριασμός', official: 'Επίσημος λογαριασμός', creator: 'Δημιουργός',
+            followers: 'Ακόλουθοι', following: 'Ακολουθεί', posts: 'Αναρτήσεις', chats: 'Συνομιλίες',
+            viewProfile: 'Προβολή προφίλ', stats: 'Στατιστικά', onlineCount: 'Συνδεδεμένοι τώρα',
+            notificationsSettings: 'Ρυθμίσεις ειδοποιήσεων', allNotifications: 'Όλες οι ειδοποιήσεις',
+            mentionsOnly: 'Μόνο αναφορές', none: 'Καμία', deleteAccount: 'Διαγραφή λογαριασμού',
+            deleteAccountWarning: 'Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Το όνομα χρήστη και το email σας θα γίνουν διαθέσιμα σε άλλους.',
+            confirmDelete: 'Επιβεβαίωση διαγραφής', emailLabel: 'Email', passwordLabel: 'Κωδικός',
+            deletePermanently: 'Οριστική διαγραφή', quit: 'Έξοδος'
+        },
+        zh: {
+            feed: '主页', profile: '个人资料', messages: '消息', search: '搜索',
+            interesting: '有趣', notifications: '通知', create: '创建',
+            feedback: '反馈', more: '更多', logout: '退出', settings: '设置',
+            account: '账户', security: '安全', theme: '主题', language: '语言',
+            email: '邮箱', username: '用户名', password: '密码', edit: '编辑',
+            changePassword: '修改密码', joined: '加入于', noPosts: '暂无帖子',
+            whatsHappening: '发生了什么？', post: '发布', publish: '发布',
+            login: '登录', register: '注册', signup: '注册', or: '或',
+            back: '返回', send: '发送', cancel: '取消', delete: '删除',
+            follow: '关注', unfollow: '取消关注', likes: '点赞', comments: '评论',
+            reply: '回复', message: '消息', online: '在线',
+            verified: '认证账户', official: '官方账户', creator: '创作者',
+            followers: '粉丝', following: '关注', posts: '帖子', chats: '聊天',
+            viewProfile: '查看个人资料', stats: '统计', onlineCount: '当前在线',
+            notificationsSettings: '通知设置', allNotifications: '所有通知',
+            mentionsOnly: '仅提及', none: '无', deleteAccount: '删除账户',
+            deleteAccountWarning: '此操作不可撤销。您的用户名和邮箱将可供其他人使用。',
+            confirmDelete: '确认删除', emailLabel: '邮箱', passwordLabel: '密码',
+            deletePermanently: '永久删除', quit: '退出'
+        },
+        pt: {
+            feed: 'Início', profile: 'Perfil', messages: 'Mensagens', search: 'Pesquisar',
+            interesting: 'Interessante', notifications: 'Notificações', create: 'Criar',
+            feedback: 'Feedback', more: 'Mais', logout: 'Sair', settings: 'Configurações',
+            account: 'Conta', security: 'Segurança', theme: 'Tema', language: 'Idioma',
+            email: 'Email', username: 'Usuário', password: 'Senha', edit: 'Editar',
+            changePassword: 'Alterar senha', joined: 'Entrou', noPosts: 'Sem posts',
+            whatsHappening: 'O que está acontecendo?', post: 'Publicar', publish: 'Publicar',
+            login: 'Entrar', register: 'Registrar', signup: 'Registrar', or: 'ou',
+            back: 'Voltar', send: 'Enviar', cancel: 'Cancelar', delete: 'Excluir',
+            follow: 'Seguir', unfollow: 'Deixar de seguir', likes: 'Curtidas', comments: 'Comentários',
+            reply: 'Responder', message: 'Mensagem', online: 'Online',
+            verified: 'Conta verificada', official: 'Conta oficial', creator: 'Criador',
+            followers: 'Seguidores', following: 'Seguindo', posts: 'Publicações', chats: 'Bate-papos',
+            viewProfile: 'Ver perfil', stats: 'Estatísticas', onlineCount: 'Online agora',
+            notificationsSettings: 'Configurações de notificação', allNotifications: 'Todas as notificações',
+            mentionsOnly: 'Apenas menções', none: 'Nenhuma', deleteAccount: 'Excluir conta',
+            deleteAccountWarning: 'Esta ação não pode ser desfeita. Seu nome de usuário e email ficarão disponíveis para outros.',
+            confirmDelete: 'Confirmar exclusão', emailLabel: 'Email', passwordLabel: 'Senha',
+            deletePermanently: 'Excluir permanentemente', quit: 'Sair'
+        },
+        de: {
+            feed: 'Startseite', profile: 'Profil', messages: 'Nachrichten', search: 'Suchen',
+            interesting: 'Interessant', notifications: 'Benachrichtigungen', create: 'Erstellen',
+            feedback: 'Feedback', more: 'Mehr', logout: 'Abmelden', settings: 'Einstellungen',
+            account: 'Konto', security: 'Sicherheit', theme: 'Thema', language: 'Sprache',
+            email: 'E-Mail', username: 'Benutzername', password: 'Passwort', edit: 'Bearbeiten',
+            changePassword: 'Passwort ändern', joined: 'Beigetreten', noPosts: 'Keine Beiträge',
+            whatsHappening: 'Was ist los?', post: 'Posten', publish: 'Veröffentlichen',
+            login: 'Anmelden', register: 'Registrieren', signup: 'Registrieren', or: 'oder',
+            back: 'Zurück', send: 'Senden', cancel: 'Abbrechen', delete: 'Löschen',
+            follow: 'Folgen', unfollow: 'Entfolgen', likes: 'Gefällt mir', comments: 'Kommentare',
+            reply: 'Antworten', message: 'Nachricht', online: 'Online',
+            verified: 'Verifiziertes Konto', official: 'Offizielles Konto', creator: 'Ersteller',
+            followers: 'Follower', following: 'Folgt', posts: 'Beiträge', chats: 'Chats',
+            viewProfile: 'Profil anzeigen', stats: 'Statistiken', onlineCount: 'Jetzt online',
+            notificationsSettings: 'Benachrichtigungseinstellungen', allNotifications: 'Alle Benachrichtigungen',
+            mentionsOnly: 'Nur Erwähnungen', none: 'Keine', deleteAccount: 'Konto löschen',
+            deleteAccountWarning: 'Diese Aktion kann nicht rückgängig gemacht werden. Ihr Benutzername und Ihre E-Mail-Adresse werden für andere verfügbar sein.',
+            confirmDelete: 'Löschen bestätigen', emailLabel: 'E-Mail', passwordLabel: 'Passwort',
+            deletePermanently: 'Dauerhaft löschen', quit: 'Beenden'
+        },
+        it: {
+            feed: 'Home', profile: 'Profilo', messages: 'Messaggi', search: 'Cerca',
+            interesting: 'Interessante', notifications: 'Notifiche', create: 'Crea',
+            feedback: 'Feedback', more: 'Altro', logout: 'Esci', settings: 'Impostazioni',
+            account: 'Account', security: 'Sicurezza', theme: 'Tema', language: 'Lingua',
+            email: 'Email', username: 'Nome utente', password: 'Password', edit: 'Modifica',
+            changePassword: 'Cambia password', joined: 'Iscritto', noPosts: 'Nessun post',
+            whatsHappening: 'Cosa succede?', post: 'Pubblica', publish: 'Pubblica',
+            login: 'Accedi', register: 'Registrati', signup: 'Registrati', or: 'o',
+            back: 'Indietro', send: 'Invia', cancel: 'Annulla', delete: 'Elimina',
+            follow: 'Segui', unfollow: 'Non seguire più', likes: 'Mi piace', comments: 'Commenti',
+            reply: 'Rispondi', message: 'Messaggio', online: 'Online',
+            verified: 'Account verificato', official: 'Account ufficiale', creator: 'Creatore',
+            followers: 'Follower', following: 'Seguiti', posts: 'Post', chats: 'Chat',
+            viewProfile: 'Vedi profilo', stats: 'Statistiche', onlineCount: 'Online ora',
+            notificationsSettings: 'Impostazioni notifiche', allNotifications: 'Tutte le notifiche',
+            mentionsOnly: 'Solo menzioni', none: 'Nessuna', deleteAccount: 'Elimina account',
+            deleteAccountWarning: 'Questa azione non può essere annullata. Il tuo nome utente ed email saranno disponibili per altri.',
+            confirmDelete: 'Conferma eliminazione', emailLabel: 'Email', passwordLabel: 'Password',
+            deletePermanently: 'Elimina definitivamente', quit: 'Esci'
         }
     };
     
@@ -420,7 +568,14 @@
         renderMain();
     }
     
-    // Функция для плавного изменения фейкового онлайн-счётчика
+    function shouldShowNotification(post) {
+        if (notificationSetting === 'all') return true;
+        if (notificationSetting === 'mentions') {
+            return post.content && post.content.includes(`@${currentUser.username}`);
+        }
+        return false;
+    }
+    
     function startFakeOnlineCounter() {
         function updateCounter() {
             const change = Math.random() > 0.5 ? 1 : -1;
@@ -428,18 +583,11 @@
             if (newValue < 7) newValue = 8;
             if (newValue > 34) newValue = 33;
             fakeOnlineCount = newValue;
-            
-            // Обновляем отображение в статистике, если она открыта
             const onlineCountSpan = document.getElementById('fakeOnlineCount');
-            if (onlineCountSpan) {
-                onlineCountSpan.textContent = fakeOnlineCount;
-            }
-            
-            // Следующее обновление через 10-30 секунд
+            if (onlineCountSpan) onlineCountSpan.textContent = fakeOnlineCount;
             const nextUpdate = Math.floor(Math.random() * (30000 - 10000 + 1) + 10000);
             setTimeout(updateCounter, nextUpdate);
         }
-        
         const firstDelay = Math.floor(Math.random() * (30000 - 10000 + 1) + 10000);
         setTimeout(updateCounter, firstDelay);
     }
@@ -461,12 +609,8 @@
     }
 
     function renderCreatorBadge(isCreator, isOfficial) {
-        if (isOfficial) {
-            return '<span class="gold-badge" data-official="true">⭐ Official</span>';
-        }
-        if (isCreator && currentUser?.username !== 'DevAlexPlay') {
-            return '<span class="verified-badge">✓ Verified</span>';
-        }
+        if (isOfficial) return '<span class="gold-badge" data-official="true">⭐ Official</span>';
+        if (isCreator && currentUser?.username !== 'DevAlexPlay') return '<span class="verified-badge">✓ Verified</span>';
         return '';
     }
 
@@ -482,7 +626,7 @@
     
     function showToast(message, isError = false) {
         const toast = document.createElement('div');
-        toast.style.cssText = `position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:${isError ? '#f4212e' : '#1d9bf0'}; color:white; padding:12px 24px; border-radius:9999px; font-size:14px; z-index:10002; animation:fadeInUp 0.3s ease; box-shadow:0 4px 12px rgba(0,0,0,0.3);`;
+        toast.style.cssText = `position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:${isError ? '#f4212e' : '#1d9bf0'}; color:white; padding:12px 24px; border-radius:9999px; font-size:14px; z-index:10002; box-shadow:0 4px 12px rgba(0,0,0,0.3);`;
         toast.textContent = message;
         document.body.appendChild(toast);
         setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
@@ -516,7 +660,7 @@
         if (existing) existing.remove();
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
-        modal.innerHTML = `<div class="custom-modal-content"><p>${message}</p><div class="custom-modal-buttons"><button class="custom-modal-btn ${isRedYes ? 'custom-modal-btn-yes' : 'custom-modal-btn-primary'}" id="confirmYes">${isRedYes ? 'Sure' : t('delete')}</button><button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button></div></div>`;
+        modal.innerHTML = `<div class="custom-modal-content"><p>${message}</p><div class="custom-modal-buttons"><button class="custom-modal-btn ${isRedYes ? 'custom-modal-btn-yes' : 'custom-modal-btn-primary'}" id="confirmYes">${isRedYes ? 'Yes' : t('delete')}</button><button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">${t('cancel')}</button></div></div>`;
         document.body.appendChild(modal);
         document.getElementById('confirmYes').onclick = () => { modal.remove(); onYes(); };
         document.getElementById('confirmCancel').onclick = () => modal.remove();
@@ -611,7 +755,6 @@
         setTimeout(() => document.addEventListener('click', (e) => { if (!modal.contains(e.target)) modal.remove(); }), 100);
     }
     
-    // Delete account function
     function showDeleteAccountModal() {
         closeAllDropdowns(); closePreviewPopup();
         const existing = document.querySelector('.custom-modal');
@@ -638,16 +781,10 @@
             const password = document.getElementById('deletePassword').value;
             const confirmPassword = document.getElementById('deleteConfirmPassword').value;
             const errorDiv = document.getElementById('modalError');
-            
             if (email !== currentUser.email) { errorDiv.textContent = 'Email does not match'; errorDiv.style.display = 'block'; return; }
             if (password !== confirmPassword) { errorDiv.textContent = 'Passwords do not match'; errorDiv.style.display = 'block'; return; }
-            
             try {
-                await api('/api/delete-account', {
-                    method: 'POST',
-                    body: JSON.stringify({ password }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
+                await api('/api/delete-account', { method: 'POST', body: JSON.stringify({ password }), headers: { 'Content-Type': 'application/json' } });
                 await api('/api/logout', { method: 'POST' });
                 currentUser = null;
                 modal.remove();
@@ -658,7 +795,6 @@
         setTimeout(() => document.addEventListener('click', (e) => { if (!modal.contains(e.target)) modal.remove(); }), 100);
     }
 
-    // Online status tracking
     function updateOnlineStatus() {
         lastActivity = Date.now();
         if (currentUser) fetch('/api/online', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ online: true }) }).catch(e => console.log);
@@ -722,7 +858,6 @@
         const likeCount = feed.reduce((acc, p) => acc + (p.likes_count || 0), 0);
         const commentCount = feed.reduce((acc, p) => acc + (p.comments?.length || 0), 0);
         const joinDate = new Date(currentUser.created_at);
-        
         closeAllDropdowns();
         const modal = document.createElement('div');
         modal.className = 'custom-modal';
@@ -825,11 +960,9 @@
         const username = document.getElementById('regUsername').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
-        
         if (!username.match(/^[a-zA-Z0-9_]{3,20}$/)) { showMessage('registerMessage', 'Username must be 3-20 characters (letters, numbers, underscore)', true); return; }
         if (!isValidEmail(email)) { showMessage('registerMessage', 'Email must be from: gmail.com, mail.com, hotmail.com, outlook.com, yahoo.com', true); return; }
         if (password.length < 4) { showMessage('registerMessage', 'Password must be at least 4 characters', true); return; }
-        
         try {
             await api('/api/register', { method: 'POST', body: JSON.stringify({ username, email, password }), headers: { 'Content-Type': 'application/json' } });
             showMessage('registerMessage', 'Registration successful! Please login.', false);
@@ -901,31 +1034,7 @@
     function renderPostCard(post) {
         const isOwnPost = post.user_id === currentUser.id;
         const canDelete = isOwnPost || currentUser?.username === 'DevAlexPlay';
-        const showEditBtn = isOwnPost;
-        return `<div class="post-card" data-post-id="${post.id}"><div class="post-header">${post.avatar ? `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` : `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'', bio:'', created_at:${post.created_at}}, event.clientX, event.clientY);">${(post.username || 'U')[0].toUpperCase()}</div>`}<div class="post-body"><div class="post-user"><span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}<span class="post-username">@${escapeHtml(post.username)}</span><span class="post-time">${new Date(post.created_at).toLocaleString()}</span>${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}${showEditBtn ? `<button class="edit-post-btn" onclick="event.stopPropagation(); showEditPostModal(${post.id}, '${escapeHtml(post.content || '')}', '${post.image || ''}')">✎</button>` : ''}</div><div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>${post.image ? `<div class="post-image-container"><img src="${post.image}" class="post-image" onclick="event.stopPropagation(); window.open('${post.image}')">${isOwnPost ? `<button class="remove-image-btn" onclick="event.stopPropagation(); showEditPostModal(${post.id}, '${escapeHtml(post.content || '')}', '${post.image}')">Remove</button>` : ''}</div>` : ''}<div class="post-stats"><button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${post.id})">♥ ${post.likes_count || 0}</button><button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">💬 ${post.comments?.length || 0}</button>${canDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 ${t('delete')}</button>` : ''}</div><div id="comments-${post.id}" style="display:none;" class="comments-section">${(post.comments || []).map(c => `<div class="comment">${c.avatar ? `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none';">` : `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${(c.username || 'U')[0].toUpperCase()}</div>`}<div><strong onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div></div>`).join('')}<div class="comment-input"><input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}..." onclick="event.stopPropagation()"><button onclick="event.stopPropagation(); addComment(${post.id})" style="background:none; border:none; color:var(--accent); cursor:pointer;">→</button></div></div></div></div></div>`;
-    }
-    
-    function showEditPostModal(postId, currentContent, currentImage) {
-        closeAllDropdowns(); closePreviewPopup();
-        const existing = document.querySelector('.custom-modal');
-        if (existing) existing.remove();
-        const modal = document.createElement('div');
-        modal.className = 'custom-modal';
-        modal.innerHTML = `<div class="custom-modal-content"><p>Edit Post</p><textarea id="editPostContent" rows="3" placeholder="${t('whatsHappening')} (4-500 characters)">${escapeHtml(currentContent)}</textarea>${currentImage ? `<div class="post-image-container" style="margin-top:12px;"><img src="${currentImage}" style="max-width:100%; max-height:200px; border-radius:12px;"><button class="remove-image-btn" id="editRemoveImageBtn">Remove image</button></div>` : '<div id="editNoImageMsg" style="color:var(--text-secondary); font-size:12px; margin-top:8px;">No image attached</div>'}<div id="modalError" class="error-message" style="display:none;"></div><div class="custom-modal-buttons"><button class="custom-modal-btn custom-modal-btn-primary" id="confirmYes">Save</button><button class="custom-modal-btn custom-modal-btn-cancel" id="confirmCancel">Cancel</button></div></div>`;
-        document.body.appendChild(modal);
-        let removeImageFlag = false;
-        if (currentImage) { const removeBtn = document.getElementById('editRemoveImageBtn'); if (removeBtn) { removeBtn.onclick = () => { document.querySelector('.post-image-container')?.remove(); const noImageMsg = document.createElement('div'); noImageMsg.id = 'editNoImageMsg'; noImageMsg.style.cssText = 'color:var(--text-secondary); font-size:12px; margin-top:8px;'; noImageMsg.innerText = 'Image will be removed'; modal.querySelector('.custom-modal-content').appendChild(noImageMsg); removeImageFlag = true; }; } }
-        document.getElementById('confirmYes').onclick = async () => {
-            const newContent = document.getElementById('editPostContent').value;
-            const errorDiv = document.getElementById('modalError');
-            const contentWithoutSpaces = newContent.replace(/\s/g, '');
-            if (contentWithoutSpaces.length < 4 && contentWithoutSpaces.length > 0) { errorDiv.textContent = 'Post must be at least 4 characters (spaces not counted)'; errorDiv.style.display = 'block'; return; }
-            if (newContent.length > 500) { errorDiv.textContent = 'Post cannot exceed 500 characters'; errorDiv.style.display = 'block'; return; }
-            await api(`/api/posts/${postId}`, { method: 'PUT', body: JSON.stringify({ content: newContent, removeImage: removeImageFlag }), headers: { 'Content-Type': 'application/json' } });
-            await loadFeed(true); renderMain(); modal.remove();
-        };
-        document.getElementById('confirmCancel').onclick = () => modal.remove();
-        setTimeout(() => document.addEventListener('click', (e) => { if (!modal.contains(e.target)) modal.remove(); }), 100);
+        return `<div class="post-card" data-post-id="${post.id}"><div class="post-header">${post.avatar ? `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` : `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'', bio:'', created_at:${post.created_at}}, event.clientX, event.clientY);">${(post.username || 'U')[0].toUpperCase()}</div>`}<div class="post-body"><div class="post-user"><span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}<span class="post-username">@${escapeHtml(post.username)}</span><span class="post-time">${new Date(post.created_at).toLocaleString()}</span>${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}</div><div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>${post.image ? `<div class="post-image-container"><img src="${post.image}" class="post-image" onclick="event.stopPropagation(); window.open('${post.image}')"></div>` : ''}<div class="post-stats"><button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${post.id})">♥ ${post.likes_count || 0}</button><button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">💬 ${post.comments?.length || 0}</button>${canDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 ${t('delete')}</button>` : ''}</div><div id="comments-${post.id}" style="display:none;" class="comments-section">${(post.comments || []).map(c => `<div class="comment">${c.avatar ? `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none';">` : `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${(c.username || 'U')[0].toUpperCase()}</div>`}<div><strong onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div></div>`).join('')}<div class="comment-input"><input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}..." onclick="event.stopPropagation()"><button onclick="event.stopPropagation(); addComment(${post.id})" style="background:none; border:none; color:var(--accent); cursor:pointer;">→</button></div></div></div></div></div>`;
     }
     
     function renderHome() {
@@ -951,9 +1060,17 @@
         return `<div class="search-container"><div class="search-input-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Search users or posts..." onkeypress="if(event.key==='Enter') performSearch()"><span class="search-icon" onclick="performSearch()">⌕</span></div><div id="searchResults" style="margin-top:20px;">${searchResults.length > 0 ? '<h3 style="margin-bottom:12px;">Users</h3>' : ''}${searchResults.map(u => `<div class="search-result" onclick="viewProfile('${u.username}')"><img class="search-result-avatar" src="${u.avatar || ''}" onerror="this.style.display='none';"><div><strong>${escapeHtml(u.username)}</strong>${renderCreatorBadge(u.is_creator, u.is_official)}<div style="color:var(--text-secondary);">@${escapeHtml(u.username)}</div></div></div>`).join('')}${searchPosts.length > 0 ? '<h3 style="margin-bottom:12px; margin-top:20px;">Posts</h3>' : ''}${searchPosts.map(post => `<div class="search-post-result" onclick="viewProfile('${post.username}')"><div><strong>${escapeHtml(post.username)}</strong><div style="color:var(--text-secondary); font-size:12px;">${new Date(post.created_at).toLocaleString()}</div></div><div style="margin-top:8px;">${escapeHtml(post.content?.substring(0, 100))}${post.content?.length > 100 ? '...' : ''}</div></div>`).join('')}${searchQuery && searchResults.length === 0 && searchPosts.length === 0 ? '<div style="padding:20px; color:var(--text-secondary);">No results found</div>' : ''}</div></div>`;
     }
     
-    function renderInteresting() { return `<div class="feed-container">${feed.slice(0,5).map(post => `<div class="recommendation-card"><img class="recommendation-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">@${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)}<div>${parseMentionsAndHashtags(post.content || '')}</div><button onclick="followUser(${post.user_id})" style="margin-top:8px; background:var(--accent); border:none; padding:4px 16px; border-radius:20px; color:white; cursor:pointer;">${t('follow')}</button></div></div>`).join('')}</div>`; }
-    function renderNotifications() { return `<div class="feed-container">${feed.slice(0,8).map(post => `<div class="notification"><img class="notification-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)} liked your post</div></div>`).join('')}</div>`; }
-    function renderFeedback() { return `<div class="feed-container" style="padding:20px;"><div class="recommendation-card" onclick="showFeedbackModal()" style="cursor:pointer;"><div><strong>📝 ${t('feedback')}</strong><div style="color:var(--text-secondary);">Report bugs, suggest features, or report users</div></div></div></div>`; }
+    function renderInteresting() {
+        const interestingPosts = feed.filter(p => shouldShowNotification(p)).slice(0,5);
+        return `<div class="feed-container">${interestingPosts.map(post => `<div class="static-card"><img class="static-card-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">@${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)}<div>${parseMentionsAndHashtags(post.content || '')}</div><button onclick="followUser(${post.user_id})" style="margin-top:8px; background:var(--accent); border:none; padding:4px 16px; border-radius:20px; color:white; cursor:pointer;">${t('follow')}</button></div></div>`).join('')}</div>`;
+    }
+    
+    function renderNotifications() {
+        const notificationPosts = feed.filter(p => shouldShowNotification(p)).slice(0,8);
+        return `<div class="feed-container">${notificationPosts.map(post => `<div class="notification"><img class="notification-avatar" src="${post.avatar || ''}" onerror="this.style.display='none';"><div><strong onclick="viewProfile('${post.username}')" style="cursor:pointer;">${escapeHtml(post.username)}</strong>${renderCreatorBadge(post.is_creator, post.is_official)} ${post.user_liked ? 'liked your post' : (post.content ? 'posted: ' + escapeHtml(post.content.substring(0, 50)) : 'interacted with you')}</div></div>`).join('')}</div>`;
+    }
+    
+    function renderFeedback() { return `<div class="feed-container" style="padding:20px;"><div class="static-card" onclick="showFeedbackModal()" style="cursor:pointer;"><div><strong>📝 ${t('feedback')}</strong><div style="color:var(--text-secondary);">Report bugs, suggest features, or report users</div></div></div></div>`; }
     
     function renderMore() {
         const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -977,7 +1094,7 @@
             { code: 'de', name: 'Deutsch' }, { code: 'it', name: 'Italiano' }
         ];
         
-        return `<div class="feed-container" style="padding:20px;"><div class="profile-header" style="border-bottom: none;"><div style="text-align:left; margin-bottom:20px;"><h3>${t('account')}</h3><div><span class="email-masked">${t('email')}: ${maskEmail(currentUser?.email)}</span><span class="edit-link" onclick="showChangeEmailModal()">${t('edit')}</span></div><div style="margin-top:12px;"><span style="color:var(--text-primary);">${t('username')}: @${escapeHtml(currentUser?.username)}</span><span class="edit-link" onclick="showChangeUsernameModal()">${t('edit')}</span></div></div><div style="text-align:left; margin-bottom:20px;"><h3>${t('security')}</h3><div><span class="edit-link" onclick="showChangePasswordModal()">${t('changePassword')}</span></div></div><h3 style="text-align:left; margin-bottom:20px;">${t('theme')}</h3><div class="custom-select" id="themeSelect"><span id="selectedThemeText">${themeNames[savedTheme]}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="themeDropdown" style="display:none;"><div class="custom-select-option ${savedTheme === 'dark' ? 'selected' : ''}" onclick="setTheme('dark'); document.getElementById('selectedThemeText').innerText='Dark (Black)';">Dark (Black)</div><div class="custom-select-option ${savedTheme === 'dark-gray' ? 'selected' : ''}" onclick="setTheme('dark-gray'); document.getElementById('selectedThemeText').innerText='Dark Gray';">Dark Gray</div><div class="custom-select-option ${savedTheme === 'gray' ? 'selected' : ''}" onclick="setTheme('gray'); document.getElementById('selectedThemeText').innerText='Gray';">Gray</div><div class="custom-select-option ${savedTheme === 'light' ? 'selected' : ''}" onclick="setTheme('light'); document.getElementById('selectedThemeText').innerText='Light';">Light</div></div></div><h3 style="text-align:left; margin-bottom:20px; margin-top:20px;">${t('language')}</h3><div class="custom-select" id="languageSelect"><span id="selectedLanguageText">${languages.find(l => l.code === currentLang)?.name || 'English'}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="languageDropdown" style="display:none;">${languages.map(lang => `<div class="custom-select-option ${currentLang === lang.code ? 'selected' : ''}" onclick="setLanguage('${lang.code}'); document.getElementById('selectedLanguageText').innerText='${lang.name}';">${lang.name}</div>`).join('')}</div></div><div class="notification-settings"><h3>${t('notificationsSettings')}</h3><div class="custom-select" id="notificationsSelect"><span id="selectedNotifText">${notificationSetting === 'all' ? t('allNotifications') : (notificationSetting === 'mentions' ? t('mentionsOnly') : t('none'))}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="notificationsDropdown" style="display:none;"><div class="custom-select-option ${notificationSetting === 'all' ? 'selected' : ''}" onclick="setNotificationSetting('all'); document.getElementById('selectedNotifText').innerText='${t('allNotifications')}';">${t('allNotifications')}</div><div class="custom-select-option ${notificationSetting === 'mentions' ? 'selected' : ''}" onclick="setNotificationSetting('mentions'); document.getElementById('selectedNotifText').innerText='${t('mentionsOnly')}';">${t('mentionsOnly')}</div><div class="custom-select-option ${notificationSetting === 'none' ? 'selected' : ''}" onclick="setNotificationSetting('none'); document.getElementById('selectedNotifText').innerText='${t('none')}';">${t('none')}</div></div></div></div><h3 style="text-align:left; margin-bottom:16px; margin-top:24px;">Features</h3><div class="recommendation-card" onclick="showStatsModal()" style="cursor:pointer; margin-bottom:10px;"><div><strong>${t('stats')}</strong><div style="color:var(--text-secondary);">View your account statistics</div></div></div></div><div class="recommendation-card" onclick="showDeleteAccountModal()" style="cursor:pointer; margin-bottom:10px; border-color:#f4212e;"><div><strong style="color:#f4212e;">${t('deleteAccount')}</strong><div style="color:var(--text-secondary);">${t('deleteAccountWarning')}</div></div></div><div class="footer-note">© 2026 FreedomNet</div><div style="border-top:1px solid var(--border-color); margin-top:20px; padding-top:20px;"><div class="recommendation-card" onclick="showLogoutConfirm()" style="cursor:pointer;"><div><strong>${t('logout')}</strong><div style="color:var(--text-secondary);">Sign out of your account</div></div></div></div></div>`;
+        return `<div class="feed-container" style="padding:20px;"><div class="profile-header" style="border-bottom: none;"><div style="text-align:left; margin-bottom:20px;"><h3>${t('account')}</h3><div><span class="email-masked">${t('email')}: ${maskEmail(currentUser?.email)}</span><span class="edit-link" onclick="showChangeEmailModal()">${t('edit')}</span></div><div style="margin-top:12px;"><span style="color:var(--text-primary);">${t('username')}: @${escapeHtml(currentUser?.username)}</span><span class="edit-link" onclick="showChangeUsernameModal()">${t('edit')}</span></div></div><div style="text-align:left; margin-bottom:20px;"><h3>${t('security')}</h3><div><span class="edit-link" onclick="showChangePasswordModal()">${t('changePassword')}</span></div></div><h3 style="text-align:left; margin-bottom:20px;">${t('theme')}</h3><div class="custom-select" id="themeSelect"><span id="selectedThemeText">${themeNames[savedTheme]}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="themeDropdown" style="display:none;"><div class="custom-select-option ${savedTheme === 'dark' ? 'selected' : ''}" onclick="setTheme('dark'); document.getElementById('selectedThemeText').innerText='Dark (Black)';">Dark (Black)</div><div class="custom-select-option ${savedTheme === 'dark-gray' ? 'selected' : ''}" onclick="setTheme('dark-gray'); document.getElementById('selectedThemeText').innerText='Dark Gray';">Dark Gray</div><div class="custom-select-option ${savedTheme === 'gray' ? 'selected' : ''}" onclick="setTheme('gray'); document.getElementById('selectedThemeText').innerText='Gray';">Gray</div><div class="custom-select-option ${savedTheme === 'light' ? 'selected' : ''}" onclick="setTheme('light'); document.getElementById('selectedThemeText').innerText='Light';">Light</div></div></div><h3 style="text-align:left; margin-bottom:20px; margin-top:20px;">${t('language')}</h3><div class="custom-select" id="languageSelect"><span id="selectedLanguageText">${languages.find(l => l.code === currentLang)?.name || 'English'}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="languageDropdown" style="display:none;">${languages.map(lang => `<div class="custom-select-option ${currentLang === lang.code ? 'selected' : ''}" onclick="setLanguage('${lang.code}'); document.getElementById('selectedLanguageText').innerText='${lang.name}';">${lang.name}</div>`).join('')}</div></div><div class="notification-settings"><h3>${t('notificationsSettings')}</h3><div class="custom-select" id="notificationsSelect"><span id="selectedNotifText">${notificationSetting === 'all' ? t('allNotifications') : (notificationSetting === 'mentions' ? t('mentionsOnly') : t('none'))}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="notificationsDropdown" style="display:none;"><div class="custom-select-option ${notificationSetting === 'all' ? 'selected' : ''}" onclick="setNotificationSetting('all'); document.getElementById('selectedNotifText').innerText='${t('allNotifications')}';">${t('allNotifications')}</div><div class="custom-select-option ${notificationSetting === 'mentions' ? 'selected' : ''}" onclick="setNotificationSetting('mentions'); document.getElementById('selectedNotifText').innerText='${t('mentionsOnly')}';">${t('mentionsOnly')}</div><div class="custom-select-option ${notificationSetting === 'none' ? 'selected' : ''}" onclick="setNotificationSetting('none'); document.getElementById('selectedNotifText').innerText='${t('none')}';">${t('none')}</div></div></div></div><h3 style="text-align:left; margin-bottom:16px; margin-top:24px;">Features</h3><div class="static-card" onclick="showStatsModal()" style="cursor:pointer; margin-bottom:10px;"><div><strong>${t('stats')}</strong><div style="color:var(--text-secondary);">View your account statistics</div></div></div></div><div class="static-card" onclick="showDeleteAccountModal()" style="cursor:pointer; margin-bottom:10px; border-color:#f4212e;"><div><strong style="color:#f4212e;">${t('deleteAccount')}</strong><div style="color:var(--text-secondary);">${t('deleteAccountWarning')}</div></div></div><div class="footer-note">© 2026 FreedomNet</div></div>`;
     }
     
     function openAvatarUpload() { closeAllDropdowns(); closePreviewPopup(); const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*,image/gif'; input.onchange = (e) => { const file = e.target.files[0]; if (file) openAdvancedCropModal(file); }; input.click(); }
@@ -1018,10 +1135,10 @@
         document.body.className = savedTheme;
         const root = document.getElementById('root');
         if (currentTab === 'profile') {
-            root.innerHTML = `<div class="app"><div class="sidebar"><div class="logo" onclick="switchTab('feed')">FreedomNet</div>${tabs.map((tab, idx) => `<div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span class="nav-text">${t(tab)}</span></div>`).join('')}<div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;"><span class="nav-text">${t('logout')}</span></div></div><div class="bottom-nav">${tabs.slice(0, 5).map((tab, idx) => `<div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span>${t(tab)}</span></div>`).join('')}</div><div class="main-content"><div class="header">${t('profile')}</div>${renderProfilePage()}<div class="global-footer">© 2026 FreedomNet</div></div></div>`;
+            root.innerHTML = `<div class="app"><div class="sidebar"><div class="logo" onclick="switchTab('feed')">FreedomNet</div>${tabs.map((tab, idx) => `<div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span class="nav-text">${t(tab)}</span></div>`).join('')}<div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;"><span class="nav-text quit-btn">${t('quit')}</span></div></div><div class="bottom-nav">${tabs.slice(0, 5).map((tab, idx) => `<div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span>${t(tab)}</span></div>`).join('')}</div><div class="main-content"><div class="header">${t('profile')}</div>${renderProfilePage()}<div class="global-footer">© 2026 FreedomNet</div></div></div>`;
             attachGlobalEvents(); return;
         }
-        root.innerHTML = `<div class="app"><div class="sidebar"><div class="logo" onclick="switchTab('feed')">FreedomNet</div>${tabs.map((tab, idx) => `<div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span class="nav-text">${t(tab)}</span></div>`).join('')}<div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;"><span class="nav-text">${t('logout')}</span></div></div><div class="bottom-nav">${tabs.slice(0, 5).map((tab, idx) => `<div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span>${t(tab)}</span></div>`).join('')}</div><div class="main-content"><div class="header">${currentTab === 'more' ? t('settings') : t(currentTab)}</div>${currentTab === 'feed' ? renderHome() : ''}${currentTab === 'messages' ? renderMessages() : ''}${currentTab === 'search' ? renderSearch() : ''}${currentTab === 'interesting' ? renderInteresting() : ''}${currentTab === 'notifications' ? renderNotifications() : ''}${currentTab === 'create' ? '<div class="feed-container" style="padding:20px;"><div class="recommendation-card" onclick="showCreateModal()" style="cursor:pointer;"><div><strong>✏️ ' + t('create') + ' ' + t('post') + '</strong><div style="color:var(--text-secondary);">Share what\'s happening</div></div></div></div>' : ''}${currentTab === 'feedback' ? renderFeedback() : ''}${currentTab === 'more' ? renderMore() : ''}<div class="global-footer">© 2026 FreedomNet</div></div></div>`;
+        root.innerHTML = `<div class="app"><div class="sidebar"><div class="logo" onclick="switchTab('feed')">FreedomNet</div>${tabs.map((tab, idx) => `<div class="nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span class="nav-text">${t(tab)}</span></div>`).join('')}<div class="nav-item logout" onclick="showLogoutConfirm()" style="margin-top: 40px;"><span class="nav-text quit-btn">${t('quit')}</span></div></div><div class="bottom-nav">${tabs.slice(0, 5).map((tab, idx) => `<div class="bottom-nav-item ${currentTab === tabs[idx] ? 'active' : ''}" onclick="switchTab('${tabs[idx]}')"><span>${t(tab)}</span></div>`).join('')}</div><div class="main-content"><div class="header">${currentTab === 'more' ? t('settings') : t(currentTab)}</div>${currentTab === 'feed' ? renderHome() : ''}${currentTab === 'messages' ? renderMessages() : ''}${currentTab === 'search' ? renderSearch() : ''}${currentTab === 'interesting' ? renderInteresting() : ''}${currentTab === 'notifications' ? renderNotifications() : ''}${currentTab === 'create' ? '<div class="feed-container" style="padding:20px;"><div class="static-card" onclick="showCreateModal()" style="cursor:pointer;"><div><strong>✏️ ' + t('create') + ' ' + t('post') + '</strong><div style="color:var(--text-secondary);">Share what\'s happening</div></div></div></div>' : ''}${currentTab === 'feedback' ? renderFeedback() : ''}${currentTab === 'more' ? renderMore() : ''}<div class="global-footer">© 2026 FreedomNet</div></div></div>`;
         if (currentTab === 'feed') { updateFeedPosts(); attachHomeEvents(); const feedContainer = document.getElementById('feedContainer'); if (feedContainer) { const onScroll = () => { if (feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 100) { loadFeed(); updateFeedPosts(); } }; feedContainer.addEventListener('scroll', onScroll); } }
         attachGlobalEvents();
     }
@@ -1080,7 +1197,6 @@
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
     
-    // Запускаем фейковый счётчик онлайн
     startFakeOnlineCounter();
     
     (async () => { try { const me = await api('/api/me'); if (me.user) { currentUser = me.user; await loadFeed(true); await loadFollowersAndFollowing(currentUser.id); } } catch(e) {} render(); })();
