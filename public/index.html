@@ -111,9 +111,11 @@
         .post-image-container { position: relative; display: inline-block; margin-top: 12px; }
         .post-image { border-radius: 16px; max-width: 100%; max-height: 400px; object-fit: cover; border: 1px solid var(--border-color); transition: transform 0.2s ease; }
         .post-image:hover { transform: scale(1.01); }
-        .remove-image-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); color: white; border: none; border-radius: 20px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: opacity 0.2s ease; opacity: 0; }
+        .post-image.blurred { filter: blur(20px); cursor: pointer; }
+        .post-image.blurred:hover { filter: blur(5px); }
+        .remove-image-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); color: white; border: none; border-radius: 20px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: opacity 0.2s ease, background 0.2s ease; opacity: 0; }
+        .remove-image-btn:hover { background: #f4212e; opacity: 1; }
         .post-image-container:hover .remove-image-btn { opacity: 1; }
-        .remove-image-btn:hover { background: #f4212e; }
         .post-stats { display: flex; gap: 32px; margin-top: 12px; align-items: center; }
         .stat-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; transition: color 0.2s ease; }
         .stat-btn:hover { color: var(--text-primary); background: transparent; }
@@ -368,6 +370,7 @@
     let onlineUsers = new Set();
     let lastActivity = Date.now();
     let notificationSetting = localStorage.getItem('notificationSetting') || 'all';
+    let nsfwEnabled = localStorage.getItem('nsfwEnabled') === 'true' ? true : false;
     let fakeOnlineCount = 15;
     let ws = null;
     let reconnectTimeout = null;
@@ -395,7 +398,8 @@
             mentionsOnly: 'Mentions only', none: 'None', deleteAccount: 'Delete Account',
             deleteAccountWarning: 'This action cannot be undone. Your username and email will become available for others.',
             confirmDelete: 'Confirm Delete', emailLabel: 'Email', passwordLabel: 'Password',
-            deletePermanently: 'Delete Permanently', quit: 'Quit', cannotMessageSelf: 'You cannot message yourself'
+            deletePermanently: 'Delete Permanently', quit: 'Quit', cannotMessageSelf: 'You cannot message yourself',
+            nsfw: 'NSFW Filter', nsfwOn: 'On - Show adult content', nsfwOff: 'Off - Blur adult content'
         },
         ru: {
             feed: 'Лента', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск',
@@ -416,7 +420,8 @@
             mentionsOnly: 'Только упоминания', none: 'Никакие', deleteAccount: 'Удалить аккаунт',
             deleteAccountWarning: 'Это действие нельзя отменить. Ваше имя пользователя и email станут доступны другим.',
             confirmDelete: 'Подтверждение удаления', emailLabel: 'Email', passwordLabel: 'Пароль',
-            deletePermanently: 'Удалить навсегда', quit: 'Выйти', cannotMessageSelf: 'Нельзя отправлять сообщения самому себе'
+            deletePermanently: 'Удалить навсегда', quit: 'Выйти', cannotMessageSelf: 'Нельзя отправлять сообщения самому себе',
+            nsfw: 'NSFW Фильтр', nsfwOn: 'Вкл - Показывать контент 18+', nsfwOff: 'Выкл - Размывать контент 18+'
         },
         es: {
             feed: 'Inicio', profile: 'Perfil', messages: 'Mensajes', search: 'Buscar',
@@ -437,154 +442,8 @@
             mentionsOnly: 'Solo menciones', none: 'Ninguna', deleteAccount: 'Eliminar cuenta',
             deleteAccountWarning: 'Esta acción no se puede deshacer. Tu nombre de usuario y email estarán disponibles para otros.',
             confirmDelete: 'Confirmar eliminación', emailLabel: 'Email', passwordLabel: 'Contraseña',
-            deletePermanently: 'Eliminar permanentemente', quit: 'Salir', cannotMessageSelf: 'No puedes enviarte un mensaje a ti mismo'
-        },
-        fr: {
-            feed: 'Flux', profile: 'Profil', messages: 'Messages', search: 'Rechercher',
-            interesting: 'Intéressant', notifications: 'Notifications', create: 'Créer',
-            feedback: 'Retours', more: 'Plus', logout: 'Déconnexion', settings: 'Paramètres',
-            account: 'Compte', security: 'Sécurité', theme: 'Thème', language: 'Langue',
-            email: 'Email', username: "Nom d'utilisateur", password: 'Mot de passe', edit: 'Modifier',
-            changePassword: 'Changer mot de passe', joined: 'A rejoint', noPosts: 'Aucun post',
-            whatsHappening: 'Quoi de neuf ?', post: 'Poster', publish: 'Publier',
-            login: 'Connexion', register: "S'inscrire", signup: "S'inscrire", or: 'ou',
-            back: 'Retour', send: 'Envoyer', cancel: 'Annuler', delete: 'Supprimer',
-            follow: 'Suivre', unfollow: 'Ne plus suivre', likes: 'J\'aime', comments: 'Commentaires',
-            reply: 'Répondre', message: 'Message', online: 'En ligne',
-            verified: 'Compte vérifié', official: 'Compte officiel', creator: 'Créateur',
-            followers: 'Abonnés', following: 'Abonnements', posts: 'Publications', chats: 'Discussions',
-            viewProfile: 'Voir le profil', stats: 'Statistiques', onlineCount: 'En ligne maintenant',
-            notificationsSettings: 'Paramètres de notification', allNotifications: 'Toutes les notifications',
-            mentionsOnly: 'Mentions seulement', none: 'Aucune', deleteAccount: 'Supprimer le compte',
-            deleteAccountWarning: 'Cette action est irréversible. Votre nom d\'utilisateur et votre email deviendront disponibles pour d\'autres.',
-            confirmDelete: 'Confirmer la suppression', emailLabel: 'Email', passwordLabel: 'Mot de passe',
-            deletePermanently: 'Supprimer définitivement', quit: 'Quitter', cannotMessageSelf: 'Vous ne pouvez pas vous envoyer de message'
-        },
-        ar: {
-            feed: 'الرئيسية', profile: 'الملف الشخصي', messages: 'الرسائل', search: 'بحث',
-            interesting: 'مثير للاهتمام', notifications: 'الإشعارات', create: 'إنشاء',
-            feedback: 'الملاحظات', more: 'المزيد', logout: 'تسجيل الخروج', settings: 'الإعدادات',
-            account: 'الحساب', security: 'الأمان', theme: 'المظهر', language: 'اللغة',
-            email: 'البريد الإلكتروني', username: 'اسم المستخدم', password: 'كلمة المرور', edit: 'تعديل',
-            changePassword: 'تغيير كلمة المرور', joined: 'انضم', noPosts: 'لا توجد منشورات',
-            whatsHappening: 'ما الجديد؟', post: 'نشر', publish: 'نشر',
-            login: 'تسجيل الدخول', register: 'التسجيل', signup: 'التسجيل', or: 'أو',
-            back: 'رجوع', send: 'إرسال', cancel: 'إلغاء', delete: 'حذف',
-            follow: 'متابعة', unfollow: 'إلغاء المتابعة', likes: 'إعجابات', comments: 'تعليقات',
-            reply: 'رد', message: 'رسالة', online: 'متصل',
-            verified: 'حساب موثق', official: 'حساب رسمي', creator: 'منشئ',
-            followers: 'متابعون', following: 'يتابع', posts: 'منشورات', chats: 'محادثات',
-            viewProfile: 'عرض الملف الشخصي', stats: 'إحصائيات', onlineCount: 'متصل الآن',
-            notificationsSettings: 'إعدادات الإشعارات', allNotifications: 'جميع الإشعارات',
-            mentionsOnly: 'الإشارات فقط', none: 'لا شيء', deleteAccount: 'حذف الحساب',
-            deleteAccountWarning: 'لا يمكن التراجع عن هذا الإجراء. سيصبح اسم المستخدم والبريد الإلكتروني متاحين للآخرين.',
-            confirmDelete: 'تأكيد الحذف', emailLabel: 'البريد الإلكتروني', passwordLabel: 'كلمة المرور',
-            deletePermanently: 'حذف نهائي', quit: 'خروج', cannotMessageSelf: 'لا يمكنك مراسلة نفسك'
-        },
-        el: {
-            feed: 'Αρχική', profile: 'Προφίλ', messages: 'Μηνύματα', search: 'Αναζήτηση',
-            interesting: 'Ενδιαφέροντα', notifications: 'Ειδοποιήσεις', create: 'Δημιουργία',
-            feedback: 'Σχόλια', more: 'Περισσότερα', logout: 'Αποσύνδεση', settings: 'Ρυθμίσεις',
-            account: 'Λογαριασμός', security: 'Ασφάλεια', theme: 'Θέμα', language: 'Γλώσσα',
-            email: 'Email', username: 'Όνομα χρήστη', password: 'Κωδικός', edit: 'Επεξεργασία',
-            changePassword: 'Αλλαγή κωδικού', joined: 'Εγγράφηκε', noPosts: 'Δεν υπάρχουν αναρτήσεις',
-            whatsHappening: 'Τι συμβαίνει;', post: 'Δημοσίευση', publish: 'Δημοσίευση',
-            login: 'Σύνδεση', register: 'Εγγραφή', signup: 'Εγγραφή', or: 'ή',
-            back: 'Πίσω', send: 'Αποστολή', cancel: 'Ακύρωση', delete: 'Διαγραφή',
-            follow: 'Ακολούθηση', unfollow: 'Διακοπή', likes: 'Μου αρέσει', comments: 'Σχόλια',
-            reply: 'Απάντηση', message: 'Μήνυμα', online: 'Σύνδεση',
-            verified: 'Επαληθευμένος λογαριασμός', official: 'Επίσημος λογαριασμός', creator: 'Δημιουργός',
-            followers: 'Ακόλουθοι', following: 'Ακολουθεί', posts: 'Αναρτήσεις', chats: 'Συνομιλίες',
-            viewProfile: 'Προβολή προφίλ', stats: 'Στατιστικά', onlineCount: 'Συνδεδεμένοι τώρα',
-            notificationsSettings: 'Ρυθμίσεις ειδοποιήσεων', allNotifications: 'Όλες οι ειδοποιήσεις',
-            mentionsOnly: 'Μόνο αναφορές', none: 'Καμία', deleteAccount: 'Διαγραφή λογαριασμού',
-            deleteAccountWarning: 'Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Το όνομα χρήστη και το email σας θα γίνουν διαθέσιμα σε άλλους.',
-            confirmDelete: 'Επιβεβαίωση διαγραφής', emailLabel: 'Email', passwordLabel: 'Κωδικός',
-            deletePermanently: 'Οριστική διαγραφή', quit: 'Έξοδος', cannotMessageSelf: 'Δεν μπορείτε να στείλετε μήνυμα στον εαυτό σας'
-        },
-        zh: {
-            feed: '主页', profile: '个人资料', messages: '消息', search: '搜索',
-            interesting: '有趣', notifications: '通知', create: '创建',
-            feedback: '反馈', more: '更多', logout: '退出', settings: '设置',
-            account: '账户', security: '安全', theme: '主题', language: '语言',
-            email: '邮箱', username: '用户名', password: '密码', edit: '编辑',
-            changePassword: '修改密码', joined: '加入于', noPosts: '暂无帖子',
-            whatsHappening: '发生了什么？', post: '发布', publish: '发布',
-            login: '登录', register: '注册', signup: '注册', or: '或',
-            back: '返回', send: '发送', cancel: '取消', delete: '删除',
-            follow: '关注', unfollow: '取消关注', likes: '点赞', comments: '评论',
-            reply: '回复', message: '消息', online: '在线',
-            verified: '认证账户', official: '官方账户', creator: '创作者',
-            followers: '粉丝', following: '关注', posts: '帖子', chats: '聊天',
-            viewProfile: '查看个人资料', stats: '统计', onlineCount: '当前在线',
-            notificationsSettings: '通知设置', allNotifications: '所有通知',
-            mentionsOnly: '仅提及', none: '无', deleteAccount: '删除账户',
-            deleteAccountWarning: '此操作不可撤销。您的用户名和邮箱将可供其他人使用。',
-            confirmDelete: '确认删除', emailLabel: '邮箱', passwordLabel: '密码',
-            deletePermanently: '永久删除', quit: '退出', cannotMessageSelf: '不能给自己发消息'
-        },
-        pt: {
-            feed: 'Início', profile: 'Perfil', messages: 'Mensagens', search: 'Pesquisar',
-            interesting: 'Interessante', notifications: 'Notificações', create: 'Criar',
-            feedback: 'Feedback', more: 'Mais', logout: 'Sair', settings: 'Configurações',
-            account: 'Conta', security: 'Segurança', theme: 'Tema', language: 'Idioma',
-            email: 'Email', username: 'Usuário', password: 'Senha', edit: 'Editar',
-            changePassword: 'Alterar senha', joined: 'Entrou', noPosts: 'Sem posts',
-            whatsHappening: 'O que está acontecendo?', post: 'Publicar', publish: 'Publicar',
-            login: 'Entrar', register: 'Registrar', signup: 'Registrar', or: 'ou',
-            back: 'Voltar', send: 'Enviar', cancel: 'Cancelar', delete: 'Excluir',
-            follow: 'Seguir', unfollow: 'Deixar de seguir', likes: 'Curtidas', comments: 'Comentários',
-            reply: 'Responder', message: 'Mensagem', online: 'Online',
-            verified: 'Conta verificada', official: 'Conta oficial', creator: 'Criador',
-            followers: 'Seguidores', following: 'Seguindo', posts: 'Publicações', chats: 'Bate-papos',
-            viewProfile: 'Ver perfil', stats: 'Estatísticas', onlineCount: 'Online agora',
-            notificationsSettings: 'Configurações de notificação', allNotifications: 'Todas as notificações',
-            mentionsOnly: 'Apenas menções', none: 'Nenhuma', deleteAccount: 'Excluir conta',
-            deleteAccountWarning: 'Esta ação não pode ser desfeita. Seu nome de usuário e email ficarão disponíveis para outros.',
-            confirmDelete: 'Confirmar exclusão', emailLabel: 'Email', passwordLabel: 'Senha',
-            deletePermanently: 'Excluir permanentemente', quit: 'Sair', cannotMessageSelf: 'Você não pode enviar mensagem para si mesmo'
-        },
-        de: {
-            feed: 'Startseite', profile: 'Profil', messages: 'Nachrichten', search: 'Suchen',
-            interesting: 'Interessant', notifications: 'Benachrichtigungen', create: 'Erstellen',
-            feedback: 'Feedback', more: 'Mehr', logout: 'Abmelden', settings: 'Einstellungen',
-            account: 'Konto', security: 'Sicherheit', theme: 'Thema', language: 'Sprache',
-            email: 'E-Mail', username: 'Benutzername', password: 'Passwort', edit: 'Bearbeiten',
-            changePassword: 'Passwort ändern', joined: 'Beigetreten', noPosts: 'Keine Beiträge',
-            whatsHappening: 'Was ist los?', post: 'Posten', publish: 'Veröffentlichen',
-            login: 'Anmelden', register: 'Registrieren', signup: 'Registrieren', or: 'oder',
-            back: 'Zurück', send: 'Senden', cancel: 'Abbrechen', delete: 'Löschen',
-            follow: 'Folgen', unfollow: 'Entfolgen', likes: 'Gefällt mir', comments: 'Kommentare',
-            reply: 'Antworten', message: 'Nachricht', online: 'Online',
-            verified: 'Verifiziertes Konto', official: 'Offizielles Konto', creator: 'Ersteller',
-            followers: 'Follower', following: 'Folgt', posts: 'Beiträge', chats: 'Chats',
-            viewProfile: 'Profil anzeigen', stats: 'Statistiken', onlineCount: 'Jetzt online',
-            notificationsSettings: 'Benachrichtigungseinstellungen', allNotifications: 'Alle Benachrichtigungen',
-            mentionsOnly: 'Nur Erwähnungen', none: 'Keine', deleteAccount: 'Konto löschen',
-            deleteAccountWarning: 'Diese Aktion kann nicht rückgängig gemacht werden. Ihr Benutzername und Ihre E-Mail-Adresse werden für andere verfügbar sein.',
-            confirmDelete: 'Löschen bestätigen', emailLabel: 'E-Mail', passwordLabel: 'Passwort',
-            deletePermanently: 'Dauerhaft löschen', quit: 'Beenden', cannotMessageSelf: 'Sie können sich keine Nachricht senden'
-        },
-        it: {
-            feed: 'Home', profile: 'Profilo', messages: 'Messaggi', search: 'Cerca',
-            interesting: 'Interessante', notifications: 'Notifiche', create: 'Crea',
-            feedback: 'Feedback', more: 'Altro', logout: 'Esci', settings: 'Impostazioni',
-            account: 'Account', security: 'Sicurezza', theme: 'Tema', language: 'Lingua',
-            email: 'Email', username: 'Nome utente', password: 'Password', edit: 'Modifica',
-            changePassword: 'Cambia password', joined: 'Iscritto', noPosts: 'Nessun post',
-            whatsHappening: 'Cosa succede?', post: 'Pubblica', publish: 'Pubblica',
-            login: 'Accedi', register: 'Registrati', signup: 'Registrati', or: 'o',
-            back: 'Indietro', send: 'Invia', cancel: 'Annulla', delete: 'Elimina',
-            follow: 'Segui', unfollow: 'Non seguire più', likes: 'Mi piace', comments: 'Commenti',
-            reply: 'Rispondi', message: 'Messaggio', online: 'Online',
-            verified: 'Account verificato', official: 'Account ufficiale', creator: 'Creatore',
-            followers: 'Follower', following: 'Seguiti', posts: 'Post', chats: 'Chat',
-            viewProfile: 'Vedi profilo', stats: 'Statistiche', onlineCount: 'Online ora',
-            notificationsSettings: 'Impostazioni notifiche', allNotifications: 'Tutte le notifiche',
-            mentionsOnly: 'Solo menzioni', none: 'Nessuna', deleteAccount: 'Elimina account',
-            deleteAccountWarning: 'Questa azione non può essere annullata. Il tuo nome utente ed email saranno disponibili per altri.',
-            confirmDelete: 'Conferma eliminazione', emailLabel: 'Email', passwordLabel: 'Password',
-            deletePermanently: 'Elimina definitivamente', quit: 'Esci', cannotMessageSelf: 'Non puoi inviare un messaggio a te stesso'
+            deletePermanently: 'Eliminar permanentemente', quit: 'Salir', cannotMessageSelf: 'No puedes enviarte un mensaje a ti mismo',
+            nsfw: 'Filtro NSFW', nsfwOn: 'Activado - Mostrar contenido adulto', nsfwOff: 'Desactivado - Difuminar contenido adulto'
         }
     };
     
@@ -602,10 +461,26 @@
         renderMain();
     }
     
+    function setNsfwSetting(value) {
+        nsfwEnabled = value;
+        localStorage.setItem('nsfwEnabled', value);
+        renderMain();
+    }
+    
     function shouldShowNotification(post) {
         if (notificationSetting === 'all') return true;
         if (notificationSetting === 'mentions') {
             return post.content && post.content.includes(`@${currentUser.username}`);
+        }
+        return false;
+    }
+    
+    // NSFW detection
+    function isNsfwContent(text, imageUrl) {
+        const nsfwKeywords = ['sex', 'porn', 'xxx', '18+', 'nude', 'nsfw', 'fuck', 'shit', 'dick', 'cock', 'pussy', 'ass', 'tits', 'boobs', 'bitch', 'whore', 'slut'];
+        const lowerText = (text || '').toLowerCase();
+        for (const keyword of nsfwKeywords) {
+            if (lowerText.includes(keyword)) return true;
         }
         return false;
     }
@@ -1251,7 +1126,11 @@
     function renderPostCard(post) {
         const isOwnPost = post.user_id === currentUser.id;
         const canDelete = isOwnPost || currentUser?.username === 'DevAlexPlay';
-        return `<div class="post-card" data-post-id="${post.id}"><div class="post-header">${post.avatar ? `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` : `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'', bio:'', created_at:${post.created_at}}, event.clientX, event.clientY);">${(post.username || 'U')[0].toUpperCase()}</div>`}<div class="post-body"><div class="post-user"><span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}<span class="post-username">@${escapeHtml(post.username)}</span><span class="post-time">${new Date(post.created_at).toLocaleString()}</span>${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}</div><div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>${post.image ? `<div class="post-image-container"><img src="${post.image}" class="post-image" onclick="event.stopPropagation(); window.open('${post.image}')"></div>` : ''}<div class="post-stats"><button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${post.id})">♥ ${post.likes_count || 0}</button><button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">💬 ${post.comments?.length || 0}</button>${canDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 ${t('delete')}</button>` : ''}</div><div id="comments-${post.id}" style="display:none;" class="comments-section">${(post.comments || []).map(c => `<div class="comment">${c.avatar ? `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none';">` : `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${(c.username || 'U')[0].toUpperCase()}</div>`}<div><strong onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div>${(c.user_id === currentUser.id || currentUser?.username === 'DevAlexPlay' || post.user_id === currentUser.id) ? `<button class="delete-comment-btn" onclick="event.stopPropagation(); deleteComment(${post.id}, ${c.id})">✕</button>` : ''}</div>`).join('')}<div class="comment-input"><input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}..." onclick="event.stopPropagation()"><button class="comment-send-btn" onclick="event.stopPropagation(); addComment(${post.id})">➔</button></div></div></div></div></div>`;
+        const isNsfw = isNsfwContent(post.content, post.image);
+        const shouldBlur = isNsfw && !nsfwEnabled;
+        const imageClass = shouldBlur ? 'post-image blurred' : 'post-image';
+        
+        return `<div class="post-card" data-post-id="${post.id}"><div class="post-header">${post.avatar ? `<img class="post-avatar-img" src="${post.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none'; this.after(document.createTextNode((post.username || 'U')[0].toUpperCase()))">` : `<div class="avatar-placeholder" style="width:48px; height:48px;" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'', bio:'', created_at:${post.created_at}}, event.clientX, event.clientY);">${(post.username || 'U')[0].toUpperCase()}</div>`}<div class="post-body"><div class="post-user"><span class="post-username" onclick="event.stopPropagation(); showUserPreview({id:${post.user_id}, username:'${escapeHtml(post.username)}', avatar:'${post.avatar || ''}', bio:'${escapeHtml(post.bio || '')}', created_at:${post.created_at}}, event.clientX, event.clientY);">${escapeHtml(post.username)}</span>${renderCreatorBadge(post.is_creator, post.is_official)}<span class="post-username">@${escapeHtml(post.username)}</span><span class="post-time">${new Date(post.created_at).toLocaleString()}</span>${post.edited ? `<span class="edited-badge">(${t('edited')})</span>` : ''}</div><div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>${post.image ? `<div class="post-image-container"><img src="${post.image}" class="${imageClass}" onclick="event.stopPropagation(); if(${shouldBlur}){ event.target.classList.toggle('blurred'); } else { window.open('${post.image}'); }"></div>` : ''}<div class="post-stats"><button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${post.id})">♥ ${post.likes_count || 0}</button><button class="stat-btn" onclick="event.stopPropagation(); toggleComments(${post.id})">💬 ${post.comments?.length || 0}</button>${canDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deletePost(${post.id})">🗑 ${t('delete')}</button>` : ''}</div><div id="comments-${post.id}" style="display:none;" class="comments-section">${(post.comments || []).map(c => `<div class="comment">${c.avatar ? `<img class="comment-avatar" src="${c.avatar}" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);" onerror="this.style.display='none';">` : `<div class="avatar-placeholder" style="width:28px; height:28px; font-size:12px;" onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${(c.username || 'U')[0].toUpperCase()}</div>`}<div><strong onclick="event.stopPropagation(); showUserPreview({id:${c.user_id}, username:'${escapeHtml(c.username)}', avatar:'${c.avatar || ''}', bio:'', created_at:${c.created_at}}, event.clientX, event.clientY);">${escapeHtml(c.username)}</strong>${renderCreatorBadge(c.is_creator, c.is_official)} ${parseMentionsAndHashtags(c.content)}</div>${(c.user_id === currentUser.id || currentUser?.username === 'DevAlexPlay' || post.user_id === currentUser.id) ? `<button class="delete-comment-btn" onclick="event.stopPropagation(); deleteComment(${post.id}, ${c.id})">✕</button>` : ''}</div>`).join('')}<div class="comment-input"><input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}..." onclick="event.stopPropagation()"><button class="comment-send-btn" onclick="event.stopPropagation(); addComment(${post.id})">➔</button></div></div></div></div></div>`;
     }
     
     function renderHome() {
@@ -1297,9 +1176,11 @@
             const themeSelect = document.getElementById('themeSelect');
             const langSelect = document.getElementById('languageSelect');
             const notifSelect = document.getElementById('notificationsSelect');
+            const nsfwSelect = document.getElementById('nsfwSelect');
             if (themeSelect) { themeSelect.onclick = (e) => { e.stopPropagation(); closeAllDropdowns(); const dropdown = document.getElementById('themeDropdown'); if (dropdown) { const isOpen = dropdown.style.display === 'block'; dropdown.style.display = isOpen ? 'none' : 'block'; themeSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲'; if (!isOpen) activeDropdown = dropdown; } }; }
             if (langSelect) { langSelect.onclick = (e) => { e.stopPropagation(); closeAllDropdowns(); const dropdown = document.getElementById('languageDropdown'); if (dropdown) { const isOpen = dropdown.style.display === 'block'; dropdown.style.display = isOpen ? 'none' : 'block'; langSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲'; if (!isOpen) activeDropdown = dropdown; } }; }
             if (notifSelect) { notifSelect.onclick = (e) => { e.stopPropagation(); closeAllDropdowns(); const dropdown = document.getElementById('notificationsDropdown'); if (dropdown) { const isOpen = dropdown.style.display === 'block'; dropdown.style.display = isOpen ? 'none' : 'block'; notifSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲'; if (!isOpen) activeDropdown = dropdown; } }; }
+            if (nsfwSelect) { nsfwSelect.onclick = (e) => { e.stopPropagation(); closeAllDropdowns(); const dropdown = document.getElementById('nsfwDropdown'); if (dropdown) { const isOpen = dropdown.style.display === 'block'; dropdown.style.display = isOpen ? 'none' : 'block'; nsfwSelect.querySelector('.arrow').innerHTML = isOpen ? '▼' : '▲'; if (!isOpen) activeDropdown = dropdown; } }; }
             document.addEventListener('click', (e) => { if (!e.target.closest('.custom-select')) closeAllDropdowns(); });
         }, 10);
         
@@ -1311,7 +1192,7 @@
             { code: 'de', name: 'Deutsch' }, { code: 'it', name: 'Italiano' }
         ];
         
-        return `<div class="feed-container" style="padding:20px;"><div class="profile-header" style="border-bottom: none;"><div style="text-align:left; margin-bottom:20px;"><h3>${t('account')}</h3><div><span class="email-masked">${t('email')}: ${maskEmail(currentUser?.email)}</span><span class="edit-link" onclick="showChangeEmailModal()">${t('edit')}</span></div><div style="margin-top:12px;"><span style="color:var(--text-primary);">${t('username')}: @${escapeHtml(currentUser?.username)}</span><span class="edit-link" onclick="showChangeUsernameModal()">${t('edit')}</span></div></div><div style="text-align:left; margin-bottom:20px;"><h3>${t('security')}</h3><div><span class="edit-link" onclick="showChangePasswordModal()">${t('changePassword')}</span></div></div><h3 style="text-align:left; margin-bottom:20px;">${t('theme')}</h3><div class="custom-select" id="themeSelect"><span id="selectedThemeText">${themeNames[savedTheme]}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="themeDropdown" style="display:none;"><div class="custom-select-option ${savedTheme === 'dark' ? 'selected' : ''}" onclick="setTheme('dark'); document.getElementById('selectedThemeText').innerText='Dark (Black)';">Dark (Black)</div><div class="custom-select-option ${savedTheme === 'dark-gray' ? 'selected' : ''}" onclick="setTheme('dark-gray'); document.getElementById('selectedThemeText').innerText='Dark Gray';">Dark Gray</div><div class="custom-select-option ${savedTheme === 'gray' ? 'selected' : ''}" onclick="setTheme('gray'); document.getElementById('selectedThemeText').innerText='Gray';">Gray</div><div class="custom-select-option ${savedTheme === 'light' ? 'selected' : ''}" onclick="setTheme('light'); document.getElementById('selectedThemeText').innerText='Light';">Light</div></div></div><h3 style="text-align:left; margin-bottom:20px; margin-top:20px;">${t('language')}</h3><div class="custom-select" id="languageSelect"><span id="selectedLanguageText">${languages.find(l => l.code === currentLang)?.name || 'English'}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="languageDropdown" style="display:none;">${languages.map(lang => `<div class="custom-select-option ${currentLang === lang.code ? 'selected' : ''}" onclick="setLanguage('${lang.code}'); document.getElementById('selectedLanguageText').innerText='${lang.name}';">${lang.name}</div>`).join('')}</div></div><div class="notification-settings"><h3>${t('notificationsSettings')}</h3><div class="custom-select" id="notificationsSelect"><span id="selectedNotifText">${notificationSetting === 'all' ? t('allNotifications') : (notificationSetting === 'mentions' ? t('mentionsOnly') : t('none'))}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="notificationsDropdown" style="display:none;"><div class="custom-select-option ${notificationSetting === 'all' ? 'selected' : ''}" onclick="setNotificationSetting('all'); document.getElementById('selectedNotifText').innerText='${t('allNotifications')}';">${t('allNotifications')}</div><div class="custom-select-option ${notificationSetting === 'mentions' ? 'selected' : ''}" onclick="setNotificationSetting('mentions'); document.getElementById('selectedNotifText').innerText='${t('mentionsOnly')}';">${t('mentionsOnly')}</div><div class="custom-select-option ${notificationSetting === 'none' ? 'selected' : ''}" onclick="setNotificationSetting('none'); document.getElementById('selectedNotifText').innerText='${t('none')}';">${t('none')}</div></div></div></div><h3 style="text-align:left; margin-bottom:16px; margin-top:24px;">Features</h3><div class="static-card" onclick="showStatsModal()" style="cursor:pointer; margin-bottom:10px;"><div><strong>${t('stats')}</strong><div style="color:var(--text-secondary);">View your account statistics</div></div></div></div><div class="static-card" onclick="showDeleteAccountModal()" style="cursor:pointer; margin-bottom:10px; border-color:#f4212e;"><div><strong style="color:#f4212e;">${t('deleteAccount')}</strong><div style="color:var(--text-secondary);">${t('deleteAccountWarning')}</div></div></div><div class="footer-note">© 2026 FreedomNet</div></div>`;
+        return `<div class="feed-container" style="padding:20px;"><div class="profile-header" style="border-bottom: none;"><div style="text-align:left; margin-bottom:20px;"><h3>${t('account')}</h3><div><span class="email-masked">${t('email')}: ${maskEmail(currentUser?.email)}</span><span class="edit-link" onclick="showChangeEmailModal()">${t('edit')}</span></div><div style="margin-top:12px;"><span style="color:var(--text-primary);">${t('username')}: @${escapeHtml(currentUser?.username)}</span><span class="edit-link" onclick="showChangeUsernameModal()">${t('edit')}</span></div></div><div style="text-align:left; margin-bottom:20px;"><h3>${t('security')}</h3><div><span class="edit-link" onclick="showChangePasswordModal()">${t('changePassword')}</span></div></div><h3 style="text-align:left; margin-bottom:20px;">${t('theme')}</h3><div class="custom-select" id="themeSelect"><span id="selectedThemeText">${themeNames[savedTheme]}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="themeDropdown" style="display:none;"><div class="custom-select-option ${savedTheme === 'dark' ? 'selected' : ''}" onclick="setTheme('dark'); document.getElementById('selectedThemeText').innerText='Dark (Black)';">Dark (Black)</div><div class="custom-select-option ${savedTheme === 'dark-gray' ? 'selected' : ''}" onclick="setTheme('dark-gray'); document.getElementById('selectedThemeText').innerText='Dark Gray';">Dark Gray</div><div class="custom-select-option ${savedTheme === 'gray' ? 'selected' : ''}" onclick="setTheme('gray'); document.getElementById('selectedThemeText').innerText='Gray';">Gray</div><div class="custom-select-option ${savedTheme === 'light' ? 'selected' : ''}" onclick="setTheme('light'); document.getElementById('selectedThemeText').innerText='Light';">Light</div></div></div><h3 style="text-align:left; margin-bottom:20px; margin-top:20px;">${t('language')}</h3><div class="custom-select" id="languageSelect"><span id="selectedLanguageText">${languages.find(l => l.code === currentLang)?.name || 'English'}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="languageDropdown" style="display:none;">${languages.map(lang => `<div class="custom-select-option ${currentLang === lang.code ? 'selected' : ''}" onclick="setLanguage('${lang.code}'); document.getElementById('selectedLanguageText').innerText='${lang.name}';">${lang.name}</div>`).join('')}</div></div><div class="notification-settings"><h3>${t('notificationsSettings')}</h3><div class="custom-select" id="notificationsSelect"><span id="selectedNotifText">${notificationSetting === 'all' ? t('allNotifications') : (notificationSetting === 'mentions' ? t('mentionsOnly') : t('none'))}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="notificationsDropdown" style="display:none;"><div class="custom-select-option ${notificationSetting === 'all' ? 'selected' : ''}" onclick="setNotificationSetting('all'); document.getElementById('selectedNotifText').innerText='${t('allNotifications')}';">${t('allNotifications')}</div><div class="custom-select-option ${notificationSetting === 'mentions' ? 'selected' : ''}" onclick="setNotificationSetting('mentions'); document.getElementById('selectedNotifText').innerText='${t('mentionsOnly')}';">${t('mentionsOnly')}</div><div class="custom-select-option ${notificationSetting === 'none' ? 'selected' : ''}" onclick="setNotificationSetting('none'); document.getElementById('selectedNotifText').innerText='${t('none')}';">${t('none')}</div></div></div></div><h3 style="text-align:left; margin-bottom:16px; margin-top:24px;">Content Settings</h3><div class="custom-select" id="nsfwSelect"><span id="selectedNsfwText">${nsfwEnabled ? t('nsfwOn') : t('nsfwOff')}</span><span class="arrow">▼</span><div class="custom-select-dropdown" id="nsfwDropdown" style="display:none;"><div class="custom-select-option ${nsfwEnabled === true ? 'selected' : ''}" onclick="setNsfwSetting(true); document.getElementById('selectedNsfwText').innerText='${t('nsfwOn')}';">${t('nsfwOn')}</div><div class="custom-select-option ${nsfwEnabled === false ? 'selected' : ''}" onclick="setNsfwSetting(false); document.getElementById('selectedNsfwText').innerText='${t('nsfwOff')}';">${t('nsfwOff')}</div></div></div><h3 style="text-align:left; margin-bottom:16px; margin-top:24px;">Features</h3><div class="static-card" onclick="showStatsModal()" style="cursor:pointer; margin-bottom:10px;"><div><strong>${t('stats')}</strong><div style="color:var(--text-secondary);">View your account statistics</div></div></div></div><div class="static-card" onclick="showDeleteAccountModal()" style="cursor:pointer; margin-bottom:10px; border-color:#f4212e;"><div><strong style="color:#f4212e;">${t('deleteAccount')}</strong><div style="color:var(--text-secondary);">${t('deleteAccountWarning')}</div></div></div><div class="footer-note">© 2026 FreedomNet</div></div>`;
     }
     
     function openAvatarUpload() { 
@@ -1421,7 +1302,25 @@
             });
         }
         const imageInput = document.getElementById('postImage');
-        if (imageInput) { imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { pendingImage = ev.target.result; document.getElementById('imagePreview').innerHTML = `<img src="${pendingImage}" style="max-width:100%; max-height:150px; border-radius:12px;">`; }; reader.readAsDataURL(file); } }); }
+        if (imageInput) { 
+            imageInput.addEventListener('change', (e) => { 
+                const file = e.target.files[0]; 
+                if (file) { 
+                    const reader = new FileReader(); 
+                    reader.onload = (ev) => { 
+                        pendingImage = ev.target.result; 
+                        document.getElementById('imagePreview').innerHTML = `<div class="post-image-container" style="position:relative; display:inline-block;"><img src="${pendingImage}" style="max-width:100%; max-height:150px; border-radius:12px;"><button class="remove-image-btn" onclick="removePendingImage()" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); color:white; border:none; border-radius:20px; padding:6px 12px; font-size:12px; cursor:pointer; transition:background 0.2s ease;">Remove image</button></div>`; 
+                    }; 
+                    reader.readAsDataURL(file); 
+                } 
+            }); 
+        }
+    }
+    
+    function removePendingImage() {
+        pendingImage = null;
+        document.getElementById('imagePreview').innerHTML = '';
+        document.getElementById('postImage').value = '';
     }
     
     window.toggleLike = async (postId) => { const post = feed.find(p => p.id === postId); if (post.user_liked) await api(`/api/like/${postId}`, { method: 'DELETE' }); else await api(`/api/like/${postId}`, { method: 'POST' }); await loadFeed(true); sendWebSocketMessage('like_update', { post_id: postId, likes_count: post.likes_count + (post.user_liked ? -1 : 1), user_liked: !post.user_liked }); renderMain(); };
