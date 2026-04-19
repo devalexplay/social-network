@@ -1,0 +1,169 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 450px;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.form {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.form:hover {
+    transform: translateY(-5px);
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.form-input {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-input input[type="text"],
+.form-input input[type="password"] {
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    outline: none;
+    font-family: inherit;
+}
+
+.form-input input[type="text"]:focus,
+.form-input input[type="password"]:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    cursor: pointer;
+    transform: scale(1.2);
+}
+
+.form-input label {
+    color: #666;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.reset-pass {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 14px;
+    text-align: right;
+    margin-top: -10px;
+    transition: color 0.3s ease;
+}
+
+.reset-pass:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+#submit-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    font-family: inherit;
+}
+
+#submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+#submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Checkbox container styling */
+.form-input > div {
+    display: flex;
+    align-items: center;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .form {
+        padding: 25px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .form-input input[type="text"],
+    .form-input input[type="password"],
+    #submit-btn {
+        padding: 12px;
+    }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Optional: Style for remember me section */
+.form-input {
+    position: relative;
+}
+
+/* Fix for checkbox positioning */
+.form-input input[type="checkbox"] {
+    display: inline-block;
+    width: auto;
+}
+
+.form-input label[for="remember"] {
+    display: inline-block;
+    margin-left: 5px;
+}
