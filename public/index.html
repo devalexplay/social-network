@@ -7,273 +7,349 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="auth">
-        <div class="auth__card">
-            <div class="auth__brand">
-                <div class="auth__logo">F</div>
-                <h1 class="auth__title">FreedomNet</h1>
-                <p class="auth__subtitle">Join the conversation</p>
+    <div class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                <h1>FreedomNet</h1>
             </div>
             
-            <div class="auth__tabs">
-                <button class="auth__tab active" data-tab="login">Sign in</button>
-                <button class="auth__tab" data-tab="register">Sign up</button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Sign in</button>
+                <button class="auth-tab" data-tab="register">Sign up</button>
             </div>
             
-            <form id="loginForm" class="auth__form active">
-                <div class="input">
-                    <input type="text" id="loginUsername" class="input__field" placeholder=" ">
-                    <label class="input__label">Email or username</label>
+            <form id="loginForm" class="auth-form active">
+                <div class="input-field">
+                    <input type="text" id="loginUsername" required>
+                    <label>Email or username</label>
                 </div>
                 
-                <div class="input">
-                    <input type="password" id="loginPassword" class="input__field" placeholder=" ">
-                    <label class="input__label">Password</label>
-                    <button type="button" class="input__toggle" data-target="loginPassword">👁</button>
+                <div class="input-field">
+                    <input type="password" id="loginPassword" required>
+                    <label>Password</label>
+                    <button type="button" class="password-toggle" data-target="loginPassword">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
                 </div>
                 
-                <div class="auth__options">
+                <div class="auth-options">
                     <label class="checkbox">
                         <input type="checkbox" id="rememberMe">
-                        <span class="checkbox__box"></span>
                         <span>Remember me</span>
                     </label>
-                    <a href="#" class="auth__link">Forgot password?</a>
+                    <a href="#" class="forgot-link">Forgot password?</a>
                 </div>
                 
-                <button type="submit" class="btn btn--primary btn--full">Sign in</button>
+                <button type="submit" class="btn-primary">Sign in</button>
             </form>
             
-            <form id="registerForm" class="auth__form">
-                <div class="input">
-                    <input type="text" id="regFullName" class="input__field" placeholder=" ">
-                    <label class="input__label">Full name</label>
+            <form id="registerForm" class="auth-form">
+                <div class="input-field">
+                    <input type="text" id="regFullName" required>
+                    <label>Full name</label>
                 </div>
                 
-                <div class="input">
-                    <input type="text" id="regUsername" class="input__field" placeholder=" ">
-                    <label class="input__label">Username</label>
+                <div class="input-field">
+                    <input type="text" id="regUsername" required>
+                    <label>Username</label>
                 </div>
                 
-                <div class="input">
-                    <input type="email" id="regEmail" class="input__field" placeholder=" ">
-                    <label class="input__label">Email</label>
+                <div class="input-field">
+                    <input type="email" id="regEmail" required>
+                    <label>Email</label>
                 </div>
                 
-                <div class="input">
-                    <input type="password" id="regPassword" class="input__field" placeholder=" ">
-                    <label class="input__label">Password</label>
-                    <button type="button" class="input__toggle" data-target="regPassword">👁</button>
+                <div class="input-field">
+                    <input type="password" id="regPassword" required>
+                    <label>Password</label>
+                    <button type="button" class="password-toggle" data-target="regPassword">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
                 </div>
                 
-                <div class="input">
-                    <input type="password" id="regConfirmPassword" class="input__field" placeholder=" ">
-                    <label class="input__label">Confirm password</label>
+                <div class="input-field">
+                    <input type="password" id="regConfirmPassword" required>
+                    <label>Confirm password</label>
                 </div>
                 
-                <button type="submit" class="btn btn--primary btn--full">Create account</button>
+                <button type="submit" class="btn-primary">Create account</button>
             </form>
             
-            <div id="authMessage" class="auth__message"></div>
+            <div id="authMessage" class="auth-message"></div>
         </div>
     </div>
     
     <div id="app" class="app">
-        <nav class="nav">
-            <div class="nav__brand">F</div>
-            <div class="nav__items">
-                <button class="nav__item active" data-nav="home">
-                    <span>🏠</span>
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                <span>FreedomNet</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-page="home">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-7H9v7H5a2 2 0 0 1-2-2z"/>
+                    </svg>
                     <span>Home</span>
                 </button>
-                <button class="nav__item" data-nav="explore">
-                    <span>🔍</span>
+                <button class="nav-btn" data-page="explore">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2a15 15 0 0 0 0 20 15 15 0 0 0 0-20z"/>
+                        <path d="M2 12h20"/>
+                    </svg>
                     <span>Explore</span>
                 </button>
-                <button class="nav__item" data-nav="notifications">
-                    <span>🔔</span>
-                    <span>Alerts</span>
+                <button class="nav-btn" data-page="notifications">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span>Notifications</span>
                 </button>
-                <button class="nav__item" data-nav="messages">
-                    <span>💬</span>
+                <button class="nav-btn" data-page="messages">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
                     <span>Messages</span>
                 </button>
-                <button class="nav__item" data-nav="profile">
-                    <span>👤</span>
+                <button class="nav-btn" data-page="profile">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
                     <span>Profile</span>
                 </button>
-                <button class="nav__item" data-nav="settings">
-                    <span>⚙️</span>
+                <button class="nav-btn" data-page="settings">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
                     <span>Settings</span>
                 </button>
-                <button class="nav__item" data-nav="about">
-                    <span>ℹ️</span>
+                <button class="nav-btn" data-page="about">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
                     <span>About</span>
                 </button>
-            </div>
-            <button id="logoutBtn" class="nav__logout">🚪 Logout</button>
-        </nav>
-        
-        <div class="mobile-nav">
-            <button class="mobile-nav__item active" data-nav="home">🏠</button>
-            <button class="mobile-nav__item" data-nav="explore">🔍</button>
-            <button class="mobile-nav__item" data-nav="notifications">🔔</button>
-            <button class="mobile-nav__item" data-nav="messages">💬</button>
-            <button class="mobile-nav__item" data-nav="profile">👤</button>
-            <button class="mobile-nav__item" data-nav="settings">⚙️</button>
+            </nav>
+            
+            <button id="logoutBtn" class="logout-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span>Logout</span>
+            </button>
         </div>
         
-        <main class="main">
-            <header class="header">
+        <div class="mobile-nav">
+            <button class="mobile-btn active" data-page="home">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-7H9v7H5a2 2 0 0 1-2-2z"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="explore">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 2a15 15 0 0 0 0 20 15 15 0 0 0 0-20z"/>
+                    <path d="M2 12h20"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="notifications">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="messages">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="profile">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="settings">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+        </div>
+        
+        <main class="main-content">
+            <header class="main-header">
                 <h2 id="pageTitle">Home</h2>
-                <div class="header__user">
-                    <img id="headerAvatar" class="header__avatar" alt="">
+                <div class="user-info">
+                    <img id="headerAvatar" class="avatar-small" alt="">
                     <span id="headerName"></span>
                 </div>
             </header>
             
-            <div id="homeView" class="view active">
-                <div class="compose">
-                    <img id="composeAvatar" class="compose__avatar" alt="">
-                    <div class="compose__body">
-                        <textarea id="postInput" class="compose__input" placeholder="What's happening?" rows="3"></textarea>
-                        <div class="compose__footer">
-                            <button id="postBtn" class="btn btn--primary">Post</button>
+            <div id="homePage" class="page active">
+                <div class="compose-box">
+                    <img id="composeAvatar" class="avatar-medium" alt="">
+                    <div class="compose-area">
+                        <textarea id="postContent" class="compose-textarea" placeholder="What's happening?" rows="3"></textarea>
+                        <div class="compose-actions">
+                            <button id="createPostBtn" class="btn-blue">Post</button>
                         </div>
                     </div>
                 </div>
-                <div id="postsFeed" class="feed"></div>
+                <div id="postsList" class="posts-list"></div>
             </div>
             
-            <div id="exploreView" class="view">
-                <div class="explore">
-                    <div class="card">
-                        <h3 class="card__title">Trending</h3>
-                        <div class="trending">
-                            <div class="trending__item">
-                                <div class="trending__rank">1</div>
-                                <div>
-                                    <div class="trending__name">#FreedomNet</div>
-                                    <div class="trending__count">1.2K posts</div>
-                                </div>
+            <div id="explorePage" class="page">
+                <div class="explore-container">
+                    <div class="trending-card">
+                        <h3>Trending now</h3>
+                        <div class="trending-item">
+                            <div class="trending-rank">1</div>
+                            <div>
+                                <div class="trending-name">#FreedomNet</div>
+                                <div class="trending-posts">1,234 posts</div>
                             </div>
-                            <div class="trending__item">
-                                <div class="trending__rank">2</div>
-                                <div>
-                                    <div class="trending__name">#Welcome</div>
-                                    <div class="trending__count">892 posts</div>
-                                </div>
+                        </div>
+                        <div class="trending-item">
+                            <div class="trending-rank">2</div>
+                            <div>
+                                <div class="trending-name">#Welcome</div>
+                                <div class="trending-posts">892 posts</div>
                             </div>
-                            <div class="trending__item">
-                                <div class="trending__rank">3</div>
-                                <div>
-                                    <div class="trending__name">#Community</div>
-                                    <div class="trending__count">567 posts</div>
-                                </div>
+                        </div>
+                        <div class="trending-item">
+                            <div class="trending-rank">3</div>
+                            <div>
+                                <div class="trending-name">#Community</div>
+                                <div class="trending-posts">567 posts</div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="suggest-card">
+                        <h3>Suggested follows</h3>
+                        <div class="suggest-item">
+                            <div>
+                                <div class="suggest-name">FreedomNet</div>
+                                <div class="suggest-handle">@freedomnet</div>
+                            </div>
+                            <button class="btn-follow">Follow</button>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div id="notificationsView" class="view">
-                <div class="notifications">
-                    <div class="notification">
-                        <div class="notification__icon">🎉</div>
-                        <div class="notification__content">
+            <div id="notificationsPage" class="page">
+                <div class="notifications-list">
+                    <div class="notification-item">
+                        <div class="notification-icon">🎉</div>
+                        <div class="notification-content">
                             <p>Welcome to FreedomNet!</p>
-                            <div class="notification__time">Just now</div>
+                            <span class="notification-time">Just now</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div id="messagesView" class="view">
-                <div class="messages">
-                    <div class="messages__empty">
-                        <div class="messages__icon">💬</div>
-                        <p>No messages yet</p>
-                    </div>
+            <div id="messagesPage" class="page">
+                <div class="messages-empty">
+                    <div class="messages-icon">💬</div>
+                    <p>No messages yet</p>
                 </div>
             </div>
             
-            <div id="profileView" class="view">
-                <div class="profile">
-                    <div class="profile__cover"></div>
-                    <div class="profile__info">
-                        <img id="profileAvatar" class="profile__avatar" alt="">
-                        <h2 id="profileName"></h2>
-                        <p id="profileUsername"></p>
-                        <p id="profileBio" class="profile__bio"></p>
-                        <div class="profile__stats">
-                            <div class="profile__stat">
-                                <span id="postCount">0</span>
-                                <label>Posts</label>
-                            </div>
-                            <div class="profile__stat">
-                                <span id="followerCount">0</span>
-                                <label>Followers</label>
-                            </div>
-                            <div class="profile__stat">
-                                <span id="followingCount">0</span>
-                                <label>Following</label>
-                            </div>
+            <div id="profilePage" class="page">
+                <div class="profile-cover"></div>
+                <div class="profile-info">
+                    <img id="profileAvatar" class="profile-avatar" alt="">
+                    <h2 id="profileName"></h2>
+                    <p id="profileUsername"></p>
+                    <p id="profileBio" class="profile-bio"></p>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span id="userPostCount">0</span>
+                            <label>Posts</label>
                         </div>
-                        <button id="editProfileBtn" class="btn btn--outline">Edit profile</button>
+                        <div class="profile-stat">
+                            <span id="userFollowerCount">0</span>
+                            <label>Followers</label>
+                        </div>
+                        <div class="profile-stat">
+                            <span id="userFollowingCount">0</span>
+                            <label>Following</label>
+                        </div>
                     </div>
-                    <div id="profilePosts" class="profile__posts"></div>
+                    <button id="editProfileBtn" class="btn-outline">Edit profile</button>
                 </div>
+                <div id="userPostsList" class="profile-posts"></div>
             </div>
             
-            <div id="settingsView" class="view">
-                <div class="settings">
-                    <div class="card">
-                        <h3 class="card__title">Appearance</h3>
-                        <div class="setting">
+            <div id="settingsPage" class="page">
+                <div class="settings-container">
+                    <div class="settings-group">
+                        <h3>Appearance</h3>
+                        <div class="settings-item">
                             <span>Dark mode</span>
-                            <label class="switch">
-                                <input type="checkbox" id="darkModeToggle" checked>
-                                <span class="switch__slider"></span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="darkToggle" checked>
+                                <span class="toggle-slider"></span>
                             </label>
                         </div>
-                        <div class="setting">
+                        <div class="settings-item">
                             <span>Animations</span>
-                            <label class="switch">
-                                <input type="checkbox" id="animationsToggle" checked>
-                                <span class="switch__slider"></span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="animToggle" checked>
+                                <span class="toggle-slider"></span>
                             </label>
                         </div>
                     </div>
-                    
-                    <div class="card">
-                        <h3 class="card__title">Notifications</h3>
-                        <div class="setting">
+                    <div class="settings-group">
+                        <h3>Notifications</h3>
+                        <div class="settings-item">
                             <span>Push notifications</span>
-                            <label class="switch">
+                            <label class="toggle-switch">
                                 <input type="checkbox" id="pushToggle" checked>
-                                <span class="switch__slider"></span>
+                                <span class="toggle-slider"></span>
                             </label>
                         </div>
-                        <div class="setting">
+                        <div class="settings-item">
                             <span>Email updates</span>
-                            <label class="switch">
+                            <label class="toggle-switch">
                                 <input type="checkbox" id="emailToggle" checked>
-                                <span class="switch__slider"></span>
+                                <span class="toggle-slider"></span>
                             </label>
                         </div>
                     </div>
-                    
-                    <button id="saveSettings" class="btn btn--primary btn--full">Save changes</button>
+                    <button id="saveSettingsBtn" class="btn-blue btn-full">Save changes</button>
                 </div>
             </div>
             
-            <div id="aboutView" class="view">
-                <div class="about">
-                    <div class="card about__card">
-                        <div class="about__logo">F</div>
+            <div id="aboutPage" class="page">
+                <div class="about-container">
+                    <div class="about-card">
+                        <div class="about-logo">F</div>
                         <h2>FreedomNet</h2>
-                        <p>A modern platform for authentic connection.</p>
-                        <div class="about__version">Version 1.0 — 2024</div>
+                        <p>Connect. Share. Discover.</p>
+                        <div class="about-version">Version 1.0 — 2024</div>
                     </div>
                 </div>
             </div>
@@ -281,12 +357,12 @@
     </div>
     
     <div id="editModal" class="modal">
-        <div class="modal__content">
-            <h3 class="modal__title">Edit profile</h3>
-            <textarea id="editBio" class="modal__textarea" placeholder="Write something about yourself..." rows="4"></textarea>
-            <div class="modal__actions">
-                <button id="closeModal" class="btn btn--outline">Cancel</button>
-                <button id="saveProfile" class="btn btn--primary">Save</button>
+        <div class="modal-card">
+            <h3>Edit profile</h3>
+            <textarea id="editBioInput" class="modal-textarea" placeholder="Write something about yourself..." rows="4"></textarea>
+            <div class="modal-buttons">
+                <button id="closeModalBtn" class="btn-outline">Cancel</button>
+                <button id="saveProfileBtn" class="btn-blue">Save</button>
             </div>
         </div>
     </div>
