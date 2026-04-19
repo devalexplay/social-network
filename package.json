@@ -1,7 +1,7 @@
 {
-  "name": "x-style-auth",
+  "name": "freedomnet",
   "version": "1.0.0",
-  "description": "X-Style Authentication System",
+  "description": "FreedomNet Platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
