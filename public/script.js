@@ -5,6 +5,8 @@ let allPosts = [];
 let currentEditPostId = null;
 let currentDeletePostId = null;
 let currentCommentPostId = null;
+let likedPosts = new Set();
+let repostedPosts = new Set();
 
 const translations = {
     en: {
@@ -28,7 +30,7 @@ const translations = {
         edit: 'Edit', delete_: 'Delete'
     },
     zh: {
-        appName: '自由网', signIn: '登录', signUp: '注册',
+        appName: 'FreedomNet', signIn: '登录', signUp: '注册',
         emailOrUsername: '邮箱或用户名', password: '密码',
         rememberMe: '记住我', forgotPassword: '忘记密码？',
         signInBtn: '登录', fullName: '全名', username: '用户名',
@@ -48,7 +50,7 @@ const translations = {
         edit: '编辑', delete_: '删除'
     },
     hi: {
-        appName: 'फ्रीडमनेट', signIn: 'साइन इन', signUp: 'साइन अप',
+        appName: 'FreedomNet', signIn: 'साइन इन', signUp: 'साइन अप',
         emailOrUsername: 'ईमेल या उपयोगकर्ता नाम', password: 'पासवर्ड',
         rememberMe: 'मुझे याद रखें', forgotPassword: 'पासवर्ड भूल गए?',
         signInBtn: 'साइन इन', fullName: 'पूरा नाम', username: 'उपयोगकर्ता नाम',
@@ -108,7 +110,7 @@ const translations = {
         edit: 'Modifier', delete_: 'Supprimer'
     },
     ar: {
-        appName: 'فريدوم نت', signIn: 'تسجيل الدخول', signUp: 'اشتراك',
+        appName: 'FreedomNet', signIn: 'تسجيل الدخول', signUp: 'اشتراك',
         emailOrUsername: 'البريد الإلكتروني أو اسم المستخدم', password: 'كلمة المرور',
         rememberMe: 'تذكرني', forgotPassword: 'نسيت كلمة المرور؟',
         signInBtn: 'تسجيل الدخول', fullName: 'الاسم الكامل', username: 'اسم المستخدم',
@@ -128,7 +130,7 @@ const translations = {
         edit: 'تعديل', delete_: 'حذف'
     },
     bn: {
-        appName: 'ফ্রিডমনেট', signIn: 'সাইন ইন', signUp: 'সাইন আপ',
+        appName: 'FreedomNet', signIn: 'সাইন ইন', signUp: 'সাইন আপ',
         emailOrUsername: 'ইমেইল বা ইউজারনেম', password: 'পাসওয়ার্ড',
         rememberMe: 'মনে রাখুন', forgotPassword: 'পাসওয়ার্ড ভুলে গেছেন?',
         signInBtn: 'সাইন ইন', fullName: 'পুরো নাম', username: 'ইউজারনেম',
@@ -168,7 +170,7 @@ const translations = {
         edit: 'Editar', delete_: 'Excluir'
     },
     ru: {
-        appName: 'ФридомНет', signIn: 'Войти', signUp: 'Регистрация',
+        appName: 'FreedomNet', signIn: 'Войти', signUp: 'Регистрация',
         emailOrUsername: 'Email или имя', password: 'Пароль',
         rememberMe: 'Запомнить', forgotPassword: 'Забыли пароль?',
         signInBtn: 'Войти', fullName: 'Полное имя', username: 'Имя',
@@ -188,7 +190,7 @@ const translations = {
         edit: 'Редактировать', delete_: 'Удалить'
     },
     ur: {
-        appName: 'فریڈم نیٹ', signIn: 'سائن ان', signUp: 'سائن اپ',
+        appName: 'FreedomNet', signIn: 'سائن ان', signUp: 'سائن اپ',
         emailOrUsername: 'ای میل یا صارف نام', password: 'پاس ورڈ',
         rememberMe: 'مجھے یاد رکھیں', forgotPassword: 'پاس ورڈ بھول گئے؟',
         signInBtn: 'سائن ان', fullName: 'پورا نام', username: 'صارف نام',
@@ -246,6 +248,7 @@ function updateLanguage(lang) {
     });
     document.getElementById('languageSelect').value = lang;
     document.getElementById('settingsLanguageSelect').value = lang;
+    document.getElementById('pageTitle').textContent = translations[lang][currentPage === 'home' ? 'home' : currentPage] || currentPage;
 }
 
 const authScreen = document.querySelector('.auth-screen');
@@ -459,7 +462,13 @@ async function loadPosts() {
                     <span class="post-time">${formatTime(post.createdAt)}</span>
                     ${post.userId === currentUser.id ? `
                         <div class="post-menu">
-                            <button class="menu-btn" onclick="toggleMenu(event, '${post.id}')">•••</button>
+                            <button class="menu-btn" onclick="toggleMenu(event, '${post.id}')">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="1"/>
+                                    <circle cx="12" cy="5" r="1"/>
+                                    <circle cx="12" cy="19" r="1"/>
+                                </svg>
+                            </button>
                             <div class="post-menu-dropdown" id="menu-${post.id}">
                                 <div class="dropdown-item" onclick="editPost('${post.id}', '${escapeHtml(post.content).replace(/'/g, "\\'")}')">${translations[currentLanguage].edit || 'Edit'}</div>
                                 <div class="dropdown-item delete" onclick="deletePost('${post.id}')">${translations[currentLanguage].delete_ || 'Delete'}</div>
@@ -469,19 +478,42 @@ async function loadPosts() {
                 </div>
                 <div class="post-text">${escapeHtml(post.content)}</div>
                 <div class="post-actions">
-                    <button class="action-btn like" onclick="likePost('${post.id}')">❤️ <span>${post.likes}</span></button>
-                    <button class="action-btn comment" onclick="openCommentModal('${post.id}')">💬 <span>${post.comments?.length || 0}</span></button>
-                    <button class="action-btn repost" onclick="repostPost('${post.id}')">🔄 <span>${post.reposts || 0}</span></button>
-                    <button class="action-btn save" onclick="savePost('${post.id}')">🔖</button>
+                    <button class="action-btn like" onclick="likePost('${post.id}')" ${likedPosts.has(post.id) ? 'style="color:var(--error)"' : ''}>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${likedPosts.has(post.id) ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        <span>${post.likes}</span>
+                    </button>
+                    <button class="action-btn comment" onclick="openCommentModal('${post.id}')">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span>${post.comments?.length || 0}</span>
+                    </button>
+                    <button class="action-btn repost" onclick="repostPost('${post.id}')" ${repostedPosts.has(post.id) ? 'style="color:var(--success)"' : ''}>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 1l4 4-4 4"/>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                            <path d="M7 23l-4-4 4-4"/>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                        </svg>
+                        <span>${post.reposts || 0}</span>
+                    </button>
+                    <button class="action-btn save" onclick="savePost('${post.id}')">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </button>
                 </div>
                 ${post.comments && post.comments.length > 0 ? `
-                    <div class="post-comments">
+                    <div class="post-comments" style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border-color)">
                         ${post.comments.slice(0, 2).map(c => `
-                            <div class="comment-item">
-                                <strong>${escapeHtml(c.fullName || c.username)}</strong> ${escapeHtml(c.comment)}
+                            <div class="comment-item" style="font-size:13px;margin-bottom:8px">
+                                <strong style="color:var(--text-primary)">${escapeHtml(c.fullName || c.username)}</strong>
+                                <span style="color:var(--text-tertiary)"> ${escapeHtml(c.comment)}</span>
                             </div>
                         `).join('')}
-                        ${post.comments.length > 2 ? `<div class="more-comments">+${post.comments.length - 2} more comments</div>` : ''}
+                        ${post.comments.length > 2 ? `<div style="color:var(--text-tertiary);font-size:12px;cursor:pointer" onclick="openCommentModal('${post.id}')">+${post.comments.length - 2} more comments</div>` : ''}
                     </div>
                 ` : ''}
             </div>
@@ -535,6 +567,11 @@ window.deletePost = function(postId) {
 };
 
 window.likePost = async (postId) => {
+    if (likedPosts.has(postId)) {
+        showCustomAlert('You already liked this post');
+        return;
+    }
+    likedPosts.add(postId);
     await fetch(`${API_URL}/api/posts/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -544,6 +581,11 @@ window.likePost = async (postId) => {
 };
 
 window.repostPost = async (postId) => {
+    if (repostedPosts.has(postId)) {
+        showCustomAlert('You already reposted this post');
+        return;
+    }
+    repostedPosts.add(postId);
     await fetch(`${API_URL}/api/posts/repost`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -630,9 +672,9 @@ async function loadUserPosts() {
                 <div class="post-body">
                     <div class="post-text">${escapeHtml(post.content)}</div>
                     <div class="post-actions">
-                        <span>❤️ ${post.likes}</span>
-                        <span>💬 ${post.comments?.length || 0}</span>
-                        <span>🔄 ${post.reposts || 0}</span>
+                        <span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> ${post.likes}</span>
+                        <span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ${post.comments?.length || 0}</span>
+                        <span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> ${post.reposts || 0}</span>
                     </div>
                 </div>
             </div>
