@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -34,6 +33,7 @@ db.serialize(() => {
         user_id INTEGER,
         content TEXT,
         image TEXT,
+        edited INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )`);
@@ -225,6 +225,31 @@ app.post('/api/posts', isAuthenticated, upload.single('image'), (req, res) => {
     db.run('INSERT INTO posts (user_id, content, image) VALUES (?, ?, ?)', [req.session.userId, content || '', image], function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ id: this.lastID });
+    });
+});
+
+app.put('/api/posts/:id', isAuthenticated, (req, res) => {
+    const postId = req.params.id;
+    const { content, removeImage } = req.body;
+    
+    db.get('SELECT user_id FROM posts WHERE id = ?', [postId], (err, post) => {
+        if (err || !post) return res.status(404).json({ error: 'Post not found' });
+        if (post.user_id !== req.session.userId) return res.status(403).json({ error: 'Unauthorized' });
+        
+        let updateQuery = 'UPDATE posts SET content = ?, edited = 1';
+        let params = [content];
+        
+        if (removeImage) {
+            updateQuery += ', image = NULL';
+        }
+        
+        updateQuery += ' WHERE id = ?';
+        params.push(postId);
+        
+        db.run(updateQuery, params, (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true });
+        });
     });
 });
 
@@ -558,15 +583,7 @@ app.get('/api/online/:userId', (req, res) => {
 const clients = new Map();
 
 wss.on('connection', (ws, req) => {
-    const cookies = req.headers.cookie;
     let userId = null;
-    if (cookies) {
-        const match = cookies.match(/connect\.sid=s%3A([^\.]+)/);
-        if (match) {
-            const sessionId = match[1];
-            // In production, you'd need to properly parse the session
-        }
-    }
     
     ws.on('message', (message) => {
         try {
@@ -599,6 +616,10 @@ function broadcastToUser(userId, data) {
         client.send(JSON.stringify(data));
     }
 }
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
