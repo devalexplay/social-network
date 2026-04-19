@@ -57,7 +57,7 @@ app.post('/api/register', async (req, res) => {
       email,
       password: hashedPassword,
       fullName: fullName || username,
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || username)}&background=1d9bf0&color=fff&bold=true&size=128`,
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || username)}&background=0ea5e9&color=fff&bold=true&size=128&rounded=true`,
       bio: '',
       joinDate: new Date().toISOString(),
       followers: 0,
