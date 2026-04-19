@@ -14,13 +14,9 @@
         body {
             background: #0A0A0A;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
-            padding: 20px;
             position: relative;
-            overflow-x: hidden;
+            padding: 40px 24px;
         }
 
         /* Абстрактные световые линии на фоне */
@@ -32,67 +28,77 @@
             width: 140%;
             height: 140%;
             background: radial-gradient(circle at 20% 30%, rgba(29, 155, 240, 0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+                        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* iPhone-подобный контейнер */
-        .iphone-container {
-            max-width: 400px;
-            width: 100%;
+        /* Главный контейнер */
+        .app-container {
+            max-width: 1200px;
             margin: 0 auto;
-            background: #0A0A0A;
-            border-radius: 50px;
             position: relative;
             z-index: 2;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
         }
 
-        /* Основной контент с прокруткой */
-        .screen-content {
-            padding: 20px 16px;
-            max-height: 85vh;
-            overflow-y: auto;
-            scrollbar-width: thin;
-        }
-
-        .screen-content::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .screen-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-
-        .screen-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-
-        /* СТАТУС БАР */
-        .status-bar {
-            padding: 14px 20px 8px;
+        /* Шапка сайта */
+        .site-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 15px;
-            font-weight: 590;
-            color: rgba(255, 255, 255, 0.9);
-            letter-spacing: 0.2px;
-            background: transparent;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
-        .time {
-            font-weight: 590;
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1d9bf0 0%, #6c5ce7 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
         }
 
-        .status-icons {
+        /* Навигация (старый добрый More) */
+        .nav-links {
             display: flex;
-            gap: 6px;
-            opacity: 0.8;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #1d9bf0 0%, #0e7ac9 100%);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Сетка карточек */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
         }
 
         /* СТЕКЛЯННЫЕ КАРТОЧКИ */
@@ -104,45 +110,40 @@
             border-radius: 28px;
             transition: all 0.25s ease-out;
             cursor: pointer;
+            overflow: hidden;
         }
 
         .glass-card:hover {
-            transform: scale(1.02);
+            transform: translateY(-4px);
             background: rgba(255, 255, 255, 0.09);
             border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.4);
         }
 
-        /* Сетка 2 колонки для маленьких карточек */
-        .mini-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 16px;
-        }
-
+        /* Маленькие карточки (2 в ряд внутри сетки) */
         .mini-card {
-            padding: 16px;
+            padding: 20px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
         }
 
         .mini-icon {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             background: rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
+            border-radius: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 28px;
         }
 
         .mini-info h4 {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .mini-info p {
@@ -151,24 +152,23 @@
             font-weight: 500;
         }
 
-        /* БОЛЬШАЯ КАРТОЧКА ПРОГРЕССА */
+        /* Прогресс карточка */
         .progress-card {
-            padding: 20px;
-            margin-bottom: 16px;
+            padding: 24px;
         }
 
         .progress-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .progress-title h3 {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .progress-title p {
@@ -180,7 +180,7 @@
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .progress-label {
@@ -198,7 +198,7 @@
         .progress-bar-container {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 100px;
-            height: 6px;
+            height: 8px;
             overflow: hidden;
         }
 
@@ -206,28 +206,27 @@
             background: rgba(255, 255, 255, 0.9);
             border-radius: 100px;
             height: 100%;
-            width: 67%;
-            transition: width 0.3s ease;
+            width: 0%;
+            transition: width 0.5s ease;
         }
 
-        /* STREAK КАРТОЧКА */
+        /* Streak карточка */
         .streak-card {
-            padding: 20px;
-            margin-bottom: 16px;
+            padding: 24px;
         }
 
         .streak-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .streak-title h3 {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .streak-title p {
@@ -236,21 +235,20 @@
         }
 
         .streak-icon {
-            font-size: 32px;
+            font-size: 36px;
             filter: drop-shadow(0 0 8px rgba(255, 100, 0, 0.3));
         }
 
         /* Кружки дней */
         .days-row {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
-            justify-content: space-between;
         }
 
         .day-circle {
-            width: 36px;
-            height: 36px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -265,28 +263,27 @@
         .day-circle.completed {
             background: rgba(255, 255, 255, 0.15);
             color: rgba(255, 255, 255, 0.9);
-            position: relative;
         }
 
         .day-circle.completed::after {
             content: '✓';
-            font-size: 12px;
-            margin-left: 2px;
+            font-size: 11px;
+            margin-left: 3px;
         }
 
         .day-circle.current {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
         }
 
-        /* ПАГИНАЦИЯ */
+        /* Пагинация */
         .pagination {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin: 20px 0 24px;
+            gap: 12px;
+            margin: 32px 0 40px;
         }
 
         .dot {
@@ -295,37 +292,39 @@
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
             transition: all 0.2s ease;
+            cursor: pointer;
         }
 
         .dot.active {
-            width: 24px;
+            width: 28px;
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.7);
         }
 
-        /* DOCK (нижняя панель) */
+        /* Нижняя панель (Dock) */
         .dock {
             background: rgba(20, 22, 32, 0.7);
             backdrop-filter: blur(40px);
             -webkit-backdrop-filter: blur(40px);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 32px;
-            margin: 8px 12px 20px 12px;
-            padding: 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 60px;
+            padding: 12px 24px;
             display: flex;
             justify-content: space-around;
             align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .dock-icon {
-            width: 52px;
-            height: 52px;
+            width: 56px;
+            height: 56px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 28px;
+            border-radius: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
+            font-size: 28px;
             cursor: pointer;
             transition: all 0.2s ease;
             color: rgba(255, 255, 255, 0.7);
@@ -333,67 +332,119 @@
 
         .dock-icon:hover {
             background: rgba(255, 255, 255, 0.12);
-            transform: scale(1.05);
+            transform: scale(1.08);
             color: white;
         }
 
-        /* Адаптация под мобильные */
-        @media (max-width: 480px) {
+        /* Футер */
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+        }
+
+        /* Адаптация */
+        @media (max-width: 768px) {
             body {
-                padding: 12px;
+                padding: 20px 16px;
             }
-            .iphone-container {
-                border-radius: 40px;
+            .cards-grid {
+                grid-template-columns: 1fr;
             }
-            .screen-content {
-                padding: 16px 14px;
+            .nav-links {
+                justify-content: center;
+                width: 100%;
             }
-            .day-circle {
-                width: 32px;
-                height: 32px;
-                font-size: 12px;
+            .site-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .dock {
+                padding: 10px 16px;
             }
             .dock-icon {
                 width: 48px;
                 height: 48px;
                 font-size: 24px;
             }
+            .day-circle {
+                width: 36px;
+                height: 36px;
+                font-size: 12px;
+            }
         }
+
+        @media (max-width: 480px) {
+            .day-circle {
+                width: 32px;
+                height: 32px;
+            }
+            .days-row {
+                gap: 8px;
+            }
+        }
+
+        /* Анимация появления */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-card {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .glass-card:nth-child(1) { animation-delay: 0.05s; }
+        .glass-card:nth-child(2) { animation-delay: 0.1s; }
+        .glass-card:nth-child(3) { animation-delay: 0.15s; }
+        .glass-card:nth-child(4) { animation-delay: 0.2s; }
     </style>
 </head>
 <body>
-    <div class="iphone-container">
-        <!-- Статус бар -->
-        <div class="status-bar">
-            <span class="time">8:30</span>
-            <div class="status-icons">
-                <span>📶</span>
-                <span>📶</span>
-                <span>🔋</span>
+    <div class="app-container">
+        <!-- Шапка -->
+        <div class="site-header">
+            <div class="logo">FreedomNet</div>
+            <div class="nav-links">
+                <div class="nav-link active" data-tab="feed">Feed</div>
+                <div class="nav-link" data-tab="profile">Profile</div>
+                <div class="nav-link" data-tab="messages">Messages</div>
+                <div class="nav-link" data-tab="search">Search</div>
+                <div class="nav-link" data-tab="more">More</div>
             </div>
         </div>
 
-        <!-- Основной контент -->
-        <div class="screen-content">
-            <!-- Сетка маленьких карточек -->
-            <div class="mini-grid">
-                <div class="glass-card mini-card">
-                    <div class="mini-icon">📱</div>
-                    <div class="mini-info">
-                        <h4>Daily dual phones</h4>
-                        <p>Day 2</p>
-                    </div>
-                </div>
-                <div class="glass-card mini-card">
-                    <div class="mini-icon">🍎</div>
-                    <div class="mini-info">
-                        <h4>Eat last meal earlier</h4>
-                        <p>Day 1</p>
-                    </div>
+        <!-- Сетка карточек -->
+        <div class="cards-grid" id="cardsGrid">
+            <!-- Мини-карточка 1 -->
+            <div class="glass-card mini-card">
+                <div class="mini-icon">📱</div>
+                <div class="mini-info">
+                    <h4>Daily dual phones</h4>
+                    <p>Day 2</p>
                 </div>
             </div>
 
-            <!-- Большая карточка прогресса -->
+            <!-- Мини-карточка 2 -->
+            <div class="glass-card mini-card">
+                <div class="mini-icon">🍎</div>
+                <div class="mini-info">
+                    <h4>Eat last meal earlier</h4>
+                    <p>Day 1</p>
+                </div>
+            </div>
+
+            <!-- Прогресс карточка -->
             <div class="glass-card progress-card">
                 <div class="progress-header">
                     <div class="progress-title">
@@ -429,59 +480,75 @@
                     <div class="day-circle">7</div>
                 </div>
             </div>
-
-            <!-- Пагинация -->
-            <div class="pagination">
-                <div class="dot active"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
         </div>
 
-        <!-- Нижняя панель (Dock) -->
+        <!-- Пагинация -->
+        <div class="pagination">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <!-- Нижняя панель Dock -->
         <div class="dock">
             <div class="dock-icon">🌐</div>
             <div class="dock-icon">💬</div>
             <div class="dock-icon">📱</div>
             <div class="dock-icon">🎵</div>
         </div>
+
+        <!-- Футер -->
+        <div class="footer">
+            © 2026 FreedomNet — Glass UI
+        </div>
     </div>
 
     <script>
-        // Добавляем лёгкие анимации при загрузке
-        document.querySelectorAll('.glass-card').forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 50);
-        });
-
-        // Эффект свечения при наведении на активную точку пагинации
-        document.querySelectorAll('.dot').forEach(dot => {
-            dot.addEventListener('mouseenter', function() {
-                if (!this.classList.contains('active')) {
-                    this.style.transform = 'scale(1.5)';
+        // Простая навигация
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tab = this.dataset.tab;
+                if (tab === 'more') {
+                    showMorePanel();
+                } else {
+                    showToast(`${tab} section (demo)`);
                 }
             });
-            dot.addEventListener('mouseleave', function() {
-                this.style.transform = 'scale(1)';
+        });
+
+        // Эффект свечения на точках пагинации
+        document.querySelectorAll('.dot').forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Плавная смена контента (демо)
+                const cards = document.querySelectorAll('.glass-card');
+                cards.forEach((card, i) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, i * 50);
+                });
             });
         });
 
-        // Добавляем ripple-эффект на иконки док-панели
+        // Ripple эффект для док-иконок
         document.querySelectorAll('.dock-icon').forEach(icon => {
             icon.addEventListener('click', function(e) {
                 const ripple = document.createElement('span');
                 ripple.style.position = 'absolute';
                 ripple.style.width = '100%';
                 ripple.style.height = '100%';
-                ripple.style.borderRadius = '28px';
-                ripple.style.background = 'rgba(255,255,255,0.2)';
+                ripple.style.borderRadius = '30px';
+                ripple.style.background = 'rgba(255,255,255,0.15)';
                 ripple.style.transform = 'scale(0)';
                 ripple.style.transition = 'transform 0.3s ease-out';
                 ripple.style.pointerEvents = 'none';
@@ -490,8 +557,96 @@
                 this.appendChild(ripple);
                 setTimeout(() => { ripple.style.transform = 'scale(3)'; }, 10);
                 setTimeout(() => { ripple.remove(); }, 300);
+                showToast('Dock icon clicked');
             });
         });
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0,0,0,0.8);
+                backdrop-filter: blur(20px);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 40px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: fadeInUp 0.3s ease;
+                border: 1px solid rgba(255,255,255,0.1);
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function showMorePanel() {
+            const panel = document.createElement('div');
+            panel.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(20, 22, 32, 0.95);
+                backdrop-filter: blur(40px);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 32px;
+                padding: 28px;
+                width: 320px;
+                z-index: 1000;
+                animation: fadeInUp 0.3s ease;
+            `;
+            panel.innerHTML = `
+                <h3 style="color:white; margin-bottom:20px; font-size:20px;">Settings</h3>
+                <div style="margin-bottom:16px;">
+                    <div style="color:rgba(255,255,255,0.7); margin-bottom:8px;">Theme</div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="theme-btn" data-theme="dark" style="background:rgba(255,255,255,0.1); border:none; padding:8px 16px; border-radius:20px; color:white; cursor:pointer;">Dark</button>
+                        <button class="theme-btn" data-theme="light" style="background:rgba(255,255,255,0.1); border:none; padding:8px 16px; border-radius:20px; color:white; cursor:pointer;">Light</button>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <div style="color:rgba(255,255,255,0.7); margin-bottom:8px;">Language</div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="lang-btn" data-lang="en" style="background:rgba(255,255,255,0.1); border:none; padding:8px 16px; border-radius:20px; color:white; cursor:pointer;">English</button>
+                        <button class="lang-btn" data-lang="ru" style="background:rgba(255,255,255,0.1); border:none; padding:8px 16px; border-radius:20px; color:white; cursor:pointer;">Русский</button>
+                        <button class="lang-btn" data-lang="es" style="background:rgba(255,255,255,0.1); border:none; padding:8px 16px; border-radius:20px; color:white; cursor:pointer;">Español</button>
+                    </div>
+                </div>
+                <button id="closeMore" style="width:100%; background:rgba(255,255,255,0.1); border:none; padding:12px; border-radius:28px; color:white; cursor:pointer; margin-top:8px;">Close</button>
+            `;
+            document.body.appendChild(panel);
+            
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.body.style.background = btn.dataset.theme === 'dark' ? '#0A0A0A' : '#f5f5f7';
+                    showToast(`Theme changed to ${btn.dataset.theme}`);
+                });
+            });
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    showToast(`Language changed to ${btn.dataset.lang.toUpperCase()}`);
+                });
+            });
+            
+            document.getElementById('closeMore').onclick = () => panel.remove();
+        }
+
+        // Обновляем прогресс бар при наведении
+        const progressBar = document.querySelector('.progress-bar-fill');
+        if (progressBar) {
+            const parent = progressBar.closest('.progress-card');
+            parent.addEventListener('mouseenter', () => {
+                progressBar.style.width = '73%';
+            });
+            parent.addEventListener('mouseleave', () => {
+                progressBar.style.width = '67%';
+            });
+        }
     </script>
 </body>
 </html>
