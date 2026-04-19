@@ -1,7 +1,7 @@
 {
-  "name": "cinematic-auth",
+  "name": "x-style-auth",
   "version": "1.0.0",
-  "description": "Cinematic Authentication System",
+  "description": "X-Style Authentication System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
