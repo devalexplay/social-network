@@ -363,6 +363,11 @@ body {
     cursor: pointer;
 }
 
+.language-selector select option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
 .logout-btn {
     display: flex;
     align-items: center;
@@ -421,7 +426,7 @@ body {
 .main-header {
     position: sticky;
     top: 0;
-    background: rgba(var(--bg-primary-rgb, 0, 0, 0), 0.95);
+    background: var(--bg-primary);
     backdrop-filter: blur(12px);
     padding: 16px 20px;
     border-bottom: 1px solid var(--border-color);
@@ -429,6 +434,7 @@ body {
     justify-content: space-between;
     align-items: center;
     z-index: 10;
+    transition: background 0.3s ease;
 }
 
 .main-header h2 {
@@ -591,6 +597,7 @@ body {
     margin-bottom: 6px;
     flex-wrap: wrap;
     align-items: center;
+    position: relative;
 }
 
 .post-name {
@@ -616,7 +623,7 @@ body {
 
 .post-actions {
     display: flex;
-    gap: 24px;
+    gap: 32px;
     margin-top: 8px;
 }
 
@@ -655,8 +662,8 @@ body {
 }
 
 .post-menu {
-    margin-left: auto;
     position: relative;
+    margin-left: auto;
 }
 
 .menu-btn {
@@ -686,10 +693,23 @@ body {
     z-index: 100;
     display: none;
     min-width: 150px;
+    overflow: hidden;
 }
 
 .post-menu-dropdown.show {
     display: block;
+    animation: dropdownFade 0.15s ease;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .dropdown-item {
@@ -697,6 +717,7 @@ body {
     cursor: pointer;
     transition: background 0.2s;
     font-size: 14px;
+    color: var(--text-primary);
 }
 
 .dropdown-item:hover {
@@ -705,6 +726,10 @@ body {
 
 .dropdown-item.delete {
     color: var(--error);
+}
+
+.dropdown-item.delete:hover {
+    background: rgba(244, 33, 46, 0.1);
 }
 
 .explore-container {
@@ -766,7 +791,9 @@ body {
 }
 
 .notification-icon {
-    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .notification-content p {
@@ -784,8 +811,7 @@ body {
     color: var(--text-tertiary);
 }
 
-.messages-icon {
-    font-size: 48px;
+.messages-empty svg {
     margin-bottom: 16px;
 }
 
