@@ -8,7 +8,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = 'x-platform-secure-key-2024';
+const SECRET_KEY = 'freedomnet-secure-key-2024';
 
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -24,6 +24,8 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 const users = [];
+const posts = [];
+const settings = {};
 
 app.post('/api/register', async (req, res) => {
   try {
@@ -54,7 +56,13 @@ app.post('/api/register', async (req, res) => {
       email,
       password: hashedPassword,
       fullName: fullName || username,
-      createdAt: new Date().toISOString()
+      avatar: `https://ui-avatars.com/api/?name=${fullName || username}&background=1d9bf0&color=fff`,
+      createdAt: new Date().toISOString(),
+      preferences: {
+        theme: 'dark',
+        notifications: true,
+        animations: true
+      }
     };
     
     users.push(newUser);
@@ -72,7 +80,9 @@ app.post('/api/register', async (req, res) => {
         id: newUser.id,
         username: newUser.username,
         email: newUser.email,
-        fullName: newUser.fullName
+        fullName: newUser.fullName,
+        avatar: newUser.avatar,
+        preferences: newUser.preferences
       }
     });
   } catch (error) {
@@ -111,11 +121,64 @@ app.post('/api/login', async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        fullName: user.fullName
+        fullName: user.fullName,
+        avatar: user.avatar,
+        preferences: user.preferences
       }
     });
   } catch (error) {
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+app.post('/api/posts', (req, res) => {
+  const { userId, content } = req.body;
+  const newPost = {
+    id: Date.now().toString(),
+    userId,
+    content,
+    likes: 0,
+    comments: [],
+    createdAt: new Date().toISOString()
+  };
+  posts.unshift(newPost);
+  res.json({ success: true, post: newPost });
+});
+
+app.get('/api/posts', (req, res) => {
+  const postsWithUsers = posts.map(post => {
+    const user = users.find(u => u.id === post.userId);
+    return {
+      ...post,
+      user: user ? {
+        username: user.username,
+        fullName: user.fullName,
+        avatar: user.avatar
+      } : null
+    };
+  });
+  res.json(postsWithUsers);
+});
+
+app.post('/api/posts/like', (req, res) => {
+  const { postId } = req.body;
+  const post = posts.find(p => p.id === postId);
+  if (post) {
+    post.likes++;
+    res.json({ success: true, likes: post.likes });
+  } else {
+    res.status(404).json({ error: 'Post not found' });
+  }
+});
+
+app.post('/api/settings', (req, res) => {
+  const { userId, preferences } = req.body;
+  const user = users.find(u => u.id === userId);
+  if (user) {
+    user.preferences = { ...user.preferences, ...preferences };
+    res.json({ success: true, preferences: user.preferences });
+  } else {
+    res.status(404).json({ error: 'User not found' });
   }
 });
 
@@ -143,5 +206,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`FreedomNet running on http://localhost:${PORT}`);
 });
