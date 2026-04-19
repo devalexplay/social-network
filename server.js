@@ -24,8 +24,9 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 const users = [];
-const posts = [];
-const settings = {};
+let posts = [];
+let nextPostId = 1;
+let nextUserId = 1;
 
 app.post('/api/register', async (req, res) => {
   try {
@@ -51,18 +52,16 @@ app.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const newUser = {
-      id: Date.now().toString(),
+      id: (nextUserId++).toString(),
       username,
       email,
       password: hashedPassword,
       fullName: fullName || username,
-      avatar: `https://ui-avatars.com/api/?name=${fullName || username}&background=1d9bf0&color=fff`,
-      createdAt: new Date().toISOString(),
-      preferences: {
-        theme: 'dark',
-        notifications: true,
-        animations: true
-      }
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || username)}&background=1d9bf0&color=fff&bold=true`,
+      bio: 'Welcome to FreedomNet!',
+      joinDate: new Date().toISOString(),
+      followers: 0,
+      following: 0
     };
     
     users.push(newUser);
@@ -82,7 +81,10 @@ app.post('/api/register', async (req, res) => {
         email: newUser.email,
         fullName: newUser.fullName,
         avatar: newUser.avatar,
-        preferences: newUser.preferences
+        bio: newUser.bio,
+        joinDate: newUser.joinDate,
+        followers: newUser.followers,
+        following: newUser.following
       }
     });
   } catch (error) {
@@ -123,7 +125,10 @@ app.post('/api/login', async (req, res) => {
         email: user.email,
         fullName: user.fullName,
         avatar: user.avatar,
-        preferences: user.preferences
+        bio: user.bio,
+        joinDate: user.joinDate,
+        followers: user.followers,
+        following: user.following
       }
     });
   } catch (error) {
@@ -133,30 +138,39 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/posts', (req, res) => {
   const { userId, content } = req.body;
+  const user = users.find(u => u.id === userId);
+  
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
   const newPost = {
-    id: Date.now().toString(),
+    id: (nextPostId++).toString(),
     userId,
     content,
     likes: 0,
     comments: [],
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    user: {
+      username: user.username,
+      fullName: user.fullName,
+      avatar: user.avatar
+    }
   };
+  
   posts.unshift(newPost);
   res.json({ success: true, post: newPost });
 });
 
 app.get('/api/posts', (req, res) => {
-  const postsWithUsers = posts.map(post => {
-    const user = users.find(u => u.id === post.userId);
-    return {
-      ...post,
-      user: user ? {
-        username: user.username,
-        fullName: user.fullName,
-        avatar: user.avatar
-      } : null
-    };
-  });
+  const postsWithUsers = posts.map(post => ({
+    ...post,
+    user: users.find(u => u.id === post.userId) ? {
+      username: users.find(u => u.id === post.userId).username,
+      fullName: users.find(u => u.id === post.userId).fullName,
+      avatar: users.find(u => u.id === post.userId).avatar
+    } : null
+  }));
   res.json(postsWithUsers);
 });
 
@@ -171,12 +185,42 @@ app.post('/api/posts/like', (req, res) => {
   }
 });
 
-app.post('/api/settings', (req, res) => {
-  const { userId, preferences } = req.body;
+app.post('/api/posts/comment', (req, res) => {
+  const { postId, userId, comment } = req.body;
+  const post = posts.find(p => p.id === postId);
   const user = users.find(u => u.id === userId);
+  
+  if (post && user) {
+    post.comments.push({
+      id: Date.now().toString(),
+      userId,
+      username: user.username,
+      comment,
+      createdAt: new Date().toISOString()
+    });
+    res.json({ success: true, comments: post.comments });
+  } else {
+    res.status(404).json({ error: 'Post or user not found' });
+  }
+});
+
+app.post('/api/user/update', (req, res) => {
+  const { userId, bio } = req.body;
+  const user = users.find(u => u.id === userId);
+  
   if (user) {
-    user.preferences = { ...user.preferences, ...preferences };
-    res.json({ success: true, preferences: user.preferences });
+    if (bio) user.bio = bio;
+    res.json({ success: true, user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      avatar: user.avatar,
+      bio: user.bio,
+      joinDate: user.joinDate,
+      followers: user.followers,
+      following: user.following
+    }});
   } else {
     res.status(404).json({ error: 'User not found' });
   }
