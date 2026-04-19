@@ -2,142 +2,244 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auth System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEBULA | Auth System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <div class="noise"></div>
+    <div class="gradient-bg"></div>
+    
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+    
+    <div class="scene">
+        <div class="aurora"></div>
+        <div class="aurora aurora-2"></div>
+    </div>
     
     <div class="container">
-        <div class="card">
-            <div class="brand">
-                <svg class="brand-icon" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5"/>
-                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
-                </svg>
-                <h1>auth<span>flow</span></h1>
+        <div class="morph-card">
+            <div class="glow-edge"></div>
+            
+            <div class="header">
+                <div class="logo-3d">
+                    <svg class="logo-svg" viewBox="0 0 100 100">
+                        <defs>
+                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="50%" stop-color="#8b5cf6"/>
+                                <stop offset="100%" stop-color="#d946ef"/>
+                            </linearGradient>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <path d="M50 10 L70 30 L50 50 L30 30 Z" fill="url(#grad)" filter="url(#glow)" opacity="0.9"/>
+                        <path d="M50 50 L70 30 L90 50 L70 70 Z" fill="url(#grad)" filter="url(#glow)" opacity="0.7"/>
+                        <path d="M50 50 L30 30 L10 50 L30 70 Z" fill="url(#grad)" filter="url(#glow)" opacity="0.7"/>
+                        <path d="M50 50 L70 70 L50 90 L30 70 Z" fill="url(#grad)" filter="url(#glow)" opacity="0.9"/>
+                        <circle cx="50" cy="50" r="8" fill="white" filter="url(#glow)"/>
+                    </svg>
+                    <h1 class="logo-text">AETHER</h1>
+                </div>
+                <p class="tagline">secure authentication framework</p>
             </div>
             
-            <div class="tabs">
-                <button class="tab active" data-tab="login">sign in</button>
-                <button class="tab" data-tab="register">sign up</button>
+            <div class="switch-container">
+                <div class="switch-bg"></div>
+                <button class="switch-btn active" data-mode="login">ACCESS</button>
+                <button class="switch-btn" data-mode="register">CREATE</button>
             </div>
             
-            <form id="loginForm" class="form active">
-                <div class="input-group">
-                    <input type="text" id="loginUsername" required autocomplete="off">
-                    <label>username or email</label>
-                    <div class="line"></div>
-                </div>
-                
-                <div class="input-group">
-                    <input type="password" id="loginPassword" required>
-                    <label>password</label>
-                    <div class="line"></div>
-                    <button type="button" class="eye" data-target="loginPassword">
-                        <svg viewBox="0 0 24 24" width="20" height="20">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+            <div class="forms-container">
+                <form id="loginForm" class="form-panel active">
+                    <div class="input-wrapper">
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <input type="text" id="loginUsername" class="input-field" autocomplete="off">
+                        <label class="input-label">IDENTIFIER</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <input type="password" id="loginPassword" class="input-field">
+                        <label class="input-label">SECRET KEY</label>
+                        <div class="input-line"></div>
+                        <button type="button" class="toggle-visibility" data-target="loginPassword">
+                            <svg viewBox="0 0 24 24" width="18" height="18">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="options-bar">
+                        <label class="checkbox-glow">
+                            <input type="checkbox" id="rememberMe">
+                            <span></span>
+                            <span class="checkbox-text">PERSIST SESSION</span>
+                        </label>
+                        <a href="#" class="forgot-link">RECOVER ACCESS</a>
+                    </div>
+                    
+                    <button type="submit" class="action-btn">
+                        <span class="btn-text">INITIATE SESSION</span>
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/>
                         </svg>
+                        <div class="btn-shine"></div>
                     </button>
-                </div>
+                </form>
                 
-                <div class="options">
-                    <label class="check">
-                        <input type="checkbox" id="rememberMe">
-                        <span>remember me</span>
-                    </label>
-                    <a href="#" class="link">forgot password?</a>
-                </div>
-                
-                <button type="submit" class="btn">
-                    <span>sign in</span>
-                    <svg class="arrow" viewBox="0 0 24 24">
-                        <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none"/>
-                    </svg>
-                </button>
-            </form>
-            
-            <form id="registerForm" class="form">
-                <div class="input-group">
-                    <input type="text" id="regFullName" required autocomplete="off">
-                    <label>full name</label>
-                    <div class="line"></div>
-                </div>
-                
-                <div class="input-group">
-                    <input type="text" id="regUsername" required autocomplete="off">
-                    <label>username</label>
-                    <div class="line"></div>
-                </div>
-                
-                <div class="input-group">
-                    <input type="email" id="regEmail" required autocomplete="off">
-                    <label>email</label>
-                    <div class="line"></div>
-                </div>
-                
-                <div class="input-group">
-                    <input type="password" id="regPassword" required>
-                    <label>password</label>
-                    <div class="line"></div>
-                    <button type="button" class="eye" data-target="regPassword">
-                        <svg viewBox="0 0 24 24" width="20" height="20">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                <form id="registerForm" class="form-panel">
+                    <div class="input-wrapper">
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M17 3.5a4 4 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <input type="text" id="regFullName" class="input-field" autocomplete="off">
+                        <label class="input-label">FULL DESIGNATION</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <input type="text" id="regUsername" class="input-field" autocomplete="off">
+                        <label class="input-label">USERNAME</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <polyline points="22,6 12,13 2,6" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <input type="email" id="regEmail" class="input-field" autocomplete="off">
+                        <label class="input-label">ELECTRONIC MAIL</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <input type="password" id="regPassword" class="input-field">
+                        <label class="input-label">PASSWORD</label>
+                        <div class="input-line"></div>
+                        <button type="button" class="toggle-visibility" data-target="regPassword">
+                            <svg viewBox="0 0 24 24" width="18" height="18">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <input type="password" id="regConfirmPassword" class="input-field">
+                        <label class="input-label">CONFIRM SECRET</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <button type="submit" class="action-btn">
+                        <span class="btn-text">ESTABLISH IDENTITY</span>
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/>
                         </svg>
+                        <div class="btn-shine"></div>
                     </button>
-                </div>
-                
-                <div class="input-group">
-                    <input type="password" id="regConfirmPassword" required>
-                    <label>confirm password</label>
-                    <div class="line"></div>
-                </div>
-                
-                <button type="submit" class="btn">
-                    <span>create account</span>
-                    <svg class="arrow" viewBox="0 0 24 24">
-                        <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none"/>
-                    </svg>
-                </button>
-            </form>
+                </form>
+            </div>
             
-            <div id="message" class="message"></div>
+            <div id="notification" class="notification"></div>
         </div>
     </div>
     
-    <div id="dashboard" class="dashboard">
-        <div class="dashboard-card">
+    <div id="dashboard" class="dashboard-overlay">
+        <div class="dashboard-core">
             <div class="dashboard-header">
-                <div class="greeting">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
-                        <path d="M5 20v-2a7 7 0 0 1 14 0v2" stroke="currentColor" stroke-width="1.5"/>
-                    </svg>
-                    <h2>welcome, <span id="userName"></span></h2>
+                <div class="user-identity">
+                    <div class="avatar-ring">
+                        <div class="avatar">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M5 20v-2a7 7 0 0 1 14 0v2" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="user-details">
+                        <h2 id="displayName"></h2>
+                        <p id="displayRole">ACTIVE SESSION</p>
+                    </div>
                 </div>
-                <button id="logoutBtn" class="logout">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <button id="terminateBtn" class="terminate-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2"/>
                         <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2"/>
                         <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2"/>
                     </svg>
-                    logout
+                    TERMINATE
                 </button>
             </div>
-            <div class="dashboard-content">
-                <div class="test">
-                    <h3>authentication successful</h3>
-                    <p>you have successfully logged in to the system</p>
-                    <div class="divider"></div>
-                    <div class="status">
-                        <span class="badge">active session</span>
-                        <span class="text">test mode</span>
+            <div class="dashboard-body">
+                <div class="verification-badge">
+                    <div class="pulse-ring"></div>
+                    <div class="checkmark">✓</div>
+                    <h3>AUTHENTICATION VERIFIED</h3>
+                    <p>Secure channel established</p>
+                </div>
+                <div class="system-status">
+                    <div class="status-card">
+                        <span class="status-label">CONNECTION</span>
+                        <span class="status-value active">ENCRYPTED</span>
                     </div>
+                    <div class="status-card">
+                        <span class="status-label">SESSION</span>
+                        <span class="status-value active">ACTIVE</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-label">MODE</span>
+                        <span class="status-value">TEST_ENVIRONMENT</span>
+                    </div>
+                </div>
+                <div class="terminal-output">
+                    <div class="terminal-line">> ACCESS_GRANTED: true</div>
+                    <div class="terminal-line">> USER_AUTHENTICATED: true</div>
+                    <div class="terminal-line">> SYSTEM_READY: true</div>
+                    <div class="terminal-line blinking">> AWAITING_COMMANDS...</div>
                 </div>
             </div>
         </div>
