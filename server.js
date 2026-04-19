@@ -333,22 +333,6 @@ app.post('/api/posts', requireAuth, upload.single('image'), (req, res) => {
     res.json({ ...newPost, username: user.username, avatar: user.avatar });
 });
 
-app.put('/api/posts/:id', requireAuth, (req, res) => {
-    const post = getPostById(parseInt(req.params.id));
-    if (!post) return res.status(404).json({ error: 'Post not found' });
-    if (post.user_id !== req.session.userId) return res.status(403).json({ error: 'Not your post' });
-    
-    const { content, removeImage } = req.body;
-    if (!content || content.trim().length < 1) return res.status(400).json({ error: 'Content required' });
-    if (content.length > 500) return res.status(400).json({ error: 'Post too long' });
-    
-    post.content = content.trim();
-    if (removeImage) post.image = null;
-    post.edited = true;
-    saveData();
-    res.json({ success: true });
-});
-
 app.delete('/api/posts/:id', requireAuth, (req, res) => {
     const post = getPostById(parseInt(req.params.id));
     if (!post) return res.status(404).json({ error: 'Post not found' });
@@ -710,12 +694,6 @@ app.get('*', (req, res) => {
 
 // ============ WEBSOCKET ============
 wss.on('connection', (ws, req) => {
-    const cookieHeader = req.headers.cookie;
-    if (cookieHeader) {
-        const sessionIdMatch = cookieHeader.match(/connect\.sid=s%3A([^.]*)/);
-        // Simplified - in production use proper session parsing
-    }
-    
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
