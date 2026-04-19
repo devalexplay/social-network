@@ -57,8 +57,8 @@ app.post('/api/register', async (req, res) => {
       email,
       password: hashedPassword,
       fullName: fullName || username,
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || username)}&background=1d9bf0&color=fff&bold=true`,
-      bio: 'Welcome to FreedomNet!',
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || username)}&background=1d9bf0&color=fff&bold=true&size=128`,
+      bio: '',
       joinDate: new Date().toISOString(),
       followers: 0,
       following: 0
@@ -185,31 +185,12 @@ app.post('/api/posts/like', (req, res) => {
   }
 });
 
-app.post('/api/posts/comment', (req, res) => {
-  const { postId, userId, comment } = req.body;
-  const post = posts.find(p => p.id === postId);
-  const user = users.find(u => u.id === userId);
-  
-  if (post && user) {
-    post.comments.push({
-      id: Date.now().toString(),
-      userId,
-      username: user.username,
-      comment,
-      createdAt: new Date().toISOString()
-    });
-    res.json({ success: true, comments: post.comments });
-  } else {
-    res.status(404).json({ error: 'Post or user not found' });
-  }
-});
-
 app.post('/api/user/update', (req, res) => {
   const { userId, bio } = req.body;
   const user = users.find(u => u.id === userId);
   
   if (user) {
-    if (bio) user.bio = bio;
+    if (bio !== undefined) user.bio = bio;
     res.json({ success: true, user: {
       id: user.id,
       username: user.username,
