@@ -1,7 +1,7 @@
 {
-  "name": "auth-system",
+  "name": "cinematic-auth",
   "version": "1.0.0",
-  "description": "Professional Authentication System",
+  "description": "Cinematic Authentication System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
