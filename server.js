@@ -8,7 +8,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = 'xK9mP2nQ5rT8vW1yZ4cF7jH0lM3pR6sU9';
+const SECRET_KEY = 'x-platform-secure-key-2024';
 
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -30,23 +30,23 @@ app.post('/api/register', async (req, res) => {
     const { username, email, password, fullName } = req.body;
     
     if (!username || !email || !password) {
-      return res.status(400).json({ error: 'All fields required' });
+      return res.status(400).json({ error: 'All fields are required' });
     }
     
     if (password.length < 6) {
-      return res.status(400).json({ error: 'Password too short' });
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Invalid email' });
+      return res.status(400).json({ error: 'Invalid email format' });
     }
     
     if (users.find(u => u.username === username || u.email === email)) {
-      return res.status(400).json({ error: 'User exists' });
+      return res.status(400).json({ error: 'Username or email already exists' });
     }
     
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password, 10);
     
     const newUser = {
       id: Date.now().toString(),
@@ -85,7 +85,7 @@ app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     
     if (!username || !password) {
-      return res.status(400).json({ error: 'Credentials required' });
+      return res.status(400).json({ error: 'Username and password required' });
     }
     
     const user = users.find(u => u.username === username || u.email === username);
