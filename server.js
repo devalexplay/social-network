@@ -1,734 +1,736 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const bcrypt = require('bcryptjs');
 const session = require('express-session');
+const bcrypt = require('bcrypt');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const http = require('http');
+const { v4: uuidv4 } = require('uuid');
 const WebSocket = require('ws');
+const http = require('http');
 
 const app = express();
-const server = http.createServer(app);  // ЭТО ВАЖНО - создаём HTTP сервер
-const wss = new WebSocket.Server({ server });  // WebSocket на том же порту
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
-// ПУТЬ К ПОСТОЯННОМУ ДИСКУ RENDER
-const dataDir = process.env.DISK_PATH || path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-
-const uploadsDir = path.join(dataDir, 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-const dbPath = path.join(dataDir, 'social.db');
-const db = new sqlite3.Database(dbPath);
-
-const storage = multer.diskStorage({
-    destination: uploadsDir,
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
-
-// СОЗДАНИЕ ВСЕХ ТАБЛИЦ
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT,
-        username_lower TEXT UNIQUE,
-        email TEXT UNIQUE,
-        password TEXT,
-        avatar TEXT,
-        bio TEXT,
-        role TEXT DEFAULT 'user',
-        created_at INTEGER,
-        is_creator INTEGER DEFAULT 0,
-        is_official INTEGER DEFAULT 0
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS posts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        content TEXT,
-        image TEXT,
-        created_at INTEGER,
-        edited INTEGER DEFAULT 0,
-        likes_count INTEGER DEFAULT 0,
-        FOREIGN KEY(user_id) REFERENCES users(id)
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS likes (
-        user_id INTEGER,
-        post_id INTEGER,
-        PRIMARY KEY(user_id, post_id)
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS comments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        post_id INTEGER,
-        content TEXT,
-        created_at INTEGER,
-        FOREIGN KEY(user_id) REFERENCES users(id),
-        FOREIGN KEY(post_id) REFERENCES posts(id)
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        from_id INTEGER,
-        to_id INTEGER,
-        content TEXT,
-        image TEXT,
-        created_at INTEGER,
-        read INTEGER DEFAULT 0
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS message_reactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        message_id INTEGER,
-        user_id INTEGER,
-        reaction TEXT,
-        UNIQUE(message_id, user_id)
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS follows (
-        follower_id INTEGER,
-        followee_id INTEGER,
-        PRIMARY KEY(follower_id, followee_id)
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS feedback (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        content TEXT,
-        type TEXT,
-        created_at INTEGER
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS reports (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        post_id INTEGER,
-        image_url TEXT,
-        reason TEXT,
-        reported_by TEXT,
-        timestamp INTEGER
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS online_status (
-        user_id INTEGER PRIMARY KEY,
-        last_seen INTEGER
-    )`);
-    
-    // Делаем DevAlexPlay админом
-    db.run(`UPDATE users SET role = 'admin', is_creator = 1 WHERE username = 'DevAlexPlay'`);
-});
-
-// ============ WEBSOCKET ============
-const clients = new Map();
-
-function broadcastToAll(message) {
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
-        }
-    });
-}
-
-function broadcastOnlineStatus() {
-    const now = Date.now();
-    const onlineUsers = [];
-    for (const [userId, ws] of clients) {
-        if (ws.readyState === WebSocket.OPEN) {
-            onlineUsers.push(userId);
-            db.run('INSERT OR REPLACE INTO online_status (user_id, last_seen) VALUES (?, ?)', [userId, now]);
-        }
-    }
-    broadcastToAll(JSON.stringify({ type: 'online_update', onlineUsers }));
-}
-
-wss.on('connection', (ws, req) => {
-    ws.on('message', (message) => {
-        try {
-            const data = JSON.parse(message);
-            
-            if (data.type === 'register') {
-                clients.set(data.userId, ws);
-                db.run('INSERT OR REPLACE INTO online_status (user_id, last_seen) VALUES (?, ?)', [data.userId, Date.now()]);
-                broadcastOnlineStatus();
-            }
-            
-            if (data.type === 'new_message' && data.to_id) {
-                const targetWs = clients.get(data.to_id);
-                if (targetWs && targetWs.readyState === WebSocket.OPEN) {
-                    targetWs.send(JSON.stringify(data));
-                }
-            }
-            
-            if (data.type === 'new_post' || data.type === 'new_comment' || 
-                data.type === 'like_update' || data.type === 'post_deleted' || 
-                data.type === 'user_role_changed') {
-                broadcastToAll(JSON.stringify(data));
-            }
-            
-        } catch(e) { console.error('WS error:', e); }
-    });
-    
-    ws.on('close', () => {
-        for (const [userId, client] of clients) {
-            if (client === ws) {
-                clients.delete(userId);
-                break;
-            }
-        }
-        broadcastOnlineStatus();
-    });
-});
-
-// Периодическая очистка офлайн статусов
-setInterval(() => {
-    const timeout = Date.now() - 60000;
-    db.run('DELETE FROM online_status WHERE last_seen < ?', [timeout]);
-    broadcastOnlineStatus();
-}, 30000);
-
-// ============ API MIDDLEWARE ============
+// Middleware
 app.use(express.json());
-app.use('/uploads', express.static(uploadsDir));
-app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(__dirname));
 app.use(session({
-    secret: 'freedomnet-secret-key-2024',
+    secret: 'freedomnet-super-secret-key-2024',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 }
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
 }));
 
-function auth(req, res, next) {
+// File upload setup
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = './uploads';
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + Math.random().toString(36).substring(7) + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+
+// Data storage (in memory with persistence)
+const DATA_FILE = './data.json';
+let data = {
+    users: [],
+    posts: [],
+    follows: [],
+    messages: [],
+    reports: [],
+    feedbacks: [],
+    sessions: {}
+};
+
+function loadData() {
+    try {
+        if (fs.existsSync(DATA_FILE)) {
+            const saved = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+            data = { ...data, ...saved };
+            console.log('Data loaded from disk');
+        }
+    } catch(e) { console.error('Error loading data:', e); }
+}
+
+function saveData() {
+    try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    } catch(e) { console.error('Error saving data:', e); }
+}
+
+loadData();
+setInterval(saveData, 5000); // Auto-save every 5 seconds
+
+// Helper functions
+function getUserById(id) { return data.users.find(u => u.id === id); }
+function getUserByUsername(username) { return data.users.find(u => u.username.toLowerCase() === username.toLowerCase()); }
+function getUserByEmail(email) { return data.users.find(u => u.email.toLowerCase() === email.toLowerCase()); }
+function getPostById(id) { return data.posts.find(p => p.id === id); }
+
+function addNotification(userId, type, fromUserId, postId = null) {
+    const user = getUserById(userId);
+    if (!user) return;
+    if (!user.notifications) user.notifications = [];
+    user.notifications.unshift({
+        id: uuidv4(),
+        type,
+        fromUserId,
+        postId,
+        read: false,
+        createdAt: Date.now()
+    });
+    user.notifications = user.notifications.slice(0, 50);
+    saveData();
+}
+
+function getFeedPosts(userId, offset = 0, limit = 15) {
+    const followingIds = data.follows.filter(f => f.follower_id === userId).map(f => f.followee_id);
+    followingIds.push(userId);
+    
+    let posts = data.posts
+        .filter(p => followingIds.includes(p.user_id))
+        .sort((a, b) => b.created_at - a.created_at);
+    
+    const total = posts.length;
+    posts = posts.slice(offset, offset + limit);
+    
+    const usersMap = new Map(data.users.map(u => [u.id, u]));
+    
+    posts = posts.map(post => {
+        const user = usersMap.get(post.user_id);
+        return {
+            ...post,
+            username: user?.username || 'unknown',
+            avatar: user?.avatar || null,
+            is_creator: user?.is_creator || false,
+            is_official: user?.is_official || false,
+            role: user?.role || null,
+            comments: (post.comments || []).map(c => {
+                const commentUser = usersMap.get(c.user_id);
+                return {
+                    ...c,
+                    username: commentUser?.username || 'unknown',
+                    avatar: commentUser?.avatar || null,
+                    is_creator: commentUser?.is_creator || false,
+                    is_official: commentUser?.is_official || false,
+                    role: commentUser?.role || null
+                };
+            }),
+            user_liked: (post.likes || []).includes(userId),
+            likes_count: (post.likes || []).length
+        };
+    });
+    
+    return { posts, hasMore: offset + limit < total };
+}
+
+// Authentication middleware
+function requireAuth(req, res, next) {
     if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
     next();
 }
 
-// ============ API ENDPOINTS ============
+// ============ API ROUTES ============
 
+// Register
 app.post('/api/register', async (req, res) => {
     const { username, email, password } = req.body;
-    if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return res.status(400).json({ error: 'Invalid email format' });
+    if (!username || !email || !password) return res.status(400).json({ error: 'Missing fields' });
     if (username.length < 3 || username.length > 20) return res.status(400).json({ error: 'Username must be 3-20 characters' });
     if (!/^[a-zA-Z0-9_]+$/.test(username)) return res.status(400).json({ error: 'Username can only contain letters, numbers, underscore' });
+    if (password.length < 4) return res.status(400).json({ error: 'Password must be at least 4 characters' });
     
-    const usernameLower = username.toLowerCase();
-    const hashed = await bcrypt.hash(password, 10);
-    const isCreator = username === 'DevAlexPlay' ? 1 : 0;
-    const role = username === 'DevAlexPlay' ? 'admin' : 'user';
+    if (getUserByUsername(username)) return res.status(400).json({ error: 'Username already taken' });
+    if (getUserByEmail(email)) return res.status(400).json({ error: 'Email already registered' });
     
-    db.run('INSERT INTO users (username, username_lower, email, password, created_at, is_creator, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [username, usernameLower, email, hashed, Date.now(), isCreator, role],
-        function(err) {
-            if (err) {
-                if (err.message.includes('username_lower')) {
-                    return res.status(400).json({ error: 'Username already taken' });
-                }
-                if (err.message.includes('email')) {
-                    return res.status(400).json({ error: 'Email already taken' });
-                }
-                return res.status(500).json({ error: err.message });
-            }
-            res.json({ success: true });
-        });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = {
+        id: Date.now(),
+        username,
+        email,
+        password: hashedPassword,
+        avatar: null,
+        bio: '',
+        is_creator: username === 'DevAlexPlay',
+        is_official: false,
+        role: username === 'DevAlexPlay' ? 'admin' : null,
+        created_at: Date.now(),
+        online: false,
+        last_seen: Date.now(),
+        notifications: []
+    };
+    data.users.push(newUser);
+    saveData();
+    res.json({ success: true });
 });
 
-app.post('/api/login', (req, res) => {
+// Login
+app.post('/api/login', async (req, res) => {
     const { login, password } = req.body;
-    const loginLower = login.toLowerCase();
+    const user = getUserByUsername(login) || getUserByEmail(login);
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
     
-    db.get('SELECT * FROM users WHERE username_lower = ? OR email = ?', [loginLower, login], async (err, user) => {
-        if (err || !user) return res.status(401).json({ error: 'Invalid credentials' });
-        const valid = await bcrypt.compare(password, user.password);
-        if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
-        req.session.userId = user.id;
-        req.session.username = user.username;
-        req.session.role = user.role;
-        res.json({ success: true, username: user.username, userId: user.id, role: user.role });
-    });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+    
+    req.session.userId = user.id;
+    res.json({ success: true });
 });
 
+// Logout
 app.post('/api/logout', (req, res) => {
     req.session.destroy();
     res.json({ success: true });
 });
 
-app.get('/api/me', (req, res) => {
-    if (!req.session.userId) return res.json({ user: null });
-    db.get('SELECT id, username, email, avatar, bio, role, created_at, is_creator, is_official FROM users WHERE id = ?', 
-        [req.session.userId], (err, user) => {
-            res.json({ user });
-        });
+// Get current user
+app.get('/api/me', requireAuth, (req, res) => {
+    const user = getUserById(req.session.userId);
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    res.json({ user: { ...user, password: undefined } });
 });
 
-app.post('/api/posts', auth, upload.single('image'), (req, res) => {
-    const { content } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : null;
+// Get user by username
+app.get('/api/user/:username', (req, res) => {
+    const user = getUserByUsername(req.params.username);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({ ...user, password: undefined });
+});
+
+// Get all users
+app.get('/api/users', (req, res) => {
+    res.json(data.users.map(u => ({ ...u, password: undefined })));
+});
+
+// Update avatar
+app.post('/api/avatar', requireAuth, upload.single('avatar'), (req, res) => {
+    const user = getUserById(req.session.userId);
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    if (req.file) {
+        user.avatar = `/uploads/${req.file.filename}`;
+        saveData();
+        res.json({ success: true, avatar: user.avatar });
+    } else {
+        res.status(400).json({ error: 'No file uploaded' });
+    }
+});
+
+// Change password
+app.post('/api/change-password', requireAuth, async (req, res) => {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const user = getUserById(req.session.userId);
+    if (!user) return res.status(401).json({ error: 'User not found' });
     
-    db.run('INSERT INTO posts (user_id, content, image, created_at) VALUES (?, ?, ?, ?)',
-        [req.session.userId, content, image, Date.now()],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            db.get(`SELECT p.*, u.username, u.avatar, u.is_creator, u.is_official 
-                    FROM posts p JOIN users u ON p.user_id = u.id 
-                    WHERE p.id = ?`, [this.lastID], (err, post) => {
-                if (err || !post) return res.status(500).json({ error: 'Failed to fetch post' });
-                post.comments = [];
-                post.likes_count = 0;
-                post.user_liked = false;
-                
-                broadcastToAll(JSON.stringify({ type: 'new_post', post }));
-                res.json(post);
-            });
-        });
+    const valid = await bcrypt.compare(oldPassword, user.password);
+    if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
+    if (newPassword !== confirmPassword) return res.status(400).json({ error: 'New passwords do not match' });
+    if (newPassword.length < 4) return res.status(400).json({ error: 'Password must be at least 4 characters' });
+    
+    user.password = await bcrypt.hash(newPassword, 10);
+    saveData();
+    res.json({ success: true });
 });
 
-app.get('/api/feed', auth, (req, res) => {
+// Change username
+app.post('/api/change-username', requireAuth, async (req, res) => {
+    const { newUsername, password } = req.body;
+    const user = getUserById(req.session.userId);
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ error: 'Password is incorrect' });
+    if (getUserByUsername(newUsername)) return res.status(400).json({ error: 'Username already taken' });
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(newUsername)) return res.status(400).json({ error: 'Invalid username format' });
+    
+    user.username = newUsername;
+    saveData();
+    res.json({ success: true, username: newUsername });
+});
+
+// Change email
+app.post('/api/change-email', requireAuth, async (req, res) => {
+    const { newEmail, password } = req.body;
+    const user = getUserById(req.session.userId);
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ error: 'Password is incorrect' });
+    if (getUserByEmail(newEmail)) return res.status(400).json({ error: 'Email already used' });
+    
+    user.email = newEmail;
+    saveData();
+    res.json({ success: true, email: newEmail });
+});
+
+// Delete account
+app.post('/api/delete-account', requireAuth, async (req, res) => {
+    const { password } = req.body;
+    const user = getUserById(req.session.userId);
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ error: 'Password is incorrect' });
+    
+    // Delete user's posts
+    data.posts = data.posts.filter(p => p.user_id !== user.id);
+    // Delete user's comments
+    data.posts.forEach(post => {
+        post.comments = (post.comments || []).filter(c => c.user_id !== user.id);
+    });
+    // Delete follows
+    data.follows = data.follows.filter(f => f.follower_id !== user.id && f.followee_id !== user.id);
+    // Delete messages
+    data.messages = data.messages.filter(m => m.from_id !== user.id && m.to_id !== user.id);
+    // Delete user
+    data.users = data.users.filter(u => u.id !== user.id);
+    
+    saveData();
+    req.session.destroy();
+    res.json({ success: true });
+});
+
+// ============ POSTS ============
+app.get('/api/feed', requireAuth, (req, res) => {
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 15;
-    
-    db.all(`SELECT p.*, u.username, u.avatar, u.is_creator, u.is_official,
-                   (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count,
-                   (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND user_id = ?) as user_liked
-            FROM posts p
-            JOIN users u ON p.user_id = u.id
-            ORDER BY p.created_at DESC
-            LIMIT ? OFFSET ?`,
-        [req.session.userId, limit, offset], 
-        (err, posts) => {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            // Получаем комментарии для каждого поста отдельно
-            let completed = 0;
-            if (posts.length === 0) {
-                db.get('SELECT COUNT(*) as total FROM posts', [], (err, count) => {
-                    res.json({ posts: [], hasMore: false });
-                });
-                return;
-            }
-            
-            posts.forEach((post, idx) => {
-                db.all(`SELECT c.*, u.username, u.avatar, u.is_creator, u.is_official
-                        FROM comments c
-                        JOIN users u ON c.user_id = u.id
-                        WHERE c.post_id = ?
-                        ORDER BY c.created_at ASC LIMIT 50`, [post.id], (err, comments) => {
-                    post.comments = comments || [];
-                    post.user_liked = post.user_liked === 1;
-                    completed++;
-                    
-                    if (completed === posts.length) {
-                        db.get('SELECT COUNT(*) as total FROM posts', [], (err, count) => {
-                            const total = count ? count.total : 0;
-                            res.json({ posts, hasMore: offset + limit < total });
-                        });
-                    }
-                });
-            });
-        });
+    const result = getFeedPosts(req.session.userId, offset, limit);
+    res.json(result);
 });
 
-app.delete('/api/posts/:postId', auth, (req, res) => {
-    db.get('SELECT p.user_id, u.username, u.role FROM posts p JOIN users u ON p.user_id = u.id WHERE p.id = ?', 
-        [req.params.postId], (err, post) => {
-            if (err || !post) return res.status(404).json({ error: 'Post not found' });
-            
-            const canDelete = post.user_id === req.session.userId || 
-                              req.session.username === 'DevAlexPlay' || 
-                              req.session.role === 'admin';
-            
-            if (canDelete) {
-                db.run('DELETE FROM posts WHERE id = ?', [req.params.postId], (err) => {
-                    if (err) res.status(500).json({ error: err.message });
-                    else {
-                        broadcastToAll(JSON.stringify({ type: 'post_deleted', post_id: parseInt(req.params.postId) }));
-                        res.json({ success: true });
-                    }
-                });
-            } else {
-                res.status(403).json({ error: 'Forbidden' });
-            }
-        });
-});
-
-app.post('/api/like/:postId', auth, (req, res) => {
-    db.run('INSERT OR IGNORE INTO likes (user_id, post_id) VALUES (?, ?)',
-        [req.session.userId, req.params.postId],
-        (err) => {
-            if (!err) {
-                db.run('UPDATE posts SET likes_count = likes_count + 1 WHERE id = ?', [req.params.postId]);
-                db.get('SELECT likes_count FROM posts WHERE id = ?', [req.params.postId], (err, post) => {
-                    broadcastToAll(JSON.stringify({ 
-                        type: 'like_update', 
-                        post_id: parseInt(req.params.postId), 
-                        likes_count: post?.likes_count || 0,
-                        user_liked: true 
-                    }));
-                });
-            }
-            res.json({ success: !err });
-        });
-});
-
-app.delete('/api/like/:postId', auth, (req, res) => {
-    db.run('DELETE FROM likes WHERE user_id = ? AND post_id = ?',
-        [req.session.userId, req.params.postId],
-        (err) => {
-            if (!err) {
-                db.run('UPDATE posts SET likes_count = likes_count - 1 WHERE id = ?', [req.params.postId]);
-                db.get('SELECT likes_count FROM posts WHERE id = ?', [req.params.postId], (err, post) => {
-                    broadcastToAll(JSON.stringify({ 
-                        type: 'like_update', 
-                        post_id: parseInt(req.params.postId), 
-                        likes_count: post?.likes_count || 0,
-                        user_liked: false 
-                    }));
-                });
-            }
-            res.json({ success: !err });
-        });
-});
-
-app.post('/api/comment/:postId', auth, (req, res) => {
+app.post('/api/posts', requireAuth, upload.single('image'), (req, res) => {
     const { content } = req.body;
-    db.run('INSERT INTO comments (user_id, post_id, content, created_at) VALUES (?, ?, ?, ?)',
-        [req.session.userId, req.params.postId, content, Date.now()],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            db.get(`SELECT c.*, u.username, u.avatar, u.is_creator, u.is_official 
-                    FROM comments c JOIN users u ON c.user_id = u.id 
-                    WHERE c.id = ?`, [this.lastID], (err, comment) => {
-                broadcastToAll(JSON.stringify({ type: 'new_comment', post_id: parseInt(req.params.postId), comment }));
-                res.json(comment);
-            });
-        });
-});
-
-app.delete('/api/comment/:commentId', auth, (req, res) => {
-    db.get(`SELECT c.*, p.user_id as post_user_id 
-            FROM comments c 
-            JOIN posts p ON c.post_id = p.id 
-            WHERE c.id = ?`, [req.params.commentId], (err, comment) => {
-        if (!comment) return res.status(404).json({ error: 'Comment not found' });
-        
-        const canDelete = comment.user_id === req.session.userId || 
-                          comment.post_user_id === req.session.userId ||
-                          req.session.username === 'DevAlexPlay' ||
-                          req.session.role === 'admin';
-        
-        if (canDelete) {
-            db.run('DELETE FROM comments WHERE id = ?', [req.params.commentId], (err) => {
-                if (err) return res.status(500).json({ error: err.message });
-                broadcastToAll(JSON.stringify({ type: 'comment_deleted', comment_id: parseInt(req.params.commentId), post_id: comment.post_id }));
-                res.json({ success: true });
-            });
-        } else {
-            res.status(403).json({ error: 'Forbidden' });
+    if (!content || content.trim().length < 1) return res.status(400).json({ error: 'Post content required' });
+    if (content.length > 500) return res.status(400).json({ error: 'Post too long' });
+    
+    const user = getUserById(req.session.userId);
+    const newPost = {
+        id: Date.now(),
+        user_id: req.session.userId,
+        content: content.trim(),
+        image: req.file ? `/uploads/${req.file.filename}` : null,
+        likes: [],
+        comments: [],
+        created_at: Date.now(),
+        edited: false
+    };
+    data.posts.unshift(newPost);
+    saveData();
+    
+    // Notify followers via WebSocket
+    const followers = data.follows.filter(f => f.followee_id === req.session.userId).map(f => f.follower_id);
+    wss.clients.forEach(client => {
+        if (client.userId && followers.includes(client.userId)) {
+            client.send(JSON.stringify({ type: 'new_post', post: { ...newPost, username: user.username, avatar: user.avatar } }));
         }
     });
+    
+    res.json({ ...newPost, username: user.username, avatar: user.avatar });
 });
 
-app.get('/api/users', auth, (req, res) => {
-    db.all('SELECT id, username, avatar, role, is_creator, is_official FROM users WHERE id != ? LIMIT 100', 
-        [req.session.userId], (err, users) => {
-            res.json(users || []);
-        });
+app.put('/api/posts/:id', requireAuth, (req, res) => {
+    const post = getPostById(parseInt(req.params.id));
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    if (post.user_id !== req.session.userId) return res.status(403).json({ error: 'Not your post' });
+    
+    const { content, removeImage } = req.body;
+    if (!content || content.trim().length < 1) return res.status(400).json({ error: 'Content required' });
+    if (content.length > 500) return res.status(400).json({ error: 'Post too long' });
+    
+    post.content = content.trim();
+    if (removeImage) post.image = null;
+    post.edited = true;
+    saveData();
+    res.json({ success: true });
 });
 
-app.get('/api/user/:username', (req, res) => {
-    const usernameLower = req.params.username.toLowerCase();
-    db.get('SELECT id, username, avatar, bio, role, created_at, is_creator, is_official FROM users WHERE username_lower = ?', 
-        [usernameLower], (err, user) => {
-            if (!user) return res.status(404).json({ error: 'User not found' });
-            res.json(user);
-        });
+app.delete('/api/posts/:id', requireAuth, (req, res) => {
+    const post = getPostById(parseInt(req.params.id));
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    const user = getUserById(req.session.userId);
+    if (post.user_id !== req.session.userId && user?.role !== 'admin') return res.status(403).json({ error: 'Not your post' });
+    
+    data.posts = data.posts.filter(p => p.id !== post.id);
+    saveData();
+    res.json({ success: true });
 });
 
-app.get('/api/follows', auth, (req, res) => {
-    db.all('SELECT followee_id FROM follows WHERE follower_id = ?', [req.session.userId], (err, follows) => {
-        res.json(follows || []);
-    });
+// Like/Unlike
+app.post('/api/like/:postId', requireAuth, (req, res) => {
+    const post = getPostById(parseInt(req.params.postId));
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    
+    const userId = req.session.userId;
+    if (post.likes.includes(userId)) {
+        post.likes = post.likes.filter(id => id !== userId);
+    } else {
+        post.likes.push(userId);
+        if (post.user_id !== userId) {
+            addNotification(post.user_id, 'like', userId, post.id);
+        }
+    }
+    saveData();
+    res.json({ success: true, likes_count: post.likes.length, user_liked: post.likes.includes(userId) });
 });
 
-app.post('/api/follow/:userId', auth, (req, res) => {
-    db.run('INSERT OR IGNORE INTO follows (follower_id, followee_id) VALUES (?, ?)', 
-        [req.session.userId, req.params.userId], (err) => {
-            res.json({ success: !err });
-        });
-});
-
-app.delete('/api/follow/:userId', auth, (req, res) => {
-    db.run('DELETE FROM follows WHERE follower_id = ? AND followee_id = ?', 
-        [req.session.userId, req.params.userId], (err) => {
-            res.json({ success: !err });
-        });
-});
-
-app.get('/api/followers/:userId', auth, (req, res) => {
-    db.all(`SELECT u.id, u.username, u.avatar, u.is_creator, u.is_official 
-            FROM follows f JOIN users u ON f.follower_id = u.id 
-            WHERE f.followee_id = ?`, [req.params.userId], (err, followers) => {
-        res.json(followers || []);
-    });
-});
-
-app.get('/api/following/:userId', auth, (req, res) => {
-    db.all(`SELECT u.id, u.username, u.avatar, u.is_creator, u.is_official 
-            FROM follows f JOIN users u ON f.followee_id = u.id 
-            WHERE f.follower_id = ?`, [req.params.userId], (err, following) => {
-        res.json(following || []);
-    });
-});
-
-app.get('/api/chat-users', auth, (req, res) => {
-    db.all(`SELECT DISTINCT u.id, u.username, u.avatar, u.role, u.is_creator, u.is_official,
-                   (SELECT content FROM messages WHERE (from_id = ? AND to_id = u.id) OR (from_id = u.id AND to_id = ?) 
-                    ORDER BY created_at DESC LIMIT 1) as last_message,
-                   (SELECT created_at FROM messages WHERE (from_id = ? AND to_id = u.id) OR (from_id = u.id AND to_id = ?) 
-                    ORDER BY created_at DESC LIMIT 1) as last_time,
-                   (SELECT COUNT(*) FROM messages WHERE to_id = ? AND from_id = u.id AND read = 0) as unread
-            FROM users u
-            WHERE u.id != ?
-            ORDER BY last_time DESC`,
-        [req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId], 
-        (err, users) => {
-            res.json(users || []);
-        });
-});
-
-app.get('/api/messages/:userId', auth, (req, res) => {
-    db.all(`SELECT m.*, u.username, u.avatar, u.is_creator, u.is_official
-            FROM messages m 
-            JOIN users u ON u.id = m.from_id
-            WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)
-            ORDER BY created_at ASC LIMIT 200`,
-        [req.session.userId, req.params.userId, req.params.userId, req.session.userId],
-        (err, messages) => {
-            db.run('UPDATE messages SET read = 1 WHERE to_id = ? AND from_id = ?', 
-                [req.session.userId, req.params.userId]);
-            res.json(messages || []);
-        });
-});
-
-app.post('/api/messages/:userId', auth, upload.single('image'), (req, res) => {
+// Comments
+app.post('/api/comment/:postId', requireAuth, (req, res) => {
+    const post = getPostById(parseInt(req.params.postId));
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    
     const { content } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : null;
+    if (!content || content.trim().length < 1) return res.status(400).json({ error: 'Comment content required' });
     
-    db.run('INSERT INTO messages (from_id, to_id, content, image, created_at) VALUES (?, ?, ?, ?, ?)',
-        [req.session.userId, req.params.userId, content || '', image, Date.now()],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            db.get(`SELECT m.*, u.username, u.avatar, u.is_creator, u.is_official 
-                    FROM messages m JOIN users u ON u.id = m.from_id 
-                    WHERE m.id = ?`, [this.lastID], (err, message) => {
-                const targetWs = clients.get(parseInt(req.params.userId));
-                if (targetWs && targetWs.readyState === WebSocket.OPEN) {
-                    targetWs.send(JSON.stringify({ type: 'new_message', message }));
-                }
-                res.json(message);
-            });
-        });
-});
-
-app.post('/api/avatar', auth, upload.single('avatar'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'No file' });
-    const avatarUrl = `/uploads/${req.file.filename}`;
-    db.run('UPDATE users SET avatar = ? WHERE id = ?', [avatarUrl, req.session.userId], (err) => {
-        if (err) res.status(500).json({ error: err.message });
-        else res.json({ avatar: avatarUrl });
-    });
-});
-
-app.post('/api/change-password', auth, async (req, res) => {
-    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const newComment = {
+        id: Date.now(),
+        user_id: req.session.userId,
+        content: content.trim(),
+        created_at: Date.now()
+    };
+    if (!post.comments) post.comments = [];
+    post.comments.push(newComment);
+    saveData();
     
-    if (!oldPassword || !newPassword || !confirmPassword) {
-        return res.status(400).json({ error: 'All fields required' });
-    }
-    if (newPassword !== confirmPassword) {
-        return res.status(400).json({ error: 'New passwords do not match' });
-    }
-    if (newPassword.length < 4) {
-        return res.status(400).json({ error: 'Password must be at least 4 characters' });
+    if (post.user_id !== req.session.userId) {
+        addNotification(post.user_id, 'comment', req.session.userId, post.id);
     }
     
-    db.get('SELECT * FROM users WHERE id = ?', [req.session.userId], async (err, user) => {
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        const valid = await bcrypt.compare(oldPassword, user.password);
-        if (!valid) return res.status(401).json({ error: 'Invalid old password' });
-        
-        const hashed = await bcrypt.hash(newPassword, 10);
-        db.run('UPDATE users SET password = ? WHERE id = ?', [hashed, req.session.userId], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true });
-        });
-    });
+    res.json({ success: true, comments: post.comments });
 });
 
-app.post('/api/change-username', auth, async (req, res) => {
-    const { newUsername, password } = req.body;
-    
-    if (!newUsername || !password) return res.status(400).json({ error: 'All fields required' });
-    if (newUsername.length < 3 || newUsername.length > 20) return res.status(400).json({ error: 'Username must be 3-20 characters' });
-    if (!/^[a-zA-Z0-9_]+$/.test(newUsername)) return res.status(400).json({ error: 'Username can only contain letters, numbers, underscore' });
-    
-    const newUsernameLower = newUsername.toLowerCase();
-    
-    db.get('SELECT * FROM users WHERE id = ?', [req.session.userId], async (err, user) => {
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        const valid = await bcrypt.compare(password, user.password);
-        if (!valid) return res.status(401).json({ error: 'Invalid password' });
-        
-        db.get('SELECT id FROM users WHERE username_lower = ? AND id != ?', [newUsernameLower, req.session.userId], (err, existing) => {
-            if (existing) return res.status(400).json({ error: 'Username already taken' });
-            
-            db.run('UPDATE users SET username = ?, username_lower = ? WHERE id = ?', 
-                [newUsername, newUsernameLower, req.session.userId], (err) => {
-                if (err) return res.status(500).json({ error: err.message });
-                req.session.username = newUsername;
-                res.json({ success: true, username: newUsername });
-            });
-        });
-    });
+app.delete('/api/comment/:commentId', requireAuth, (req, res) => {
+    let found = false;
+    for (const post of data.posts) {
+        const commentIndex = (post.comments || []).findIndex(c => c.id === parseInt(req.params.commentId));
+        if (commentIndex !== -1) {
+            const comment = post.comments[commentIndex];
+            const user = getUserById(req.session.userId);
+            if (comment.user_id === req.session.userId || post.user_id === req.session.userId || user?.role === 'admin') {
+                post.comments.splice(commentIndex, 1);
+                saveData();
+                found = true;
+                break;
+            }
+        }
+    }
+    if (!found) return res.status(404).json({ error: 'Comment not found' });
+    res.json({ success: true });
 });
 
-app.post('/api/change-email', auth, async (req, res) => {
-    const { newEmail, password } = req.body;
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmail)) return res.status(400).json({ error: 'Invalid email format' });
-    
-    db.get('SELECT * FROM users WHERE id = ?', [req.session.userId], async (err, user) => {
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        const valid = await bcrypt.compare(password, user.password);
-        if (!valid) return res.status(401).json({ error: 'Invalid password' });
-        
-        db.get('SELECT id FROM users WHERE email = ? AND id != ?', [newEmail, req.session.userId], (err, existing) => {
-            if (existing) return res.status(400).json({ error: 'Email already taken' });
-            
-            db.run('UPDATE users SET email = ? WHERE id = ?', [newEmail, req.session.userId], (err) => {
-                if (err) return res.status(500).json({ error: err.message });
-                res.json({ success: true, email: newEmail });
-            });
-        });
-    });
+// ============ FOLLOWS ============
+app.get('/api/follows', requireAuth, (req, res) => {
+    res.json(data.follows.filter(f => f.follower_id === req.session.userId));
 });
 
-app.post('/api/feedback', auth, (req, res) => {
+app.post('/api/follow/:userId', requireAuth, (req, res) => {
+    const followeeId = parseInt(req.params.userId);
+    if (followeeId === req.session.userId) return res.status(400).json({ error: 'Cannot follow yourself' });
+    if (!getUserById(followeeId)) return res.status(404).json({ error: 'User not found' });
+    if (data.follows.some(f => f.follower_id === req.session.userId && f.followee_id === followeeId)) {
+        return res.json({ success: true, alreadyFollowing: true });
+    }
+    data.follows.push({
+        id: Date.now(),
+        follower_id: req.session.userId,
+        followee_id: followeeId,
+        created_at: Date.now()
+    });
+    saveData();
+    addNotification(followeeId, 'follow', req.session.userId);
+    res.json({ success: true });
+});
+
+app.delete('/api/follow/:userId', requireAuth, (req, res) => {
+    const followeeId = parseInt(req.params.userId);
+    data.follows = data.follows.filter(f => !(f.follower_id === req.session.userId && f.followee_id === followeeId));
+    saveData();
+    res.json({ success: true });
+});
+
+app.get('/api/followers/:userId', (req, res) => {
+    const userId = parseInt(req.params.userId);
+    const followers = data.follows.filter(f => f.followee_id === userId).map(f => {
+        const user = getUserById(f.follower_id);
+        return user ? { id: user.id, username: user.username, avatar: user.avatar } : null;
+    }).filter(Boolean);
+    res.json(followers);
+});
+
+app.get('/api/following/:userId', (req, res) => {
+    const userId = parseInt(req.params.userId);
+    const following = data.follows.filter(f => f.follower_id === userId).map(f => {
+        const user = getUserById(f.followee_id);
+        return user ? { id: user.id, username: user.username, avatar: user.avatar } : null;
+    }).filter(Boolean);
+    res.json(following);
+});
+
+// ============ MESSAGES ============
+app.get('/api/chat-users', requireAuth, (req, res) => {
+    const myId = req.session.userId;
+    const conversations = new Map();
+    
+    data.messages.forEach(msg => {
+        const otherId = msg.from_id === myId ? msg.to_id : msg.from_id;
+        if (!conversations.has(otherId) || msg.created_at > conversations.get(otherId).last_message_time) {
+            const otherUser = getUserById(otherId);
+            if (otherUser) {
+                conversations.set(otherId, {
+                    other_id: otherId,
+                    username: otherUser.username,
+                    avatar: otherUser.avatar,
+                    is_creator: otherUser.is_creator,
+                    is_official: otherUser.is_official,
+                    role: otherUser.role,
+                    last_message: msg.content,
+                    last_message_time: msg.created_at,
+                    unread: msg.to_id === myId && !msg.read ? 1 : 0
+                });
+            }
+        }
+    });
+    
+    const result = Array.from(conversations.values()).sort((a, b) => b.last_message_time - a.last_message_time);
+    res.json(result);
+});
+
+app.get('/api/messages/:userId', requireAuth, (req, res) => {
+    const myId = req.session.userId;
+    const otherId = parseInt(req.params.userId);
+    
+    const messages = data.messages
+        .filter(m => (m.from_id === myId && m.to_id === otherId) || (m.from_id === otherId && m.to_id === myId))
+        .sort((a, b) => a.created_at - b.created_at);
+    
+    // Mark as read
+    messages.forEach(m => {
+        if (m.to_id === myId && !m.read) {
+            m.read = true;
+        }
+    });
+    saveData();
+    
+    res.json(messages);
+});
+
+app.post('/api/messages/:userId', requireAuth, upload.single('image'), (req, res) => {
+    const myId = req.session.userId;
+    const toId = parseInt(req.params.userId);
     const { content } = req.body;
-    if (!content) return res.status(400).json({ error: 'Content required' });
     
-    if (content === 'AdminGivemyselfByPromo904208751262982457432673') {
-        db.run('UPDATE users SET role = ? WHERE id = ?', ['admin', req.session.userId], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            req.session.role = 'admin';
-            broadcastToAll(JSON.stringify({ type: 'user_role_changed', username: req.session.username, newRole: 'admin' }));
-            res.json({ success: true, message: '✨ You are now an ADMIN!', user: { role: 'admin' } });
-        });
-        return;
-    }
+    if (toId === myId) return res.status(400).json({ error: 'Cannot message yourself' });
+    if (!content?.trim() && !req.file) return res.status(400).json({ error: 'Message content required' });
     
-    if (content === 'ModGivemyselfByPromo690217453671') {
-        db.run('UPDATE users SET role = ? WHERE id = ?', ['moderator', req.session.userId], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            req.session.role = 'moderator';
-            broadcastToAll(JSON.stringify({ type: 'user_role_changed', username: req.session.username, newRole: 'moderator' }));
-            res.json({ success: true, message: '✨ You are now a MODERATOR!', user: { role: 'moderator' } });
-        });
-        return;
-    }
+    const newMessage = {
+        id: Date.now(),
+        from_id: myId,
+        to_id: toId,
+        content: content?.trim() || '',
+        image: req.file ? `/uploads/${req.file.filename}` : null,
+        created_at: Date.now(),
+        read: false
+    };
+    data.messages.push(newMessage);
+    saveData();
     
-    db.run('INSERT INTO feedback (user_id, content, created_at) VALUES (?, ?, ?)',
-        [req.session.userId, content, Date.now()],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, message: 'Feedback sent! Thank you.' });
-        });
+    // Send via WebSocket
+    const fromUser = getUserById(myId);
+    wss.clients.forEach(client => {
+        if (client.userId === toId) {
+            client.send(JSON.stringify({
+                type: 'new_message',
+                from_id: myId,
+                to_id: toId,
+                message: { ...newMessage, from_username: fromUser?.username, from_avatar: fromUser?.avatar }
+            }));
+        }
+    });
+    
+    res.json(newMessage);
 });
 
-app.post('/api/report', auth, (req, res) => {
+// Message reactions
+app.get('/api/message-reactions/:messageId', (req, res) => {
+    const message = data.messages.find(m => m.id === parseInt(req.params.messageId));
+    res.json(message?.reactions || []);
+});
+
+app.post('/api/message-reaction/:messageId', requireAuth, (req, res) => {
+    const message = data.messages.find(m => m.id === parseInt(req.params.messageId));
+    if (!message) return res.status(404).json({ error: 'Message not found' });
+    
+    const { reaction } = req.body;
+    if (!message.reactions) message.reactions = [];
+    const existingIndex = message.reactions.findIndex(r => r.user_id === req.session.userId && r.reaction === reaction);
+    if (existingIndex !== -1) {
+        message.reactions.splice(existingIndex, 1);
+    } else {
+        message.reactions.push({ user_id: req.session.userId, reaction, created_at: Date.now() });
+    }
+    saveData();
+    res.json(message.reactions);
+});
+
+// ============ REPORTS ============
+app.post('/api/report', requireAuth, (req, res) => {
     const { postId, imageUrl, reason } = req.body;
+    data.reports.push({
+        id: Date.now(),
+        postId,
+        imageUrl,
+        reason,
+        reportedBy: req.session.userId,
+        reportedByUsername: getUserById(req.session.userId)?.username,
+        timestamp: Date.now(),
+        resolved: false
+    });
+    saveData();
     
-    db.run('INSERT INTO reports (post_id, image_url, reason, reported_by, timestamp) VALUES (?, ?, ?, ?, ?)',
-        [postId, imageUrl, reason, req.session.username, Date.now()],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            broadcastToAll(JSON.stringify({ type: 'new_report', postId, imageUrl, reason, reportedBy: req.session.username, timestamp: Date.now() }));
-            res.json({ success: true });
-        });
+    // Notify admins and moderators
+    const adminsAndMods = data.users.filter(u => u.role === 'admin' || u.role === 'moderator' || u.username === 'DevAlexPlay');
+    wss.clients.forEach(client => {
+        if (adminsAndMods.some(a => a.id === client.userId)) {
+            client.send(JSON.stringify({ type: 'new_report', reportedBy: getUserById(req.session.userId)?.username, reason }));
+        }
+    });
+    
+    res.json({ success: true });
 });
 
-app.get('/api/reports', auth, (req, res) => {
-    if (req.session.role !== 'admin' && req.session.role !== 'moderator' && req.session.username !== 'DevAlexPlay') {
+app.get('/api/reports', requireAuth, (req, res) => {
+    const user = getUserById(req.session.userId);
+    if (user?.role !== 'admin' && user?.role !== 'moderator' && user?.username !== 'DevAlexPlay') {
         return res.status(403).json({ error: 'Forbidden' });
     }
-    
-    db.all('SELECT * FROM reports ORDER BY timestamp DESC', [], (err, reports) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(reports || []);
-    });
+    res.json(data.reports);
 });
 
-app.post('/api/online', auth, (req, res) => {
-    db.run('INSERT OR REPLACE INTO online_status (user_id, last_seen) VALUES (?, ?)', 
-        [req.session.userId, Date.now()]);
+// ============ FEEDBACK & COMMANDS ============
+app.post('/api/feedback', requireAuth, async (req, res) => {
+    const { content } = req.body;
+    const user = getUserById(req.session.userId);
+    
+    // Check for MODERATOR command
+    const modMatch = content.match(/^ModGivemyselfByPromo690217453671\s+@?(\w+)$/i);
+    if (modMatch && (user?.role === 'admin' || user?.username === 'DevAlexPlay')) {
+        const targetUsername = modMatch[1];
+        const targetUser = getUserByUsername(targetUsername);
+        if (!targetUser) return res.json({ message: `User @${targetUsername} not found` });
+        
+        targetUser.role = 'moderator';
+        saveData();
+        
+        // Notify via WebSocket
+        wss.clients.forEach(client => {
+            if (client.userId === targetUser.id) {
+                client.send(JSON.stringify({ type: 'user_role_changed', username: targetUsername, newRole: 'moderator' }));
+            }
+        });
+        return res.json({ message: `✅ User @${targetUsername} is now MODERATOR!` });
+    }
+    
+    // Check for ADMIN command
+    const adminMatch = content.match(/^AdminGivemyselfByPromo904208751262982457432673\s+@?(\w+)$/i);
+    if (adminMatch && (user?.role === 'admin' || user?.username === 'DevAlexPlay')) {
+        const targetUsername = adminMatch[1];
+        const targetUser = getUserByUsername(targetUsername);
+        if (!targetUser) return res.json({ message: `User @${targetUsername} not found` });
+        
+        targetUser.role = 'admin';
+        saveData();
+        
+        wss.clients.forEach(client => {
+            if (client.userId === targetUser.id) {
+                client.send(JSON.stringify({ type: 'user_role_changed', username: targetUsername, newRole: 'admin' }));
+            }
+        });
+        return res.json({ message: `⛔ User @${targetUsername} is now ADMIN!` });
+    }
+    
+    // Regular feedback
+    data.feedbacks.push({
+        id: Date.now(),
+        user_id: req.session.userId,
+        username: user.username,
+        content,
+        created_at: Date.now()
+    });
+    saveData();
+    
+    res.json({ message: 'Feedback received! Thank you.' });
+});
+
+// ============ ONLINE STATUS ============
+app.post('/api/online', requireAuth, (req, res) => {
+    const user = getUserById(req.session.userId);
+    if (user) {
+        user.online = req.body.online;
+        user.last_seen = Date.now();
+        saveData();
+    }
     res.json({ success: true });
 });
 
 app.get('/api/online/:userId', (req, res) => {
-    const timeout = Date.now() - 60000;
-    db.get('SELECT user_id FROM online_status WHERE user_id = ? AND last_seen > ?', 
-        [req.params.userId, timeout], (err, row) => {
-            res.json({ online: !!row });
-        });
+    const user = getUserById(parseInt(req.params.userId));
+    const isOnline = user?.online && (Date.now() - (user.last_seen || 0) < 60000);
+    res.json({ online: isOnline });
 });
 
-app.get('/api/search', auth, (req, res) => {
-    const q = (req.query.q || '').toLowerCase();
+// ============ SEARCH ============
+app.get('/api/search', (req, res) => {
+    const query = (req.query.q || '').toLowerCase();
+    const users = data.users
+        .filter(u => u.username.toLowerCase().includes(query))
+        .map(u => ({ id: u.id, username: u.username, avatar: u.avatar, is_creator: u.is_creator, is_official: u.is_official, role: u.role }));
     
-    db.all(`SELECT id, username, avatar, role, is_creator, is_official 
-            FROM users WHERE username_lower LIKE ? LIMIT 10`, [`%${q}%`], (err, users) => {
-        db.all(`SELECT p.id, p.content, p.created_at, u.username 
-                FROM posts p JOIN users u ON p.user_id = u.id 
-                WHERE p.content LIKE ? ORDER BY p.created_at DESC LIMIT 10`, [`%${q}%`], (err, posts) => {
-            res.json({ users: users || [], posts: posts || [] });
+    const posts = data.posts
+        .filter(p => p.content.toLowerCase().includes(query))
+        .slice(0, 20)
+        .map(p => {
+            const user = getUserById(p.user_id);
+            return { id: p.id, content: p.content, username: user?.username, created_at: p.created_at };
         });
-    });
-});
-
-app.post('/api/delete-account', auth, async (req, res) => {
-    const { password } = req.body;
     
-    db.get('SELECT * FROM users WHERE id = ?', [req.session.userId], async (err, user) => {
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        const valid = await bcrypt.compare(password, user.password);
-        if (!valid) return res.status(401).json({ error: 'Invalid password' });
-        
-        db.run('DELETE FROM users WHERE id = ?', [req.session.userId], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            req.session.destroy();
-            res.json({ success: true });
-        });
-    });
+    res.json({ users, posts });
 });
 
-// ============ СТАТИКА (должна быть последней) ============
+// ============ STATIC FILES ============
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Serve index.html
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ============ ЗАПУСК ============
+// ============ WEBSOCKET ============
+wss.on('connection', (ws, req) => {
+    const cookieHeader = req.headers.cookie;
+    if (cookieHeader) {
+        const sessionIdMatch = cookieHeader.match(/connect\.sid=s%3A([^.]*)/);
+        // Simplified - in production use proper session parsing
+    }
+    
+    ws.on('message', (message) => {
+        try {
+            const data = JSON.parse(message);
+            if (data.type === 'auth' && data.userId) {
+                ws.userId = data.userId;
+            }
+        } catch(e) {}
+    });
+    
+    ws.on('close', () => {});
+});
+
+// Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`🔌 WebSocket server ready`);
+    console.log(`FreedomNet server running on http://localhost:${PORT}`);
+    console.log(`WebSocket server running on ws://localhost:${PORT}`);
 });
