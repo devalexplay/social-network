@@ -8,32 +8,25 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = 'your-super-secret-key-change-this-' + Date.now();
+const SECRET_KEY = 'super-secret-key-2024';
 
-// Security middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Rate limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100
 });
 app.use('/api/', limiter);
 
-// In-memory database (replace with real DB in production)
 const users = [];
 
-// ============ API ENDPOINTS ============
-
-// Register
 app.post('/api/register', async (req, res) => {
     try {
         const { username, email, password, fullName } = req.body;
         
-        // Validation
         if (!username || !email || !password) {
             return res.status(400).json({ error: 'All fields are required' });
         }
@@ -47,16 +40,13 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ error: 'Invalid email format' });
         }
         
-        // Check existing user
         const userExists = users.find(u => u.username === username || u.email === email);
         if (userExists) {
             return res.status(400).json({ error: 'Username or email already exists' });
         }
         
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // Create user
         const newUser = {
             id: Date.now().toString(),
             username,
@@ -68,7 +58,6 @@ app.post('/api/register', async (req, res) => {
         
         users.push(newUser);
         
-        // Generate token
         const token = jwt.sign(
             { id: newUser.id, username: newUser.username, email: newUser.email },
             SECRET_KEY,
@@ -91,7 +80,6 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// Login
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -100,19 +88,16 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ error: 'Username and password required' });
         }
         
-        // Find user
         const user = users.find(u => u.username === username || u.email === username);
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         
-        // Verify password
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         
-        // Generate token
         const token = jwt.sign(
             { id: user.id, username: user.username, email: user.email },
             SECRET_KEY,
@@ -135,7 +120,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Verify token middleware
 const authMiddleware = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -151,7 +135,6 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-// Protected route
 app.get('/api/verify', authMiddleware, (req, res) => {
     res.json({ 
         success: true, 
@@ -160,12 +143,10 @@ app.get('/api/verify', authMiddleware, (req, res) => {
     });
 });
 
-// Serve HTML
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`✨ Ready for production`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
