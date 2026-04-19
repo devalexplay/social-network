@@ -2,42 +2,67 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = 'school-admin-secret-key-2024';
+const SECRET_KEY = 'your-super-secret-key-change-this-' + Date.now();
 
-// Middleware
+// Security middleware
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// In-memory database (in production, use real database)
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100
+});
+app.use('/api/', limiter);
+
+// In-memory database (replace with real DB in production)
 const users = [];
 
-// Register endpoint
+// ============ API ENDPOINTS ============
+
+// Register
 app.post('/api/register', async (req, res) => {
     try {
-        const { username, email, password, fullName, role } = req.body;
+        const { username, email, password, fullName } = req.body;
         
-        // Check if user exists
+        // Validation
+        if (!username || !email || !password) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters' });
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Invalid email format' });
+        }
+        
+        // Check existing user
         const userExists = users.find(u => u.username === username || u.email === email);
         if (userExists) {
-            return res.status(400).json({ error: 'User already exists' });
+            return res.status(400).json({ error: 'Username or email already exists' });
         }
         
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // Create new user
+        // Create user
         const newUser = {
-            id: users.length + 1,
+            id: Date.now().toString(),
             username,
             email,
             password: hashedPassword,
-            fullName,
-            role: role || 'student',
+            fullName: fullName || username,
             createdAt: new Date().toISOString()
         };
         
@@ -45,20 +70,20 @@ app.post('/api/register', async (req, res) => {
         
         // Generate token
         const token = jwt.sign(
-            { id: newUser.id, username: newUser.username, role: newUser.role },
+            { id: newUser.id, username: newUser.username, email: newUser.email },
             SECRET_KEY,
-            { expiresIn: '24h' }
+            { expiresIn: '7d' }
         );
         
         res.status(201).json({
+            success: true,
             message: 'Registration successful',
             token,
             user: {
                 id: newUser.id,
                 username: newUser.username,
                 email: newUser.email,
-                fullName: newUser.fullName,
-                role: newUser.role
+                fullName: newUser.fullName
             }
         });
     } catch (error) {
@@ -66,39 +91,43 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// Login endpoint
+// Login
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         
+        if (!username || !password) {
+            return res.status(400).json({ error: 'Username and password required' });
+        }
+        
         // Find user
-        const user = users.find(u => u.username === username);
+        const user = users.find(u => u.username === username || u.email === username);
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         
-        // Check password
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
+        // Verify password
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         
         // Generate token
         const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role },
+            { id: user.id, username: user.username, email: user.email },
             SECRET_KEY,
-            { expiresIn: '24h' }
+            { expiresIn: '7d' }
         );
         
         res.json({
+            success: true,
             message: 'Login successful',
             token,
             user: {
                 id: user.id,
                 username: user.username,
                 email: user.email,
-                fullName: user.fullName,
-                role: user.role
+                fullName: user.fullName
             }
         });
     } catch (error) {
@@ -107,8 +136,8 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Verify token middleware
-const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
+const authMiddleware = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
         return res.status(401).json({ error: 'Access denied' });
     }
@@ -122,30 +151,21 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// Protected route example
-app.get('/api/dashboard', verifyToken, (req, res) => {
-    res.json({
-        message: 'Welcome to Admin Dashboard',
-        user: req.user,
-        testData: 'This is your test dashboard!'
+// Protected route
+app.get('/api/verify', authMiddleware, (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'Access granted',
+        user: req.user 
     });
 });
 
-// Serve HTML files
-app.get('/login', (req, res) => {
+// Serve HTML
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'register.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📝 Register: http://localhost:${PORT}/register`);
-    console.log(`🔐 Login: http://localhost:${PORT}/login`);
+    console.log(`✨ Ready for production`);
 });
