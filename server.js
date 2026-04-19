@@ -157,7 +157,9 @@ app.post('/api/posts', function(req, res) {
     userId: userId,
     content: content,
     likes: 0,
+    reposts: 0,
     comments: [],
+    saved: false,
     createdAt: new Date().toISOString(),
     user: {
       username: user.username,
@@ -180,7 +182,9 @@ app.get('/api/posts', function(req, res) {
       userId: post.userId,
       content: post.content,
       likes: post.likes,
+      reposts: post.reposts,
       comments: post.comments,
+      saved: post.saved,
       createdAt: post.createdAt,
       user: postUser ? {
         username: postUser.username,
@@ -190,6 +194,33 @@ app.get('/api/posts', function(req, res) {
     };
   });
   res.json(postsWithUsers);
+});
+
+app.put('/api/posts/:id', function(req, res) {
+  var postId = req.params.id;
+  var newContent = req.body.content;
+  var post = posts.find(function(p) {
+    return p.id === postId;
+  });
+  if (post) {
+    post.content = newContent;
+    res.json({ success: true, post: post });
+  } else {
+    res.status(404).json({ error: 'Post not found' });
+  }
+});
+
+app.delete('/api/posts/:id', function(req, res) {
+  var postId = req.params.id;
+  var postIndex = posts.findIndex(function(p) {
+    return p.id === postId;
+  });
+  if (postIndex !== -1) {
+    posts.splice(postIndex, 1);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ error: 'Post not found' });
+  }
 });
 
 app.post('/api/posts/like', function(req, res) {
@@ -202,6 +233,59 @@ app.post('/api/posts/like', function(req, res) {
     res.json({ success: true, likes: post.likes });
   } else {
     res.status(404).json({ error: 'Post not found' });
+  }
+});
+
+app.post('/api/posts/repost', function(req, res) {
+  var postId = req.body.postId;
+  var post = posts.find(function(p) {
+    return p.id === postId;
+  });
+  if (post) {
+    post.reposts = post.reposts + 1;
+    res.json({ success: true, reposts: post.reposts });
+  } else {
+    res.status(404).json({ error: 'Post not found' });
+  }
+});
+
+app.post('/api/posts/save', function(req, res) {
+  var postId = req.body.postId;
+  var post = posts.find(function(p) {
+    return p.id === postId;
+  });
+  if (post) {
+    post.saved = !post.saved;
+    res.json({ success: true, saved: post.saved });
+  } else {
+    res.status(404).json({ error: 'Post not found' });
+  }
+});
+
+app.post('/api/posts/comment', function(req, res) {
+  var postId = req.body.postId;
+  var userId = req.body.userId;
+  var commentText = req.body.comment;
+  var post = posts.find(function(p) {
+    return p.id === postId;
+  });
+  var user = users.find(function(u) {
+    return u.id === userId;
+  });
+  
+  if (post && user) {
+    var newComment = {
+      id: Date.now().toString(),
+      userId: userId,
+      username: user.username,
+      fullName: user.fullName,
+      comment: commentText,
+      createdAt: new Date().toISOString()
+    };
+    post.comments.push(newComment);
+    res.json({ success: true, comments: post.comments });
+  } else {
+    res.status(404).json({ error: 'Post or user not found' });
   }
 });
 
