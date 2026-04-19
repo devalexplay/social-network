@@ -207,7 +207,7 @@
         </div>
         
         <main class="main-content">
-            <header class="main-header">
+            <header class="main-header" id="mainHeader">
                 <h2 id="pageTitle" data-i18n="home">Home</h2>
                 <div class="user-info">
                     <img id="headerAvatar" class="avatar-small" alt="">
@@ -260,7 +260,12 @@
             <div id="notificationsPage" class="page">
                 <div class="notifications-list">
                     <div class="notification-item">
-                        <div class="notification-icon">📢</div>
+                        <div class="notification-icon">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 8v4M12 16h.01"/>
+                            </svg>
+                        </div>
                         <div class="notification-content">
                             <p data-i18n="welcomeNotification">Welcome to FreedomNet!</p>
                             <span class="notification-time">Just now</span>
@@ -271,7 +276,9 @@
             
             <div id="messagesPage" class="page">
                 <div class="messages-empty">
-                    <div class="messages-icon">💬</div>
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
                     <p data-i18n="noMessages">No messages yet</p>
                 </div>
             </div>
