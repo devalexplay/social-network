@@ -1,7 +1,7 @@
 {
-  "name": "freedomnet",
+  "name": "freedomnet-server",
   "version": "1.0.0",
-  "description": "FreedomNet Social Network with WebSocket",
+  "description": "FreedomNet Social Network Server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,11 +9,12 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "sqlite3": "^5.1.6",
-    "bcryptjs": "^2.4.3",
     "express-session": "^1.17.3",
+    "bcrypt": "^5.1.1",
     "multer": "^1.4.5-lts.1",
-    "ws": "^8.14.2"
+    "ws": "^8.14.2",
+    "uuid": "^9.0.1",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
