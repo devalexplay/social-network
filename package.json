@@ -1,5 +1,5 @@
 {
-  "name": "premium-auth-system",
+  "name": "auth-system",
   "version": "1.0.0",
   "description": "Professional Authentication System",
   "main": "server.js",
