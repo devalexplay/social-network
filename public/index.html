@@ -1,28 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Login form</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Admin - Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <div class="form">
-            <br />
-            <br />
-            <h1>Login</h1>
-
-            <form class="form-input">
-                <input type="text" placeholder="Username" id="username" />
-                <input type="password" placeholder="Password" id="password" />
-                <input type="checkbox" name="checkbox" id="remember" />
-                <label for="">Remember Me</label> <br />
-                <a href="#" class="reset-pass">Forgot Password</a>
-                <input type="submit" id="submit-btn" value="Login" />
+        <div class="glass-card">
+            <div class="logo">
+                <div class="school-icon">🏫</div>
+                <h2>School Admin Pro</h2>
+                <p>Welcome back!</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="text" id="username" required>
+                    <label>Username</label>
+                    <span class="focus-border"></span>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="password" required>
+                    <label>Password</label>
+                    <span class="focus-border"></span>
+                </div>
+                
+                <div class="options">
+                    <label class="checkbox">
+                        <input type="checkbox" id="remember">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <span>Login</span>
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                
+                <div class="register-link">
+                    Don't have an account? <a href="/register">Register here</a>
+                </div>
             </form>
-
+            
+            <div id="message" class="message"></div>
         </div>
     </div>
+    <script src="script.js"></script>
 </body>
 </html>
