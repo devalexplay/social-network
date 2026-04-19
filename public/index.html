@@ -1,258 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Twitter</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #000;
-            color: #fff;
-        }
-        .container { display: flex; max-width: 1200px; margin: 0 auto; }
-        .sidebar { width: 275px; padding: 20px; position: fixed; }
-        .logo { font-size: 30px; font-weight: 800; margin-bottom: 30px; color: #1d9bf0; cursor: pointer; }
-        .nav-item { padding: 12px; font-size: 20px; cursor: pointer; border-radius: 9999px; margin: 4px 0; }
-        .nav-item:hover { background: rgba(255,255,255,0.1); }
-        .nav-item.active { font-weight: 700; }
-        .main { margin-left: 275px; flex: 1; max-width: 600px; border-left: 1px solid #2f3336; border-right: 1px solid #2f3336; min-height: 100vh; }
-        .header { position: sticky; top: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(12px); padding: 15px 20px; font-size: 20px; font-weight: 800; border-bottom: 1px solid #2f3336; }
-        .tweet-box { padding: 16px; border-bottom: 1px solid #2f3336; display: flex; gap: 12px; }
-        .avatar { width: 48px; height: 48px; border-radius: 50%; background: #1d9bf0; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .tweet-input { flex: 1; }
-        .tweet-input textarea { width: 100%; background: transparent; border: none; color: white; font-size: 18px; font-family: inherit; resize: none; outline: none; min-height: 60px; }
-        .tweet-input textarea::placeholder { color: #71767b; }
-        .tweet-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-        .tweet-btn { background: #1d9bf0; color: white; border: none; padding: 8px 20px; border-radius: 9999px; font-weight: 700; cursor: pointer; }
-        .post { padding: 12px 16px; border-bottom: 1px solid #2f3336; cursor: pointer; display: flex; gap: 12px; }
-        .post:hover { background: rgba(255,255,255,0.03); }
-        .post-content { flex: 1; }
-        .post-name { font-weight: 700; }
-        .post-username { color: #71767b; font-size: 14px; margin-left: 4px; }
-        .post-time { color: #71767b; font-size: 13px; margin-left: 4px; }
-        .post-text { margin: 8px 0; font-size: 15px; line-height: 1.4; }
-        .post-image { max-width: 100%; border-radius: 16px; margin-top: 8px; }
-        .post-stats { display: flex; gap: 32px; margin-top: 12px; }
-        .stat-btn { background: none; border: none; color: #71767b; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 9999px; }
-        .stat-btn:hover { background: rgba(29,155,240,0.1); color: #1d9bf0; }
-        .stat-btn.liked { color: #f91880; }
-        .comments { margin-top: 12px; padding-top: 12px; border-top: 1px solid #2f3336; }
-        .comment { display: flex; gap: 8px; margin: 8px 0; }
-        .comment-input { display: flex; gap: 8px; margin-top: 12px; }
-        .comment-input input { flex: 1; background: transparent; border: 1px solid #2f3336; border-radius: 9999px; padding: 8px 16px; color: white; outline: none; }
-        .profile-header { padding: 20px; text-align: center; border-bottom: 1px solid #2f3336; }
-        .profile-avatar { width: 112px; height: 112px; border-radius: 50%; margin: 0 auto 12px; background: #1d9bf0; display: flex; align-items: center; justify-content: center; font-size: 40px; }
-        .profile-stats { display: flex; justify-content: center; gap: 24px; margin: 16px 0; }
-        .stat { text-align: center; cursor: pointer; }
-        .stat-number { font-weight: 700; font-size: 17px; }
-        .stat-label { color: #71767b; font-size: 13px; }
-        .follow-btn { background: #1d9bf0; color: white; border: none; padding: 8px 24px; border-radius: 9999px; font-weight: 700; cursor: pointer; }
-        .unfollow-btn { background: transparent; border: 1px solid #2f3336; color: white; padding: 8px 24px; border-radius: 9999px; cursor: pointer; }
-        .auth-card { background: #000; border: 1px solid #2f3336; border-radius: 20px; padding: 40px; width: 400px; text-align: center; margin: 100px auto; }
-        .auth-card input { width: 100%; padding: 16px; margin: 8px 0; background: transparent; border: 1px solid #2f3336; border-radius: 8px; color: white; }
-        .auth-card button { width: 100%; padding: 12px; background: #1d9bf0; color: white; border: none; border-radius: 9999px; font-weight: 700; cursor: pointer; }
-        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: #000; border: 1px solid #2f3336; border-radius: 20px; padding: 24px; width: 400px; }
-        .hidden { display: none; }
-        @media (max-width: 1000px) { .sidebar { width: 88px; } .nav-text { display: none; } .main { margin-left: 88px; } }
-        @media (max-width: 700px) { .sidebar { display: none; } .main { margin-left: 0; } }
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Login form</title>
 </head>
 <body>
-<div id="app"></div>
-<script>
-    let currentUser = null;
-    let currentTab = 'home';
-    let posts = [];
-    let users = [];
-    let following = [];
-    let profileUser = null;
-    
-    async function api(url, opts = {}) {
-        const res = await fetch(url, { ...opts, credentials: 'include' });
-        return res.json();
-    }
-    
-    async function loadPosts() {
-        const data = await api('/api/posts');
-        posts = data.posts || [];
-        render();
-    }
-    
-    async function loadUsers() {
-        users = await api('/api/users');
-        following = await api('/api/following');
-        render();
-    }
-    
-    async function createPost() {
-        const content = document.getElementById('postContent')?.value;
-        if (!content) return;
-        const formData = new FormData();
-        formData.append('content', content);
-        await api('/api/posts', { method: 'POST', body: formData });
-        document.getElementById('postContent').value = '';
-        loadPosts();
-    }
-    
-    async function likePost(id) {
-        const post = posts.find(p => p.id === id);
-        if (post.user_liked) {
-            await api(`/api/like/${id}`, { method: 'DELETE' });
-        } else {
-            await api(`/api/like/${id}`, { method: 'POST' });
-        }
-        loadPosts();
-    }
-    
-    async function addComment(postId) {
-        const input = document.getElementById(`comment-${postId}`);
-        const content = input?.value;
-        if (!content) return;
-        await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } });
-        loadPosts();
-    }
-    
-    async function followUser(id) {
-        await api(`/api/follow/${id}`, { method: 'POST' });
-        loadUsers();
-    }
-    
-    async function unfollowUser(id) {
-        await api(`/api/follow/${id}`, { method: 'DELETE' });
-        loadUsers();
-    }
-    
-    async function deletePost(id) {
-        if (confirm('Delete?')) {
-            await api(`/api/posts/${id}`, { method: 'DELETE' });
-            loadPosts();
-        }
-    }
-    
-    function viewProfile(username) {
-        profileUser = users.find(u => u.username === username);
-        currentTab = 'profile';
-        render();
-    }
-    
-    function formatTime(date) {
-        return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    
-    function renderPost(p) {
-        const isLiked = p.user_liked;
-        const isOwn = p.user_id === currentUser?.id;
-        return `<div class="post">
-            <div class="avatar" onclick="viewProfile('${p.username}')">${(p.username?.[0] || 'U').toUpperCase()}</div>
-            <div class="post-content">
-                <div><span class="post-name" onclick="viewProfile('${p.username}')">${escapeHtml(p.username)}</span><span class="post-username">@${escapeHtml(p.username)}</span><span class="post-time">· ${formatTime(p.created_at)}</span></div>
-                <div class="post-text">${escapeHtml(p.content || '')}</div>
-                ${p.image ? `<img src="${p.image}" class="post-image">` : ''}
-                <div class="post-stats">
-                    <button class="stat-btn ${isLiked ? 'liked' : ''}" onclick="likePost(${p.id})">❤️ ${p.likes_count || 0}</button>
-                    <button class="stat-btn" onclick="toggleComments(${p.id})">💬 ${p.comments?.length || 0}</button>
-                    ${isOwn ? `<button class="stat-btn" onclick="deletePost(${p.id})">🗑</button>` : ''}
-                </div>
-                <div id="comments-${p.id}" style="display:none" class="comments">
-                    ${(p.comments || []).map(c => `<div class="comment"><div class="avatar" style="width:32px;height:32px;font-size:12px">${(c.username?.[0] || 'U').toUpperCase()}</div><div><strong>${escapeHtml(c.username)}</strong> ${escapeHtml(c.content)}</div></div>`).join('')}
-                    <div class="comment-input"><input id="comment-${p.id}" placeholder="Write a reply..."><button class="tweet-btn" style="padding:4px 12px" onclick="addComment(${p.id})">Reply</button></div>
-                </div>
-            </div>
-        </div>`;
-    }
-    
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-    window.toggleComments = (id) => { const el = document.getElementById(`comments-${id}`); if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'; };
-    
-    function renderHome() {
-        return `<div class="tweet-box">
-            <div class="avatar">${(currentUser?.username?.[0] || 'U').toUpperCase()}</div>
-            <div class="tweet-input">
-                <textarea id="postContent" rows="2" placeholder="What's happening?"></textarea>
-                <div class="tweet-actions"><button class="tweet-btn" onclick="createPost()">Post</button></div>
-            </div>
+    <div class="container">
+        <div class="form">
+            <br />
+            <br />
+            <h1>Login</h1>
+
+            <form class="form-input">
+                <input type="text" placeholder="Username" id="username" />
+                <input type="password" placeholder="Password" id="password" />
+                <input type="checkbox" name="checkbox" id="remember" />
+                <label for="">Remember Me</label> <br />
+                <a href="#" class="reset-pass">Forgot Password</a>
+                <input type="submit" id="submit-btn" value="Login" />
+            </form>
+
         </div>
-        <div id="posts">${posts.map(p => renderPost(p)).join('')}</div>`;
-    }
-    
-    function renderProfile() {
-        const user = profileUser || currentUser;
-        const isOwn = !profileUser || profileUser.id === currentUser?.id;
-        const isFollow = following.includes(user?.id);
-        const userPosts = posts.filter(p => p.user_id === user?.id);
-        return `<div class="profile-header">
-            <div class="profile-avatar">${(user?.username?.[0] || 'U').toUpperCase()}</div>
-            <h2>${escapeHtml(user?.username)}</h2>
-            <div class="profile-stats">
-                <div class="stat" onclick="showFollowers()"><div class="stat-number">${user?.followers_count || 0}</div><div class="stat-label">Followers</div></div>
-                <div class="stat" onclick="showFollowing()"><div class="stat-number">${user?.following_count || 0}</div><div class="stat-label">Following</div></div>
-                <div class="stat"><div class="stat-number">${userPosts.length}</div><div class="stat-label">Posts</div></div>
-            </div>
-            ${!isOwn ? (isFollow ? `<button class="unfollow-btn" onclick="unfollowUser(${user.id})">Unfollow</button>` : `<button class="follow-btn" onclick="followUser(${user.id})">Follow</button>`) : ''}
-        </div>
-        <div>${userPosts.map(p => renderPost(p)).join('')}</div>`;
-    }
-    
-    function renderAuth() {
-        document.getElementById('app').innerHTML = `<div class="auth-card"><h2>Twitter</h2><div id="authForm"><input id="loginUsername" placeholder="Username"><input id="loginPassword" type="password" placeholder="Password"><button onclick="login()">Log in</button><div style="margin:16px">or</div><button onclick="showRegister()" style="background:transparent;border:1px solid #2f3336">Create account</button></div></div>`;
-    }
-    
-    window.showRegister = () => {
-        document.getElementById('authForm').innerHTML = `<input id="regUsername" placeholder="Username"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Password"><button onclick="register()">Sign up</button><button onclick="renderAuth()" style="background:transparent;margin-top:10px">Back</button>`;
-    };
-    
-    window.login = async () => {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-        const res = await api('/api/login', { method: 'POST', body: JSON.stringify({ username, password }), headers: { 'Content-Type': 'application/json' } });
-        if (res.success) { await init(); render(); } else alert('Invalid');
-    };
-    
-    window.register = async () => {
-        const username = document.getElementById('regUsername').value;
-        const email = document.getElementById('regEmail').value;
-        const password = document.getElementById('regPassword').value;
-        await api('/api/register', { method: 'POST', body: JSON.stringify({ username, email, password }), headers: { 'Content-Type': 'application/json' } });
-        alert('Registered! Please login.');
-        renderAuth();
-    };
-    
-    async function init() {
-        const me = await api('/api/me');
-        if (me.user) {
-            currentUser = me.user;
-            await loadPosts();
-            await loadUsers();
-            render();
-        } else {
-            renderAuth();
-        }
-    }
-    
-    function render() {
-        if (!currentUser) return;
-        const nav = ['home', 'profile'];
-        const titles = { home: 'Home', profile: 'Profile' };
-        document.getElementById('app').innerHTML = `<div class="container">
-            <div class="sidebar">
-                <div class="logo" onclick="currentTab='home';render()">🐦 Twitter</div>
-                <div class="nav-item ${currentTab === 'home' ? 'active' : ''}" onclick="currentTab='home';profileUser=null;render()"><span class="nav-text">Home</span></div>
-                <div class="nav-item ${currentTab === 'profile' ? 'active' : ''}" onclick="currentTab='profile';profileUser=null;render()"><span class="nav-text">Profile</span></div>
-                <div class="nav-item" onclick="logout()">Logout</div>
-            </div>
-            <div class="main">
-                <div class="header">${titles[currentTab]}</div>
-                ${currentTab === 'home' ? renderHome() : renderProfile()}
-            </div>
-        </div>`;
-    }
-    
-    window.logout = async () => { await api('/api/logout', { method: 'POST' }); currentUser = null; renderAuth(); };
-    
-    init();
-</script>
+    </div>
 </body>
 </html>
