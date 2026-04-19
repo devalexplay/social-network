@@ -12,6 +12,11 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+// Delete old database to recreate with correct admin
+if (fs.existsSync('./freedomnet.db')) {
+    fs.unlinkSync('./freedomnet.db');
+}
+
 const db = new sqlite3.Database('./freedomnet.db');
 
 db.serialize(() => {
@@ -112,14 +117,10 @@ db.serialize(() => {
         FOREIGN KEY(user_id) REFERENCES users(id)
     )`);
     
-    // Create admin account
+    // Create admin account with correct credentials
     const adminHash = bcrypt.hashSync('admin123', 10);
-    db.run(`INSERT OR IGNORE INTO users (id, username, email, password, role, is_creator, is_official) 
+    db.run(`INSERT OR REPLACE INTO users (id, username, email, password, role, is_creator, is_official) 
             VALUES (1, 'DevAlexPlay', 'admin@freedomnet.com', ?, 'admin', 1, 1)`, [adminHash]);
-    
-    // Create test user for promo commands
-    db.run(`INSERT OR IGNORE INTO users (username, email, password, role) 
-            VALUES ('testuser', 'test@mail.com', ?, 'user')`, [bcrypt.hashSync('test123', 10)]);
 });
 
 app.use(express.json());
@@ -584,17 +585,19 @@ app.post('/api/delete-account', isAuthenticated, (req, res) => {
 app.post('/api/feedback', isAuthenticated, async (req, res) => {
     const { content } = req.body;
     
-    // Check for promo commands first
     const promoResult = await handlePromoCommand(req.session.userId, content);
     if (promoResult) {
-        return res.json({ message: promoResult.message, user: promoResult.success ? await new Promise((resolve) => {
-            db.get('SELECT id, username, email, avatar, bio, role, is_official, is_creator, created_at FROM users WHERE id = ?', [req.session.userId], (err, user) => {
-                resolve(user);
+        let updatedUser = null;
+        if (promoResult.success) {
+            updatedUser = await new Promise((resolve) => {
+                db.get('SELECT id, username, email, avatar, bio, role, is_official, is_creator, created_at FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+                    resolve(user);
+                });
             });
-        }) : null });
+        }
+        return res.json({ message: promoResult.message, user: updatedUser });
     }
     
-    // Admin commands
     if (content.startsWith('/')) {
         const parts = content.slice(1).split(' ');
         const command = parts[0].toLowerCase();
@@ -638,7 +641,6 @@ app.post('/api/feedback', isAuthenticated, async (req, res) => {
         }
     }
     
-    // Regular feedback
     db.run('INSERT INTO feedback (user_id, content) VALUES (?, ?)', [req.session.userId, content], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Feedback sent successfully' });
@@ -739,6 +741,8 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`FreedomNet server running on http://localhost:${PORT}`);
-    console.log('Admin login: DevAlexPlay / admin123');
-    console.log('Test login: testuser / test123');
+    console.log('========================================');
+    console.log('ADMIN LOGIN: DevAlexPlay');
+    console.log('ADMIN PASSWORD: admin123');
+    console.log('========================================');
 });
