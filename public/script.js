@@ -1,30 +1,29 @@
 const API_URL = window.location.origin;
 let currentUser = null;
-let currentView = 'home';
+let currentPage = 'home';
 let allPosts = [];
 
-const authContainer = document.querySelector('.auth');
+const authScreen = document.querySelector('.auth-screen');
 const app = document.getElementById('app');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 const authMessage = document.getElementById('authMessage');
 
-document.querySelectorAll('.auth__tab').forEach(tab => {
+document.querySelectorAll('.auth-tab').forEach(tab => {
     tab.addEventListener('click', () => {
         const target = tab.dataset.tab;
-        document.querySelectorAll('.auth__tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        document.querySelectorAll('.auth__form').forEach(f => f.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
         document.getElementById(`${target}Form`).classList.add('active');
         authMessage.classList.remove('show');
     });
 });
 
-document.querySelectorAll('.input__toggle').forEach(btn => {
+document.querySelectorAll('.password-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
         const target = document.getElementById(btn.dataset.target);
         target.type = target.type === 'password' ? 'text' : 'password';
-        btn.textContent = target.type === 'password' ? '👁' : '🙈';
     });
 });
 
@@ -107,13 +106,13 @@ registerForm.addEventListener('submit', async (e) => {
 
 function showAuthMessage(msg, type) {
     authMessage.textContent = msg;
-    authMessage.className = `auth__message show ${type}`;
+    authMessage.className = `auth-message show ${type}`;
     setTimeout(() => authMessage.classList.remove('show'), 3000);
 }
 
 function initApp(user) {
     currentUser = user;
-    authContainer.style.display = 'none';
+    authScreen.style.display = 'none';
     app.classList.add('active');
     
     document.getElementById('headerAvatar').src = user.avatar;
@@ -123,45 +122,45 @@ function initApp(user) {
     document.getElementById('profileName').textContent = user.fullName || user.username;
     document.getElementById('profileUsername').textContent = `@${user.username}`;
     document.getElementById('profileBio').textContent = user.bio || 'No bio yet';
-    document.getElementById('followerCount').textContent = user.followers || 0;
-    document.getElementById('followingCount').textContent = user.following || 0;
+    document.getElementById('userFollowerCount').textContent = user.followers || 0;
+    document.getElementById('userFollowingCount').textContent = user.following || 0;
     
     loadPosts();
 }
 
-document.querySelectorAll('.nav__item, .mobile-nav__item').forEach(btn => {
+document.querySelectorAll('.nav-btn, .mobile-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        const view = btn.dataset.nav;
-        switchView(view);
+        const page = btn.dataset.page;
+        switchPage(page);
     });
 });
 
-function switchView(view) {
-    currentView = view;
+function switchPage(page) {
+    currentPage = page;
     
-    document.querySelectorAll('.nav__item').forEach(n => n.classList.remove('active'));
-    document.querySelectorAll('.mobile-nav__item').forEach(n => n.classList.remove('active'));
-    document.querySelector(`.nav__item[data-nav="${view}"]`)?.classList.add('active');
-    document.querySelector(`.mobile-nav__item[data-nav="${view}"]`)?.classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.mobile-btn').forEach(n => n.classList.remove('active'));
+    document.querySelector(`.nav-btn[data-page="${page}"]`)?.classList.add('active');
+    document.querySelector(`.mobile-btn[data-page="${page}"]`)?.classList.add('active');
     
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(`${view}View`).classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`${page}Page`).classList.add('active');
     
     const titles = {
         home: 'Home', explore: 'Explore', notifications: 'Notifications',
         messages: 'Messages', profile: 'Profile', settings: 'Settings', about: 'About'
     };
-    document.getElementById('pageTitle').textContent = titles[view] || 'FreedomNet';
+    document.getElementById('pageTitle').textContent = titles[page] || 'FreedomNet';
     
-    if (view === 'home') loadPosts();
-    if (view === 'profile') loadUserPosts();
+    if (page === 'home') loadPosts();
+    if (page === 'profile') loadUserPosts();
 }
 
-document.getElementById('postBtn').addEventListener('click', async () => {
-    const content = document.getElementById('postInput').value;
+document.getElementById('createPostBtn').addEventListener('click', async () => {
+    const content = document.getElementById('postContent').value;
     if (!content.trim()) return;
     
-    const btn = document.getElementById('postBtn');
+    const btn = document.getElementById('createPostBtn');
     btn.disabled = true;
     btn.textContent = 'Posting...';
     
@@ -172,7 +171,7 @@ document.getElementById('postBtn').addEventListener('click', async () => {
     });
     
     if (res.ok) {
-        document.getElementById('postInput').value = '';
+        document.getElementById('postContent').value = '';
         await loadPosts();
     }
     
@@ -183,49 +182,47 @@ document.getElementById('postBtn').addEventListener('click', async () => {
 async function loadPosts() {
     const res = await fetch(`${API_URL}/api/posts`);
     allPosts = await res.json();
-    const feed = document.getElementById('postsFeed');
+    const feed = document.getElementById('postsList');
     
     if (allPosts.length === 0) {
-        feed.innerHTML = '<div class="card" style="text-align:center"><p>No posts yet. Be the first!</p></div>';
+        feed.innerHTML = '<div style="text-align:center;padding:40px;color:#71767b">No posts yet. Be the first!</div>';
         return;
     }
     
     feed.innerHTML = allPosts.map(post => `
-        <div class="post">
-            <img class="post__avatar" src="${post.user?.avatar}" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username}&background=0ea5e9&color=fff'">
-            <div class="post__body">
-                <div class="post__header">
-                    <span class="post__name">${escapeHtml(post.user?.fullName || post.user?.username)}</span>
-                    <span class="post__username">@${escapeHtml(post.user?.username)}</span>
+        <div class="post-card">
+            <img class="post-avatar" src="${post.user?.avatar}" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username}&background=1d9bf0&color=fff'">
+            <div class="post-body">
+                <div class="post-header">
+                    <span class="post-name">${escapeHtml(post.user?.fullName || post.user?.username)}</span>
+                    <span class="post-username">@${escapeHtml(post.user?.username)}</span>
                 </div>
-                <div class="post__text">${escapeHtml(post.content)}</div>
-                <div class="post__actions">
-                    <button class="like" onclick="likePost('${post.id}')">❤️ <span>${post.likes}</span></button>
+                <div class="post-text">${escapeHtml(post.content)}</div>
+                <div class="post-actions">
+                    <button class="like-btn" onclick="likePost('${post.id}')">❤️ <span>${post.likes}</span></button>
                 </div>
             </div>
         </div>
     `).join('');
     
     const userPosts = allPosts.filter(p => p.userId === currentUser.id);
-    if (document.getElementById('postCount')) {
-        document.getElementById('postCount').textContent = userPosts.length;
-    }
+    document.getElementById('userPostCount').textContent = userPosts.length;
 }
 
 async function loadUserPosts() {
     const userPosts = allPosts.filter(p => p.userId === currentUser.id);
-    const container = document.getElementById('profilePosts');
+    const container = document.getElementById('userPostsList');
     if (container) {
         if (userPosts.length === 0) {
-            container.innerHTML = '<div class="card" style="text-align:center"><p>No posts yet</p></div>';
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:#71767b">No posts yet</div>';
             return;
         }
         container.innerHTML = userPosts.map(post => `
-            <div class="post">
-                <img class="post__avatar" src="${currentUser.avatar}">
-                <div class="post__body">
-                    <div class="post__text">${escapeHtml(post.content)}</div>
-                    <div class="post__actions">
+            <div class="post-card">
+                <img class="post-avatar" src="${currentUser.avatar}">
+                <div class="post-body">
+                    <div class="post-text">${escapeHtml(post.content)}</div>
+                    <div class="post-actions">
                         <span>❤️ ${post.likes}</span>
                     </div>
                 </div>
@@ -250,16 +247,16 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 
 document.getElementById('editProfileBtn')?.addEventListener('click', () => {
-    document.getElementById('editBio').value = currentUser.bio || '';
+    document.getElementById('editBioInput').value = currentUser.bio || '';
     document.getElementById('editModal').classList.add('active');
 });
 
-document.getElementById('closeModal')?.addEventListener('click', () => {
+document.getElementById('closeModalBtn')?.addEventListener('click', () => {
     document.getElementById('editModal').classList.remove('active');
 });
 
-document.getElementById('saveProfile')?.addEventListener('click', async () => {
-    const bio = document.getElementById('editBio').value;
+document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
+    const bio = document.getElementById('editBioInput').value;
     const res = await fetch(`${API_URL}/api/user/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -275,7 +272,7 @@ document.getElementById('saveProfile')?.addEventListener('click', async () => {
     }
 });
 
-document.getElementById('saveSettings')?.addEventListener('click', () => {
+document.getElementById('saveSettingsBtn')?.addEventListener('click', () => {
     showAuthMessage('Settings saved', 'success');
 });
 
