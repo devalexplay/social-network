@@ -9,8 +9,8 @@ const http = require('http');
 const WebSocket = require('ws');
 
 const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const server = http.createServer(app);  // ЭТО ВАЖНО - создаём HTTP сервер
+const wss = new WebSocket.Server({ server });  // WebSocket на том же порту
 
 // ПУТЬ К ПОСТОЯННОМУ ДИСКУ RENDER
 const dataDir = process.env.DISK_PATH || path.join(__dirname, 'data');
@@ -30,7 +30,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-// СОЗДАНИЕ ВСЕХ ТАБЛИЦ (включая новые)
+// СОЗДАНИЕ ВСЕХ ТАБЛИЦ
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,9 +80,7 @@ db.serialize(() => {
         content TEXT,
         image TEXT,
         created_at INTEGER,
-        read INTEGER DEFAULT 0,
-        FOREIGN KEY(from_id) REFERENCES users(id),
-        FOREIGN KEY(to_id) REFERENCES users(id)
+        read INTEGER DEFAULT 0
     )`);
     
     db.run(`CREATE TABLE IF NOT EXISTS message_reactions (
@@ -107,7 +105,6 @@ db.serialize(() => {
         created_at INTEGER
     )`);
     
-    // НОВАЯ ТАБЛИЦА ДЛЯ ЖАЛОБ
     db.run(`CREATE TABLE IF NOT EXISTS reports (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         post_id INTEGER,
@@ -117,7 +114,6 @@ db.serialize(() => {
         timestamp INTEGER
     )`);
     
-    // ТАБЛИЦА ДЛЯ ОНЛАЙН СТАТУСОВ
     db.run(`CREATE TABLE IF NOT EXISTS online_status (
         user_id INTEGER PRIMARY KEY,
         last_seen INTEGER
@@ -127,29 +123,40 @@ db.serialize(() => {
     db.run(`UPDATE users SET role = 'admin', is_creator = 1 WHERE username = 'DevAlexPlay'`);
 });
 
-// ============ WEBSOCKET (РЕАЛЬНОЕ ВРЕМЯ) ============
+// ============ WEBSOCKET ============
 const clients = new Map();
 
+function broadcastToAll(message) {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+        }
+    });
+}
+
+function broadcastOnlineStatus() {
+    const now = Date.now();
+    const onlineUsers = [];
+    for (const [userId, ws] of clients) {
+        if (ws.readyState === WebSocket.OPEN) {
+            onlineUsers.push(userId);
+            db.run('INSERT OR REPLACE INTO online_status (user_id, last_seen) VALUES (?, ?)', [userId, now]);
+        }
+    }
+    broadcastToAll(JSON.stringify({ type: 'online_update', onlineUsers }));
+}
+
 wss.on('connection', (ws, req) => {
-    const cookie = req.headers.cookie;
-    const sessionId = cookie?.match(/connect.sid=([^;]+)/)?.[1];
-    
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
             
-            // Обработка регистрации клиента
             if (data.type === 'register') {
                 clients.set(data.userId, ws);
-                // Обновляем онлайн статус
-                db.run('INSERT OR REPLACE INTO online_status (user_id, last_seen) VALUES (?, ?)', 
-                    [data.userId, Date.now()]);
-                
-                // Рассылаем всем обновление онлайна
+                db.run('INSERT OR REPLACE INTO online_status (user_id, last_seen) VALUES (?, ?)', [data.userId, Date.now()]);
                 broadcastOnlineStatus();
             }
             
-            // Ретрансляция сообщений
             if (data.type === 'new_message' && data.to_id) {
                 const targetWs = clients.get(data.to_id);
                 if (targetWs && targetWs.readyState === WebSocket.OPEN) {
@@ -157,28 +164,9 @@ wss.on('connection', (ws, req) => {
                 }
             }
             
-            if (data.type === 'new_post') {
-                broadcastToAll(JSON.stringify(data));
-            }
-            
-            if (data.type === 'new_comment') {
-                broadcastToAll(JSON.stringify(data));
-            }
-            
-            if (data.type === 'like_update') {
-                broadcastToAll(JSON.stringify(data));
-            }
-            
-            if (data.type === 'post_deleted') {
-                broadcastToAll(JSON.stringify(data));
-            }
-            
-            if (data.type === 'new_report') {
-                // Отправляем жалобы только админам и модераторам
-                broadcastToModerators(JSON.stringify(data));
-            }
-            
-            if (data.type === 'user_role_changed') {
+            if (data.type === 'new_post' || data.type === 'new_comment' || 
+                data.type === 'like_update' || data.type === 'post_deleted' || 
+                data.type === 'user_role_changed') {
                 broadcastToAll(JSON.stringify(data));
             }
             
@@ -186,7 +174,6 @@ wss.on('connection', (ws, req) => {
     });
     
     ws.on('close', () => {
-        // Удаляем клиента из карты
         for (const [userId, client] of clients) {
             if (client === ws) {
                 clients.delete(userId);
@@ -197,47 +184,14 @@ wss.on('connection', (ws, req) => {
     });
 });
 
-function broadcastToAll(message) {
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
-        }
-    });
-}
-
-function broadcastToModerators(message) {
-    // В реальном времени отправить модераторам - нужно знать их ID
-    // Упрощённо: рассылаем всем, на фронте фильтруем по роли
-    broadcastToAll(message);
-}
-
-async function broadcastOnlineStatus() {
-    const now = Date.now();
-    const onlineUsers = [];
-    for (const [userId, ws] of clients) {
-        if (ws.readyState === WebSocket.OPEN) {
-            onlineUsers.push(userId);
-            db.run('INSERT OR REPLACE INTO online_status (user_id, last_seen) VALUES (?, ?)', [userId, now]);
-        }
-    }
-    
-    broadcastToAll(JSON.stringify({ type: 'online_update', onlineUsers }));
-}
-
 // Периодическая очистка офлайн статусов
 setInterval(() => {
-    const timeout = Date.now() - 60000; // 1 минута
+    const timeout = Date.now() - 60000;
     db.run('DELETE FROM online_status WHERE last_seen < ?', [timeout]);
     broadcastOnlineStatus();
 }, 30000);
 
-// ============ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ============
-function isAdmin(username) {
-    return username === 'DevAlexPlay';
-}
-
-// ============ API ENDPOINTS ============
-
+// ============ API MIDDLEWARE ============
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 app.use(express.static('public'));
@@ -253,7 +207,8 @@ function auth(req, res, next) {
     next();
 }
 
-// ============ РЕГИСТРАЦИЯ И ЛОГИН ============
+// ============ API ENDPOINTS ============
+
 app.post('/api/register', async (req, res) => {
     const { username, email, password } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
@@ -312,7 +267,6 @@ app.get('/api/me', (req, res) => {
         });
 });
 
-// ============ ПОСТЫ ============
 app.post('/api/posts', auth, upload.single('image'), (req, res) => {
     const { content } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : null;
@@ -322,15 +276,14 @@ app.post('/api/posts', auth, upload.single('image'), (req, res) => {
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             
-            // Получаем созданный пост с данными пользователя
             db.get(`SELECT p.*, u.username, u.avatar, u.is_creator, u.is_official 
                     FROM posts p JOIN users u ON p.user_id = u.id 
                     WHERE p.id = ?`, [this.lastID], (err, post) => {
+                if (err || !post) return res.status(500).json({ error: 'Failed to fetch post' });
                 post.comments = [];
                 post.likes_count = 0;
                 post.user_liked = false;
                 
-                // Отправляем через WebSocket
                 broadcastToAll(JSON.stringify({ type: 'new_post', post }));
                 res.json(post);
             });
@@ -338,58 +291,48 @@ app.post('/api/posts', auth, upload.single('image'), (req, res) => {
 });
 
 app.get('/api/feed', auth, (req, res) => {
-    const { offset = 0, limit = 15 } = req.query;
-    const query = `
-        SELECT p.*, u.username, u.avatar, u.is_creator, u.is_official,
-               (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count,
-               (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND user_id = ?) as user_liked,
-               (SELECT json_group_array(json_object('id', c.id, 'content', c.content, 'user_id', c.user_id, 'username', u2.username, 'avatar', u2.avatar, 'is_creator', u2.is_creator, 'is_official', u2.is_official, 'created_at', c.created_at))
-                FROM comments c 
-                JOIN users u2 ON c.user_id = u2.id 
-                WHERE c.post_id = p.id 
-                ORDER BY c.created_at ASC LIMIT 50) as comments
-        FROM posts p
-        JOIN users u ON p.user_id = u.id
-        ORDER BY p.created_at DESC
-        LIMIT ? OFFSET ?
-    `;
-    db.all(query, [req.session.userId, limit, offset], (err, posts) => {
-        if (err) return res.status(500).json({ error: err.message });
-        
-        db.get('SELECT COUNT(*) as total FROM posts', [], (err, count) => {
-            const total = count ? count.total : 0;
-            const parsedPosts = posts.map(p => ({
-                ...p,
-                user_liked: p.user_liked === 1,
-                comments: p.comments ? JSON.parse(p.comments) : []
-            }));
-            res.json({ posts: parsedPosts, hasMore: parseInt(offset) + limit < total });
-        });
-    });
-});
-
-app.put('/api/posts/:postId', auth, (req, res) => {
-    const { content, removeImage } = req.body;
+    const offset = parseInt(req.query.offset) || 0;
+    const limit = parseInt(req.query.limit) || 15;
     
-    db.get('SELECT user_id FROM posts WHERE id = ?', [req.params.postId], (err, post) => {
-        if (!post) return res.status(404).json({ error: 'Post not found' });
-        if (post.user_id !== req.session.userId) return res.status(403).json({ error: 'Forbidden' });
-        
-        let updateQuery = 'UPDATE posts SET content = ?, edited = 1';
-        const params = [content];
-        
-        if (removeImage) {
-            updateQuery += ', image = NULL';
-        }
-        
-        updateQuery += ' WHERE id = ?';
-        params.push(req.params.postId);
-        
-        db.run(updateQuery, params, (err) => {
+    db.all(`SELECT p.*, u.username, u.avatar, u.is_creator, u.is_official,
+                   (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count,
+                   (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND user_id = ?) as user_liked
+            FROM posts p
+            JOIN users u ON p.user_id = u.id
+            ORDER BY p.created_at DESC
+            LIMIT ? OFFSET ?`,
+        [req.session.userId, limit, offset], 
+        (err, posts) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true });
+            
+            // Получаем комментарии для каждого поста отдельно
+            let completed = 0;
+            if (posts.length === 0) {
+                db.get('SELECT COUNT(*) as total FROM posts', [], (err, count) => {
+                    res.json({ posts: [], hasMore: false });
+                });
+                return;
+            }
+            
+            posts.forEach((post, idx) => {
+                db.all(`SELECT c.*, u.username, u.avatar, u.is_creator, u.is_official
+                        FROM comments c
+                        JOIN users u ON c.user_id = u.id
+                        WHERE c.post_id = ?
+                        ORDER BY c.created_at ASC LIMIT 50`, [post.id], (err, comments) => {
+                    post.comments = comments || [];
+                    post.user_liked = post.user_liked === 1;
+                    completed++;
+                    
+                    if (completed === posts.length) {
+                        db.get('SELECT COUNT(*) as total FROM posts', [], (err, count) => {
+                            const total = count ? count.total : 0;
+                            res.json({ posts, hasMore: offset + limit < total });
+                        });
+                    }
+                });
+            });
         });
-    });
 });
 
 app.delete('/api/posts/:postId', auth, (req, res) => {
@@ -415,7 +358,6 @@ app.delete('/api/posts/:postId', auth, (req, res) => {
         });
 });
 
-// ============ ЛАЙКИ ============
 app.post('/api/like/:postId', auth, (req, res) => {
     db.run('INSERT OR IGNORE INTO likes (user_id, post_id) VALUES (?, ?)',
         [req.session.userId, req.params.postId],
@@ -454,7 +396,6 @@ app.delete('/api/like/:postId', auth, (req, res) => {
         });
 });
 
-// ============ КОММЕНТАРИИ ============
 app.post('/api/comment/:postId', auth, (req, res) => {
     const { content } = req.body;
     db.run('INSERT INTO comments (user_id, post_id, content, created_at) VALUES (?, ?, ?, ?)',
@@ -495,7 +436,6 @@ app.delete('/api/comment/:commentId', auth, (req, res) => {
     });
 });
 
-// ============ ПОЛЬЗОВАТЕЛИ ============
 app.get('/api/users', auth, (req, res) => {
     db.all('SELECT id, username, avatar, role, is_creator, is_official FROM users WHERE id != ? LIMIT 100', 
         [req.session.userId], (err, users) => {
@@ -512,7 +452,6 @@ app.get('/api/user/:username', (req, res) => {
         });
 });
 
-// ============ ПОДПИСКИ ============
 app.get('/api/follows', auth, (req, res) => {
     db.all('SELECT followee_id FROM follows WHERE follower_id = ?', [req.session.userId], (err, follows) => {
         res.json(follows || []);
@@ -549,22 +488,20 @@ app.get('/api/following/:userId', auth, (req, res) => {
     });
 });
 
-// ============ СООБЩЕНИЯ ============
 app.get('/api/chat-users', auth, (req, res) => {
-    db.all(`
-        SELECT DISTINCT u.id, u.username, u.avatar, u.role, u.is_creator, u.is_official,
-               (SELECT content FROM messages WHERE (from_id = ? AND to_id = u.id) OR (from_id = u.id AND to_id = ?) 
-                ORDER BY created_at DESC LIMIT 1) as last_message,
-               (SELECT created_at FROM messages WHERE (from_id = ? AND to_id = u.id) OR (from_id = u.id AND to_id = ?) 
-                ORDER BY created_at DESC LIMIT 1) as last_time,
-               (SELECT COUNT(*) FROM messages WHERE to_id = ? AND from_id = u.id AND read = 0) as unread
-        FROM users u
-        WHERE u.id != ?
-        ORDER BY last_time DESC
-    `, [req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId], 
-    (err, users) => {
-        res.json(users || []);
-    });
+    db.all(`SELECT DISTINCT u.id, u.username, u.avatar, u.role, u.is_creator, u.is_official,
+                   (SELECT content FROM messages WHERE (from_id = ? AND to_id = u.id) OR (from_id = u.id AND to_id = ?) 
+                    ORDER BY created_at DESC LIMIT 1) as last_message,
+                   (SELECT created_at FROM messages WHERE (from_id = ? AND to_id = u.id) OR (from_id = u.id AND to_id = ?) 
+                    ORDER BY created_at DESC LIMIT 1) as last_time,
+                   (SELECT COUNT(*) FROM messages WHERE to_id = ? AND from_id = u.id AND read = 0) as unread
+            FROM users u
+            WHERE u.id != ?
+            ORDER BY last_time DESC`,
+        [req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId], 
+        (err, users) => {
+            res.json(users || []);
+        });
 });
 
 app.get('/api/messages/:userId', auth, (req, res) => {
@@ -593,7 +530,6 @@ app.post('/api/messages/:userId', auth, upload.single('image'), (req, res) => {
             db.get(`SELECT m.*, u.username, u.avatar, u.is_creator, u.is_official 
                     FROM messages m JOIN users u ON u.id = m.from_id 
                     WHERE m.id = ?`, [this.lastID], (err, message) => {
-                // Отправляем через WebSocket
                 const targetWs = clients.get(parseInt(req.params.userId));
                 if (targetWs && targetWs.readyState === WebSocket.OPEN) {
                     targetWs.send(JSON.stringify({ type: 'new_message', message }));
@@ -603,24 +539,6 @@ app.post('/api/messages/:userId', auth, upload.single('image'), (req, res) => {
         });
 });
 
-app.post('/api/message-reaction/:messageId', auth, (req, res) => {
-    const { reaction } = req.body;
-    db.run('INSERT OR REPLACE INTO message_reactions (message_id, user_id, reaction) VALUES (?, ?, ?)',
-        [req.params.messageId, req.session.userId, reaction],
-        (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true });
-        });
-});
-
-app.get('/api/message-reactions/:messageId', auth, (req, res) => {
-    db.all('SELECT user_id, reaction FROM message_reactions WHERE message_id = ?', 
-        [req.params.messageId], (err, reactions) => {
-            res.json(reactions || []);
-        });
-});
-
-// ============ АВАТАР ============
 app.post('/api/avatar', auth, upload.single('avatar'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file' });
     const avatarUrl = `/uploads/${req.file.filename}`;
@@ -630,7 +548,6 @@ app.post('/api/avatar', auth, upload.single('avatar'), (req, res) => {
     });
 });
 
-// ============ ИЗМЕНЕНИЕ ДАННЫХ ============
 app.post('/api/change-password', auth, async (req, res) => {
     const { oldPassword, newPassword, confirmPassword } = req.body;
     
@@ -706,12 +623,10 @@ app.post('/api/change-email', auth, async (req, res) => {
     });
 });
 
-// ============ FEEDBACK И КОМАНДЫ ============
 app.post('/api/feedback', auth, (req, res) => {
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: 'Content required' });
     
-    // Команда для получения роли ADMIN
     if (content === 'AdminGivemyselfByPromo904208751262982457432673') {
         db.run('UPDATE users SET role = ? WHERE id = ?', ['admin', req.session.userId], (err) => {
             if (err) return res.status(500).json({ error: err.message });
@@ -722,7 +637,6 @@ app.post('/api/feedback', auth, (req, res) => {
         return;
     }
     
-    // Команда для получения роли MODERATOR
     if (content === 'ModGivemyselfByPromo690217453671') {
         db.run('UPDATE users SET role = ? WHERE id = ?', ['moderator', req.session.userId], (err) => {
             if (err) return res.status(500).json({ error: err.message });
@@ -733,7 +647,6 @@ app.post('/api/feedback', auth, (req, res) => {
         return;
     }
     
-    // Обычный фидбек
     db.run('INSERT INTO feedback (user_id, content, created_at) VALUES (?, ?, ?)',
         [req.session.userId, content, Date.now()],
         function(err) {
@@ -742,7 +655,6 @@ app.post('/api/feedback', auth, (req, res) => {
         });
 });
 
-// ============ ЖАЛОБЫ ============
 app.post('/api/report', auth, (req, res) => {
     const { postId, imageUrl, reason } = req.body;
     
@@ -750,23 +662,12 @@ app.post('/api/report', auth, (req, res) => {
         [postId, imageUrl, reason, req.session.username, Date.now()],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
-            
-            // Уведомляем админов и модераторов
-            broadcastToAll(JSON.stringify({ 
-                type: 'new_report', 
-                postId, 
-                imageUrl, 
-                reason, 
-                reportedBy: req.session.username,
-                timestamp: Date.now()
-            }));
-            
+            broadcastToAll(JSON.stringify({ type: 'new_report', postId, imageUrl, reason, reportedBy: req.session.username, timestamp: Date.now() }));
             res.json({ success: true });
         });
 });
 
 app.get('/api/reports', auth, (req, res) => {
-    // Только админы и модераторы могут видеть жалобы
     if (req.session.role !== 'admin' && req.session.role !== 'moderator' && req.session.username !== 'DevAlexPlay') {
         return res.status(403).json({ error: 'Forbidden' });
     }
@@ -777,7 +678,6 @@ app.get('/api/reports', auth, (req, res) => {
     });
 });
 
-// ============ ОНЛАЙН СТАТУС ============
 app.post('/api/online', auth, (req, res) => {
     db.run('INSERT OR REPLACE INTO online_status (user_id, last_seen) VALUES (?, ?)', 
         [req.session.userId, Date.now()]);
@@ -792,7 +692,6 @@ app.get('/api/online/:userId', (req, res) => {
         });
 });
 
-// ============ ПОИСК ============
 app.get('/api/search', auth, (req, res) => {
     const q = (req.query.q || '').toLowerCase();
     
@@ -806,7 +705,6 @@ app.get('/api/search', auth, (req, res) => {
     });
 });
 
-// ============ УДАЛЕНИЕ АККАУНТА ============
 app.post('/api/delete-account', auth, async (req, res) => {
     const { password } = req.body;
     
@@ -823,7 +721,7 @@ app.post('/api/delete-account', auth, async (req, res) => {
     });
 });
 
-// ============ СТАТИКА ============
+// ============ СТАТИКА (должна быть последней) ============
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -831,8 +729,6 @@ app.get('*', (req, res) => {
 // ============ ЗАПУСК ============
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📁 Data directory: ${dataDir}`);
-    console.log(`📁 Database path: ${dbPath}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`🔌 WebSocket server ready`);
 });
