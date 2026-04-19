@@ -1,1011 +1,576 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>X</title>
-    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z'/%3E%3C/svg%3E">
-    <style>
-        /* Twitter/X Official Font - Chirp */
-        @font-face {
-            font-family: 'Chirp';
-            src: url('https://abs.twimg.com/fonts/chirp-regular-web.woff2') format('woff2');
-            font-weight: 400;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Chirp';
-            src: url('https://abs.twimg.com/fonts/chirp-bold-web.woff2') format('woff2');
-            font-weight: 700;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Chirp';
-            src: url('https://abs.twimg.com/fonts/chirp-heavy-web.woff2') format('woff2');
-            font-weight: 800;
-            font-style: normal;
-        }
+const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
+const sqlite3 = require('sqlite3').verbose();
+const bcrypt = require('bcryptjs');
+const session = require('express-session');
+const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
-        :root {
-            --bg-primary: #000000;
-            --bg-secondary: #000000;
-            --text-primary: #ffffff;
-            --text-secondary: #71767b;
-            --border-color: #2f3336;
-            --hover-bg: rgba(255, 255, 255, 0.03);
-            --accent: #1d9bf0;
-            --accent-hover: #1a8cd8;
-            --gold: #ffd700;
-            --moderator: #23c55e;
-            --admin: #f4212e;
-            --online-green: #00ba7c;
-            --offline-gray: #536471;
-            --like-red: #f91880;
-            --retweet-green: #00ba7c;
-        }
+// Delete old database to recreate with correct admin
+if (fs.existsSync('./freedomnet.db')) {
+    fs.unlinkSync('./freedomnet.db');
+}
 
-        body.dark { --bg-primary: #000000; --bg-secondary: #000000; --text-primary: #ffffff; --border-color: #2f3336; --hover-bg: rgba(255, 255, 255, 0.03); }
-        body.dark-gray { --bg-primary: #15202b; --bg-secondary: #1e2732; --text-primary: #ffffff; --border-color: #2f3336; --hover-bg: rgba(255, 255, 255, 0.03); }
-        body.gray { --bg-primary: #1a1a1a; --bg-secondary: #222222; --text-primary: #ffffff; --border-color: #333333; --hover-bg: rgba(255, 255, 255, 0.03); }
-        body.light { --bg-primary: #ffffff; --bg-secondary: #ffffff; --text-primary: #0f1419; --text-secondary: #536471; --border-color: #eff3f4; --hover-bg: rgba(0, 0, 0, 0.03); --accent: #1d9bf0; }
+const db = new sqlite3.Database('./freedomnet.db');
 
-        body {
-            font-family: 'Chirp', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow-x: hidden;
-        }
-
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-        
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #000000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            transition: opacity 0.3s ease;
-        }
-        .loading-logo {
-            font-size: 48px;
-            font-weight: 800;
-            color: var(--accent);
-            animation: pulse 1s ease infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.98); } }
-
-        /* Sidebar - Twitter style */
-        .sidebar {
-            width: 275px;
-            position: fixed;
-            height: 100vh;
-            padding: 8px 12px;
-            border-right: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            overflow-y: auto;
-        }
-        
-        .logo {
-            padding: 12px;
-            margin-bottom: 4px;
-            display: inline-block;
-            cursor: pointer;
-            border-radius: 9999px;
-            transition: background 0.2s ease;
-        }
-        .logo:hover {
-            background: var(--hover-bg);
-        }
-        .logo svg {
-            width: 28px;
-            height: 28px;
-            fill: var(--accent);
-        }
-        
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px;
-            margin: 4px 0;
-            border-radius: 9999px;
-            cursor: pointer;
-            font-size: 20px;
-            font-weight: 400;
-            width: fit-content;
-            color: var(--text-primary);
-            background: transparent;
-            transition: background 0.2s ease;
-        }
-        .nav-item:hover {
-            background: var(--hover-bg);
-        }
-        .nav-item.active {
-            font-weight: 700;
-        }
-        .nav-text {
-            font-size: 20px;
-            font-weight: 400;
-        }
-        .nav-item.active .nav-text {
-            font-weight: 700;
-        }
-        
-        /* Post button */
-        .post-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 9999px;
-            padding: 16px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 16px;
-            width: 90%;
-            transition: background 0.2s ease;
-        }
-        .post-btn:hover {
-            background: var(--accent-hover);
-        }
-        
-        /* Bottom nav mobile */
-        .bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-color);
-            padding: 8px 16px;
-            z-index: 100;
-            justify-content: space-around;
-        }
-        .bottom-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 8px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 12px;
-            border-radius: 9999px;
-            transition: background 0.2s ease;
-        }
-        .bottom-nav-item:hover {
-            background: var(--hover-bg);
-        }
-        .bottom-nav-item.active {
-            color: var(--accent);
-        }
-        
-        /* Main content */
-        .main-content {
-            margin-left: 275px;
-            min-height: 100vh;
-            border-right: 1px solid var(--border-color);
-            max-width: 600px;
-        }
-        
-        .header {
-            position: sticky;
-            top: 0;
-            background: var(--bg-primary);
-            backdrop-filter: blur(12px);
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 20px;
-            font-weight: 800;
-            z-index: 10;
-        }
-        
-        /* Feed */
-        .feed-container {
-            max-width: 600px;
-        }
-        
-        /* Create post */
-        .create-post {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            gap: 12px;
-        }
-        .avatar-img, .avatar-placeholder {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .avatar-placeholder {
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .post-input-area {
-            flex: 1;
-        }
-        .post-input-area textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 18px;
-            font-family: 'Chirp', sans-serif;
-            resize: vertical;
-            outline: none;
-            min-height: 60px;
-        }
-        .post-input-area textarea::placeholder {
-            color: var(--text-secondary);
-            font-size: 18px;
-        }
-        .post-actions-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-        }
-        .image-upload {
-            color: var(--accent);
-            cursor: pointer;
-            font-size: 20px;
-            padding: 8px;
-            border-radius: 9999px;
-            transition: background 0.2s ease;
-        }
-        .image-upload:hover {
-            background: rgba(29, 155, 240, 0.1);
-        }
-        .publish-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 9999px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-        .publish-btn:hover {
-            background: var(--accent-hover);
-        }
-        
-        /* Post card - Twitter style */
-        .post-card {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-        .post-card:hover {
-            background: var(--hover-bg);
-        }
-        .post-header {
-            display: flex;
-            gap: 12px;
-        }
-        .post-avatar-img {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .post-body {
-            flex: 1;
-        }
-        .post-user {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin-bottom: 4px;
-        }
-        .post-display-name {
-            font-weight: 700;
-            font-size: 15px;
-        }
-        .post-username {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        .post-time {
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
-        .post-content {
-            font-size: 15px;
-            line-height: 1.4;
-            margin: 4px 0 12px 0;
-        }
-        .post-image-container {
-            position: relative;
-            margin-top: 8px;
-            border-radius: 16px;
-            overflow: hidden;
-        }
-        .post-image {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-        .post-image.blurred {
-            filter: blur(20px);
-        }
-        .report-image-btn {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: none;
-            border-radius: 9999px;
-            padding: 6px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-        .post-image-container:hover .report-image-btn {
-            opacity: 1;
-        }
-        
-        /* Post stats - Twitter style */
-        .post-stats {
-            display: flex;
-            gap: 32px;
-            margin-top: 12px;
-        }
-        .stat-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px;
-            border-radius: 9999px;
-            transition: color 0.2s ease, background 0.2s ease;
-        }
-        .stat-btn:hover {
-            background: rgba(29, 155, 240, 0.1);
-            color: var(--accent);
-        }
-        .stat-btn.liked {
-            color: var(--like-red);
-        }
-        .stat-btn.liked:hover {
-            background: rgba(249, 24, 128, 0.1);
-        }
-        .delete-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 13px;
-            padding: 6px;
-            border-radius: 9999px;
-            margin-left: auto;
-            transition: color 0.2s ease;
-        }
-        .delete-btn:hover {
-            color: var(--admin);
-            background: rgba(244, 33, 46, 0.1);
-        }
-        
-        /* Comments section */
-        .comments-section {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-        }
-        .comment {
-            display: flex;
-            gap: 8px;
-            padding: 8px 0;
-        }
-        .comment-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .comment strong {
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        .comment-content {
-            font-size: 14px;
-            margin-top: 2px;
-        }
-        .delete-comment-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-        .comment-input {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .comment-input input {
-            flex: 1;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            padding: 8px 16px;
-            color: var(--text-primary);
-            font-family: 'Chirp', sans-serif;
-            outline: none;
-        }
-        .comment-input input:focus {
-            border-color: var(--accent);
-        }
-        .comment-send-btn {
-            background: none;
-            border: none;
-            color: var(--accent);
-            cursor: pointer;
-            font-size: 18px;
-            padding: 0 12px;
-        }
-        
-        /* Profile page */
-        .profile-container {
-            max-width: 600px;
-        }
-        .profile-header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .profile-avatar {
-            width: 112px;
-            height: 112px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 12px;
-            cursor: pointer;
-        }
-        .profile-stats {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin: 16px 0;
-        }
-        .stat-item {
-            text-align: center;
-            cursor: pointer;
-        }
-        .stat-number {
-            font-weight: 700;
-            font-size: 17px;
-        }
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
-        .follow-btn, .unfollow-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 24px;
-            border-radius: 9999px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 12px;
-        }
-        .unfollow-btn {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }
-        
-        /* Badges */
-        .verified-badge, .gold-badge, .moderator-badge, .admin-badge {
-            display: inline-flex;
-            align-items: center;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 9999px;
-            margin-left: 4px;
-        }
-        .verified-badge { background: var(--accent); color: white; }
-        .gold-badge { background: var(--gold); color: #000; }
-        .moderator-badge { background: var(--moderator); color: #000; }
-        .admin-badge { background: var(--admin); color: white; }
-        
-        /* Mentions & Hashtags */
-        .mention, .hashtag {
-            color: var(--accent);
-            cursor: pointer;
-        }
-        .mention:hover, .hashtag:hover {
-            text-decoration: underline;
-        }
-        
-        /* Modals */
-        .custom-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-        .custom-modal-content {
-            background: var(--bg-primary);
-            border-radius: 28px;
-            padding: 24px;
-            width: 400px;
-            max-width: 90%;
-            border: 1px solid var(--border-color);
-            animation: scaleIn 0.2s ease;
-        }
-        .custom-modal-content input, .custom-modal-content textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: 'Chirp', sans-serif;
-            outline: none;
-        }
-        .custom-modal-content input:focus, .custom-modal-content textarea:focus {
-            border-color: var(--accent);
-        }
-        .custom-modal-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 16px;
-        }
-        .custom-modal-btn {
-            padding: 8px 20px;
-            border-radius: 9999px;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-        }
-        .custom-modal-btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        .custom-modal-btn-cancel {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }
-        .custom-modal-btn-yes {
-            background: var(--admin);
-            color: white;
-        }
-        
-        /* Auth card */
-        .auth-card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 28px;
-            padding: 40px;
-            width: 420px;
-            max-width: 90%;
-            text-align: center;
-        }
-        .auth-card input {
-            width: 100%;
-            padding: 16px;
-            margin: 8px 0;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: 'Chirp', sans-serif;
-        }
-        .auth-card button {
-            width: 100%;
-            padding: 12px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 9999px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-        .divider {
-            margin: 16px 0;
-            color: var(--text-secondary);
-        }
-        
-        /* Messages */
-        .messages-container {
-            display: flex;
-            height: calc(100vh - 60px);
-        }
-        .conversations-sidebar {
-            width: 320px;
-            border-right: 1px solid var(--border-color);
-        }
-        .conversation-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-        .conversation-item:hover {
-            background: var(--hover-bg);
-        }
-        .conversation-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .conversation-name {
-            font-weight: 700;
-        }
-        .conversation-last-message {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-        .message-bubble.outgoing {
-            background: var(--accent);
-            color: white;
-            border-radius: 18px 18px 4px 18px;
-            padding: 8px 12px;
-            max-width: 70%;
-            margin-left: auto;
-        }
-        .message-bubble.incoming {
-            background: var(--border-color);
-            border-radius: 18px 18px 18px 4px;
-            padding: 8px 12px;
-            max-width: 70%;
-        }
-        .chat-input-area {
-            padding: 16px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            gap: 12px;
-        }
-        .chat-input {
-            flex: 1;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            padding: 12px 16px;
-            color: var(--text-primary);
-            font-family: 'Chirp', sans-serif;
-        }
-        
-        /* Settings */
-        .custom-select {
-            position: relative;
-            width: 100%;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            padding: 12px 16px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-        }
-        .custom-select-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            margin-top: 8px;
-            z-index: 100;
-        }
-        .custom-select-option {
-            padding: 12px 16px;
-            cursor: pointer;
-        }
-        .custom-select-option:hover {
-            background: var(--hover-bg);
-        }
-        
-        /* User preview */
-        .user-preview {
-            position: fixed;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 16px;
-            width: 280px;
-            z-index: 200;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            animation: scaleIn 0.15s ease;
-        }
-        
-        /* Responsive */
-        @media (max-width: 1000px) {
-            .sidebar { width: 88px; }
-            .sidebar .nav-text { display: none; }
-            .sidebar .post-btn { display: none; }
-            .main-content { margin-left: 88px; }
-        }
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .main-content { margin-left: 0; padding-bottom: 70px; }
-            .bottom-nav { display: flex; }
-        }
-        
-        /* Crop modal */
-        .crop-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-        }
-        .crop-modal-content {
-            background: var(--bg-primary);
-            border-radius: 28px;
-            padding: 24px;
-            width: 500px;
-            max-width: 90%;
-            text-align: center;
-        }
-        .crop-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            margin: 16px auto;
-            overflow: hidden;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-            cursor: grab;
-        }
-        .crop-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: none;
-            transform-origin: center;
-        }
-        .zoom-slider {
-            width: 100%;
-            margin: 16px 0;
-        }
-        
-        .global-footer {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-size: 13px;
-            border-top: 1px solid var(--border-color);
-        }
-    </style>
-</head>
-<body>
-<div id="loading" class="loading-screen">
-    <div class="loading-logo">𝕏</div>
-</div>
-<div id="root" style="display:none;"></div>
-
-<script>
-    let currentUser = null;
-    let currentTab = 'feed';
-    let feed = [];
-    let conversationsList = [];
-    let currentChatUser = null;
-    let pendingImage = null;
-    let searchQuery = '';
-    let searchResults = [];
-    let searchPosts = [];
-    let allUsers = [];
-    let currentProfileUser = null;
-    let userFollows = [];
-    let followersList = [];
-    let followingList = [];
-    let cropScale = 1;
-    let cropTranslateX = 0;
-    let cropTranslateY = 0;
-    let unreadCount = 0;
-    let currentChatMessages = [];
-    let messageReactions = {};
-    let feedOffset = 0;
-    let feedHasMore = true;
-    let feedLoading = false;
-    let activePreviewPopup = null;
-    let onlineUsers = new Set();
-    let lastActivity = Date.now();
-    let notificationSetting = localStorage.getItem('notificationSetting') || 'all';
-    let nsfwEnabled = localStorage.getItem('nsfwEnabled') === 'true';
-    let fakeOnlineCount = 15;
-    let ws = null;
-    let isDraggingCrop = false;
-    let cropStartX, cropStartY, cropStartTranslateX, cropStartTranslateY;
-    let currentLang = localStorage.getItem('language') || 'en';
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        email TEXT UNIQUE,
+        password TEXT,
+        avatar TEXT,
+        bio TEXT,
+        role TEXT DEFAULT 'user',
+        is_official INTEGER DEFAULT 0,
+        is_creator INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
     
-    const translations = {
-        en: { feed: 'Home', profile: 'Profile', messages: 'Messages', search: 'Explore', notifications: 'Notifications', create: 'Post', feedback: 'Feedback', more: 'More', logout: 'Logout', settings: 'Settings', follow: 'Follow', unfollow: 'Unfollow', likes: 'Likes', comments: 'Comments', reply: 'Reply', post: 'Post', whatsHappening: "What's happening?", publish: 'Post', login: 'Log in', register: 'Sign up', delete: 'Delete', cancel: 'Cancel', send: 'Send', joined: 'Joined', followers: 'Followers', following: 'Following', noPosts: 'No posts yet', viewProfile: 'View profile', reportImage: 'Report', cannotMessageSelf: 'You cannot message yourself' },
-        ru: { feed: 'Главная', profile: 'Профиль', messages: 'Сообщения', search: 'Поиск', notifications: 'Уведомления', create: 'Пост', feedback: 'Отзывы', more: 'Ещё', logout: 'Выйти', settings: 'Настройки', follow: 'Читать', unfollow: 'Отписаться', likes: 'Нравится', comments: 'Ответы', reply: 'Ответить', post: 'Пост', whatsHappening: 'Что нового?', publish: 'Опубликовать', login: 'Войти', register: 'Зарегистрироваться', delete: 'Удалить', cancel: 'Отмена', send: 'Отправить', joined: 'Присоединился', followers: 'Читатели', following: 'Читаемые', noPosts: 'Нет постов', viewProfile: 'Посмотреть профиль', reportImage: 'Пожаловаться', cannotMessageSelf: 'Нельзя писать себе' }
-    };
+    db.run(`CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        content TEXT,
+        image TEXT,
+        edited INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )`);
     
-    function t(key) { return translations[currentLang]?.[key] || translations.en[key] || key; }
-    function setLanguage(lang) { currentLang = lang; localStorage.setItem('language', lang); renderMain(); }
-    function isAdmin() { return currentUser?.role === 'admin' || currentUser?.username === 'DevAlexPlay'; }
-    function isModeratorOrAdmin() { return currentUser?.role === 'moderator' || currentUser?.role === 'admin' || currentUser?.username === 'DevAlexPlay'; }
+    db.run(`CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER,
+        user_id INTEGER,
+        content TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(post_id) REFERENCES posts(id),
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )`);
     
-    function renderCreatorBadge(user) {
-        if (user?.role === 'admin') return '<span class="admin-badge">admin</span>';
-        if (user?.role === 'moderator') return '<span class="moderator-badge">mod</span>';
-        if (user?.is_official) return '<span class="gold-badge">⭐</span>';
-        if (user?.is_creator) return '<span class="verified-badge">✓</span>';
-        return '';
+    db.run(`CREATE TABLE IF NOT EXISTS likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER,
+        user_id INTEGER,
+        UNIQUE(post_id, user_id),
+        FOREIGN KEY(post_id) REFERENCES posts(id),
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )`);
+    
+    db.run(`CREATE TABLE IF NOT EXISTS follows (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        follower_id INTEGER,
+        followee_id INTEGER,
+        UNIQUE(follower_id, followee_id),
+        FOREIGN KEY(follower_id) REFERENCES users(id),
+        FOREIGN KEY(followee_id) REFERENCES users(id)
+    )`);
+    
+    db.run(`CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_id INTEGER,
+        to_id INTEGER,
+        content TEXT,
+        image TEXT,
+        read INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(from_id) REFERENCES users(id),
+        FOREIGN KEY(to_id) REFERENCES users(id)
+    )`);
+    
+    db.run(`CREATE TABLE IF NOT EXISTS message_reactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        message_id INTEGER,
+        user_id INTEGER,
+        reaction TEXT,
+        UNIQUE(message_id, user_id),
+        FOREIGN KEY(message_id) REFERENCES messages(id),
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )`);
+    
+    db.run(`CREATE TABLE IF NOT EXISTS reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER,
+        image_url TEXT,
+        reason TEXT,
+        reported_by TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+    
+    db.run(`CREATE TABLE IF NOT EXISTS feedback (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        content TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )`);
+    
+    db.run(`CREATE TABLE IF NOT EXISTS user_online (
+        user_id INTEGER PRIMARY KEY,
+        last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_online INTEGER DEFAULT 0,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )`);
+    
+    // Create admin account
+    const adminHash = bcrypt.hashSync('admin123', 10);
+    db.run(`INSERT OR REPLACE INTO users (id, username, email, password, role, is_creator, is_official) 
+            VALUES (1, 'DevAlexPlay', 'admin@freedomnet.com', ?, 'admin', 1, 1)`, [adminHash]);
+    
+    console.log('Database initialized with admin account');
+});
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'freedomnet-secret-key-2024',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
+}));
+
+// Create uploads directory
+const uploadDir = './uploads';
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + Math.random().toString(36).substr(2, 8) + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+
+// Serve static files
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
+
+function isAuthenticated(req, res, next) {
+    if (req.session.userId) return next();
+    res.status(401).json({ error: 'Unauthorized' });
+}
+
+// API Routes
+app.post('/api/register', async (req, res) => {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
+    const hash = bcrypt.hashSync(password, 10);
+    db.run('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, hash], function(err) {
+        if (err) return res.status(400).json({ error: 'Username or email taken' });
+        res.json({ success: true });
+    });
+});
+
+app.post('/api/login', (req, res) => {
+    const { login, password } = req.body;
+    db.get('SELECT * FROM users WHERE username = ? OR email = ?', [login, login], (err, user) => {
+        if (err || !user || !bcrypt.compareSync(password, user.password)) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        req.session.userId = user.id;
+        res.json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
+    });
+});
+
+app.post('/api/logout', (req, res) => {
+    req.session.destroy();
+    res.json({ success: true });
+});
+
+app.get('/api/me', isAuthenticated, (req, res) => {
+    db.get('SELECT id, username, email, avatar, bio, role, is_official, is_creator, created_at FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ user });
+    });
+});
+
+app.post('/api/avatar', isAuthenticated, upload.single('avatar'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const avatarUrl = `/uploads/${req.file.filename}`;
+    db.run('UPDATE users SET avatar = ? WHERE id = ?', [avatarUrl, req.session.userId], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ avatar: avatarUrl });
+    });
+});
+
+app.get('/api/feed', isAuthenticated, (req, res) => {
+    const offset = parseInt(req.query.offset) || 0;
+    const limit = parseInt(req.query.limit) || 15;
+    
+    db.all(`SELECT p.*, u.username, u.avatar, u.role, u.is_official, u.is_creator,
+            (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count,
+            (SELECT COUNT(*) FROM comments WHERE post_id = p.id) as comments_count,
+            (SELECT EXISTS(SELECT 1 FROM likes WHERE post_id = p.id AND user_id = ?)) as user_liked
+            FROM posts p
+            JOIN users u ON p.user_id = u.id
+            ORDER BY p.created_at DESC
+            LIMIT ? OFFSET ?`, [req.session.userId, limit, offset], (err, posts) => {
+        if (err) return res.status(500).json({ error: err.message });
+        
+        let completed = 0;
+        if (posts.length === 0) return res.json({ posts: [], hasMore: false });
+        
+        posts.forEach((post, idx) => {
+            db.all('SELECT c.*, u.username, u.avatar, u.role, u.is_official, u.is_creator FROM comments c JOIN users u ON c.user_id = u.id WHERE c.post_id = ? ORDER BY c.created_at ASC', [post.id], (err, comments) => {
+                post.comments = comments || [];
+                completed++;
+                if (completed === posts.length) {
+                    const hasMore = posts.length === limit;
+                    res.json({ posts, hasMore });
+                }
+            });
+        });
+    });
+});
+
+app.post('/api/posts', isAuthenticated, upload.single('image'), (req, res) => {
+    const { content } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : null;
+    if (!content && !image) return res.status(400).json({ error: 'Content or image required' });
+    
+    db.run('INSERT INTO posts (user_id, content, image) VALUES (?, ?, ?)', [req.session.userId, content || '', image], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID });
+    });
+});
+
+app.delete('/api/posts/:id', isAuthenticated, (req, res) => {
+    const postId = req.params.id;
+    db.get('SELECT user_id FROM posts WHERE id = ?', [postId], (err, post) => {
+        if (err || !post) return res.status(404).json({ error: 'Post not found' });
+        db.get('SELECT role FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+            if (post.user_id !== req.session.userId && user?.role !== 'admin') {
+                return res.status(403).json({ error: 'Unauthorized' });
+            }
+            db.run('DELETE FROM posts WHERE id = ?', [postId], (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                db.run('DELETE FROM comments WHERE post_id = ?', [postId]);
+                db.run('DELETE FROM likes WHERE post_id = ?', [postId]);
+                res.json({ success: true });
+            });
+        });
+    });
+});
+
+app.post('/api/comment/:postId', isAuthenticated, (req, res) => {
+    const { content } = req.body;
+    const postId = req.params.postId;
+    if (!content) return res.status(400).json({ error: 'Content required' });
+    
+    db.run('INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)', [postId, req.session.userId, content], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID });
+    });
+});
+
+app.delete('/api/comment/:id', isAuthenticated, (req, res) => {
+    const commentId = req.params.id;
+    db.get('SELECT c.*, p.user_id as post_owner FROM comments c JOIN posts p ON c.post_id = p.id WHERE c.id = ?', [commentId], (err, comment) => {
+        if (err || !comment) return res.status(404).json({ error: 'Comment not found' });
+        db.get('SELECT role FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+            if (comment.user_id !== req.session.userId && comment.post_owner !== req.session.userId && user?.role !== 'admin') {
+                return res.status(403).json({ error: 'Unauthorized' });
+            }
+            db.run('DELETE FROM comments WHERE id = ?', [commentId], (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ success: true });
+            });
+        });
+    });
+});
+
+app.post('/api/like/:postId', isAuthenticated, (req, res) => {
+    const postId = req.params.postId;
+    db.run('INSERT OR IGNORE INTO likes (post_id, user_id) VALUES (?, ?)', [postId, req.session.userId], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+app.delete('/api/like/:postId', isAuthenticated, (req, res) => {
+    const postId = req.params.postId;
+    db.run('DELETE FROM likes WHERE post_id = ? AND user_id = ?', [postId, req.session.userId], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+app.post('/api/follow/:userId', isAuthenticated, (req, res) => {
+    const followeeId = req.params.userId;
+    if (parseInt(followeeId) === req.session.userId) return res.status(400).json({ error: 'Cannot follow yourself' });
+    db.run('INSERT OR IGNORE INTO follows (follower_id, followee_id) VALUES (?, ?)', [req.session.userId, followeeId], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+app.delete('/api/follow/:userId', isAuthenticated, (req, res) => {
+    const followeeId = req.params.userId;
+    db.run('DELETE FROM follows WHERE follower_id = ? AND followee_id = ?', [req.session.userId, followeeId], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+app.get('/api/follows', isAuthenticated, (req, res) => {
+    db.all('SELECT followee_id FROM follows WHERE follower_id = ?', [req.session.userId], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.get('/api/followers/:userId', isAuthenticated, (req, res) => {
+    db.all('SELECT u.id, u.username, u.avatar FROM follows f JOIN users u ON f.follower_id = u.id WHERE f.followee_id = ?', [req.params.userId], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.get('/api/following/:userId', isAuthenticated, (req, res) => {
+    db.all('SELECT u.id, u.username, u.avatar FROM follows f JOIN users u ON f.followee_id = u.id WHERE f.follower_id = ?', [req.params.userId], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.get('/api/users', isAuthenticated, (req, res) => {
+    db.all('SELECT id, username, avatar, role, is_official, is_creator FROM users', (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.get('/api/user/:username', isAuthenticated, (req, res) => {
+    db.get('SELECT id, username, email, avatar, bio, role, is_official, is_creator, created_at FROM users WHERE username = ?', [req.params.username], (err, user) => {
+        if (err || !user) return res.status(404).json({ error: 'User not found' });
+        res.json(user);
+    });
+});
+
+app.get('/api/messages/:userId', isAuthenticated, (req, res) => {
+    const otherId = req.params.userId;
+    db.all(`SELECT * FROM messages 
+            WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)
+            ORDER BY created_at ASC`, 
+            [req.session.userId, otherId, otherId, req.session.userId], (err, messages) => {
+        if (err) return res.status(500).json({ error: err.message });
+        db.run('UPDATE messages SET read = 1 WHERE from_id = ? AND to_id = ?', [otherId, req.session.userId]);
+        res.json(messages);
+    });
+});
+
+app.post('/api/messages/:userId', isAuthenticated, upload.single('image'), (req, res) => {
+    const toId = req.params.userId;
+    const { content } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : null;
+    if (!content && !image) return res.status(400).json({ error: 'Content or image required' });
+    
+    db.run('INSERT INTO messages (from_id, to_id, content, image) VALUES (?, ?, ?, ?)', 
+        [req.session.userId, toId, content || '', image], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID, from_id: req.session.userId, to_id: toId, content, image, created_at: new Date().toISOString() });
+    });
+});
+
+app.get('/api/chat-users', isAuthenticated, (req, res) => {
+    db.all(`SELECT DISTINCT 
+            CASE WHEN m.from_id = ? THEN m.to_id ELSE m.from_id END as other_id,
+            u.username, u.avatar, u.role, u.is_official, u.is_creator,
+            (SELECT content FROM messages WHERE (from_id = ? AND to_id = other_id) OR (from_id = other_id AND to_id = ?) ORDER BY created_at DESC LIMIT 1) as last_message,
+            (SELECT created_at FROM messages WHERE (from_id = ? AND to_id = other_id) OR (from_id = other_id AND to_id = ?) ORDER BY created_at DESC LIMIT 1) as last_time,
+            (SELECT COUNT(*) FROM messages WHERE from_id = other_id AND to_id = ? AND read = 0) as unread
+            FROM messages m
+            JOIN users u ON u.id = (CASE WHEN m.from_id = ? THEN m.to_id ELSE m.from_id END)
+            WHERE m.from_id = ? OR m.to_id = ?
+            GROUP BY other_id
+            ORDER BY last_time DESC`, 
+            [req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId, req.session.userId], 
+            (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+app.post('/api/change-password', isAuthenticated, (req, res) => {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    if (newPassword !== confirmPassword) return res.status(400).json({ error: 'New passwords do not match' });
+    if (newPassword.length < 4) return res.status(400).json({ error: 'Password must be at least 4 characters' });
+    
+    db.get('SELECT password FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+        if (err || !user) return res.status(500).json({ error: 'User not found' });
+        if (!bcrypt.compareSync(oldPassword, user.password)) return res.status(401).json({ error: 'Old password is incorrect' });
+        const hash = bcrypt.hashSync(newPassword, 10);
+        db.run('UPDATE users SET password = ? WHERE id = ?', [hash, req.session.userId], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true });
+        });
+    });
+});
+
+app.post('/api/change-username', isAuthenticated, (req, res) => {
+    const { newUsername, password } = req.body;
+    if (!newUsername.match(/^[a-zA-Z0-9_]{3,20}$/)) return res.status(400).json({ error: 'Username must be 3-20 characters' });
+    
+    db.get('SELECT password FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+        if (err || !user) return res.status(500).json({ error: 'User not found' });
+        if (!bcrypt.compareSync(password, user.password)) return res.status(401).json({ error: 'Password is incorrect' });
+        
+        db.run('UPDATE users SET username = ? WHERE id = ?', [newUsername, req.session.userId], (err) => {
+            if (err) return res.status(400).json({ error: 'Username already taken' });
+            res.json({ success: true, username: newUsername });
+        });
+    });
+});
+
+app.post('/api/change-email', isAuthenticated, (req, res) => {
+    const { newEmail, password } = req.body;
+    const allowedDomains = ['gmail.com', 'mail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
+    const domain = newEmail.split('@')[1];
+    if (!allowedDomains.includes(domain)) return res.status(400).json({ error: 'Invalid email domain' });
+    
+    db.get('SELECT password FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+        if (err || !user) return res.status(500).json({ error: 'User not found' });
+        if (!bcrypt.compareSync(password, user.password)) return res.status(401).json({ error: 'Password is incorrect' });
+        
+        db.run('UPDATE users SET email = ? WHERE id = ?', [newEmail, req.session.userId], (err) => {
+            if (err) return res.status(400).json({ error: 'Email already taken' });
+            res.json({ success: true, email: newEmail });
+        });
+    });
+});
+
+app.post('/api/delete-account', isAuthenticated, (req, res) => {
+    const { password } = req.body;
+    db.get('SELECT password FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+        if (err || !user) return res.status(500).json({ error: 'User not found' });
+        if (!bcrypt.compareSync(password, user.password)) return res.status(401).json({ error: 'Password is incorrect' });
+        
+        db.run('DELETE FROM users WHERE id = ?', [req.session.userId], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            req.session.destroy();
+            res.json({ success: true });
+        });
+    });
+});
+
+app.post('/api/feedback', isAuthenticated, (req, res) => {
+    const { content } = req.body;
+    
+    // Check for promo commands
+    if (content.includes('VerifymyselfByPromo928693826275')) {
+        db.run('UPDATE users SET is_official = 1 WHERE id = ?', [req.session.userId], (err) => {
+            db.get('SELECT id, username, email, avatar, bio, role, is_official, is_creator, created_at FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+                res.json({ message: '✅ You are now VERIFIED!', user });
+            });
+        });
+        return;
     }
     
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-    function parseMentionsAndHashtags(text) { if (!text) return ''; let html = escapeHtml(text); html = html.replace(/@(\w+)/g, '<span class="mention">@$1</span>'); html = html.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'); return html; }
-    function showToast(msg, isErr) { const toast = document.createElement('div'); toast.style.cssText = `position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:${isErr ? '#f4212e' : '#1d9bf0'}; color:white; padding:12px 24px; border-radius:9999px; z-index:10002;`; toast.textContent = msg; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+    if (content.includes('AdminGivemyselfByPromo904208751262982457432673')) {
+        db.run('UPDATE users SET role = "admin" WHERE id = ?', [req.session.userId], (err) => {
+            db.get('SELECT id, username, email, avatar, bio, role, is_official, is_creator, created_at FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+                res.json({ message: '👑 You are now ADMIN!', user });
+            });
+        });
+        return;
+    }
     
-    async function api(url, options = {}) { const res = await fetch(url, { ...options, credentials: 'include' }); if (!res.ok) throw new Error(await res.text()); return res.json(); }
-    
-    async function loadFeed(reset = false) {
-        if (reset) { feedOffset = 0; feedHasMore = true; feed = []; }
-        if (!feedHasMore || feedLoading) return;
-        feedLoading = true;
+    db.run('INSERT INTO feedback (user_id, content) VALUES (?, ?)', [req.session.userId, content], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Feedback sent successfully' });
+    });
+});
+
+app.post('/api/report', isAuthenticated, (req, res) => {
+    const { postId, imageUrl, reason } = req.body;
+    db.run('INSERT INTO reports (post_id, image_url, reason, reported_by) VALUES (?, ?, ?, ?)', 
+        [postId, imageUrl, reason, req.session.userId], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+app.get('/api/reports', isAuthenticated, (req, res) => {
+    db.get('SELECT role FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+        if (user?.role !== 'admin' && user?.role !== 'moderator') {
+            return res.status(403).json({ error: 'Unauthorized' });
+        }
+        db.all('SELECT * FROM reports ORDER BY timestamp DESC', (err, reports) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(reports);
+        });
+    });
+});
+
+app.get('/api/search', isAuthenticated, (req, res) => {
+    const query = `%${req.query.q}%`;
+    db.all('SELECT id, username, avatar, role, is_official, is_creator FROM users WHERE username LIKE ? LIMIT 20', [query], (err, users) => {
+        if (err) return res.status(500).json({ error: err.message });
+        db.all('SELECT p.id, p.content, p.created_at, u.username FROM posts p JOIN users u ON p.user_id = u.id WHERE p.content LIKE ? ORDER BY p.created_at DESC LIMIT 20', [query], (err, posts) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ users, posts });
+        });
+    });
+});
+
+app.post('/api/online', isAuthenticated, (req, res) => {
+    const { online } = req.body;
+    db.run('INSERT OR REPLACE INTO user_online (user_id, last_seen, is_online) VALUES (?, CURRENT_TIMESTAMP, ?)', 
+        [req.session.userId, online ? 1 : 0], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+app.get('/api/online/:userId', (req, res) => {
+    db.get('SELECT is_online FROM user_online WHERE user_id = ? AND julianday(CURRENT_TIMESTAMP) - julianday(last_seen) < 0.0007', 
+        [req.params.userId], (err, row) => {
+        res.json({ online: row ? row.is_online === 1 : false });
+    });
+});
+
+const clients = new Map();
+
+wss.on('connection', (ws) => {
+    ws.on('message', (message) => {
         try {
-            const res = await api(`/api/feed?offset=${feedOffset}&limit=15`);
-            if (reset) feed = res.posts; else feed = [...feed, ...res.posts];
-            feedHasMore = res.hasMore; feedOffset += 15;
-        } catch(e) { console.error(e); }
-        feedLoading = false;
-    }
+            const data = JSON.parse(message);
+            if (data.type === 'auth' && data.userId) {
+                ws.userId = data.userId;
+                clients.set(data.userId, ws);
+            }
+        } catch(e) {}
+    });
     
-    async function loadAllUsers() { try { allUsers = await api('/api/users'); } catch(e) { allUsers = []; } }
-    async function loadFollows() { try { userFollows = await api('/api/follows'); } catch(e) { userFollows = []; } }
-    function isFollowing(userId) { return userFollows.some(f => f.followee_id === userId); }
-    
-    async function followUser(userId) { await api(`/api/follow/${userId}`, { method: 'POST' }); await loadFollows(); renderMain(); }
-    async function unfollowUser(userId) { await api(`/api/follow/${userId}`, { method: 'DELETE' }); await loadFollows(); renderMain(); }
-    async function deletePost(postId) { await api(`/api/posts/${postId}`, { method: 'DELETE' }); await loadFeed(true); renderMain(); }
-    async function toggleLike(postId) { const post = feed.find(p => p.id === postId); if (post.user_liked) await api(`/api/like/${postId}`, { method: 'DELETE' }); else await api(`/api/like/${postId}`, { method: 'POST' }); await loadFeed(true); renderMain(); }
-    async function addComment(postId) { const input = document.getElementById(`commentInput-${postId}`); const content = input?.value.trim(); if (!content) return; await api(`/api/comment/${postId}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } }); await loadFeed(true); renderMain(); }
-    
-    function renderPostCard(post) {
-        const isOwnPost = post.user_id === currentUser.id;
-        const canDelete = isOwnPost || isAdmin();
-        const isNsfw = false; // Simplified
-        const imageClass = isNsfw && !nsfwEnabled ? 'post-image blurred' : 'post-image';
-        
-        return `<div class="post-card"><div class="post-header"><img class="post-avatar-img" src="${post.avatar || ''}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2748%27 height=%2748%27%3E%3Crect width=%2748%27 height=%2748%27 fill=%27%231d9bf0%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27 fill=%27white%27 font-size=%2720%27%3E${(post.username?.[0] || 'U').toUpperCase()}%3C/text%3E%3C/svg%3E'"><div class="post-body"><div class="post-user"><span class="post-display-name">${escapeHtml(post.username)}</span>${renderCreatorBadge(post)}<span class="post-username">@${escapeHtml(post.username)}</span><span class="post-time">· ${new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div><div class="post-content">${parseMentionsAndHashtags(post.content || '')}</div>${post.image ? `<div class="post-image-container"><img src="${post.image}" class="${imageClass}"><button class="report-image-btn" onclick="event.stopPropagation(); showToast('Reported')">${t('reportImage')}</button></div>` : ''}<div class="post-stats"><button class="stat-btn ${post.user_liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">♥ ${post.likes_count || 0}</button><button class="stat-btn" onclick="document.getElementById('comments-${post.id}').style.display = document.getElementById('comments-${post.id}').style.display === 'none' ? 'block' : 'none'">💬 ${post.comments?.length || 0}</button>${canDelete ? `<button class="delete-btn" onclick="deletePost(${post.id})">🗑</button>` : ''}</div><div id="comments-${post.id}" style="display:none;" class="comments-section">${(post.comments || []).map(c => `<div class="comment"><img class="comment-avatar" src="${c.avatar || ''}" onerror="this.style.display='none'"><div><strong>${escapeHtml(c.username)}</strong>${renderCreatorBadge(c)}<div class="comment-content">${escapeHtml(c.content)}</div></div></div>`).join('')}<div class="comment-input"><input type="text" id="commentInput-${post.id}" placeholder="${t('reply')}"><button class="comment-send-btn" onclick="addComment(${post.id})">→</button></div></div></div></div></div>`;
-    }
-    
-    function renderHome() {
-        return `<div class="feed-container"><div class="create-post"><img class="avatar-img" src="${currentUser?.avatar || ''}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2748%27 height=%2748%27%3E%3Crect width=%2748%27 height=%2748%27 fill=%27%231d9bf0%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27 fill=%27white%27 font-size=%2720%27%3E${(currentUser?.username?.[0] || 'U').toUpperCase()}%3C/text%3E%3C/svg%3E'"><div class="post-input-area"><textarea id="postContent" rows="2" placeholder="${t('whatsHappening')}"></textarea><div class="post-actions-bar"><label class="image-upload">🖼️ <input type="file" id="postImage" accept="image/*" style="display:none;"></label><button class="publish-btn" onclick="publishPost()">${t('publish')}</button></div></div></div><div id="feedPosts">${feed.map(p => renderPostCard(p)).join('')}</div>${feedHasMore ? '<div style="text-align:center; padding:20px;">Loading...</div>' : ''}</div>`;
-    }
-    
-    function renderProfilePage() {
-        const user = currentProfileUser || currentUser;
-        const isOwn = !currentProfileUser;
-        const following = currentProfileUser ? isFollowing(currentProfileUser.id) : false;
-        const userPosts = feed.filter(p => p.user_id === user.id);
-        return `<div class="profile-container"><div class="profile-header"><img class="profile-avatar" src="${user.avatar || ''}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27112%27 height=%27112%27%3E%3Crect width=%27112%27 height=%27112%27 fill=%27%231d9bf0%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27 fill=%27white%27 font-size=%2740%27%3E${(user.username?.[0] || 'U').toUpperCase()}%3C/text%3E%3C/svg%3E'"><h2>${escapeHtml(user.username)}</h2><div class="profile-stats"><div class="stat-item"><div class="stat-number">${followersList.length}</div><div class="stat-label">${t('followers')}</div></div><div class="stat-item"><div class="stat-number">${followingList.length}</div><div class="stat-label">${t('following')}</div></div><div class="stat-item"><div class="stat-number">${userPosts.length}</div><div class="stat-label">Posts</div></div></div>${!isOwn ? (following ? `<button class="unfollow-btn" onclick="unfollowUser(${user.id})">${t('unfollow')}</button>` : `<button class="follow-btn" onclick="followUser(${user.id})">${t('follow')}</button>`) : ''}</div>${userPosts.map(p => renderPostCard(p)).join('')}</div>`;
-    }
-    
-    function renderMessages() {
-        return `<div class="messages-container"><div class="conversations-sidebar"><div class="conversations-list">${conversationsList.map(c => `<div class="conversation-item" onclick="openChat(${c.other_id}, '${escapeHtml(c.username)}')"><img class="conversation-avatar" src="${c.avatar || ''}" onerror="this.style.display='none'"><div><div class="conversation-name">${escapeHtml(c.username)}</div><div class="conversation-last-message">${escapeHtml(c.last_message || '')}</div></div></div>`).join('')}</div></div><div class="chat-area"><div class="chat-messages" id="chatMessages">${currentChatMessages.map(m => `<div class="${m.from_id === currentUser.id ? 'message-bubble outgoing' : 'message-bubble incoming'}">${escapeHtml(m.content || '')}</div>`).join('')}</div><div class="chat-input-area"><input type="text" id="chatInput" class="chat-input" placeholder="Message..."><button class="publish-btn" onclick="sendMessage()">Send</button></div></div></div>`;
-    }
-    
-    function renderSearch() { return `<div class="feed-container" style="padding:16px;"><input type="text" id="searchInput" placeholder="Search..." style="width:100%; padding:12px; border-radius:9999px; background:transparent; border:1px solid var(--border-color); color:var(--text-primary);"><div id="searchResults"></div></div>`; }
-    function renderInteresting() { return `<div class="feed-container">${feed.slice(0,5).map(p => renderPostCard(p)).join('')}</div>`; }
-    function renderNotifications() { return `<div class="feed-container">${feed.filter(p => p.user_liked).slice(0,10).map(p => `<div class="post-card">❤️ @${escapeHtml(p.username)} liked your post</div>`).join('')}</div>`; }
-    function renderCreate() { return `<div class="feed-container" style="padding:16px;"><div class="create-post" style="border:none;"><textarea id="postContent" rows="4" placeholder="${t('whatsHappening')}" style="width:100%; background:transparent; color:var(--text-primary); font-size:18px;"></textarea><button class="publish-btn" onclick="publishPost()">${t('publish')}</button></div></div>`; }
-    function renderFeedback() { return `<div class="feed-container" style="padding:20px;"><div class="post-card" onclick="showFeedbackModal()" style="cursor:pointer;">📝 ${t('feedback')}</div></div>`; }
-    function renderMore() { return `<div class="feed-container" style="padding:20px;"><div class="post-card" onclick="showStatsModal()">📊 Statistics</div><div class="post-card" onclick="showChangePasswordModal()">🔒 Change Password</div><div class="post-card" onclick="showDeleteAccountModal()" style="color:#f4212e;">🗑 Delete Account</div><div class="post-card" onclick="logout()">🚪 Logout</div></div>`; }
-    
-    function showStatsModal() { alert(`Posts: ${feed.filter(p => p.user_id === currentUser?.id).length}\nLikes: ${feed.reduce((a,p) => a + (p.likes_count || 0), 0)}`); }
-    function showChangePasswordModal() { alert('Change password feature'); }
-    function showDeleteAccountModal() { if(confirm('Delete account permanently?')) logout(); }
-    function showFeedbackModal() { const content = prompt('Enter feedback or promo code:'); if(content) api('/api/feedback', { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } }).then(() => showToast('Sent!')); }
-    function logout() { api('/api/logout', { method: 'POST' }).then(() => { currentUser = null; render(); }); }
-    
-    async function publishPost() { const content = document.getElementById('postContent')?.value; if(!content) return; const formData = new FormData(); formData.append('content', content); if(pendingImage) { const blob = await fetch(pendingImage).then(r => r.blob()); formData.append('image', blob); } await api('/api/posts', { method: 'POST', body: formData }); pendingImage = null; await loadFeed(true); renderMain(); }
-    
-    function openAvatarUpload() { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => { const file = e.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = (ev) => { updateAvatar(ev.target.result); }; reader.readAsDataURL(file); } }; input.click(); }
-    async function updateAvatar(dataUrl) { const blob = await fetch(dataUrl).then(r => r.blob()); const formData = new FormData(); formData.append('avatar', blob); await api('/api/avatar', { method: 'POST', body: formData }); const me = await api('/api/me'); currentUser = me.user; renderMain(); }
-    
-    async function loadConversationsList() { try { conversationsList = await api('/api/chat-users'); } catch(e) { conversationsList = []; } }
-    async function openChat(userId, username) { currentChatUser = { id: userId, username }; const messages = await api(`/api/messages/${userId}`); currentChatMessages = messages; renderMain(); setTimeout(() => { const container = document.getElementById('chatMessages'); if(container) container.scrollTop = container.scrollHeight; }, 100); }
-    async function sendMessage() { const input = document.getElementById('chatInput'); const content = input?.value.trim(); if(!content || !currentChatUser) return; await api(`/api/messages/${currentChatUser.id}`, { method: 'POST', body: JSON.stringify({ content }), headers: { 'Content-Type': 'application/json' } }); await openChat(currentChatUser.id, currentChatUser.username); }
-    
-    function setTheme(theme) { document.body.className = theme; localStorage.setItem('theme', theme); renderMain(); }
-    
-    async function renderMain() {
-        await loadFeed(); await loadConversationsList();
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.body.className = savedTheme;
-        const root = document.getElementById('root');
-        const tabs = ['feed', 'profile', 'messages', 'search', 'interesting', 'notifications', 'create', 'feedback', 'more'];
-        const tabNames = { feed: t('feed'), profile: t('profile'), messages: t('messages'), search: t('search'), interesting: 'Interesting', notifications: t('notifications'), create: t('create'), feedback: t('feedback'), more: t('more') };
-        
-        root.innerHTML = `<div class="app"><div class="sidebar"><div class="logo" onclick="switchTab('feed')"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>${tabs.map(tab => `<div class="nav-item ${currentTab === tab ? 'active' : ''}" onclick="switchTab('${tab}')"><span class="nav-text">${tabNames[tab]}</span></div>`).join('')}<button class="post-btn" onclick="switchTab('create')">Post</button></div><div class="bottom-nav">${tabs.slice(0,5).map(tab => `<div class="bottom-nav-item ${currentTab === tab ? 'active' : ''}" onclick="switchTab('${tab}')"><span>${tabNames[tab]}</span></div>`).join('')}</div><div class="main-content"><div class="header">${tabNames[currentTab]}</div>${currentTab === 'feed' ? renderHome() : currentTab === 'profile' ? renderProfilePage() : currentTab === 'messages' ? renderMessages() : currentTab === 'search' ? renderSearch() : currentTab === 'interesting' ? renderInteresting() : currentTab === 'notifications' ? renderNotifications() : currentTab === 'create' ? renderCreate() : currentTab === 'feedback' ? renderFeedback() : renderMore()}<div class="global-footer">© 2025 X</div></div></div>`;
-        if(currentTab === 'feed') { const feedContainer = document.getElementById('feedContainer'); if(feedContainer) feedContainer.addEventListener('scroll', () => { if(feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 100) loadFeed(); }); }
-    }
-    
-    window.switchTab = (tab) => { currentTab = tab; currentProfileUser = null; currentChatUser = null; renderMain(); };
-    window.viewProfile = (username) => { loadProfileUser(username); currentTab = 'profile'; renderMain(); };
-    async function loadProfileUser(username) { try { currentProfileUser = await api(`/api/user/${username}`); followersList = await api(`/api/followers/${currentProfileUser.id}`); followingList = await api(`/api/following/${currentProfileUser.id}`); await loadFeed(true); renderMain(); } catch(e) { currentProfileUser = null; } }
-    
-    async function renderAuth() {
-        document.getElementById('root').innerHTML = `<div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#000; display:flex; align-items:center; justify-content:center;"><div class="auth-card"><svg width="40" height="40" viewBox="0 0 24 24" fill="#1d9bf0" style="margin-bottom:20px;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231z"/></svg><h2 style="margin-bottom:20px;">Happening now</h2><div id="authForm"><input type="text" id="loginInput" placeholder="Username or email"><input type="password" id="loginPassword" placeholder="Password"><button onclick="login()">Log in</button><div class="divider">or</div><button onclick="showRegister()" style="background:transparent; border:1px solid #2f3336;">Create account</button></div></div></div>`;
-    }
-    
-    window.showRegister = () => { document.getElementById('authForm').innerHTML = `<input type="text" id="regUsername" placeholder="Username"><input type="email" id="regEmail" placeholder="Email"><input type="password" id="regPassword" placeholder="Password"><button onclick="register()">Sign up</button><button onclick="renderAuth()" style="background:transparent; margin-top:10px;">Back</button><div id="registerMessage"></div>`; };
-    window.register = async () => { const username = document.getElementById('regUsername').value; const email = document.getElementById('regEmail').value; const password = document.getElementById('regPassword').value; try { await api('/api/register', { method: 'POST', body: JSON.stringify({ username, email, password }), headers: { 'Content-Type': 'application/json' } }); showToast('Registered! Please login.'); renderAuth(); } catch(e) { showToast('Username taken', true); } };
-    window.login = async () => { const login = document.getElementById('loginInput').value; const password = document.getElementById('loginPassword').value; try { await api('/api/login', { method: 'POST', body: JSON.stringify({ login, password }), headers: { 'Content-Type': 'application/json' } }); const me = await api('/api/me'); currentUser = me.user; await loadFeed(true); await loadConversationsList(); render(); } catch(e) { showToast('Invalid credentials', true); } };
-    
-    async function render() { if(!currentUser) { await renderAuth(); return; } await loadAllUsers(); await loadFollows(); await renderMain(); }
-    
-    function hideLoadingScreen() { const loading = document.getElementById('loading'); const root = document.getElementById('root'); if(loading) { loading.style.opacity = '0'; setTimeout(() => { loading.style.display = 'none'; if(root) root.style.display = 'block'; }, 300); } }
-    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hideLoadingScreen); else hideLoadingScreen();
-    
-    render();
-</script>
-</body>
-</html>
+    ws.on('close', () => {
+        if (ws.userId) clients.delete(ws.userId);
+    });
+});
+
+function broadcastWebSocket(data) {
+    clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(data));
+        }
+    });
+}
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`FreedomNet server running on http://localhost:${PORT}`);
+    console.log('========================================');
+    console.log('ADMIN LOGIN: DevAlexPlay');
+    console.log('ADMIN PASSWORD: admin123');
+    console.log('========================================');
+});
