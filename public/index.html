@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>FreedomNet - Social Network</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>FreedomNet — Glass UI</title>
     <style>
         * {
             margin: 0;
@@ -11,1312 +11,501 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --bg-primary: #000000;
-            --bg-secondary: #16181c;
-            --text-primary: #ffffff;
-            --text-secondary: #71767b;
-            --border-color: #2f3336;
-            --hover-bg: #080808;
-            --accent: #1d9bf0;
-            --gold: #ffd700;
-            --moderator: #23c55e;
-            --admin: #f4212e;
-            --online: #23c55e;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: #0A0A0A;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
+            padding: 20px;
+            position: relative;
             overflow-x: hidden;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: 275px;
+        /* Абстрактные световые линии на фоне */
+        body::before {
+            content: '';
             position: fixed;
-            height: 100vh;
-            padding: 20px 12px;
-            border-right: 1px solid var(--border-color);
-            background: var(--bg-primary);
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 20% 30%, rgba(29, 155, 240, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* iPhone-подобный контейнер */
+        .iphone-container {
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+            background: #0A0A0A;
+            border-radius: 50px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* Основной контент с прокруткой */
+        .screen-content {
+            padding: 20px 16px;
+            max-height: 85vh;
             overflow-y: auto;
+            scrollbar-width: thin;
         }
 
-        .logo {
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 30px;
-            padding: 12px;
-            color: var(--accent);
-            cursor: pointer;
-            display: inline-block;
+        .screen-content::-webkit-scrollbar {
+            width: 4px;
         }
 
-        .nav-item {
+        .screen-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .screen-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        /* СТАТУС БАР */
+        .status-bar {
+            padding: 14px 20px 8px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 16px;
-            padding: 12px;
-            margin: 4px 0;
-            border-radius: 9999px;
-            cursor: pointer;
-            font-size: 20px;
-            font-weight: 400;
-            width: fit-content;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-
-        .nav-item:hover {
-            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 590;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.2px;
             background: transparent;
         }
 
-        .nav-item.active {
-            font-weight: 700;
-            color: var(--accent);
+        .time {
+            font-weight: 590;
         }
 
-        .nav-text {
-            font-size: 20px;
-        }
-
-        /* Main content */
-        .main-content {
-            margin-left: 275px;
-            min-height: 100vh;
-            border-right: 1px solid var(--border-color);
-        }
-
-        .header {
-            position: sticky;
-            top: 0;
-            background: var(--bg-primary);
-            backdrop-filter: blur(12px);
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 20px;
-            font-weight: 800;
-            z-index: 10;
-        }
-
-        .feed-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Create post */
-        .create-post {
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
+        .status-icons {
             display: flex;
-            gap: 12px;
+            gap: 6px;
+            opacity: 0.8;
         }
 
-        .avatar {
+        /* СТЕКЛЯННЫЕ КАРТОЧКИ */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            transition: all 0.25s ease-out;
+            cursor: pointer;
+        }
+
+        .glass-card:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Сетка 2 колонки для маленьких карточек */
+        .mini-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .mini-card {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .mini-icon {
             width: 48px;
             height: 48px;
-            border-radius: 50%;
-            background: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .post-input-area {
-            flex: 1;
-        }
-
-        .post-input-area textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 18px;
-            resize: vertical;
-            font-family: inherit;
-            outline: none;
-            min-height: 60px;
-        }
-
-        .post-input-area textarea::placeholder {
-            color: var(--text-secondary);
-        }
-
-        .post-actions-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-        }
-
-        .image-upload {
-            color: var(--accent);
-            cursor: pointer;
             font-size: 24px;
-            padding: 8px;
-            border-radius: 50%;
         }
 
-        .publish-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 9999px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        /* Post card */
-        .post-card {
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 16px;
-            transition: background 0.2s;
-            cursor: pointer;
-        }
-
-        .post-card:hover {
-            background: var(--hover-bg);
-        }
-
-        .post-header {
-            display: flex;
-            gap: 12px;
-        }
-
-        .post-body {
-            flex: 1;
-        }
-
-        .post-user {
-            font-weight: 700;
+        .mini-info h4 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+            font-weight: 600;
             margin-bottom: 4px;
+        }
+
+        .mini-info p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* БОЛЬШАЯ КАРТОЧКА ПРОГРЕССА */
+        .progress-card {
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .progress-header {
             display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 6px;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
         }
 
-        .post-username {
-            color: var(--text-secondary);
-            font-weight: 400;
-            font-size: 14px;
-            cursor: pointer;
+        .progress-title h3 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
-        .post-username:hover {
-            color: var(--accent);
-            text-decoration: underline;
-        }
-
-        .post-time {
-            color: var(--text-secondary);
+        .progress-title p {
+            color: rgba(255, 255, 255, 0.5);
             font-size: 13px;
         }
 
-        .post-content {
-            font-size: 15px;
-            margin: 8px 0;
-            line-height: 1.4;
-        }
-
-        .post-image {
-            border-radius: 16px;
-            max-width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            border: 1px solid var(--border-color);
-            margin-top: 8px;
-            cursor: pointer;
-        }
-
-        .post-stats {
+        .progress-stats {
             display: flex;
-            gap: 32px;
-            margin-top: 12px;
-            align-items: center;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
         }
 
-        .stat-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 14px;
+        .progress-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .progress-value {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 100px;
+            height: 100%;
+            width: 67%;
+            transition: width 0.3s ease;
+        }
+
+        /* STREAK КАРТОЧКА */
+        .streak-card {
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .streak-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 9999px;
+            margin-bottom: 20px;
         }
 
-        .stat-btn:hover {
-            color: var(--text-primary);
+        .streak-title h3 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
-        .stat-btn.liked {
-            color: #f91880;
+        .streak-title p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
         }
 
-        .delete-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 14px;
-            padding: 6px 12px;
-            border-radius: 9999px;
-            margin-left: auto;
+        .streak-icon {
+            font-size: 32px;
+            filter: drop-shadow(0 0 8px rgba(255, 100, 0, 0.3));
         }
 
-        .delete-btn:hover {
-            color: #f4212e;
-        }
-
-        /* Comments */
-        .comments-section {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .comment {
-            font-size: 14px;
-            margin: 8px 0;
+        /* Кружки дней */
+        .days-row {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
             justify-content: space-between;
         }
 
-        .comment-avatar {
-            width: 28px;
-            height: 28px;
+        .day-circle {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .day-circle.completed {
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+        }
+
+        .day-circle.completed::after {
+            content: '✓';
             font-size: 12px;
+            margin-left: 2px;
         }
 
-        .comment-content {
-            flex: 1;
+        .day-circle.current {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
         }
 
-        .comment strong {
-            color: var(--accent);
-            cursor: pointer;
-        }
-
-        .delete-comment-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 12px;
-            padding: 2px 6px;
-        }
-
-        .delete-comment-btn:hover {
-            color: #f4212e;
-        }
-
-        .comment-input {
+        /* ПАГИНАЦИЯ */
+        .pagination {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0 24px;
         }
 
-        .comment-input input {
-            flex: 1;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            padding: 10px 16px;
-            color: var(--text-primary);
-            outline: none;
-        }
-
-        .comment-input input:focus {
-            border-color: var(--accent);
-        }
-
-        .comment-send-btn {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        /* Profile */
-        .profile-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .profile-header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
+        .dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            margin: 0 auto 16px;
-            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
         }
 
-        .profile-stats {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-            margin: 16px 0;
+        .dot.active {
+            width: 24px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.6);
         }
 
-        .stat-item {
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .stat-number {
-            font-weight: 700;
-            font-size: 18px;
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
-
-        .follow-btn, .unfollow-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 24px;
-            border-radius: 9999px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 12px;
-        }
-
-        .unfollow-btn {
-            background: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        /* Badges */
-        .verified-badge {
-            background: var(--accent);
-            color: white;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 20px;
-            margin-left: 8px;
-        }
-
-        .gold-badge {
-            background: var(--gold);
-            color: #000;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            margin-left: 8px;
-        }
-
-        .moderator-badge {
-            background: var(--moderator);
-            color: #000;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            margin-left: 8px;
-        }
-
-        .admin-badge {
-            background: var(--admin);
-            color: white;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            margin-left: 8px;
-        }
-
-        /* Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: #000;
-            border-radius: 28px;
-            padding: 28px;
-            width: 400px;
-            max-width: 90%;
-            border: 1px solid var(--border-color);
-        }
-
-        .modal-content input,
-        .modal-content textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #000;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: white;
-            outline: none;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-top: 16px;
-        }
-
-        .modal-btn {
-            padding: 10px 24px;
-            border-radius: 9999px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-        }
-
-        .modal-btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-
-        .modal-btn-cancel {
-            background: #2f3336;
-            color: white;
-        }
-
-        /* Auth */
-        .auth-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: #000;
-        }
-
-        .auth-card {
-            background: #000;
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 40px;
-            width: 420px;
-            max-width: 90%;
-        }
-
-        .auth-card input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #000;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: white;
-            outline: none;
-        }
-
-        .auth-card button {
-            width: 100%;
-            padding: 12px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 9999px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 20px 0;
-            color: var(--text-secondary);
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .divider::before {
-            margin-right: 12px;
-        }
-
-        .divider::after {
-            margin-left: 12px;
-        }
-
-        /* Search */
-        .search-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .search-input-wrapper {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .search-input {
-            flex: 1;
+        /* DOCK (нижняя панель) */
+        .dock {
+            background: rgba(20, 22, 32, 0.7);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+            margin: 8px 12px 20px 12px;
             padding: 12px 20px;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            color: var(--text-primary);
-            font-size: 16px;
-            outline: none;
-        }
-
-        .search-result {
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
             display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .search-result:hover {
-            background: var(--hover-bg);
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 9999px;
-            z-index: 10002;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        /* Bottom nav */
-        .bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-color);
-            padding: 12px 20px;
-            z-index: 100;
             justify-content: space-around;
-        }
-
-        .bottom-nav-item {
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 4px;
-            padding: 8px;
+        }
+
+        .dock-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
             cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 12px;
-            border-radius: 12px;
+            transition: all 0.2s ease;
+            color: rgba(255, 255, 255, 0.7);
         }
 
-        .bottom-nav-item.active {
-            color: var(--accent);
-            background: rgba(29, 155, 240, 0.1);
+        .dock-icon:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: scale(1.05);
+            color: white;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
+        /* Адаптация под мобильные */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
             }
-
-            .main-content {
-                margin-left: 0;
-                padding-bottom: 70px;
+            .iphone-container {
+                border-radius: 40px;
             }
-
-            .bottom-nav {
-                display: flex;
+            .screen-content {
+                padding: 16px 14px;
             }
-        }
-
-        .global-footer {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-size: 12px;
-            border-top: 1px solid var(--border-color);
-            margin-top: 40px;
+            .day-circle {
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+            .dock-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+            }
         }
     </style>
 </head>
 <body>
-<div id="app"></div>
+    <div class="iphone-container">
+        <!-- Статус бар -->
+        <div class="status-bar">
+            <span class="time">8:30</span>
+            <div class="status-icons">
+                <span>📶</span>
+                <span>📶</span>
+                <span>🔋</span>
+            </div>
+        </div>
 
-<script>
-    // ============ DATA STORAGE ============
-    const STORAGE = {
-        USERS: 'freedomnet_users',
-        POSTS: 'freedomnet_posts',
-        FOLLOWS: 'freedomnet_follows',
-        CURRENT_USER: 'freedomnet_current_user'
-    };
+        <!-- Основной контент -->
+        <div class="screen-content">
+            <!-- Сетка маленьких карточек -->
+            <div class="mini-grid">
+                <div class="glass-card mini-card">
+                    <div class="mini-icon">📱</div>
+                    <div class="mini-info">
+                        <h4>Daily dual phones</h4>
+                        <p>Day 2</p>
+                    </div>
+                </div>
+                <div class="glass-card mini-card">
+                    <div class="mini-icon">🍎</div>
+                    <div class="mini-info">
+                        <h4>Eat last meal earlier</h4>
+                        <p>Day 1</p>
+                    </div>
+                </div>
+            </div>
 
-    // Initialize data
-    function initData() {
-        if (!localStorage.getItem(STORAGE.USERS)) {
-            // Create admin user
-            const admin = {
-                id: 1,
-                username: 'DevAlexPlay',
-                email: 'admin@freedomnet.com',
-                password: btoa('admin123'),
-                avatar: null,
-                role: 'admin',
-                is_creator: true,
-                is_official: true,
-                created_at: Date.now()
-            };
-            localStorage.setItem(STORAGE.USERS, JSON.stringify([admin]));
-            localStorage.setItem(STORAGE.POSTS, JSON.stringify([]));
-            localStorage.setItem(STORAGE.FOLLOWS, JSON.stringify([]));
-        }
-    }
+            <!-- Большая карточка прогресса -->
+            <div class="glass-card progress-card">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <h3>100 days of UI/UX design</h3>
+                        <p>29 days left</p>
+                    </div>
+                </div>
+                <div class="progress-stats">
+                    <span class="progress-label">Progress</span>
+                    <span class="progress-value">67/100 days</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 67%"></div>
+                </div>
+            </div>
 
-    // Load data
-    let users = [];
-    let posts = [];
-    let follows = [];
-    let currentUser = null;
+            <!-- Streak карточка -->
+            <div class="glass-card streak-card">
+                <div class="streak-header">
+                    <div class="streak-title">
+                        <h3>2 days of Streak</h3>
+                        <p>100 Days of UI/UX Design</p>
+                    </div>
+                    <div class="streak-icon">🔥</div>
+                </div>
+                <div class="days-row">
+                    <div class="day-circle completed">1</div>
+                    <div class="day-circle current">2</div>
+                    <div class="day-circle">3</div>
+                    <div class="day-circle">4</div>
+                    <div class="day-circle">5</div>
+                    <div class="day-circle">6</div>
+                    <div class="day-circle">7</div>
+                </div>
+            </div>
 
-    function loadData() {
-        users = JSON.parse(localStorage.getItem(STORAGE.USERS) || '[]');
-        posts = JSON.parse(localStorage.getItem(STORAGE.POSTS) || '[]');
-        follows = JSON.parse(localStorage.getItem(STORAGE.FOLLOWS) || '[]');
-        posts.sort((a, b) => b.created_at - a.created_at);
-    }
+            <!-- Пагинация -->
+            <div class="pagination">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
 
-    function saveUsers() { localStorage.setItem(STORAGE.USERS, JSON.stringify(users)); }
-    function savePosts() { localStorage.setItem(STORAGE.POSTS, JSON.stringify(posts)); }
-    function saveFollows() { localStorage.setItem(STORAGE.FOLLOWS, JSON.stringify(follows)); }
+        <!-- Нижняя панель (Dock) -->
+        <div class="dock">
+            <div class="dock-icon">🌐</div>
+            <div class="dock-icon">💬</div>
+            <div class="dock-icon">📱</div>
+            <div class="dock-icon">🎵</div>
+        </div>
+    </div>
 
-    // Helper functions
-    function getUserById(id) { return users.find(u => u.id === id); }
-    function getUserByUsername(username) { return users.find(u => u.username.toLowerCase() === username.toLowerCase()); }
-    function getUserByEmail(email) { return users.find(u => u.email.toLowerCase() === email.toLowerCase()); }
-
-    function isFollowing(followeeId) {
-        return currentUser && follows.some(f => f.follower_id === currentUser.id && f.followee_id === followeeId);
-    }
-
-    function getFeedForUser(userId) {
-        const followingIds = follows.filter(f => f.follower_id === userId).map(f => f.followee_id);
-        followingIds.push(userId);
-        return posts.filter(p => followingIds.includes(p.user_id));
-    }
-
-    function renderBadge(user) {
-        if (!user) return '';
-        if (user.role === 'admin') return '<span class="admin-badge">⛔ ADMIN</span>';
-        if (user.role === 'moderator') return '<span class="moderator-badge">✅ MODERATOR</span>';
-        if (user.is_official) return '<span class="gold-badge">⭐ Official</span>';
-        if (user.is_creator) return '<span class="verified-badge">✓ Verified</span>';
-        return '';
-    }
-
-    function showToast(message, isError = false) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.style.background = isError ? '#f4212e' : '#1d9bf0';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-    }
-
-    function formatDate(timestamp) {
-        const d = new Date(timestamp);
-        const now = new Date();
-        const diff = now - d;
-        if (diff < 60000) return 'just now';
-        if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
-        if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
-        return d.toLocaleDateString();
-    }
-
-    // ============ AUTH ============
-    function login(login, password) {
-        const user = getUserByUsername(login) || getUserByEmail(login);
-        if (!user || atob(user.password) !== password) {
-            showToast('Invalid credentials', true);
-            return false;
-        }
-        currentUser = { ...user, password: undefined };
-        localStorage.setItem(STORAGE.CURRENT_USER, JSON.stringify(currentUser));
-        render();
-        return true;
-    }
-
-    function register(username, email, password) {
-        if (getUserByUsername(username)) { showToast('Username already taken', true); return false; }
-        if (getUserByEmail(email)) { showToast('Email already registered', true); return false; }
-        if (username.length < 3) { showToast('Username must be at least 3 characters', true); return false; }
-        if (password.length < 4) { showToast('Password must be at least 4 characters', true); return false; }
-
-        const newUser = {
-            id: Date.now(),
-            username,
-            email,
-            password: btoa(password),
-            avatar: null,
-            role: null,
-            is_creator: false,
-            is_official: false,
-            created_at: Date.now()
-        };
-        users.push(newUser);
-        saveUsers();
-        showToast('Registration successful! Please login.');
-        return true;
-    }
-
-    function logout() {
-        currentUser = null;
-        localStorage.removeItem(STORAGE.CURRENT_USER);
-        render();
-    }
-
-    // ============ POSTS ============
-    function createPost(content, imageData = null) {
-        if (!content.trim()) { showToast('Post cannot be empty', true); return false; }
-        if (content.length > 500) { showToast('Post too long (max 500 characters)', true); return false; }
-
-        const newPost = {
-            id: Date.now(),
-            user_id: currentUser.id,
-            content: content.trim(),
-            image: imageData,
-            likes: [],
-            comments: [],
-            created_at: Date.now(),
-            edited: false
-        };
-        posts.unshift(newPost);
-        savePosts();
-        render();
-        return true;
-    }
-
-    function deletePost(postId) {
-        const post = posts.find(p => p.id === postId);
-        if (post && (post.user_id === currentUser.id || currentUser.role === 'admin')) {
-            posts = posts.filter(p => p.id !== postId);
-            savePosts();
-            render();
-        }
-    }
-
-    function toggleLike(postId) {
-        const post = posts.find(p => p.id === postId);
-        if (!post) return;
-        if (post.likes.includes(currentUser.id)) {
-            post.likes = post.likes.filter(id => id !== currentUser.id);
-        } else {
-            post.likes.push(currentUser.id);
-        }
-        savePosts();
-        render();
-    }
-
-    function addComment(postId, content) {
-        if (!content.trim()) return;
-        const post = posts.find(p => p.id === postId);
-        if (!post) return;
-        if (!post.comments) post.comments = [];
-        post.comments.push({
-            id: Date.now(),
-            user_id: currentUser.id,
-            username: currentUser.username,
-            avatar: currentUser.avatar,
-            content: content.trim(),
-            created_at: Date.now()
+    <script>
+        // Добавляем лёгкие анимации при загрузке
+        const cards = document.querySelectorAll('.glass-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 50);
         });
-        savePosts();
-        render();
-    }
 
-    function deleteComment(postId, commentId) {
-        const post = posts.find(p => p.id === postId);
-        if (!post) return;
-        const comment = post.comments?.find(c => c.id === commentId);
-        if (comment && (comment.user_id === currentUser.id || post.user_id === currentUser.id || currentUser.role === 'admin')) {
-            post.comments = post.comments.filter(c => c.id !== commentId);
-            savePosts();
-            render();
-        }
-    }
-
-    // ============ FOLLOW ============
-    function followUser(userId) {
-        if (userId === currentUser.id) return;
-        if (!isFollowing(userId)) {
-            follows.push({ follower_id: currentUser.id, followee_id: userId, created_at: Date.now() });
-            saveFollows();
-            render();
-        }
-    }
-
-    function unfollowUser(userId) {
-        follows = follows.filter(f => !(f.follower_id === currentUser.id && f.followee_id === userId));
-        saveFollows();
-        render();
-    }
-
-    // ============ COMMANDS ============
-    function processCommand(content) {
-        // MODERATOR command
-        const modMatch = content.match(/^ModGivemyselfByPromo690217453671\s+@?(\w+)$/i);
-        if (modMatch && (currentUser.role === 'admin' || currentUser.username === 'DevAlexPlay')) {
-            const target = getUserByUsername(modMatch[1]);
-            if (target) {
-                target.role = 'moderator';
-                saveUsers();
-                showToast(`✅ ${target.username} is now MODERATOR!`);
-                render();
-                return true;
-            }
-            showToast('User not found', true);
-            return true;
-        }
-
-        // ADMIN command
-        const adminMatch = content.match(/^AdminGivemyselfByPromo904208751262982457432673\s+@?(\w+)$/i);
-        if (adminMatch && (currentUser.role === 'admin' || currentUser.username === 'DevAlexPlay')) {
-            const target = getUserByUsername(adminMatch[1]);
-            if (target) {
-                target.role = 'admin';
-                saveUsers();
-                showToast(`⛔ ${target.username} is now ADMIN!`);
-                render();
-                return true;
-            }
-            showToast('User not found', true);
-            return true;
-        }
-
-        return false;
-    }
-
-    // ============ RENDER FUNCTIONS ============
-    let currentTab = 'feed';
-    let currentProfileUser = null;
-    let pendingImage = null;
-
-    function renderPostCard(post) {
-        const user = getUserById(post.user_id);
-        const isLiked = post.likes?.includes(currentUser?.id);
-        const canDelete = post.user_id === currentUser?.id || currentUser?.role === 'admin';
-
-        return `
-            <div class="post-card">
-                <div class="post-header">
-                    <div class="avatar" onclick="viewProfile('${user?.username}')" style="background: #1d9bf0;">${(user?.username?.[0] || 'U').toUpperCase()}</div>
-                    <div class="post-body">
-                        <div class="post-user">
-                            <span class="post-username" onclick="viewProfile('${user?.username}')">${escapeHtml(user?.username)}</span>
-                            ${renderBadge(user)}
-                            <span class="post-time">${formatDate(post.created_at)}</span>
-                        </div>
-                        <div class="post-content">${escapeHtml(post.content)}</div>
-                        ${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open('${post.image}')">` : ''}
-                        <div class="post-stats">
-                            <button class="stat-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">♥ ${post.likes?.length || 0}</button>
-                            <button class="stat-btn" onclick="toggleComments(${post.id})">💬 ${post.comments?.length || 0}</button>
-                            ${canDelete ? `<button class="delete-btn" onclick="deletePost(${post.id})">🗑 Delete</button>` : ''}
-                        </div>
-                        <div id="comments-${post.id}" class="comments-section" style="display:none;">
-                            ${(post.comments || []).map(c => `
-                                <div class="comment">
-                                    <div style="display:flex; align-items:center; gap:8px; flex:1;">
-                                        <div class="comment-avatar" onclick="viewProfile('${c.username}')">${(c.username?.[0] || 'U').toUpperCase()}</div>
-                                        <div class="comment-content">
-                                            <strong onclick="viewProfile('${c.username}')">${escapeHtml(c.username)}</strong> ${escapeHtml(c.content)}
-                                        </div>
-                                    </div>
-                                    ${(c.user_id === currentUser?.id || post.user_id === currentUser?.id || currentUser?.role === 'admin') ? 
-                                        `<button class="delete-comment-btn" onclick="deleteComment(${post.id}, ${c.id})">✕</button>` : ''}
-                                </div>
-                            `).join('')}
-                            <div class="comment-input">
-                                <input type="text" id="comment-input-${post.id}" placeholder="Write a comment...">
-                                <button class="comment-send-btn" onclick="addComment(${post.id}, document.getElementById('comment-input-${post.id}').value)">➔</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    function renderFeed() {
-        const userFeed = getFeedForUser(currentUser.id);
-        return `
-            <div class="feed-container">
-                <div class="create-post">
-                    <div class="avatar" onclick="alert('Avatar upload coming soon!')" style="background: #1d9bf0;">${currentUser.username[0].toUpperCase()}</div>
-                    <div class="post-input-area">
-                        <textarea id="postContent" placeholder="What's happening?"></textarea>
-                        <div id="imagePreview" style="margin-top:8px;"></div>
-                        <div class="post-actions-bar">
-                            <label class="image-upload">🖼️ <input type="file" id="postImage" accept="image/*" style="display:none;"></label>
-                            <button class="publish-btn" onclick="publishPost()">Post</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="postsContainer">
-                    ${userFeed.map(p => renderPostCard(p)).join('')}
-                    ${userFeed.length === 0 ? '<div style="padding:40px; text-align:center; color:var(--text-secondary);">No posts yet. Follow someone or create your first post!</div>' : ''}
-                </div>
-            </div>
-        `;
-    }
-
-    function renderProfile() {
-        const user = currentProfileUser || currentUser;
-        const isOwn = !currentProfileUser;
-        const following = isFollowing(user.id);
-        const userPosts = posts.filter(p => p.user_id === user.id);
-        const followerCount = follows.filter(f => f.followee_id === user.id).length;
-        const followingCount = follows.filter(f => f.follower_id === user.id).length;
-
-        return `
-            <div class="profile-container">
-                <div class="profile-header">
-                    <div class="profile-avatar" onclick="${isOwn ? "alert('Avatar upload coming soon!')" : ""}" style="background:#1d9bf0;">${user.username[0].toUpperCase()}</div>
-                    <h2>${escapeHtml(user.username)}</h2>
-                    ${renderBadge(user)}
-                    <div class="profile-stats">
-                        <div class="stat-item"><div class="stat-number">${userPosts.length}</div><div class="stat-label">Posts</div></div>
-                        <div class="stat-item"><div class="stat-number">${followerCount}</div><div class="stat-label">Followers</div></div>
-                        <div class="stat-item"><div class="stat-number">${followingCount}</div><div class="stat-label">Following</div></div>
-                    </div>
-                    ${!isOwn ? (following ? 
-                        `<button class="unfollow-btn" onclick="unfollowUser(${user.id})">Unfollow</button>` :
-                        `<button class="follow-btn" onclick="followUser(${user.id})">Follow</button>`) : ''}
-                </div>
-                <div>
-                    ${userPosts.map(p => renderPostCard(p)).join('')}
-                    ${userPosts.length === 0 ? '<div style="padding:40px; text-align:center; color:var(--text-secondary);">No posts yet</div>' : ''}
-                </div>
-            </div>
-        `;
-    }
-
-    function renderMessages() {
-        return `
-            <div class="feed-container" style="padding:20px; text-align:center;">
-                <div style="background:var(--hover-bg); padding:40px; border-radius:20px;">
-                    <h3>💬 Messages</h3>
-                    <p style="color:var(--text-secondary); margin-top:8px;">Coming soon in the next update!</p>
-                </div>
-            </div>
-        `;
-    }
-
-    function renderSearch() {
-        return `
-            <div class="search-container">
-                <div class="search-input-wrapper">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search users..." onkeypress="if(event.key==='Enter') searchUsers()">
-                    <span class="search-icon" onclick="searchUsers()" style="font-size:28px; cursor:pointer;">🔍</span>
-                </div>
-                <div id="searchResults" style="margin-top:20px;"></div>
-            </div>
-        `;
-    }
-
-    function renderFeedback() {
-        return `
-            <div class="feed-container" style="padding:20px;">
-                <div style="background:var(--hover-bg); padding:20px; border-radius:20px;">
-                    <h3>📝 Feedback & Commands</h3>
-                    <p style="color:var(--text-secondary); margin:12px 0;">Send feedback or use admin commands:</p>
-                    <textarea id="feedbackContent" rows="4" style="width:100%; background:#000; border:1px solid var(--border-color); border-radius:12px; padding:12px; color:white;"></textarea>
-                    <button onclick="sendFeedback()" style="margin-top:12px; background:var(--accent); border:none; padding:10px 24px; border-radius:9999px; color:white; cursor:pointer;">Send</button>
-                    ${currentUser?.role === 'admin' || currentUser?.username === 'DevAlexPlay' ? `
-                        <div style="margin-top:20px; padding:12px; background:#1a1a1a; border-radius:12px;">
-                            <p style="color:var(--moderator);">🔧 Mod command: <code>ModGivemyselfByPromo690217453671 @username</code></p>
-                            <p style="color:var(--admin);">⚡ Admin command: <code>AdminGivemyselfByPromo904208751262982457432673 @username</code></p>
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    }
-
-    function renderSettings() {
-        return `
-            <div class="feed-container" style="padding:20px;">
-                <div style="background:var(--hover-bg); padding:20px; border-radius:20px;">
-                    <h3>⚙️ Settings</h3>
-                    <div style="margin:16px 0;">
-                        <p><strong>Username:</strong> @${escapeHtml(currentUser.username)}</p>
-                        <p><strong>Email:</strong> ${escapeHtml(currentUser.email)}</p>
-                        <p><strong>Role:</strong> ${currentUser.role || 'User'}</p>
-                        <p><strong>Member since:</strong> ${new Date(currentUser.created_at).toLocaleDateString()}</p>
-                    </div>
-                    <button onclick="logout()" style="background:#f4212e; border:none; padding:10px 24px; border-radius:9999px; color:white; cursor:pointer;">Logout</button>
-                </div>
-            </div>
-        `;
-    }
-
-    // ============ MAIN RENDER ============
-    function render() {
-        const app = document.getElementById('app');
-
-        if (!currentUser) {
-            // Auth screen
-            app.innerHTML = `
-                <div class="auth-container">
-                    <div class="auth-card">
-                        <h2 style="margin-bottom:20px; text-align:center; color:var(--accent);">FreedomNet</h2>
-                        <div id="authForm">
-                            <input type="text" id="loginInput" placeholder="Username or Email">
-                            <input type="password" id="loginPassword" placeholder="Password">
-                            <button onclick="doLogin()">Login</button>
-                            <div class="divider">or</div>
-                            <button onclick="showRegister()" style="background:#2f3336;">Register</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-
-        const tabs = [
-            { id: 'feed', name: 'Feed', icon: '🏠' },
-            { id: 'profile', name: 'Profile', icon: '👤' },
-            { id: 'messages', name: 'Messages', icon: '💬' },
-            { id: 'search', name: 'Search', icon: '🔍' },
-            { id: 'feedback', name: 'Feedback', icon: '📝' },
-            { id: 'settings', name: 'Settings', icon: '⚙️' }
-        ];
-
-        let content = '';
-        if (currentTab === 'feed') content = renderFeed();
-        else if (currentTab === 'profile') content = renderProfile();
-        else if (currentTab === 'messages') content = renderMessages();
-        else if (currentTab === 'search') content = renderSearch();
-        else if (currentTab === 'feedback') content = renderFeedback();
-        else if (currentTab === 'settings') content = renderSettings();
-
-        app.innerHTML = `
-            <div style="display:flex;">
-                <div class="sidebar">
-                    <div class="logo" onclick="switchTab('feed')">FreedomNet</div>
-                    ${tabs.map(tab => `
-                        <div class="nav-item ${currentTab === tab.id ? 'active' : ''}" onclick="switchTab('${tab.id}')">
-                            <span>${tab.icon}</span>
-                            <span class="nav-text">${tab.name}</span>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="bottom-nav">
-                    ${tabs.map(tab => `
-                        <div class="bottom-nav-item ${currentTab === tab.id ? 'active' : ''}" onclick="switchTab('${tab.id}')">
-                            <span>${tab.icon}</span>
-                            <span>${tab.name}</span>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="main-content">
-                    <div class="header">${currentTab.charAt(0).toUpperCase() + currentTab.slice(1)}</div>
-                    ${content}
-                    <div class="global-footer">© 2026 FreedomNet</div>
-                </div>
-            </div>
-        `;
-
-        // Image upload handler
-        const imageInput = document.getElementById('postImage');
-        if (imageInput) {
-            imageInput.onchange = (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        pendingImage = ev.target.result;
-                        document.getElementById('imagePreview').innerHTML = `
-                            <div style="position:relative; display:inline-block;">
-                                <img src="${pendingImage}" style="max-width:100%; max-height:150px; border-radius:12px;">
-                                <button onclick="pendingImage=null; document.getElementById('imagePreview').innerHTML='';" style="position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.7); color:white; border:none; border-radius:20px; padding:4px 8px; cursor:pointer;">Remove</button>
-                            </div>
-                        `;
-                    };
-                    reader.readAsDataURL(file);
+        // Эффект свечения при наведении на точки пагинации
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach(dot => {
+            dot.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('active')) {
+                    this.style.transform = 'scale(1.5)';
                 }
-            };
+            });
+            dot.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Ripple-эффект на иконки док-панели
+        const dockIcons = document.querySelectorAll('.dock-icon');
+        dockIcons.forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.width = '100%';
+                ripple.style.height = '100%';
+                ripple.style.borderRadius = '28px';
+                ripple.style.background = 'rgba(255,255,255,0.2)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.transition = 'transform 0.3s ease-out';
+                ripple.style.pointerEvents = 'none';
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                setTimeout(() => { ripple.style.transform = 'scale(3)'; }, 10);
+                setTimeout(() => { ripple.remove(); }, 300);
+            });
+        });
+
+        // Живое время
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const timeEl = document.querySelector('.time');
+            if (timeEl) timeEl.textContent = `${hours}:${minutes}`;
         }
-    }
-
-    // ============ GLOBAL FUNCTIONS ============
-    window.doLogin = () => {
-        const login = document.getElementById('loginInput').value;
-        const password = document.getElementById('loginPassword').value;
-        login(login, password);
-    };
-
-    window.showRegister = () => {
-        document.getElementById('authForm').innerHTML = `
-            <input type="text" id="regUsername" placeholder="Username">
-            <input type="email" id="regEmail" placeholder="Email">
-            <input type="password" id="regPassword" placeholder="Password">
-            <button onclick="doRegister()">Sign up</button>
-            <button onclick="render()" style="background:#2f3336; margin-top:10px;">Back</button>
-            <div id="registerMessage"></div>
-        `;
-    };
-
-    window.doRegister = () => {
-        const username = document.getElementById('regUsername').value;
-        const email = document.getElementById('regEmail').value;
-        const password = document.getElementById('regPassword').value;
-        if (register(username, email, password)) render();
-    };
-
-    window.switchTab = (tab) => {
-        currentTab = tab;
-        currentProfileUser = null;
-        render();
-    };
-
-    window.publishPost = () => {
-        const content = document.getElementById('postContent').value;
-        createPost(content, pendingImage);
-        document.getElementById('postContent').value = '';
-        pendingImage = null;
-        document.getElementById('imagePreview').innerHTML = '';
-    };
-
-    window.viewProfile = (username) => {
-        const user = getUserByUsername(username);
-        if (user) {
-            currentProfileUser = user;
-            currentTab = 'profile';
-            render();
-        }
-    };
-
-    window.toggleComments = (postId) => {
-        const el = document.getElementById(`comments-${postId}`);
-        if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-    };
-
-    window.searchUsers = () => {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        const results = users.filter(u => u.username.toLowerCase().includes(query) && u.id !== currentUser.id);
-        document.getElementById('searchResults').innerHTML = results.map(u => `
-            <div class="search-result" onclick="viewProfile('${u.username}')">
-                <div class="avatar" style="width:40px; height:40px; font-size:14px;">${u.username[0].toUpperCase()}</div>
-                <div>
-                    <strong>${escapeHtml(u.username)}</strong>
-                    ${renderBadge(u)}
-                </div>
-            </div>
-        `).join('');
-        if (results.length === 0) document.getElementById('searchResults').innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary);">No users found</div>';
-    };
-
-    window.sendFeedback = () => {
-        const content = document.getElementById('feedbackContent').value;
-        if (!content.trim()) { showToast('Enter feedback', true); return; }
-
-        if (processCommand(content)) {
-            document.getElementById('feedbackContent').value = '';
-            return;
-        }
-
-        showToast('Feedback sent! Thank you.');
-        document.getElementById('feedbackContent').value = '';
-    };
-
-    // Expose functions for onclick
-    window.toggleLike = toggleLike;
-    window.deletePost = deletePost;
-    window.addComment = addComment;
-    window.deleteComment = deleteComment;
-    window.followUser = followUser;
-    window.unfollowUser = unfollowUser;
-
-    // ============ INIT ============
-    initData();
-    loadData();
-
-    const savedUser = localStorage.getItem(STORAGE.CURRENT_USER);
-    if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-    }
-
-    render();
-</script>
+        updateTime();
+        setInterval(updateTime, 60000);
+    </script>
 </body>
 </html>
