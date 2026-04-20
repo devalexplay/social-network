@@ -2,13 +2,54 @@ const API_URL = window.location.origin;
 let currentUser = null;
 let currentPage = 'home';
 let allPosts = [];
+let allUsers = [];
 let currentEditPostId = null;
 let currentDeletePostId = null;
 let currentCommentPostId = null;
 let userLikedPosts = new Set();
 let userRepostedPosts = new Set();
 let userSavedPosts = new Set();
+let selectedImageFile = null;
+let currentPostImageUrl = null;
+let cropper = null;
 let selectedAvatarFile = null;
+
+const translations = {
+    en: {
+        home: 'Home', explore: 'Explore', notifications: 'Notifications',
+        messages: 'Messages', profile: 'Profile', settings: 'Settings',
+        post: 'Post', save: 'Save', cancel: 'Cancel', delete: 'Delete',
+        edit: 'Edit', comment: 'Comment', saveChanges: 'Save changes'
+    },
+    ru: {
+        home: 'Главная', explore: 'Обзор', notifications: 'Уведомления',
+        messages: 'Сообщения', profile: 'Профиль', settings: 'Настройки',
+        post: 'Опубликовать', save: 'Сохранить', cancel: 'Отмена', delete: 'Удалить',
+        edit: 'Редактировать', comment: 'Комментировать', saveChanges: 'Сохранить'
+    },
+    es: {
+        home: 'Inicio', explore: 'Explorar', notifications: 'Notificaciones',
+        messages: 'Mensajes', profile: 'Perfil', settings: 'Ajustes',
+        post: 'Publicar', save: 'Guardar', cancel: 'Cancelar', delete: 'Eliminar',
+        edit: 'Editar', comment: 'Comentar', saveChanges: 'Guardar cambios'
+    }
+};
+
+let currentLanguage = 'en';
+
+function updateLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem('language', lang);
+    const t = translations[lang] || translations.en;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+    document.getElementById('pageTitle').textContent = t[currentPage] || 'Home';
+    if (document.getElementById('createPostBtn')) {
+        document.getElementById('createPostBtn').textContent = t.post || 'Post';
+    }
+}
 
 const authScreen = document.querySelector('.auth-screen');
 const app = document.getElementById('app');
@@ -138,6 +179,11 @@ async function loadUserInteractions() {
     userSavedPosts = new Set(data.saved);
 }
 
+async function loadAllUsers() {
+    const res = await fetch(`${API_URL}/api/users`);
+    allUsers = await res.json();
+}
+
 async function initApp(user) {
     currentUser = user;
     authScreen.style.display = 'none';
@@ -158,7 +204,12 @@ async function initApp(user) {
     
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
+    const savedLang = localStorage.getItem('language') || 'en';
+    currentLanguage = savedLang;
+    document.getElementById('languageSelect').value = savedLang;
+    updateLanguage(savedLang);
     
+    await loadAllUsers();
     await loadUserInteractions();
     await loadPosts();
 }
@@ -191,10 +242,40 @@ function switchPage(page) {
     if (page === 'profile') loadUserPosts();
 }
 
+document.getElementById('addImageBtn')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            const res = await fetch(`${API_URL}/api/upload-image`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok) {
+                currentPostImageUrl = data.imageUrl;
+                document.getElementById('previewImg').src = currentPostImageUrl;
+                document.getElementById('imagePreview').style.display = 'block';
+            }
+        }
+    };
+    input.click();
+});
+
+document.getElementById('removeImageBtn')?.addEventListener('click', () => {
+    currentPostImageUrl = null;
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('previewImg').src = '';
+});
+
 document.getElementById('createPostBtn').addEventListener('click', async () => {
     const content = document.getElementById('postContent').value;
-    if (!content.trim()) {
-        showCustomAlert('Please write something');
+    if (!content.trim() && !currentPostImageUrl) {
+        showCustomAlert('Please write something or add an image');
         return;
     }
     
@@ -206,11 +287,17 @@ document.getElementById('createPostBtn').addEventListener('click', async () => {
         const res = await fetch(`${API_URL}/api/posts`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: currentUser.id, content })
+            body: JSON.stringify({ 
+                userId: currentUser.id, 
+                content: content,
+                imageUrl: currentPostImageUrl
+            })
         });
         
         if (res.ok) {
             document.getElementById('postContent').value = '';
+            currentPostImageUrl = null;
+            document.getElementById('imagePreview').style.display = 'none';
             await loadPosts();
             showCustomAlert('Post published!');
         } else {
@@ -236,6 +323,9 @@ async function loadPosts() {
     
     feed.innerHTML = allPosts.map(post => {
         const postAvatar = post.user?.avatar || `https://ui-avatars.com/api/?name=${(post.user?.displayName || post.user?.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+        const isLiked = userLikedPosts.has(post.id);
+        const isReposted = userRepostedPosts.has(post.id);
+        const isSaved = userSavedPosts.has(post.id);
         return `
         <div class="post-card" data-post-id="${post.id}">
             <img class="post-avatar" src="${postAvatar}" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username?.slice(0,2)}&background=1d9bf0&color=fff'">
@@ -261,9 +351,10 @@ async function loadPosts() {
                     ` : ''}
                 </div>
                 <div class="post-text">${escapeHtml(post.content)}</div>
+                ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" alt="Post image">` : ''}
                 <div class="post-actions">
-                    <button class="action-btn like" onclick="likePost('${post.id}')" ${userLikedPosts.has(post.id) ? 'style="color:var(--error)"' : ''}>
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${userLikedPosts.has(post.id) ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2">
+                    <button class="action-btn like" onclick="toggleLike('${post.id}')" style="color:${isLiked ? 'var(--error)' : ''}">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${isLiked ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                         </svg>
                         <span>${post.likes}</span>
@@ -274,7 +365,7 @@ async function loadPosts() {
                         </svg>
                         <span>${post.comments?.length || 0}</span>
                     </button>
-                    <button class="action-btn repost" onclick="repostPost('${post.id}')" ${userRepostedPosts.has(post.id) ? 'style="color:var(--success)"' : ''}>
+                    <button class="action-btn repost" onclick="toggleRepost('${post.id}')" style="color:${isReposted ? 'var(--success)' : ''}">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M17 1l4 4-4 4"/>
                             <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
@@ -283,8 +374,8 @@ async function loadPosts() {
                         </svg>
                         <span>${post.reposts || 0}</span>
                     </button>
-                    <button class="action-btn save ${userSavedPosts.has(post.id) ? 'saved' : ''}" onclick="savePost('${post.id}')">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${userSavedPosts.has(post.id) ? '#ffd700' : 'none'}" stroke="currentColor" stroke-width="2">
+                    <button class="action-btn save ${isSaved ? 'saved' : ''}" onclick="toggleSave('${post.id}')">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${isSaved ? '#ffd700' : 'none'}" stroke="currentColor" stroke-width="2">
                             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
                         </svg>
                     </button>
@@ -292,9 +383,14 @@ async function loadPosts() {
                 ${post.comments && post.comments.length > 0 ? `
                     <div class="post-comments" style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border-color)">
                         ${post.comments.slice(0, 2).map(c => `
-                            <div class="comment-item" style="font-size:13px;margin-bottom:8px">
-                                <strong style="color:var(--text-primary)">${escapeHtml(c.displayName || c.username)}</strong>
-                                <span style="color:var(--text-tertiary)"> ${escapeHtml(c.comment)}</span>
+                            <div class="comment-item" style="font-size:13px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+                                <div>
+                                    <strong style="color:var(--text-primary)">${escapeHtml(c.displayName || c.username)}</strong>
+                                    <span style="color:var(--text-tertiary)"> ${escapeHtml(c.comment)}</span>
+                                </div>
+                                ${c.userId === currentUser.id ? `
+                                    <button class="comment-delete" onclick="deleteComment('${post.id}', '${c.id}')">×</button>
+                                ` : ''}
                             </div>
                         `).join('')}
                         ${post.comments.length > 2 ? `<div style="color:var(--text-tertiary);font-size:12px;cursor:pointer" onclick="openCommentModal('${post.id}')">+${post.comments.length - 2} more comments</div>` : ''}
@@ -350,11 +446,7 @@ window.deletePost = function(postId) {
     document.getElementById('deleteModal').classList.add('active');
 };
 
-window.likePost = async (postId) => {
-    if (userLikedPosts.has(postId)) {
-        showCustomAlert('You already liked this post');
-        return;
-    }
+window.toggleLike = async (postId) => {
     const res = await fetch(`${API_URL}/api/posts/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -362,16 +454,16 @@ window.likePost = async (postId) => {
     });
     const data = await res.json();
     if (data.success) {
-        userLikedPosts.add(postId);
+        if (data.liked) {
+            userLikedPosts.add(postId);
+        } else {
+            userLikedPosts.delete(postId);
+        }
         loadPosts();
     }
 };
 
-window.repostPost = async (postId) => {
-    if (userRepostedPosts.has(postId)) {
-        showCustomAlert('You already reposted this post');
-        return;
-    }
+window.toggleRepost = async (postId) => {
     const res = await fetch(`${API_URL}/api/posts/repost`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -379,13 +471,18 @@ window.repostPost = async (postId) => {
     });
     const data = await res.json();
     if (data.success) {
-        userRepostedPosts.add(postId);
+        if (data.reposted) {
+            userRepostedPosts.add(postId);
+            showCustomAlert('Post reposted!');
+        } else {
+            userRepostedPosts.delete(postId);
+            showCustomAlert('Repost removed');
+        }
         loadPosts();
-        showCustomAlert('Post reposted!');
     }
 };
 
-window.savePost = async (postId) => {
+window.toggleSave = async (postId) => {
     const res = await fetch(`${API_URL}/api/posts/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -406,6 +503,18 @@ window.openCommentModal = function(postId) {
     currentCommentPostId = postId;
     document.getElementById('commentInput').value = '';
     document.getElementById('commentModal').classList.add('active');
+};
+
+window.deleteComment = async (postId, commentId) => {
+    const res = await fetch(`${API_URL}/api/posts/comment`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, commentId, userId: currentUser.id })
+    });
+    if (res.ok) {
+        loadPosts();
+        showCustomAlert('Comment deleted');
+    }
 };
 
 document.getElementById('submitCommentBtn').addEventListener('click', async () => {
@@ -471,6 +580,7 @@ async function loadUserPosts() {
                 <img class="post-avatar" src="${postAvatar}">
                 <div class="post-body">
                     <div class="post-text">${escapeHtml(post.content)}</div>
+                    ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" alt="Post image">` : ''}
                     <div class="post-actions">
                         <span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> ${post.likes}</span>
                         <span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ${post.comments?.length || 0}</span>
@@ -522,6 +632,12 @@ document.querySelectorAll('.theme-option').forEach(btn => {
         document.body.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
     });
+});
+
+document.getElementById('languageSelect')?.addEventListener('change', (e) => {
+    currentLanguage = e.target.value;
+    localStorage.setItem('language', currentLanguage);
+    updateLanguage(currentLanguage);
 });
 
 document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', async () => {
@@ -586,15 +702,31 @@ document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', asy
     document.getElementById('confirmNewPasswordInput').value = '';
 });
 
+// Avatar Editor
+let currentAvatarFile = null;
+let currentAvatarCropper = null;
+
 document.getElementById('editAvatarBtn')?.addEventListener('click', () => {
-    const avatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
-    document.getElementById('avatarPreview').src = avatarUrl;
+    document.getElementById('avatarStep1').style.display = 'flex';
+    document.getElementById('avatarStep2').style.display = 'none';
+    document.getElementById('avatarModalTitle').textContent = 'Change avatar';
     document.getElementById('avatarModal').classList.add('active');
+    document.getElementById('avatarPreviewContainer').style.display = 'none';
+    document.getElementById('nextAvatarBtn').style.display = 'none';
+    document.getElementById('uploadAvatarBtn').style.display = 'block';
+    document.getElementById('avatarFileInput').value = '';
+    if (currentAvatarCropper) {
+        currentAvatarCropper.destroy();
+        currentAvatarCropper = null;
+    }
 });
 
 document.getElementById('closeAvatarModal')?.addEventListener('click', () => {
     document.getElementById('avatarModal').classList.remove('active');
-    selectedAvatarFile = null;
+    if (currentAvatarCropper) {
+        currentAvatarCropper.destroy();
+        currentAvatarCropper = null;
+    }
 });
 
 document.getElementById('uploadAvatarBtn')?.addEventListener('click', () => {
@@ -604,56 +736,134 @@ document.getElementById('uploadAvatarBtn')?.addEventListener('click', () => {
 document.getElementById('avatarFileInput')?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
-        selectedAvatarFile = file;
+        currentAvatarFile = file;
         const reader = new FileReader();
         reader.onload = function(event) {
-            document.getElementById('avatarPreview').src = event.target.result;
+            const img = document.getElementById('cropImage');
+            img.src = event.target.result;
+            document.getElementById('avatarPreviewContainer').style.display = 'block';
+            document.getElementById('avatarPreviewImg').src = event.target.result;
+            document.getElementById('nextAvatarBtn').style.display = 'block';
+            document.getElementById('uploadAvatarBtn').style.display = 'none';
+            
+            if (currentAvatarCropper) {
+                currentAvatarCropper.destroy();
+            }
+            
+            img.onload = () => {
+                currentAvatarCropper = new Cropper(img, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    zoomable: true,
+                    zoomOnWheel: true,
+                    autoCropArea: 0.9,
+                    background: false,
+                    ready: function() {
+                        const container = document.querySelector('.crop-area');
+                        container.style.overflow = 'hidden';
+                    }
+                });
+                
+                const zoomRange = document.getElementById('zoomRange');
+                zoomRange.value = 0.5;
+                zoomRange.oninput = (e) => {
+                    if (currentAvatarCropper) {
+                        currentAvatarCropper.zoomTo(parseFloat(e.target.value));
+                    }
+                };
+            };
         };
         reader.readAsDataURL(file);
     }
 });
 
-document.getElementById('saveAvatarBtn')?.addEventListener('click', async () => {
-    if (!selectedAvatarFile) {
-        showCustomAlert('Please select an image first');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('avatar', selectedAvatarFile);
-    
-    const uploadRes = await fetch(`${API_URL}/api/upload-avatar`, {
-        method: 'POST',
-        body: formData
-    });
-    
-    const uploadData = await uploadRes.json();
-    if (uploadRes.ok) {
-        const res = await fetch(`${API_URL}/api/user/update`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: currentUser.id, avatar: uploadData.avatarUrl })
-        });
+document.getElementById('nextAvatarBtn')?.addEventListener('click', () => {
+    if (currentAvatarFile) {
+        document.getElementById('avatarStep1').style.display = 'none';
+        document.getElementById('avatarStep2').style.display = 'flex';
+        document.getElementById('avatarModalTitle').textContent = 'Crop avatar';
         
-        if (res.ok) {
-            const data = await res.json();
-            currentUser = data.user;
-            localStorage.setItem('user', JSON.stringify(currentUser));
-            
-            const avatarUrl = currentUser.avatar;
-            document.getElementById('headerAvatar').src = avatarUrl;
-            document.getElementById('composeAvatar').src = avatarUrl;
-            document.getElementById('profileAvatar').src = avatarUrl;
-            
-            document.getElementById('avatarModal').classList.remove('active');
-            showCustomAlert('Avatar updated!');
-            loadPosts();
-        }
-    } else {
-        showCustomAlert('Failed to upload image');
+        setTimeout(() => {
+            if (currentAvatarCropper) {
+                currentAvatarCropper.reset();
+                currentAvatarCropper.crop();
+            }
+        }, 100);
     }
 });
 
+document.getElementById('backAvatarBtn')?.addEventListener('click', () => {
+    document.getElementById('avatarStep1').style.display = 'flex';
+    document.getElementById('avatarStep2').style.display = 'none';
+    document.getElementById('avatarModalTitle').textContent = 'Change avatar';
+});
+
+document.querySelectorAll('.grid-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const grid = btn.dataset.grid;
+        const cropContainer = document.querySelector('.crop-container');
+        cropContainer.setAttribute('data-grid', grid);
+    });
+});
+
+document.getElementById('saveAvatarBtn')?.addEventListener('click', async () => {
+    if (!currentAvatarCropper) return;
+    
+    const canvas = currentAvatarCropper.getCroppedCanvas({
+        width: 512,
+        height: 512,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+    });
+    
+    canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append('avatar', blob, 'avatar.png');
+        
+        const uploadRes = await fetch(`${API_URL}/api/upload-avatar`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const uploadData = await uploadRes.json();
+        if (uploadRes.ok) {
+            const res = await fetch(`${API_URL}/api/user/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUser.id, avatar: uploadData.avatarUrl })
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                currentUser = data.user;
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                
+                const avatarUrl = currentUser.avatar;
+                document.getElementById('headerAvatar').src = avatarUrl;
+                document.getElementById('composeAvatar').src = avatarUrl;
+                document.getElementById('profileAvatar').src = avatarUrl;
+                
+                document.getElementById('avatarModal').classList.remove('active');
+                showCustomAlert('Avatar updated!');
+                loadPosts();
+                
+                if (currentAvatarCropper) {
+                    currentAvatarCropper.destroy();
+                    currentAvatarCropper = null;
+                }
+            }
+        } else {
+            showCustomAlert('Failed to upload image');
+        }
+    }, 'image/png');
+});
+
+// Search functionality
 document.getElementById('searchInput')?.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     const searchResults = document.getElementById('searchResults');
@@ -684,6 +894,50 @@ document.getElementById('searchInput')?.addEventListener('input', (e) => {
         searchResults.style.display = 'none';
     }
 });
+
+// User search for messages
+document.getElementById('userSearchInput')?.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    const resultsDiv = document.getElementById('userSearchResults');
+    
+    if (query.length > 0) {
+        const filteredUsers = allUsers.filter(user => 
+            user.id !== currentUser.id && (
+                user.displayName?.toLowerCase().includes(query) ||
+                user.username?.toLowerCase().includes(query)
+            )
+        );
+        
+        if (filteredUsers.length > 0) {
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = filteredUsers.map(user => {
+                const userAvatar = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+                return `
+                    <div class="user-search-item" onclick="startConversation('${user.id}')">
+                        <img class="user-search-avatar" src="${userAvatar}">
+                        <div class="user-search-info">
+                            <div class="user-search-name">${escapeHtml(user.displayName || user.username)}</div>
+                            <div class="user-search-username">@${escapeHtml(user.username)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            resultsDiv.style.display = 'none';
+        }
+    } else {
+        resultsDiv.style.display = 'none';
+    }
+});
+
+window.startConversation = function(userId) {
+    const user = allUsers.find(u => u.id === userId);
+    if (user) {
+        showCustomAlert(`Messaging ${user.displayName || user.username} coming soon!`);
+        document.getElementById('userSearchResults').style.display = 'none';
+        document.getElementById('userSearchInput').value = '';
+    }
+};
 
 window.scrollToPost = function(postId) {
     const postElement = document.querySelector(`.post-card[data-post-id="${postId}"]`);
