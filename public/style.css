@@ -744,17 +744,22 @@ body {
 .media-btn {
     background: none;
     border: none;
-    color: var(--accent);
+    color: #6b7280;
     cursor: pointer;
     padding: 6px;
     border-radius: 50%;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
 }
 
 .media-btn:hover {
-    background: rgba(29, 155, 240, 0.1);
+    background: rgba(107, 114, 128, 0.1);
+    color: #ffffff;
+}
+
+.media-btn svg {
+    stroke: currentColor;
 }
 
 .image-preview {
@@ -1437,6 +1442,149 @@ input:checked + .toggle-slider:before {
     margin-top: 40px;
     color: var(--text-tertiary);
     font-size: 12px;
+}
+
+.mini-profile-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.mini-profile-modal.active {
+    opacity: 1;
+}
+
+.mini-profile-content {
+    background: var(--bg-primary);
+    border-radius: 28px;
+    width: 320px;
+    max-width: 90%;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mini-profile-header {
+    position: relative;
+    height: 100px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+}
+
+.mini-profile-avatar {
+    position: absolute;
+    bottom: -30px;
+    left: 20px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--bg-primary);
+    cursor: pointer;
+}
+
+.mini-profile-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.mini-profile-close:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.mini-profile-body {
+    padding: 40px 20px 20px;
+}
+
+.mini-profile-body h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.mini-profile-username {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.mini-profile-bio {
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.mini-profile-joined {
+    color: var(--text-tertiary);
+    font-size: 12px;
+    margin-bottom: 16px;
+}
+
+.mini-profile-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mini-profile-stats div {
+    font-size: 14px;
+    color: var(--text-tertiary);
+}
+
+.mini-profile-stats strong {
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.mini-profile-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mini-profile-btn:hover {
+    background: var(--accent-hover);
 }
 
 @media (max-width: 768px) {
