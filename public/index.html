@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>FreedomNet</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231d9bf0'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='white' font-size='50' font-weight='bold' font-family='Arial'%3EF%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 </head>
 <body data-theme="dark">
     <div class="auth-screen">
@@ -477,52 +476,18 @@
     </div>
     
     <div id="avatarModal" class="modal">
-        <div class="modal-card avatar-modal-card">
-            <h3 id="avatarModalTitle">Change avatar</h3>
-            <div id="avatarStep1" class="avatar-step">
-                <div class="avatar-upload-area">
-                    <input type="file" id="avatarFileInput" accept="image/*" style="display:none">
-                    <button id="uploadAvatarBtn" class="btn-outline">Choose image from computer</button>
-                    <div id="avatarPreviewContainer" class="avatar-preview-container" style="display:none">
-                        <img id="avatarPreviewImg" class="avatar-preview-img" alt="">
-                    </div>
+        <div class="modal-card">
+            <h3 id="avatarModalTitle" data-i18n="changeAvatar">Change avatar</h3>
+            <div class="avatar-upload-area">
+                <div class="avatar-preview-container">
+                    <img id="avatarPreviewImg" class="avatar-preview-img" alt="">
                 </div>
-                <div class="modal-buttons">
-                    <button id="closeAvatarModal" class="btn-outline" data-i18n="cancel">Cancel</button>
-                    <button id="nextAvatarBtn" class="btn-blue" style="display:none">Next →</button>
-                </div>
+                <input type="file" id="avatarFileInput" accept="image/*" style="display:none">
+                <button id="uploadAvatarBtn" class="btn-outline">Choose image from computer</button>
             </div>
-            <div id="avatarStep2" class="avatar-step" style="display:none">
-                <div class="crop-container">
-                    <div class="crop-area">
-                        <img id="cropImage" class="crop-image" alt="">
-                    </div>
-                    <div class="crop-guides">
-                        <div class="crop-guide"></div>
-                        <div class="crop-guide"></div>
-                        <div class="crop-guide"></div>
-                        <div class="crop-guide"></div>
-                    </div>
-                </div>
-                <div class="crop-controls">
-                    <div class="zoom-control">
-                        <label>Zoom</label>
-                        <input type="range" id="zoomRange" min="0" max="1" step="0.01" value="0.5">
-                    </div>
-                    <div class="crop-controls-advanced">
-                        <button id="rotateLeft" class="crop-btn">↺ Rotate</button>
-                        <button id="rotateRight" class="crop-btn">↻ Rotate</button>
-                        <button id="resetCrop" class="crop-btn">Reset</button>
-                    </div>
-                    <div class="grid-buttons">
-                        <button class="grid-btn" data-grid="3x3">3×3</button>
-                        <button class="grid-btn active" data-grid="9x9">9×9</button>
-                    </div>
-                </div>
-                <div class="modal-buttons">
-                    <button id="backAvatarBtn" class="btn-outline">← Back</button>
-                    <button id="saveAvatarBtn" class="btn-blue" data-i18n="save">Save</button>
-                </div>
+            <div class="modal-buttons">
+                <button id="closeAvatarModal" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="saveAvatarBtn" class="btn-blue" data-i18n="save">Save</button>
             </div>
         </div>
     </div>
