@@ -8,70 +8,7 @@ let currentCommentPostId = null;
 let userLikedPosts = new Set();
 let userRepostedPosts = new Set();
 let userSavedPosts = new Set();
-
-const translations = {
-    en: {
-        appName: 'FreedomNet', signIn: 'Sign in', signUp: 'Sign up',
-        emailOrUsername: 'Email or username', password: 'Password',
-        rememberMe: 'Remember me', forgotPassword: 'Forgot password?',
-        signInBtn: 'Sign in', fullName: 'Full name', username: 'Username',
-        email: 'Email', confirmPassword: 'Confirm password', createAccount: 'Create account',
-        home: 'Home', explore: 'Explore', notifications: 'Notifications',
-        messages: 'Messages', profile: 'Profile', settings: 'Settings',
-        logout: 'Logout', post: 'Post', trendingNow: 'Trending now',
-        welcomeNotification: 'Welcome to FreedomNet!', noMessages: 'No messages yet',
-        posts: 'Posts', followers: 'Followers', following: 'Following',
-        editProfile: 'Edit profile', appearance: 'Appearance', theme: 'Theme',
-        dark: 'Dark', light: 'Light', language: 'Language',
-        notificationsSettings: 'Notifications', pushNotifications: 'Push notifications',
-        emailUpdates: 'Email updates', saveChanges: 'Save changes',
-        editPost: 'Edit post', cancel: 'Cancel', save: 'Save',
-        deletePost: 'Delete post?', deleteConfirm: 'Are you sure you want to delete this post? This action cannot be undone.',
-        delete: 'Delete', addComment: 'Add comment', comment: 'Comment',
-        edit: 'Edit', delete_: 'Delete', changeAvatar: 'Change avatar',
-        profileSettings: 'Profile Settings', displayName: 'Display Name',
-        displayNameHint: 'Can be changed every 14 days', usernameHint: 'Can be changed every 90 days'
-    },
-    zh: {
-        appName: '自由网', signIn: '登录', signUp: '注册',
-        emailOrUsername: '邮箱或用户名', password: '密码',
-        rememberMe: '记住我', forgotPassword: '忘记密码？',
-        signInBtn: '登录', fullName: '全名', username: '用户名',
-        email: '邮箱', confirmPassword: '确认密码', createAccount: '创建账户',
-        home: '首页', explore: '探索', notifications: '通知',
-        messages: '消息', profile: '个人资料', settings: '设置',
-        logout: '退出', post: '发布', trendingNow: '热门趋势',
-        welcomeNotification: '欢迎来到自由网！', noMessages: '暂无消息',
-        posts: '帖子', followers: '粉丝', following: '关注',
-        editProfile: '编辑资料', appearance: '外观', theme: '主题',
-        dark: '深色', light: '浅色', language: '语言',
-        notificationsSettings: '通知设置', pushNotifications: '推送通知',
-        emailUpdates: '邮件更新', saveChanges: '保存更改',
-        editPost: '编辑帖子', cancel: '取消', save: '保存',
-        deletePost: '删除帖子？', deleteConfirm: '确定要删除此帖子吗？此操作无法撤销。',
-        delete: '删除', addComment: '添加评论', comment: '评论',
-        edit: '编辑', delete_: '删除', changeAvatar: '更换头像',
-        profileSettings: '个人资料设置', displayName: '显示名称',
-        displayNameHint: '每14天可更改一次', usernameHint: '每90天可更改一次'
-    }
-};
-
-let currentLanguage = 'en';
-
-function updateLanguage(lang) {
-    currentLanguage = lang;
-    localStorage.setItem('language', lang);
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[lang] && translations[lang][key]) {
-            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                el.placeholder = translations[lang][key];
-            } else {
-                el.textContent = translations[lang][key];
-            }
-        }
-    });
-}
+let selectedAvatarFile = null;
 
 const authScreen = document.querySelector('.auth-screen');
 const app = document.getElementById('app');
@@ -206,20 +143,21 @@ async function initApp(user) {
     authScreen.style.display = 'none';
     app.classList.add('active');
     
-    document.getElementById('headerAvatar').src = user.avatar;
-    document.getElementById('headerName').textContent = user.displayName || user.fullName || user.username;
-    document.getElementById('composeAvatar').src = user.avatar;
-    document.getElementById('profileAvatar').src = user.avatar;
-    document.getElementById('profileName').textContent = user.displayName || user.fullName || user.username;
+    const avatarUrl = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent((user.displayName || user.username).slice(0,2))}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+    
+    document.getElementById('headerAvatar').src = avatarUrl;
+    document.getElementById('headerName').textContent = user.displayName || user.username;
+    document.getElementById('composeAvatar').src = avatarUrl;
+    document.getElementById('profileAvatar').src = avatarUrl;
+    document.getElementById('profileName').textContent = user.displayName || user.username;
     document.getElementById('profileUsername').textContent = `@${user.username}`;
     document.getElementById('profileBio').textContent = user.bio || 'No bio yet';
+    document.getElementById('userPostCount').textContent = '0';
     document.getElementById('userFollowerCount').textContent = user.followers || 0;
     document.getElementById('userFollowingCount').textContent = user.following || 0;
     
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
-    const savedLang = localStorage.getItem('language') || 'en';
-    updateLanguage(savedLang);
     
     await loadUserInteractions();
     await loadPosts();
@@ -244,11 +182,10 @@ function switchPage(page) {
     document.getElementById(`${page}Page`).classList.add('active');
     
     const titles = {
-        home: 'home', explore: 'explore', notifications: 'notifications',
-        messages: 'messages', profile: 'profile', settings: 'settings'
+        home: 'Home', explore: 'Explore', notifications: 'Notifications',
+        messages: 'Messages', profile: 'Profile', settings: 'Settings'
     };
-    const titleKey = titles[page] || 'home';
-    document.getElementById('pageTitle').textContent = translations[currentLanguage][titleKey] || titleKey;
+    document.getElementById('pageTitle').textContent = titles[page] || 'Home';
     
     if (page === 'home') loadPosts();
     if (page === 'profile') loadUserPosts();
@@ -256,25 +193,35 @@ function switchPage(page) {
 
 document.getElementById('createPostBtn').addEventListener('click', async () => {
     const content = document.getElementById('postContent').value;
-    if (!content.trim()) return;
+    if (!content.trim()) {
+        showCustomAlert('Please write something');
+        return;
+    }
     
     const btn = document.getElementById('createPostBtn');
     btn.disabled = true;
     btn.textContent = 'Posting...';
     
-    const res = await fetch(`${API_URL}/api/posts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser.id, content })
-    });
-    
-    if (res.ok) {
-        document.getElementById('postContent').value = '';
-        await loadPosts();
+    try {
+        const res = await fetch(`${API_URL}/api/posts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, content })
+        });
+        
+        if (res.ok) {
+            document.getElementById('postContent').value = '';
+            await loadPosts();
+            showCustomAlert('Post published!');
+        } else {
+            showCustomAlert('Failed to post');
+        }
+    } catch (error) {
+        showCustomAlert('Error posting');
     }
     
     btn.disabled = false;
-    btn.textContent = translations[currentLanguage].post || 'Post';
+    btn.textContent = 'Post';
 });
 
 async function loadPosts() {
@@ -287,9 +234,11 @@ async function loadPosts() {
         return;
     }
     
-    feed.innerHTML = allPosts.map(post => `
+    feed.innerHTML = allPosts.map(post => {
+        const postAvatar = post.user?.avatar || `https://ui-avatars.com/api/?name=${(post.user?.displayName || post.user?.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+        return `
         <div class="post-card" data-post-id="${post.id}">
-            <img class="post-avatar" src="${post.user?.avatar}" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username}&background=1d9bf0&color=fff'">
+            <img class="post-avatar" src="${postAvatar}" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username?.slice(0,2)}&background=1d9bf0&color=fff'">
             <div class="post-body">
                 <div class="post-header">
                     <span class="post-name">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
@@ -305,8 +254,8 @@ async function loadPosts() {
                                 </svg>
                             </button>
                             <div class="post-menu-dropdown" id="menu-${post.id}">
-                                <div class="dropdown-item" onclick="editPost('${post.id}', '${escapeHtml(post.content).replace(/'/g, "\\'")}')">${translations[currentLanguage].edit || 'Edit'}</div>
-                                <div class="dropdown-item delete" onclick="deletePost('${post.id}')">${translations[currentLanguage].delete_ || 'Delete'}</div>
+                                <div class="dropdown-item" onclick="editPost('${post.id}', '${escapeHtml(post.content).replace(/'/g, "\\'")}')">Edit</div>
+                                <div class="dropdown-item delete" onclick="deletePost('${post.id}')">Delete</div>
                             </div>
                         </div>
                     ` : ''}
@@ -353,7 +302,7 @@ async function loadPosts() {
                 ` : ''}
             </div>
         </div>
-    `).join('');
+    `}).join('');
     
     const userPosts = allPosts.filter(p => p.userId === currentUser.id);
     document.getElementById('userPostCount').textContent = userPosts.length;
@@ -515,9 +464,11 @@ async function loadUserPosts() {
             container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-tertiary)">No posts yet</div>';
             return;
         }
-        container.innerHTML = userPosts.map(post => `
+        container.innerHTML = userPosts.map(post => {
+            const postAvatar = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+            return `
             <div class="post-card">
-                <img class="post-avatar" src="${currentUser.avatar}">
+                <img class="post-avatar" src="${postAvatar}">
                 <div class="post-body">
                     <div class="post-text">${escapeHtml(post.content)}</div>
                     <div class="post-actions">
@@ -527,7 +478,7 @@ async function loadUserPosts() {
                     </div>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
     }
 }
 
@@ -636,61 +587,70 @@ document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', asy
 });
 
 document.getElementById('editAvatarBtn')?.addEventListener('click', () => {
-    document.getElementById('avatarPreview').src = currentUser.avatar;
+    const avatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+    document.getElementById('avatarPreview').src = avatarUrl;
     document.getElementById('avatarModal').classList.add('active');
 });
 
 document.getElementById('closeAvatarModal')?.addEventListener('click', () => {
     document.getElementById('avatarModal').classList.remove('active');
+    selectedAvatarFile = null;
 });
 
-let selectedAvatarColor = '1d9bf0';
-let avatarText = '';
-
-document.querySelectorAll('.avatar-color').forEach(colorBtn => {
-    colorBtn.addEventListener('click', () => {
-        document.querySelectorAll('.avatar-color').forEach(c => c.classList.remove('selected'));
-        colorBtn.classList.add('selected');
-        selectedAvatarColor = colorBtn.dataset.color;
-        updateAvatarPreview();
-    });
+document.getElementById('uploadAvatarBtn')?.addEventListener('click', () => {
+    document.getElementById('avatarFileInput').click();
 });
 
-document.getElementById('avatarNameInput')?.addEventListener('input', (e) => {
-    avatarText = e.target.value.toUpperCase().slice(0, 2);
-    updateAvatarPreview();
-});
-
-function updateAvatarPreview() {
-    const name = avatarText || (currentUser?.displayName?.[0] || currentUser?.username?.[0] || 'U');
-    const preview = document.getElementById('avatarPreview');
-    if (preview) {
-        preview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${selectedAvatarColor}&color=fff&bold=true&size=128&rounded=true`;
+document.getElementById('avatarFileInput')?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        selectedAvatarFile = file;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('avatarPreview').src = event.target.result;
+        };
+        reader.readAsDataURL(file);
     }
-}
+});
 
 document.getElementById('saveAvatarBtn')?.addEventListener('click', async () => {
-    const name = avatarText || (currentUser.displayName || currentUser.username);
-    const newAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name.slice(0, 2))}&background=${selectedAvatarColor}&color=fff&bold=true&size=128&rounded=true`;
+    if (!selectedAvatarFile) {
+        showCustomAlert('Please select an image first');
+        return;
+    }
     
-    const res = await fetch(`${API_URL}/api/user/update`, {
+    const formData = new FormData();
+    formData.append('avatar', selectedAvatarFile);
+    
+    const uploadRes = await fetch(`${API_URL}/api/upload-avatar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser.id, avatar: newAvatar })
+        body: formData
     });
     
-    if (res.ok) {
-        const data = await res.json();
-        currentUser = data.user;
-        localStorage.setItem('user', JSON.stringify(currentUser));
+    const uploadData = await uploadRes.json();
+    if (uploadRes.ok) {
+        const res = await fetch(`${API_URL}/api/user/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, avatar: uploadData.avatarUrl })
+        });
         
-        document.getElementById('headerAvatar').src = newAvatar;
-        document.getElementById('composeAvatar').src = newAvatar;
-        document.getElementById('profileAvatar').src = newAvatar;
-        
-        document.getElementById('avatarModal').classList.remove('active');
-        showCustomAlert('Avatar updated!');
-        loadPosts();
+        if (res.ok) {
+            const data = await res.json();
+            currentUser = data.user;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            
+            const avatarUrl = currentUser.avatar;
+            document.getElementById('headerAvatar').src = avatarUrl;
+            document.getElementById('composeAvatar').src = avatarUrl;
+            document.getElementById('profileAvatar').src = avatarUrl;
+            
+            document.getElementById('avatarModal').classList.remove('active');
+            showCustomAlert('Avatar updated!');
+            loadPosts();
+        }
+    } else {
+        showCustomAlert('Failed to upload image');
     }
 });
 
