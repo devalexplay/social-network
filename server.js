@@ -27,6 +27,9 @@ const users = [];
 let posts = [];
 let nextPostId = 1;
 let nextUserId = 1;
+let userLikes = {};
+let userReposts = {};
+let userSaves = {};
 
 app.post('/api/register', async (req, res) => {
   try {
@@ -60,14 +63,20 @@ app.post('/api/register', async (req, res) => {
       email: email,
       password: hashedPassword,
       fullName: fullName || username,
-      avatar: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(fullName || username) + '&background=1d9bf0&color=fff&bold=true&size=128',
+      displayName: fullName || username,
+      avatar: 'https://ui-avatars.com/api/?name=' + encodeURIComponent((fullName || username).slice(0,2)) + '&background=1d9bf0&color=fff&bold=true&size=128&rounded=true',
       bio: '',
       joinDate: new Date().toISOString(),
       followers: 0,
-      following: 0
+      following: 0,
+      lastDisplayNameChange: null,
+      lastUsernameChange: null
     };
     
     users.push(newUser);
+    userLikes[newUser.id] = [];
+    userReposts[newUser.id] = [];
+    userSaves[newUser.id] = [];
     
     const token = jwt.sign(
       { id: newUser.id, username: newUser.username, email: newUser.email },
@@ -83,11 +92,14 @@ app.post('/api/register', async (req, res) => {
         username: newUser.username,
         email: newUser.email,
         fullName: newUser.fullName,
+        displayName: newUser.displayName,
         avatar: newUser.avatar,
         bio: newUser.bio,
         joinDate: newUser.joinDate,
         followers: newUser.followers,
-        following: newUser.following
+        following: newUser.following,
+        lastDisplayNameChange: newUser.lastDisplayNameChange,
+        lastUsernameChange: newUser.lastUsernameChange
       }
     });
   } catch (error) {
@@ -129,11 +141,14 @@ app.post('/api/login', async (req, res) => {
         username: user.username,
         email: user.email,
         fullName: user.fullName,
+        displayName: user.displayName,
         avatar: user.avatar,
         bio: user.bio,
         joinDate: user.joinDate,
         followers: user.followers,
-        following: user.following
+        following: user.following,
+        lastDisplayNameChange: user.lastDisplayNameChange,
+        lastUsernameChange: user.lastUsernameChange
       }
     });
   } catch (error) {
@@ -159,11 +174,11 @@ app.post('/api/posts', function(req, res) {
     likes: 0,
     reposts: 0,
     comments: [],
-    saved: false,
+    savedBy: [],
     createdAt: new Date().toISOString(),
     user: {
       username: user.username,
-      fullName: user.fullName,
+      displayName: user.displayName,
       avatar: user.avatar
     }
   };
@@ -184,11 +199,11 @@ app.get('/api/posts', function(req, res) {
       likes: post.likes,
       reposts: post.reposts,
       comments: post.comments,
-      saved: post.saved,
+      savedBy: post.savedBy,
       createdAt: post.createdAt,
       user: postUser ? {
         username: postUser.username,
-        fullName: postUser.fullName,
+        displayName: postUser.displayName,
         avatar: postUser.avatar
       } : null
     };
@@ -225,10 +240,18 @@ app.delete('/api/posts/:id', function(req, res) {
 
 app.post('/api/posts/like', function(req, res) {
   var postId = req.body.postId;
+  var userId = req.body.userId;
   var post = posts.find(function(p) {
     return p.id === postId;
   });
+  
   if (post) {
+    if (userLikes[userId] && userLikes[userId].includes(postId)) {
+      return res.json({ success: false, message: 'Already liked', likes: post.likes });
+    }
+    
+    if (!userLikes[userId]) userLikes[userId] = [];
+    userLikes[userId].push(postId);
     post.likes = post.likes + 1;
     res.json({ success: true, likes: post.likes });
   } else {
@@ -238,10 +261,18 @@ app.post('/api/posts/like', function(req, res) {
 
 app.post('/api/posts/repost', function(req, res) {
   var postId = req.body.postId;
+  var userId = req.body.userId;
   var post = posts.find(function(p) {
     return p.id === postId;
   });
+  
   if (post) {
+    if (userReposts[userId] && userReposts[userId].includes(postId)) {
+      return res.json({ success: false, message: 'Already reposted', reposts: post.reposts });
+    }
+    
+    if (!userReposts[userId]) userReposts[userId] = [];
+    userReposts[userId].push(postId);
     post.reposts = post.reposts + 1;
     res.json({ success: true, reposts: post.reposts });
   } else {
@@ -251,12 +282,25 @@ app.post('/api/posts/repost', function(req, res) {
 
 app.post('/api/posts/save', function(req, res) {
   var postId = req.body.postId;
+  var userId = req.body.userId;
   var post = posts.find(function(p) {
     return p.id === postId;
   });
+  
   if (post) {
-    post.saved = !post.saved;
-    res.json({ success: true, saved: post.saved });
+    if (!userSaves[userId]) userSaves[userId] = [];
+    
+    if (userSaves[userId].includes(postId)) {
+      var index = userSaves[userId].indexOf(postId);
+      userSaves[userId].splice(index, 1);
+      var savedIndex = post.savedBy.indexOf(userId);
+      if (savedIndex !== -1) post.savedBy.splice(savedIndex, 1);
+      res.json({ success: true, saved: false });
+    } else {
+      userSaves[userId].push(postId);
+      post.savedBy.push(userId);
+      res.json({ success: true, saved: true });
+    }
   } else {
     res.status(404).json({ error: 'Post not found' });
   }
@@ -278,7 +322,7 @@ app.post('/api/posts/comment', function(req, res) {
       id: Date.now().toString(),
       userId: userId,
       username: user.username,
-      fullName: user.fullName,
+      displayName: user.displayName,
       comment: commentText,
       createdAt: new Date().toISOString()
     };
@@ -289,17 +333,59 @@ app.post('/api/posts/comment', function(req, res) {
   }
 });
 
-app.post('/api/user/update', function(req, res) {
+app.post('/api/user/update', async function(req, res) {
   var userId = req.body.userId;
   var bio = req.body.bio;
+  var avatar = req.body.avatar;
+  var displayName = req.body.displayName;
+  var username = req.body.username;
+  var password = req.body.password;
   var user = users.find(function(u) {
     return u.id === userId;
   });
   
   if (user) {
-    if (bio !== undefined) {
-      user.bio = bio;
+    if (bio !== undefined) user.bio = bio;
+    if (avatar !== undefined) user.avatar = avatar;
+    
+    if (displayName !== undefined) {
+      var lastChange = user.lastDisplayNameChange ? new Date(user.lastDisplayNameChange) : null;
+      var now = new Date();
+      var daysSinceLastChange = lastChange ? (now - lastChange) / (1000 * 60 * 60 * 24) : 14;
+      
+      if (daysSinceLastChange >= 14 || !lastChange) {
+        user.displayName = displayName;
+        user.lastDisplayNameChange = now.toISOString();
+      } else {
+        return res.status(400).json({ error: 'Display name can only be changed every 14 days', daysLeft: Math.ceil(14 - daysSinceLastChange) });
+      }
     }
+    
+    if (username !== undefined && password !== undefined) {
+      var isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Invalid password' });
+      }
+      
+      var existingUser = users.find(function(u) {
+        return u.username === username && u.id !== userId;
+      });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Username already taken' });
+      }
+      
+      var lastChange = user.lastUsernameChange ? new Date(user.lastUsernameChange) : null;
+      var now = new Date();
+      var daysSinceLastChange = lastChange ? (now - lastChange) / (1000 * 60 * 60 * 24) : 90;
+      
+      if (daysSinceLastChange >= 90 || !lastChange) {
+        user.username = username;
+        user.lastUsernameChange = now.toISOString();
+      } else {
+        return res.status(400).json({ error: 'Username can only be changed every 90 days', daysLeft: Math.ceil(90 - daysSinceLastChange) });
+      }
+    }
+    
     res.json({ 
       success: true, 
       user: {
@@ -307,16 +393,24 @@ app.post('/api/user/update', function(req, res) {
         username: user.username,
         email: user.email,
         fullName: user.fullName,
+        displayName: user.displayName,
         avatar: user.avatar,
         bio: user.bio,
         joinDate: user.joinDate,
         followers: user.followers,
-        following: user.following
+        following: user.following,
+        lastDisplayNameChange: user.lastDisplayNameChange,
+        lastUsernameChange: user.lastUsernameChange
       }
     });
   } else {
     res.status(404).json({ error: 'User not found' });
   }
+});
+
+app.post('/api/user/liked', function(req, res) {
+  var userId = req.body.userId;
+  res.json({ liked: userLikes[userId] || [], reposted: userReposts[userId] || [], saved: userSaves[userId] || [] });
 });
 
 function authMiddleware(req, res, next) {
