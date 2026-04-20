@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>FreedomNet</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 </head>
 <body data-theme="dark">
     <div class="auth-screen">
@@ -207,6 +209,19 @@
                     <img id="composeAvatar" class="avatar-medium" alt="">
                     <div class="compose-area">
                         <textarea id="postContent" class="compose-textarea" placeholder="What's happening?" rows="3"></textarea>
+                        <div class="compose-media">
+                            <button id="addImageBtn" class="media-btn" title="Add image">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="2.5"/>
+                                    <path d="M21 15l-5-5-6 6-3-3-3 3"/>
+                                </svg>
+                            </button>
+                            <div id="imagePreview" class="image-preview" style="display:none">
+                                <img id="previewImg" src="">
+                                <button id="removeImageBtn" class="remove-image">×</button>
+                            </div>
+                        </div>
                         <div class="compose-actions">
                             <button id="createPostBtn" class="btn-blue">Post</button>
                         </div>
@@ -272,11 +287,23 @@
             </div>
             
             <div id="messagesPage" class="page">
-                <div class="messages-empty">
-                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
-                    <p>No messages yet</p>
+                <div class="messages-container">
+                    <div class="messages-search">
+                        <div class="search-wrapper small">
+                            <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="M21 21l-4.35-4.35"/>
+                            </svg>
+                            <input type="text" id="userSearchInput" class="search-input small" placeholder="Search users...">
+                        </div>
+                        <div id="userSearchResults" class="user-search-results"></div>
+                    </div>
+                    <div class="messages-empty">
+                        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <p>No messages yet</p>
+                    </div>
                 </div>
             </div>
             
@@ -308,6 +335,28 @@
             
             <div id="settingsPage" class="page">
                 <div class="settings-container">
+                    <div class="settings-group">
+                        <h3>Language</h3>
+                        <div class="settings-item">
+                            <span>Select language</span>
+                            <select id="languageSelect" class="language-select">
+                                <option value="en">English</option>
+                                <option value="ru">Русский</option>
+                                <option value="es">Español</option>
+                                <option value="fr">Français</option>
+                                <option value="de">Deutsch</option>
+                                <option value="it">Italiano</option>
+                                <option value="pt">Português</option>
+                                <option value="tr">Türkçe</option>
+                                <option value="ar">العربية</option>
+                                <option value="hi">हिन्दी</option>
+                                <option value="zh">中文</option>
+                                <option value="ja">日本語</option>
+                                <option value="ko">한국어</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div class="settings-group">
                         <h3>Appearance</h3>
                         <div class="settings-item">
@@ -412,20 +461,47 @@
     </div>
     
     <div id="avatarModal" class="modal">
-        <div class="modal-card">
-            <h3>Change avatar</h3>
-            <div class="avatar-options">
-                <div class="avatar-preview">
-                    <img id="avatarPreview" class="avatar-preview-img" alt="">
-                </div>
-                <div class="avatar-upload">
+        <div class="modal-card avatar-modal-card">
+            <h3 id="avatarModalTitle">Change avatar</h3>
+            <div id="avatarStep1" class="avatar-step">
+                <div class="avatar-upload-area">
                     <input type="file" id="avatarFileInput" accept="image/*" style="display:none">
                     <button id="uploadAvatarBtn" class="btn-outline">Choose image from computer</button>
+                    <div id="avatarPreviewContainer" class="avatar-preview-container" style="display:none">
+                        <img id="avatarPreviewImg" class="avatar-preview-img" alt="">
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button id="closeAvatarModal" class="btn-outline">Cancel</button>
+                    <button id="nextAvatarBtn" class="btn-blue" style="display:none">Next →</button>
                 </div>
             </div>
-            <div class="modal-buttons">
-                <button id="closeAvatarModal" class="btn-outline">Cancel</button>
-                <button id="saveAvatarBtn" class="btn-blue">Save</button>
+            <div id="avatarStep2" class="avatar-step" style="display:none">
+                <div class="crop-container">
+                    <div class="crop-area">
+                        <img id="cropImage" class="crop-image" alt="">
+                    </div>
+                    <div class="crop-guides">
+                        <div class="crop-guide"></div>
+                        <div class="crop-guide"></div>
+                        <div class="crop-guide"></div>
+                        <div class="crop-guide"></div>
+                    </div>
+                </div>
+                <div class="crop-controls">
+                    <div class="zoom-control">
+                        <label>Zoom</label>
+                        <input type="range" id="zoomRange" min="0" max="1" step="0.01" value="0.5">
+                    </div>
+                    <div class="grid-buttons">
+                        <button class="grid-btn" data-grid="3x3">3×3</button>
+                        <button class="grid-btn active" data-grid="9x9">9×9</button>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button id="backAvatarBtn" class="btn-outline">← Back</button>
+                    <button id="saveAvatarBtn" class="btn-blue">Save</button>
+                </div>
             </div>
         </div>
     </div>
