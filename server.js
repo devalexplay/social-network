@@ -5,6 +5,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,6 +18,23 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = './uploads';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -30,6 +49,14 @@ let nextUserId = 1;
 let userLikes = {};
 let userReposts = {};
 let userSaves = {};
+
+app.post('/api/upload-avatar', upload.single('avatar'), function(req, res) {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  const avatarUrl = `/uploads/${req.file.filename}`;
+  res.json({ success: true, avatarUrl: avatarUrl });
+});
 
 app.post('/api/register', async (req, res) => {
   try {
@@ -64,7 +91,7 @@ app.post('/api/register', async (req, res) => {
       password: hashedPassword,
       fullName: fullName || username,
       displayName: fullName || username,
-      avatar: 'https://ui-avatars.com/api/?name=' + encodeURIComponent((fullName || username).slice(0,2)) + '&background=1d9bf0&color=fff&bold=true&size=128&rounded=true',
+      avatar: null,
       bio: '',
       joinDate: new Date().toISOString(),
       followers: 0,
