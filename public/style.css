@@ -66,19 +66,11 @@ body {
     }
 }
 
-.auth-logo {
+.auth-logo h1 {
+    font-size: 36px;
+    font-weight: 700;
     text-align: center;
     margin-bottom: 48px;
-}
-
-.auth-logo svg {
-    color: var(--accent);
-    margin-bottom: 16px;
-}
-
-.auth-logo h1 {
-    font-size: 32px;
-    font-weight: 700;
     background: linear-gradient(135deg, var(--text-primary), var(--accent));
     -webkit-background-clip: text;
     background-clip: text;
@@ -286,7 +278,7 @@ body {
     position: fixed;
     left: 0;
     top: 0;
-    width: 275px;
+    width: 260px;
     height: 100vh;
     padding: 20px;
     border-right: 1px solid var(--border-color);
@@ -295,41 +287,11 @@ body {
     background: var(--bg-primary);
 }
 
-.logo-circle {
-    width: 40px;
-    height: 40px;
-    background: var(--accent);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    box-shadow: 0 0 20px rgba(29, 155, 240, 0.3);
-}
-
-.logo-circle svg {
-    color: white;
-    width: 22px;
-    height: 22px;
-}
-
-.sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    margin-bottom: 32px;
-    cursor: pointer;
-}
-
-.sidebar-logo:hover .logo-circle {
-    transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(29, 155, 240, 0.5);
-}
-
-.sidebar-logo span {
-    font-size: 20px;
+.sidebar-logo h2 {
+    font-size: 24px;
     font-weight: 700;
+    padding: 12px;
+    margin-bottom: 20px;
     background: linear-gradient(135deg, var(--text-primary), var(--accent));
     -webkit-background-clip: text;
     background-clip: text;
@@ -340,63 +302,34 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 }
 
 .nav-btn {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 12px;
+    padding: 12px 16px;
     background: none;
     border: none;
     color: var(--text-secondary);
-    font-size: 20px;
+    font-size: 18px;
     cursor: pointer;
     border-radius: 30px;
-    transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    transition: all 0.2s;
     width: 100%;
     text-align: left;
-    position: relative;
-    overflow: hidden;
-}
-
-.nav-btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: var(--accent);
-    transform: translate(-50%, -50%);
-    transition: width 0.4s ease, height 0.4s ease;
-    opacity: 0;
-    z-index: -1;
-}
-
-.nav-btn:hover::before {
-    width: 200px;
-    height: 200px;
-    opacity: 0.1;
 }
 
 .nav-btn:hover {
     background: var(--bg-hover);
     color: var(--accent);
-    transform: translateX(6px);
 }
 
 .nav-btn.active {
     font-weight: 700;
     color: var(--accent);
     background: rgba(29, 155, 240, 0.1);
-    transform: translateX(0);
-}
-
-.nav-btn.active::before {
-    display: none;
 }
 
 .sidebar-bottom {
@@ -410,14 +343,14 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 12px;
+    padding: 12px 16px;
     background: none;
     border: none;
     color: var(--text-secondary);
-    font-size: 16px;
+    font-size: 15px;
     cursor: pointer;
     border-radius: 30px;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
     width: 100%;
     text-align: left;
 }
@@ -425,18 +358,17 @@ body {
 .edit-avatar-btn:hover {
     background: var(--bg-hover);
     color: var(--accent);
-    transform: translateX(4px);
 }
 
 .logout-btn {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 12px;
+    padding: 12px 16px;
     background: none;
     border: none;
     color: var(--text-secondary);
-    font-size: 20px;
+    font-size: 15px;
     cursor: pointer;
     border-radius: 30px;
     transition: all 0.2s;
@@ -475,10 +407,10 @@ body {
 }
 
 .main-content {
-    margin-left: 275px;
+    margin-left: 260px;
     flex: 1;
     min-height: 100vh;
-    max-width: calc(100% - 275px);
+    max-width: calc(100% - 260px);
     display: flex;
     flex-direction: column;
 }
@@ -488,7 +420,7 @@ body {
     top: 0;
     background: var(--bg-primary);
     backdrop-filter: blur(12px);
-    padding: 16px 20px;
+    padding: 16px 24px;
     border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
@@ -585,7 +517,6 @@ body {
 
 .btn-blue:hover {
     background: var(--accent-hover);
-    transform: scale(0.96);
 }
 
 .btn-outline {
@@ -682,7 +613,7 @@ body {
 
 .post-actions {
     display: flex;
-    gap: 32px;
+    gap: 24px;
     margin-top: 8px;
 }
 
@@ -736,7 +667,6 @@ body {
     color: var(--text-tertiary);
     cursor: pointer;
     padding: 4px 8px;
-    font-size: 18px;
     border-radius: 50%;
     transition: all 0.2s;
 }
@@ -824,7 +754,6 @@ body {
     color: var(--text-primary);
     font-size: 16px;
     outline: none;
-    transition: border-color 0s, box-shadow 0s;
     font-family: inherit;
 }
 
@@ -1042,7 +971,6 @@ body {
     color: var(--text-primary);
     font-size: 15px;
     outline: none;
-    transition: all 0.2s;
 }
 
 .settings-input:focus {
@@ -1228,51 +1156,10 @@ input:checked + .toggle-slider:before {
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--accent);
-    transition: all 0.3s ease;
 }
 
-.avatar-colors {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-}
-
-.avatar-color {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    border: 2px solid transparent;
-}
-
-.avatar-color:hover {
-    transform: scale(1.1);
-    border-color: var(--text-primary);
-}
-
-.avatar-color.selected {
-    border-color: var(--text-primary);
-    transform: scale(1.1);
-    box-shadow: 0 0 0 3px rgba(29, 155, 240, 0.3);
-}
-
-.avatar-name-input {
-    width: 100%;
-    padding: 12px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    color: var(--text-primary);
-    font-size: 16px;
+.avatar-upload {
     text-align: center;
-    font-family: inherit;
-}
-
-.avatar-name-input:focus {
-    outline: none;
-    border-color: var(--accent);
 }
 
 .custom-alert {
@@ -1343,6 +1230,6 @@ input:checked + .toggle-slider:before {
     }
     
     .post-actions {
-        gap: 16px;
+        gap: 12px;
     }
 }
