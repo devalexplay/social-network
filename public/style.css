@@ -1403,120 +1403,23 @@ input:checked + .toggle-slider:before {
     justify-content: center;
 }
 
-.avatar-modal-card {
-    max-width: 500px;
-    width: 90%;
-}
-
-.avatar-step {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
 .avatar-upload-area {
     text-align: center;
     padding: 20px;
 }
 
 .avatar-preview-container {
-    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .avatar-preview-img {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--accent);
-}
-
-.crop-container {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.crop-area {
-    position: relative;
-    width: 300px;
-    height: 300px;
-    overflow: hidden;
-    border-radius: 50%;
-    background: var(--bg-tertiary);
-}
-
-.crop-image {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-.crop-controls {
-    padding: 16px;
-    background: var(--bg-tertiary);
-    border-radius: 16px;
-    margin-bottom: 20px;
-}
-
-.zoom-control {
-    margin-bottom: 16px;
-}
-
-.zoom-control label {
+    margin: 0 auto;
     display: block;
-    margin-bottom: 8px;
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-
-.zoom-control input {
-    width: 100%;
-    cursor: pointer;
-    accent-color: var(--accent);
-}
-
-.crop-controls-advanced {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 12px;
-}
-
-.crop-btn {
-    padding: 8px 16px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.crop-btn:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-}
-
-.grid-buttons {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-}
-
-.grid-btn {
-    padding: 6px 16px;
-    background: var(--bg-hover);
-    border: none;
-    border-radius: 20px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.grid-btn.active {
-    background: var(--accent);
-    color: white;
 }
 
 .custom-alert {
@@ -1731,10 +1634,5 @@ input:checked + .toggle-slider:before {
     
     .post-actions {
         gap: 12px;
-    }
-    
-    .crop-area {
-        width: 250px;
-        height: 250px;
     }
 }
