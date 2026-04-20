@@ -5,8 +5,9 @@ let allPosts = [];
 let currentEditPostId = null;
 let currentDeletePostId = null;
 let currentCommentPostId = null;
-let likedPosts = new Set();
-let repostedPosts = new Set();
+let userLikedPosts = new Set();
+let userRepostedPosts = new Set();
+let userSavedPosts = new Set();
 
 const translations = {
     en: {
@@ -27,10 +28,12 @@ const translations = {
         editPost: 'Edit post', cancel: 'Cancel', save: 'Save',
         deletePost: 'Delete post?', deleteConfirm: 'Are you sure you want to delete this post? This action cannot be undone.',
         delete: 'Delete', addComment: 'Add comment', comment: 'Comment',
-        edit: 'Edit', delete_: 'Delete'
+        edit: 'Edit', delete_: 'Delete', changeAvatar: 'Change avatar',
+        profileSettings: 'Profile Settings', displayName: 'Display Name',
+        displayNameHint: 'Can be changed every 14 days', usernameHint: 'Can be changed every 90 days'
     },
     zh: {
-        appName: 'FreedomNet', signIn: '登录', signUp: '注册',
+        appName: '自由网', signIn: '登录', signUp: '注册',
         emailOrUsername: '邮箱或用户名', password: '密码',
         rememberMe: '记住我', forgotPassword: '忘记密码？',
         signInBtn: '登录', fullName: '全名', username: '用户名',
@@ -47,187 +50,9 @@ const translations = {
         editPost: '编辑帖子', cancel: '取消', save: '保存',
         deletePost: '删除帖子？', deleteConfirm: '确定要删除此帖子吗？此操作无法撤销。',
         delete: '删除', addComment: '添加评论', comment: '评论',
-        edit: '编辑', delete_: '删除'
-    },
-    hi: {
-        appName: 'FreedomNet', signIn: 'साइन इन', signUp: 'साइन अप',
-        emailOrUsername: 'ईमेल या उपयोगकर्ता नाम', password: 'पासवर्ड',
-        rememberMe: 'मुझे याद रखें', forgotPassword: 'पासवर्ड भूल गए?',
-        signInBtn: 'साइन इन', fullName: 'पूरा नाम', username: 'उपयोगकर्ता नाम',
-        email: 'ईमेल', confirmPassword: 'पासवर्ड पुष्टि करें', createAccount: 'खाता बनाएं',
-        home: 'होम', explore: 'एक्सप्लोर', notifications: 'सूचनाएं',
-        messages: 'संदेश', profile: 'प्रोफाइल', settings: 'सेटिंग्स',
-        logout: 'लॉगआउट', post: 'पोस्ट', trendingNow: 'ट्रेंडिंग',
-        welcomeNotification: 'फ्रीडमनेट में आपका स्वागत है!', noMessages: 'कोई संदेश नहीं',
-        posts: 'पोस्ट', followers: 'फॉलोअर्स', following: 'फॉलोइंग',
-        editProfile: 'प्रोफाइल संपादित करें', appearance: 'दिखावट', theme: 'थीम',
-        dark: 'डार्क', light: 'लाइट', language: 'भाषा',
-        notificationsSettings: 'सूचनाएं', pushNotifications: 'पुश सूचनाएं',
-        emailUpdates: 'ईमेल अपडेट', saveChanges: 'बदलाव सहेजें',
-        editPost: 'पोस्ट संपादित करें', cancel: 'रद्द करें', save: 'सहेजें',
-        deletePost: 'पोस्ट हटाएं?', deleteConfirm: 'क्या आप यह पोस्ट हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।',
-        delete: 'हटाएं', addComment: 'टिप्पणी जोड़ें', comment: 'टिप्पणी',
-        edit: 'संपादित करें', delete_: 'हटाएं'
-    },
-    es: {
-        appName: 'FreedomNet', signIn: 'Iniciar sesión', signUp: 'Registrarse',
-        emailOrUsername: 'Correo o usuario', password: 'Contraseña',
-        rememberMe: 'Recordarme', forgotPassword: '¿Olvidaste tu contraseña?',
-        signInBtn: 'Iniciar sesión', fullName: 'Nombre completo', username: 'Usuario',
-        email: 'Correo', confirmPassword: 'Confirmar contraseña', createAccount: 'Crear cuenta',
-        home: 'Inicio', explore: 'Explorar', notifications: 'Notificaciones',
-        messages: 'Mensajes', profile: 'Perfil', settings: 'Ajustes',
-        logout: 'Cerrar sesión', post: 'Publicar', trendingNow: 'Tendencias',
-        welcomeNotification: '¡Bienvenido a FreedomNet!', noMessages: 'Sin mensajes',
-        posts: 'Publicaciones', followers: 'Seguidores', following: 'Siguiendo',
-        editProfile: 'Editar perfil', appearance: 'Apariencia', theme: 'Tema',
-        dark: 'Oscuro', light: 'Claro', language: 'Idioma',
-        notificationsSettings: 'Notificaciones', pushNotifications: 'Notificaciones push',
-        emailUpdates: 'Actualizaciones por correo', saveChanges: 'Guardar cambios',
-        editPost: 'Editar publicación', cancel: 'Cancelar', save: 'Guardar',
-        deletePost: '¿Eliminar publicación?', deleteConfirm: '¿Seguro que quieres eliminar esta publicación? Esta acción no se puede deshacer.',
-        delete: 'Eliminar', addComment: 'Agregar comentario', comment: 'Comentar',
-        edit: 'Editar', delete_: 'Eliminar'
-    },
-    fr: {
-        appName: 'FreedomNet', signIn: 'Connexion', signUp: 'Inscription',
-        emailOrUsername: 'Email ou nom', password: 'Mot de passe',
-        rememberMe: 'Se souvenir', forgotPassword: 'Mot de passe oublié?',
-        signInBtn: 'Se connecter', fullName: 'Nom complet', username: 'Nom',
-        email: 'Email', confirmPassword: 'Confirmer', createAccount: 'Créer',
-        home: 'Accueil', explore: 'Explorer', notifications: 'Notifications',
-        messages: 'Messages', profile: 'Profil', settings: 'Paramètres',
-        logout: 'Déconnexion', post: 'Publier', trendingNow: 'Tendances',
-        welcomeNotification: 'Bienvenue sur FreedomNet!', noMessages: 'Aucun message',
-        posts: 'Publications', followers: 'Abonnés', following: 'Abonnements',
-        editProfile: 'Modifier', appearance: 'Apparence', theme: 'Thème',
-        dark: 'Sombre', light: 'Clair', language: 'Langue',
-        notificationsSettings: 'Notifications', pushNotifications: 'Notifications push',
-        emailUpdates: 'Emails', saveChanges: 'Enregistrer',
-        editPost: 'Modifier', cancel: 'Annuler', save: 'Enregistrer',
-        deletePost: 'Supprimer?', deleteConfirm: 'Voulez-vous vraiment supprimer?',
-        delete: 'Supprimer', addComment: 'Commenter', comment: 'Commentaire',
-        edit: 'Modifier', delete_: 'Supprimer'
-    },
-    ar: {
-        appName: 'FreedomNet', signIn: 'تسجيل الدخول', signUp: 'اشتراك',
-        emailOrUsername: 'البريد الإلكتروني أو اسم المستخدم', password: 'كلمة المرور',
-        rememberMe: 'تذكرني', forgotPassword: 'نسيت كلمة المرور؟',
-        signInBtn: 'تسجيل الدخول', fullName: 'الاسم الكامل', username: 'اسم المستخدم',
-        email: 'البريد الإلكتروني', confirmPassword: 'تأكيد كلمة المرور', createAccount: 'إنشاء حساب',
-        home: 'الرئيسية', explore: 'استكشاف', notifications: 'الإشعارات',
-        messages: 'الرسائل', profile: 'الملف الشخصي', settings: 'الإعدادات',
-        logout: 'تسجيل الخروج', post: 'نشر', trendingNow: 'الأكثر تداولا',
-        welcomeNotification: 'مرحبا بك في فريدوم نت!', noMessages: 'لا توجد رسائل',
-        posts: 'المنشورات', followers: 'المتابعون', following: 'يتابع',
-        editProfile: 'تعديل الملف', appearance: 'المظهر', theme: 'الثيم',
-        dark: 'داكن', light: 'فاتح', language: 'اللغة',
-        notificationsSettings: 'الإشعارات', pushNotifications: 'إشعارات فورية',
-        emailUpdates: 'تحديثات البريد', saveChanges: 'حفظ التغييرات',
-        editPost: 'تعديل المنشور', cancel: 'إلغاء', save: 'حفظ',
-        deletePost: 'حذف المنشور؟', deleteConfirm: 'هل أنت متأكد من حذف هذا المنشور؟ لا يمكن التراجع عن هذا الإجراء.',
-        delete: 'حذف', addComment: 'إضافة تعليق', comment: 'تعليق',
-        edit: 'تعديل', delete_: 'حذف'
-    },
-    bn: {
-        appName: 'FreedomNet', signIn: 'সাইন ইন', signUp: 'সাইন আপ',
-        emailOrUsername: 'ইমেইল বা ইউজারনেম', password: 'পাসওয়ার্ড',
-        rememberMe: 'মনে রাখুন', forgotPassword: 'পাসওয়ার্ড ভুলে গেছেন?',
-        signInBtn: 'সাইন ইন', fullName: 'পুরো নাম', username: 'ইউজারনেম',
-        email: 'ইমেইল', confirmPassword: 'পাসওয়ার্ড নিশ্চিত করুন', createAccount: 'অ্যাকাউন্ট তৈরি করুন',
-        home: 'হোম', explore: 'এক্সপ্লোর', notifications: 'নোটিফিকেশন',
-        messages: 'মেসেজ', profile: 'প্রোফাইল', settings: 'সেটিংস',
-        logout: 'লগআউট', post: 'পোস্ট', trendingNow: 'ট্রেন্ডিং',
-        welcomeNotification: 'ফ্রিডমনেটে স্বাগতম!', noMessages: 'কোনো মেসেজ নেই',
-        posts: 'পোস্ট', followers: 'ফলোয়ার', following: 'ফলোইং',
-        editProfile: 'প্রোফাইল এডিট', appearance: 'আবির্ভাব', theme: 'থিম',
-        dark: 'ডার্ক', light: 'লাইট', language: 'ভাষা',
-        notificationsSettings: 'নোটিফিকেশন', pushNotifications: 'পুশ নোটিফিকেশন',
-        emailUpdates: 'ইমেইল আপডেট', saveChanges: 'সংরক্ষণ করুন',
-        editPost: 'পোস্ট এডিট', cancel: 'বাতিল', save: 'সংরক্ষণ',
-        deletePost: 'পোস্ট মুছবেন?', deleteConfirm: 'আপনি কি এই পোস্ট মুছতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।',
-        delete: 'মুছুন', addComment: 'মন্তব্য যোগ করুন', comment: 'মন্তব্য',
-        edit: 'এডিট', delete_: 'মুছুন'
-    },
-    pt: {
-        appName: 'FreedomNet', signIn: 'Entrar', signUp: 'Cadastrar',
-        emailOrUsername: 'Email ou usuário', password: 'Senha',
-        rememberMe: 'Lembrar', forgotPassword: 'Esqueceu a senha?',
-        signInBtn: 'Entrar', fullName: 'Nome completo', username: 'Usuário',
-        email: 'Email', confirmPassword: 'Confirmar senha', createAccount: 'Criar conta',
-        home: 'Início', explore: 'Explorar', notifications: 'Notificações',
-        messages: 'Mensagens', profile: 'Perfil', settings: 'Configurações',
-        logout: 'Sair', post: 'Publicar', trendingNow: 'Tendências',
-        welcomeNotification: 'Bem-vindo ao FreedomNet!', noMessages: 'Sem mensagens',
-        posts: 'Publicações', followers: 'Seguidores', following: 'Seguindo',
-        editProfile: 'Editar perfil', appearance: 'Aparência', theme: 'Tema',
-        dark: 'Escuro', light: 'Claro', language: 'Idioma',
-        notificationsSettings: 'Notificações', pushNotifications: 'Notificações push',
-        emailUpdates: 'Atualizações por email', saveChanges: 'Salvar',
-        editPost: 'Editar post', cancel: 'Cancelar', save: 'Salvar',
-        deletePost: 'Excluir post?', deleteConfirm: 'Tem certeza que deseja excluir?',
-        delete: 'Excluir', addComment: 'Comentar', comment: 'Comentário',
-        edit: 'Editar', delete_: 'Excluir'
-    },
-    ru: {
-        appName: 'FreedomNet', signIn: 'Войти', signUp: 'Регистрация',
-        emailOrUsername: 'Email или имя', password: 'Пароль',
-        rememberMe: 'Запомнить', forgotPassword: 'Забыли пароль?',
-        signInBtn: 'Войти', fullName: 'Полное имя', username: 'Имя',
-        email: 'Email', confirmPassword: 'Подтвердить', createAccount: 'Создать',
-        home: 'Главная', explore: 'Обзор', notifications: 'Уведомления',
-        messages: 'Сообщения', profile: 'Профиль', settings: 'Настройки',
-        logout: 'Выйти', post: 'Опубликовать', trendingNow: 'Тренды',
-        welcomeNotification: 'Добро пожаловать!', noMessages: 'Нет сообщений',
-        posts: 'Посты', followers: 'Подписчики', following: 'Подписки',
-        editProfile: 'Редактировать', appearance: 'Внешний вид', theme: 'Тема',
-        dark: 'Темная', light: 'Светлая', language: 'Язык',
-        notificationsSettings: 'Уведомления', pushNotifications: 'Push уведомления',
-        emailUpdates: 'Email рассылка', saveChanges: 'Сохранить',
-        editPost: 'Редактировать', cancel: 'Отмена', save: 'Сохранить',
-        deletePost: 'Удалить?', deleteConfirm: 'Вы уверены?',
-        delete: 'Удалить', addComment: 'Комментировать', comment: 'Комментарий',
-        edit: 'Редактировать', delete_: 'Удалить'
-    },
-    ur: {
-        appName: 'FreedomNet', signIn: 'سائن ان', signUp: 'سائن اپ',
-        emailOrUsername: 'ای میل یا صارف نام', password: 'پاس ورڈ',
-        rememberMe: 'مجھے یاد رکھیں', forgotPassword: 'پاس ورڈ بھول گئے؟',
-        signInBtn: 'سائن ان', fullName: 'پورا نام', username: 'صارف نام',
-        email: 'ای میل', confirmPassword: 'پاس ورڈ کی تصدیق', createAccount: 'اکاؤنٹ بنائیں',
-        home: 'ہوم', explore: 'ایکسپلور', notifications: 'اطلاعات',
-        messages: 'پیغامات', profile: 'پروفائل', settings: 'ترتیبات',
-        logout: 'لاگ آؤٹ', post: 'پوسٹ کریں', trendingNow: 'ٹرینڈنگ',
-        welcomeNotification: 'فریڈم نیٹ میں خوش آمدید!', noMessages: 'کوئی پیغام نہیں',
-        posts: 'پوسٹیں', followers: 'فالوورز', following: 'فالو کر رہے ہیں',
-        editProfile: 'پروفائل ترمیم کریں', appearance: 'ظاہری شکل', theme: 'تھیم',
-        dark: 'ڈارک', light: 'لائٹ', language: 'زبان',
-        notificationsSettings: 'اطلاعات', pushNotifications: 'پش اطلاعات',
-        emailUpdates: 'ای میل اپڈیٹس', saveChanges: 'تبدیلیاں محفوظ کریں',
-        editPost: 'پوسٹ ترمیم کریں', cancel: 'منسوخ', save: 'محفوظ کریں',
-        deletePost: 'پوسٹ حذف کریں؟', deleteConfirm: 'کیا آپ واقعی اس پوسٹ کو حذف کرنا چاہتے ہیں؟',
-        delete: 'حذف کریں', addComment: 'تبصرہ شامل کریں', comment: 'تبصرہ',
-        edit: 'ترمیم', delete_: 'حذف'
-    },
-    el: {
-        appName: 'FreedomNet', signIn: 'Σύνδεση', signUp: 'Εγγραφή',
-        emailOrUsername: 'Email ή όνομα', password: 'Κωδικός',
-        rememberMe: 'Θυμήσου με', forgotPassword: 'Ξεχάσατε τον κωδικό;',
-        signInBtn: 'Σύνδεση', fullName: 'Πλήρες όνομα', username: 'Όνομα',
-        email: 'Email', confirmPassword: 'Επιβεβαίωση', createAccount: 'Δημιουργία',
-        home: 'Αρχική', explore: 'Εξερεύνηση', notifications: 'Ειδοποιήσεις',
-        messages: 'Μηνύματα', profile: 'Προφίλ', settings: 'Ρυθμίσεις',
-        logout: 'Αποσύνδεση', post: 'Δημοσίευση', trendingNow: 'Τάσεις',
-        welcomeNotification: 'Καλώς ήρθατε!', noMessages: 'Κανένα μήνυμα',
-        posts: 'Δημοσιεύσεις', followers: 'Ακόλουθοι', following: 'Ακολουθεί',
-        editProfile: 'Επεξεργασία', appearance: 'Εμφάνιση', theme: 'Θέμα',
-        dark: 'Σκοτεινό', light: 'Φωτεινό', language: 'Γλώσσα',
-        notificationsSettings: 'Ειδοποιήσεις', pushNotifications: 'Push ειδοποιήσεις',
-        emailUpdates: 'Email ενημερώσεις', saveChanges: 'Αποθήκευση',
-        editPost: 'Επεξεργασία', cancel: 'Ακύρωση', save: 'Αποθήκευση',
-        deletePost: 'Διαγραφή;', deleteConfirm: 'Είστε σίγουροι;',
-        delete: 'Διαγραφή', addComment: 'Σχόλιο', comment: 'Σχόλιο',
-        edit: 'Επεξεργασία', delete_: 'Διαγραφή'
+        edit: '编辑', delete_: '删除', changeAvatar: '更换头像',
+        profileSettings: '个人资料设置', displayName: '显示名称',
+        displayNameHint: '每14天可更改一次', usernameHint: '每90天可更改一次'
     }
 };
 
@@ -246,9 +71,6 @@ function updateLanguage(lang) {
             }
         }
     });
-    document.getElementById('languageSelect').value = lang;
-    document.getElementById('settingsLanguageSelect').value = lang;
-    document.getElementById('pageTitle').textContent = translations[lang][currentPage === 'home' ? 'home' : currentPage] || currentPage;
 }
 
 const authScreen = document.querySelector('.auth-screen');
@@ -367,16 +189,28 @@ function showCustomAlert(message) {
     };
 }
 
-function initApp(user) {
+async function loadUserInteractions() {
+    const res = await fetch(`${API_URL}/api/user/liked`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id })
+    });
+    const data = await res.json();
+    userLikedPosts = new Set(data.liked);
+    userRepostedPosts = new Set(data.reposted);
+    userSavedPosts = new Set(data.saved);
+}
+
+async function initApp(user) {
     currentUser = user;
     authScreen.style.display = 'none';
     app.classList.add('active');
     
     document.getElementById('headerAvatar').src = user.avatar;
-    document.getElementById('headerName').textContent = user.fullName || user.username;
+    document.getElementById('headerName').textContent = user.displayName || user.fullName || user.username;
     document.getElementById('composeAvatar').src = user.avatar;
     document.getElementById('profileAvatar').src = user.avatar;
-    document.getElementById('profileName').textContent = user.fullName || user.username;
+    document.getElementById('profileName').textContent = user.displayName || user.fullName || user.username;
     document.getElementById('profileUsername').textContent = `@${user.username}`;
     document.getElementById('profileBio').textContent = user.bio || 'No bio yet';
     document.getElementById('userFollowerCount').textContent = user.followers || 0;
@@ -387,7 +221,8 @@ function initApp(user) {
     const savedLang = localStorage.getItem('language') || 'en';
     updateLanguage(savedLang);
     
-    loadPosts();
+    await loadUserInteractions();
+    await loadPosts();
 }
 
 document.querySelectorAll('.nav-btn, .mobile-btn').forEach(btn => {
@@ -457,7 +292,7 @@ async function loadPosts() {
             <img class="post-avatar" src="${post.user?.avatar}" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username}&background=1d9bf0&color=fff'">
             <div class="post-body">
                 <div class="post-header">
-                    <span class="post-name">${escapeHtml(post.user?.fullName || post.user?.username)}</span>
+                    <span class="post-name">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
                     <span class="post-username">@${escapeHtml(post.user?.username)}</span>
                     <span class="post-time">${formatTime(post.createdAt)}</span>
                     ${post.userId === currentUser.id ? `
@@ -478,8 +313,8 @@ async function loadPosts() {
                 </div>
                 <div class="post-text">${escapeHtml(post.content)}</div>
                 <div class="post-actions">
-                    <button class="action-btn like" onclick="likePost('${post.id}')" ${likedPosts.has(post.id) ? 'style="color:var(--error)"' : ''}>
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${likedPosts.has(post.id) ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2">
+                    <button class="action-btn like" onclick="likePost('${post.id}')" ${userLikedPosts.has(post.id) ? 'style="color:var(--error)"' : ''}>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${userLikedPosts.has(post.id) ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                         </svg>
                         <span>${post.likes}</span>
@@ -490,7 +325,7 @@ async function loadPosts() {
                         </svg>
                         <span>${post.comments?.length || 0}</span>
                     </button>
-                    <button class="action-btn repost" onclick="repostPost('${post.id}')" ${repostedPosts.has(post.id) ? 'style="color:var(--success)"' : ''}>
+                    <button class="action-btn repost" onclick="repostPost('${post.id}')" ${userRepostedPosts.has(post.id) ? 'style="color:var(--success)"' : ''}>
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M17 1l4 4-4 4"/>
                             <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
@@ -499,8 +334,8 @@ async function loadPosts() {
                         </svg>
                         <span>${post.reposts || 0}</span>
                     </button>
-                    <button class="action-btn save" onclick="savePost('${post.id}')">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <button class="action-btn save ${userSavedPosts.has(post.id) ? 'saved' : ''}" onclick="savePost('${post.id}')">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${userSavedPosts.has(post.id) ? '#ffd700' : 'none'}" stroke="currentColor" stroke-width="2">
                             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
                         </svg>
                     </button>
@@ -509,7 +344,7 @@ async function loadPosts() {
                     <div class="post-comments" style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border-color)">
                         ${post.comments.slice(0, 2).map(c => `
                             <div class="comment-item" style="font-size:13px;margin-bottom:8px">
-                                <strong style="color:var(--text-primary)">${escapeHtml(c.fullName || c.username)}</strong>
+                                <strong style="color:var(--text-primary)">${escapeHtml(c.displayName || c.username)}</strong>
                                 <span style="color:var(--text-tertiary)"> ${escapeHtml(c.comment)}</span>
                             </div>
                         `).join('')}
@@ -567,41 +402,55 @@ window.deletePost = function(postId) {
 };
 
 window.likePost = async (postId) => {
-    if (likedPosts.has(postId)) {
+    if (userLikedPosts.has(postId)) {
         showCustomAlert('You already liked this post');
         return;
     }
-    likedPosts.add(postId);
-    await fetch(`${API_URL}/api/posts/like`, {
+    const res = await fetch(`${API_URL}/api/posts/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId })
+        body: JSON.stringify({ postId, userId: currentUser.id })
     });
-    loadPosts();
+    const data = await res.json();
+    if (data.success) {
+        userLikedPosts.add(postId);
+        loadPosts();
+    }
 };
 
 window.repostPost = async (postId) => {
-    if (repostedPosts.has(postId)) {
+    if (userRepostedPosts.has(postId)) {
         showCustomAlert('You already reposted this post');
         return;
     }
-    repostedPosts.add(postId);
-    await fetch(`${API_URL}/api/posts/repost`, {
+    const res = await fetch(`${API_URL}/api/posts/repost`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId })
+        body: JSON.stringify({ postId, userId: currentUser.id })
     });
-    loadPosts();
-    showCustomAlert('Post reposted!');
+    const data = await res.json();
+    if (data.success) {
+        userRepostedPosts.add(postId);
+        loadPosts();
+        showCustomAlert('Post reposted!');
+    }
 };
 
 window.savePost = async (postId) => {
-    await fetch(`${API_URL}/api/posts/save`, {
+    const res = await fetch(`${API_URL}/api/posts/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId })
+        body: JSON.stringify({ postId, userId: currentUser.id })
     });
-    showCustomAlert('Post saved!');
+    const data = await res.json();
+    if (data.saved) {
+        userSavedPosts.add(postId);
+        showCustomAlert('Post saved!');
+    } else {
+        userSavedPosts.delete(postId);
+        showCustomAlert('Post removed from saves');
+    }
+    loadPosts();
 };
 
 window.openCommentModal = function(postId) {
@@ -724,17 +573,169 @@ document.querySelectorAll('.theme-option').forEach(btn => {
     });
 });
 
-document.getElementById('languageSelect')?.addEventListener('change', (e) => {
-    updateLanguage(e.target.value);
+document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', async () => {
+    const newDisplayName = document.getElementById('displayNameInput').value;
+    const newUsername = document.getElementById('usernameInput').value;
+    const password = document.getElementById('confirmPasswordInput').value;
+    const confirmPassword = document.getElementById('confirmNewPasswordInput').value;
+    
+    if (password !== confirmPassword) {
+        showCustomAlert('Passwords do not match');
+        return;
+    }
+    
+    if (newDisplayName) {
+        const res = await fetch(`${API_URL}/api/user/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, displayName: newDisplayName })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            currentUser = data.user;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            document.getElementById('displayNameStatus').textContent = 'Display name updated!';
+            document.getElementById('displayNameStatus').className = 'settings-status success';
+            document.getElementById('profileName').textContent = currentUser.displayName;
+            document.getElementById('headerName').textContent = currentUser.displayName;
+            setTimeout(() => {
+                document.getElementById('displayNameStatus').textContent = '';
+            }, 3000);
+        } else {
+            document.getElementById('displayNameStatus').textContent = data.error || 'Error';
+            document.getElementById('displayNameStatus').className = 'settings-status error';
+        }
+    }
+    
+    if (newUsername && password) {
+        const res = await fetch(`${API_URL}/api/user/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, username: newUsername, password: password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            currentUser = data.user;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            document.getElementById('usernameStatus').textContent = 'Username updated!';
+            document.getElementById('usernameStatus').className = 'settings-status success';
+            document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
+            setTimeout(() => {
+                document.getElementById('usernameStatus').textContent = '';
+            }, 3000);
+        } else {
+            document.getElementById('usernameStatus').textContent = data.error || 'Error';
+            document.getElementById('usernameStatus').className = 'settings-status error';
+        }
+    }
+    
+    document.getElementById('displayNameInput').value = '';
+    document.getElementById('usernameInput').value = '';
+    document.getElementById('confirmPasswordInput').value = '';
+    document.getElementById('confirmNewPasswordInput').value = '';
 });
 
-document.getElementById('settingsLanguageSelect')?.addEventListener('change', (e) => {
-    updateLanguage(e.target.value);
+document.getElementById('editAvatarBtn')?.addEventListener('click', () => {
+    document.getElementById('avatarPreview').src = currentUser.avatar;
+    document.getElementById('avatarModal').classList.add('active');
 });
 
-document.getElementById('saveSettingsBtn')?.addEventListener('click', () => {
-    showCustomAlert('Settings saved!');
+document.getElementById('closeAvatarModal')?.addEventListener('click', () => {
+    document.getElementById('avatarModal').classList.remove('active');
 });
+
+let selectedAvatarColor = '1d9bf0';
+let avatarText = '';
+
+document.querySelectorAll('.avatar-color').forEach(colorBtn => {
+    colorBtn.addEventListener('click', () => {
+        document.querySelectorAll('.avatar-color').forEach(c => c.classList.remove('selected'));
+        colorBtn.classList.add('selected');
+        selectedAvatarColor = colorBtn.dataset.color;
+        updateAvatarPreview();
+    });
+});
+
+document.getElementById('avatarNameInput')?.addEventListener('input', (e) => {
+    avatarText = e.target.value.toUpperCase().slice(0, 2);
+    updateAvatarPreview();
+});
+
+function updateAvatarPreview() {
+    const name = avatarText || (currentUser?.displayName?.[0] || currentUser?.username?.[0] || 'U');
+    const preview = document.getElementById('avatarPreview');
+    if (preview) {
+        preview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${selectedAvatarColor}&color=fff&bold=true&size=128&rounded=true`;
+    }
+}
+
+document.getElementById('saveAvatarBtn')?.addEventListener('click', async () => {
+    const name = avatarText || (currentUser.displayName || currentUser.username);
+    const newAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name.slice(0, 2))}&background=${selectedAvatarColor}&color=fff&bold=true&size=128&rounded=true`;
+    
+    const res = await fetch(`${API_URL}/api/user/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id, avatar: newAvatar })
+    });
+    
+    if (res.ok) {
+        const data = await res.json();
+        currentUser = data.user;
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        
+        document.getElementById('headerAvatar').src = newAvatar;
+        document.getElementById('composeAvatar').src = newAvatar;
+        document.getElementById('profileAvatar').src = newAvatar;
+        
+        document.getElementById('avatarModal').classList.remove('active');
+        showCustomAlert('Avatar updated!');
+        loadPosts();
+    }
+});
+
+document.getElementById('searchInput')?.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    const searchResults = document.getElementById('searchResults');
+    const trendingCard = document.querySelector('.trending-card');
+    
+    if (query.length > 0) {
+        const filteredPosts = allPosts.filter(post => 
+            post.content.toLowerCase().includes(query) ||
+            post.user?.displayName?.toLowerCase().includes(query) ||
+            post.user?.username?.toLowerCase().includes(query)
+        );
+        
+        if (filteredPosts.length > 0) {
+            trendingCard.style.display = 'none';
+            searchResults.style.display = 'block';
+            searchResults.innerHTML = filteredPosts.map(post => `
+                <div class="search-result-item" onclick="scrollToPost('${post.id}')">
+                    <div style="font-weight:600">${escapeHtml(post.user?.displayName || post.user?.username)}</div>
+                    <div style="color:var(--text-tertiary);font-size:13px">${escapeHtml(post.content.substring(0, 100))}${post.content.length > 100 ? '...' : ''}</div>
+                </div>
+            `).join('');
+        } else {
+            trendingCard.style.display = 'block';
+            searchResults.style.display = 'none';
+        }
+    } else {
+        trendingCard.style.display = 'block';
+        searchResults.style.display = 'none';
+    }
+});
+
+window.scrollToPost = function(postId) {
+    const postElement = document.querySelector(`.post-card[data-post-id="${postId}"]`);
+    if (postElement) {
+        postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        postElement.style.background = 'var(--bg-hover)';
+        setTimeout(() => {
+            postElement.style.background = '';
+        }, 2000);
+    }
+    switchPage('home');
+};
 
 function escapeHtml(text) {
     const div = document.createElement('div');
