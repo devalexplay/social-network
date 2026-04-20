@@ -11,7 +11,6 @@
     <div class="auth-screen">
         <div class="auth-container">
             <div class="auth-logo">
-                <div class="auth-logo-circle"></div>
                 <h1>FreedomNet</h1>
             </div>
             
@@ -90,7 +89,6 @@
     <div id="app" class="app">
         <div class="sidebar">
             <div class="sidebar-logo">
-                <div class="logo-circle-blue"></div>
                 <h2>FreedomNet</h2>
             </div>
             
@@ -211,14 +209,20 @@
             <header class="main-header">
                 <h2 id="pageTitle">Home</h2>
                 <div class="user-info">
-                    <img id="headerAvatar" class="avatar-small" alt="">
+                    <div class="avatar-container">
+                        <img id="headerAvatar" class="avatar-small" alt="">
+                        <div id="headerStatus" class="status-indicator online"></div>
+                    </div>
                     <span id="headerName"></span>
                 </div>
             </header>
             
             <div id="homePage" class="page active">
                 <div class="compose-box">
-                    <img id="composeAvatar" class="avatar-medium" alt="">
+                    <div class="avatar-container">
+                        <img id="composeAvatar" class="avatar-medium" alt="">
+                        <div class="status-indicator online"></div>
+                    </div>
                     <div class="compose-area">
                         <textarea id="postContent" class="compose-textarea" placeholder="What's happening?" rows="3"></textarea>
                         <div class="compose-media">
@@ -322,7 +326,10 @@
             <div id="profilePage" class="page">
                 <div class="profile-cover"></div>
                 <div class="profile-info">
-                    <img id="profileAvatar" class="profile-avatar" alt="">
+                    <div class="avatar-container profile-avatar-container">
+                        <img id="profileAvatar" class="profile-avatar" alt="">
+                        <div id="profileStatus" class="status-indicator online"></div>
+                    </div>
                     <h2 id="profileName"></h2>
                     <p id="profileUsername"></p>
                     <p id="profileBio" class="profile-bio"></p>
