@@ -11,8 +11,6 @@ let userRepostedPosts = new Set();
 let userSavedPosts = new Set();
 let selectedImageFile = null;
 let currentPostImageUrl = null;
-let cropper = null;
-let selectedAvatarFile = null;
 let currentViewingUser = null;
 
 const translations = {
@@ -551,7 +549,7 @@ const monthNames = {
     hi: ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'],
     zh: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
     ja: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-    ko: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    ko: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12月'],
     el: ['Ιανουαρίου', 'Φεβρουαρίου', 'Μαρτίου', 'Απριλίου', 'Μαΐου', 'Ιουνίου', 'Ιουλίου', 'Αυγούστου', 'Σεπτεμβρίου', 'Οκτωβρίου', 'Νοεμβρίου', 'Δεκεμβρίου']
 };
 
@@ -1402,35 +1400,19 @@ document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', asy
     document.getElementById('confirmNewPasswordInput').value = '';
 });
 
-// Advanced Avatar Editor
+// Simplified Avatar Editor (no crop)
 let currentAvatarFile = null;
-let currentAvatarCropper = null;
-let currentZoom = 0.5;
-let currentRotate = 0;
 
 document.getElementById('editAvatarBtn')?.addEventListener('click', () => {
-    document.getElementById('avatarStep1').style.display = 'flex';
-    document.getElementById('avatarStep2').style.display = 'none';
-    document.getElementById('avatarModalTitle').textContent = translations[currentLanguage].changeAvatar;
+    const avatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+    document.getElementById('avatarPreviewImg').src = avatarUrl;
     document.getElementById('avatarModal').classList.add('active');
-    document.getElementById('avatarPreviewContainer').style.display = 'none';
-    document.getElementById('nextAvatarBtn').style.display = 'none';
-    document.getElementById('uploadAvatarBtn').style.display = 'block';
     document.getElementById('avatarFileInput').value = '';
-    currentZoom = 0.5;
-    currentRotate = 0;
-    if (currentAvatarCropper) {
-        currentAvatarCropper.destroy();
-        currentAvatarCropper = null;
-    }
+    currentAvatarFile = null;
 });
 
 document.getElementById('closeAvatarModal')?.addEventListener('click', () => {
     document.getElementById('avatarModal').classList.remove('active');
-    if (currentAvatarCropper) {
-        currentAvatarCropper.destroy();
-        currentAvatarCropper = null;
-    }
 });
 
 document.getElementById('uploadAvatarBtn')?.addEventListener('click', () => {
@@ -1443,161 +1425,51 @@ document.getElementById('avatarFileInput')?.addEventListener('change', (e) => {
         currentAvatarFile = file;
         const reader = new FileReader();
         reader.onload = function(event) {
-            const img = document.getElementById('cropImage');
-            img.src = event.target.result;
-            document.getElementById('avatarPreviewContainer').style.display = 'block';
             document.getElementById('avatarPreviewImg').src = event.target.result;
-            document.getElementById('nextAvatarBtn').style.display = 'block';
-            document.getElementById('uploadAvatarBtn').style.display = 'none';
-            
-            if (currentAvatarCropper) {
-                currentAvatarCropper.destroy();
-            }
-            
-            img.onload = () => {
-                currentAvatarCropper = new Cropper(img, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    dragMode: 'move',
-                    cropBoxMovable: true,
-                    cropBoxResizable: true,
-                    zoomable: true,
-                    zoomOnWheel: true,
-                    autoCropArea: 0.9,
-                    background: false,
-                    ready: function() {
-                        const container = document.querySelector('.crop-area');
-                        container.style.overflow = 'hidden';
-                    }
-                });
-                
-                const zoomRange = document.getElementById('zoomRange');
-                zoomRange.value = currentZoom;
-                zoomRange.oninput = (e) => {
-                    currentZoom = parseFloat(e.target.value);
-                    if (currentAvatarCropper) {
-                        currentAvatarCropper.zoomTo(currentZoom);
-                    }
-                };
-                
-                const rotateLeft = document.getElementById('rotateLeft');
-                const rotateRight = document.getElementById('rotateRight');
-                if (rotateLeft) {
-                    rotateLeft.onclick = () => {
-                        currentRotate -= 90;
-                        if (currentAvatarCropper) {
-                            currentAvatarCropper.rotate(-90);
-                        }
-                    };
-                }
-                if (rotateRight) {
-                    rotateRight.onclick = () => {
-                        currentRotate += 90;
-                        if (currentAvatarCropper) {
-                            currentAvatarCropper.rotate(90);
-                        }
-                    };
-                }
-                
-                const resetBtn = document.getElementById('resetCrop');
-                if (resetBtn) {
-                    resetBtn.onclick = () => {
-                        currentZoom = 0.5;
-                        currentRotate = 0;
-                        if (currentAvatarCropper) {
-                            currentAvatarCropper.reset();
-                            currentAvatarCropper.zoomTo(0.5);
-                        }
-                        zoomRange.value = 0.5;
-                    };
-                }
-            };
         };
         reader.readAsDataURL(file);
     }
 });
 
-document.getElementById('nextAvatarBtn')?.addEventListener('click', () => {
-    if (currentAvatarFile) {
-        document.getElementById('avatarStep1').style.display = 'none';
-        document.getElementById('avatarStep2').style.display = 'flex';
-        document.getElementById('avatarModalTitle').textContent = 'Crop avatar';
-        
-        setTimeout(() => {
-            if (currentAvatarCropper) {
-                currentAvatarCropper.reset();
-                currentAvatarCropper.crop();
-            }
-        }, 100);
-    }
-});
-
-document.getElementById('backAvatarBtn')?.addEventListener('click', () => {
-    document.getElementById('avatarStep1').style.display = 'flex';
-    document.getElementById('avatarStep2').style.display = 'none';
-    document.getElementById('avatarModalTitle').textContent = translations[currentLanguage].changeAvatar;
-});
-
-document.querySelectorAll('.grid-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const grid = btn.dataset.grid;
-        const cropContainer = document.querySelector('.crop-container');
-        cropContainer.setAttribute('data-grid', grid);
-    });
-});
-
 document.getElementById('saveAvatarBtn')?.addEventListener('click', async () => {
-    if (!currentAvatarCropper) return;
+    if (!currentAvatarFile) {
+        showCustomAlert('Please select an image first');
+        return;
+    }
     
-    const canvas = currentAvatarCropper.getCroppedCanvas({
-        width: 512,
-        height: 512,
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: 'high'
+    const formData = new FormData();
+    formData.append('avatar', currentAvatarFile);
+    
+    const uploadRes = await fetch(`${API_URL}/api/upload-avatar`, {
+        method: 'POST',
+        body: formData
     });
     
-    canvas.toBlob(async (blob) => {
-        const formData = new FormData();
-        formData.append('avatar', blob, 'avatar.png');
-        
-        const uploadRes = await fetch(`${API_URL}/api/upload-avatar`, {
+    const uploadData = await uploadRes.json();
+    if (uploadRes.ok) {
+        const res = await fetch(`${API_URL}/api/user/update`, {
             method: 'POST',
-            body: formData
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, avatar: uploadData.avatarUrl })
         });
         
-        const uploadData = await uploadRes.json();
-        if (uploadRes.ok) {
-            const res = await fetch(`${API_URL}/api/user/update`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: currentUser.id, avatar: uploadData.avatarUrl })
-            });
+        if (res.ok) {
+            const data = await res.json();
+            currentUser = data.user;
+            localStorage.setItem('user', JSON.stringify(currentUser));
             
-            if (res.ok) {
-                const data = await res.json();
-                currentUser = data.user;
-                localStorage.setItem('user', JSON.stringify(currentUser));
-                
-                const avatarUrl = currentUser.avatar;
-                document.getElementById('headerAvatar').src = avatarUrl;
-                document.getElementById('composeAvatar').src = avatarUrl;
-                document.getElementById('profileAvatar').src = avatarUrl;
-                
-                document.getElementById('avatarModal').classList.remove('active');
-                showCustomAlert(translations[currentLanguage].avatarUpdated);
-                loadPosts();
-                
-                if (currentAvatarCropper) {
-                    currentAvatarCropper.destroy();
-                    currentAvatarCropper = null;
-                }
-            }
-        } else {
-            showCustomAlert('Failed to upload image');
+            const avatarUrl = currentUser.avatar;
+            document.getElementById('headerAvatar').src = avatarUrl;
+            document.getElementById('composeAvatar').src = avatarUrl;
+            document.getElementById('profileAvatar').src = avatarUrl;
+            
+            document.getElementById('avatarModal').classList.remove('active');
+            showCustomAlert(translations[currentLanguage].avatarUpdated);
+            loadPosts();
         }
-    }, 'image/png');
+    } else {
+        showCustomAlert('Failed to upload image');
+    }
 });
 
 // Search functionality
