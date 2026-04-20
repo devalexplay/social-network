@@ -13,25 +13,432 @@ let selectedImageFile = null;
 let currentPostImageUrl = null;
 let cropper = null;
 let selectedAvatarFile = null;
+let currentViewingUser = null;
 
+// Complete translations for EVERYTHING
 const translations = {
     en: {
-        home: 'Home', explore: 'Explore', notifications: 'Notifications',
-        messages: 'Messages', profile: 'Profile', settings: 'Settings',
-        post: 'Post', save: 'Save', cancel: 'Cancel', delete: 'Delete',
-        edit: 'Edit', comment: 'Comment', saveChanges: 'Save changes'
+        appName: 'FreedomNet',
+        signIn: 'Sign in',
+        signUp: 'Sign up',
+        emailOrUsername: 'Email or username',
+        password: 'Password',
+        rememberMe: 'Remember me',
+        forgotPassword: 'Forgot password?',
+        signInBtn: 'Sign in',
+        fullName: 'Full name',
+        username: 'Username',
+        email: 'Email',
+        confirmPassword: 'Confirm password',
+        createAccount: 'Create account',
+        home: 'Home',
+        explore: 'Explore',
+        notifications: 'Notifications',
+        messages: 'Messages',
+        profile: 'Profile',
+        settings: 'Settings',
+        logout: 'Logout',
+        post: 'Post',
+        trendingNow: 'Trending now',
+        welcomeNotification: 'Welcome to FreedomNet!',
+        noMessages: 'No messages yet',
+        posts: 'Posts',
+        followers: 'Followers',
+        following: 'Following',
+        editProfile: 'Edit profile',
+        appearance: 'Appearance',
+        theme: 'Theme',
+        dark: 'Dark',
+        light: 'Light',
+        language: 'Language',
+        notificationsSettings: 'Notifications',
+        pushNotifications: 'Push notifications',
+        emailUpdates: 'Email updates',
+        saveChanges: 'Save changes',
+        editPost: 'Edit post',
+        cancel: 'Cancel',
+        save: 'Save',
+        deletePost: 'Delete post?',
+        deleteConfirm: 'Are you sure you want to delete this post? This action cannot be undone.',
+        delete: 'Delete',
+        addComment: 'Add comment',
+        comment: 'Comment',
+        edit: 'Edit',
+        delete_: 'Delete',
+        changeAvatar: 'Change avatar',
+        profileSettings: 'Profile Settings',
+        displayName: 'Display Name',
+        displayNameHint: 'Can be changed every 14 days',
+        usernameHint: 'Can be changed every 90 days',
+        selectLanguage: 'Select language',
+        search: 'Search',
+        noResults: 'No results found',
+        joined: 'Joined',
+        showProfile: 'Show profile',
+        edit: 'Edit',
+        save: 'Save',
+        cancel: 'Cancel',
+        posting: 'Posting...',
+        postPublished: 'Post published!',
+        failedToPost: 'Failed to post',
+        errorPosting: 'Error posting',
+        pleaseWriteSomething: 'Please write something',
+        postUpdated: 'Post updated!',
+        postDeleted: 'Post deleted!',
+        postReposted: 'Post reposted!',
+        repostRemoved: 'Repost removed',
+        postSaved: 'Post saved!',
+        postRemovedFromSaves: 'Post removed from saves',
+        commentDeleted: 'Comment deleted',
+        profileUpdated: 'Profile updated!',
+        avatarUpdated: 'Avatar updated!',
+        displayNameUpdated: 'Display name updated!',
+        usernameUpdated: 'Username updated!',
+        settingsSaved: 'Settings saved!',
+        passwordsDoNotMatch: 'Passwords do not match',
+        pleaseFillAllFields: 'Please fill in all fields',
+        connectionError: 'Connection error',
+        invalidCredentials: 'Invalid credentials',
+        accountCreated: 'Account created!',
+        welcomeBack: 'Welcome back!',
+        allFieldsRequired: 'All fields required',
+        passwordTooShort: 'Password must be at least 6 characters'
     },
     ru: {
-        home: 'Главная', explore: 'Обзор', notifications: 'Уведомления',
-        messages: 'Сообщения', profile: 'Профиль', settings: 'Настройки',
-        post: 'Опубликовать', save: 'Сохранить', cancel: 'Отмена', delete: 'Удалить',
-        edit: 'Редактировать', comment: 'Комментировать', saveChanges: 'Сохранить'
+        appName: 'FreedomNet',
+        signIn: 'Войти',
+        signUp: 'Регистрация',
+        emailOrUsername: 'Email или имя',
+        password: 'Пароль',
+        rememberMe: 'Запомнить меня',
+        forgotPassword: 'Забыли пароль?',
+        signInBtn: 'Войти',
+        fullName: 'Полное имя',
+        username: 'Имя пользователя',
+        email: 'Email',
+        confirmPassword: 'Подтвердите пароль',
+        createAccount: 'Создать аккаунт',
+        home: 'Главная',
+        explore: 'Обзор',
+        notifications: 'Уведомления',
+        messages: 'Сообщения',
+        profile: 'Профиль',
+        settings: 'Настройки',
+        logout: 'Выйти',
+        post: 'Опубликовать',
+        trendingNow: 'В тренде',
+        welcomeNotification: 'Добро пожаловать в FreedomNet!',
+        noMessages: 'Нет сообщений',
+        posts: 'Посты',
+        followers: 'Подписчики',
+        following: 'Подписки',
+        editProfile: 'Редактировать',
+        appearance: 'Внешний вид',
+        theme: 'Тема',
+        dark: 'Темная',
+        light: 'Светлая',
+        language: 'Язык',
+        notificationsSettings: 'Уведомления',
+        pushNotifications: 'Push уведомления',
+        emailUpdates: 'Email рассылка',
+        saveChanges: 'Сохранить',
+        editPost: 'Редактировать',
+        cancel: 'Отмена',
+        save: 'Сохранить',
+        deletePost: 'Удалить пост?',
+        deleteConfirm: 'Вы уверены, что хотите удалить этот пост?',
+        delete: 'Удалить',
+        addComment: 'Добавить комментарий',
+        comment: 'Комментировать',
+        edit: 'Редактировать',
+        delete_: 'Удалить',
+        changeAvatar: 'Сменить аватар',
+        profileSettings: 'Настройки профиля',
+        displayName: 'Отображаемое имя',
+        displayNameHint: 'Можно менять каждые 14 дней',
+        usernameHint: 'Можно менять каждые 90 дней',
+        selectLanguage: 'Выберите язык',
+        search: 'Поиск',
+        noResults: 'Ничего не найдено',
+        joined: 'Присоединился',
+        showProfile: 'Показать профиль',
+        posting: 'Публикация...',
+        postPublished: 'Пост опубликован!',
+        failedToPost: 'Не удалось опубликовать',
+        errorPosting: 'Ошибка публикации',
+        pleaseWriteSomething: 'Напишите что-нибудь',
+        postUpdated: 'Пост обновлен!',
+        postDeleted: 'Пост удален!',
+        postReposted: 'Пост репостнут!',
+        repostRemoved: 'Репост удален',
+        postSaved: 'Пост сохранен!',
+        postRemovedFromSaves: 'Пост удален из сохраненных',
+        commentDeleted: 'Комментарий удален',
+        profileUpdated: 'Профиль обновлен!',
+        avatarUpdated: 'Аватар обновлен!',
+        displayNameUpdated: 'Имя обновлено!',
+        usernameUpdated: 'Имя пользователя обновлено!',
+        settingsSaved: 'Настройки сохранены!',
+        passwordsDoNotMatch: 'Пароли не совпадают',
+        pleaseFillAllFields: 'Заполните все поля',
+        connectionError: 'Ошибка соединения',
+        invalidCredentials: 'Неверные данные',
+        accountCreated: 'Аккаунт создан!',
+        welcomeBack: 'С возвращением!',
+        allFieldsRequired: 'Все поля обязательны',
+        passwordTooShort: 'Пароль должен быть не менее 6 символов'
     },
     es: {
-        home: 'Inicio', explore: 'Explorar', notifications: 'Notificaciones',
-        messages: 'Mensajes', profile: 'Perfil', settings: 'Ajustes',
-        post: 'Publicar', save: 'Guardar', cancel: 'Cancelar', delete: 'Eliminar',
-        edit: 'Editar', comment: 'Comentar', saveChanges: 'Guardar cambios'
+        appName: 'FreedomNet',
+        signIn: 'Iniciar sesión',
+        signUp: 'Registrarse',
+        emailOrUsername: 'Email o usuario',
+        password: 'Contraseña',
+        rememberMe: 'Recordarme',
+        forgotPassword: '¿Olvidaste tu contraseña?',
+        signInBtn: 'Iniciar sesión',
+        fullName: 'Nombre completo',
+        username: 'Usuario',
+        email: 'Email',
+        confirmPassword: 'Confirmar contraseña',
+        createAccount: 'Crear cuenta',
+        home: 'Inicio',
+        explore: 'Explorar',
+        notifications: 'Notificaciones',
+        messages: 'Mensajes',
+        profile: 'Perfil',
+        settings: 'Ajustes',
+        logout: 'Cerrar sesión',
+        post: 'Publicar',
+        trendingNow: 'Tendencias',
+        welcomeNotification: '¡Bienvenido a FreedomNet!',
+        noMessages: 'Sin mensajes',
+        posts: 'Publicaciones',
+        followers: 'Seguidores',
+        following: 'Siguiendo',
+        editProfile: 'Editar perfil',
+        appearance: 'Apariencia',
+        theme: 'Tema',
+        dark: 'Oscuro',
+        light: 'Claro',
+        language: 'Idioma',
+        notificationsSettings: 'Notificaciones',
+        pushNotifications: 'Notificaciones push',
+        emailUpdates: 'Actualizaciones por email',
+        saveChanges: 'Guardar cambios',
+        editPost: 'Editar publicación',
+        cancel: 'Cancelar',
+        save: 'Guardar',
+        deletePost: '¿Eliminar publicación?',
+        deleteConfirm: '¿Seguro que quieres eliminar esta publicación?',
+        delete: 'Eliminar',
+        addComment: 'Agregar comentario',
+        comment: 'Comentar',
+        edit: 'Editar',
+        delete_: 'Eliminar',
+        changeAvatar: 'Cambiar avatar',
+        profileSettings: 'Configuración del perfil',
+        displayName: 'Nombre mostrado',
+        displayNameHint: 'Se puede cambiar cada 14 días',
+        usernameHint: 'Se puede cambiar cada 90 días',
+        selectLanguage: 'Seleccionar idioma',
+        search: 'Buscar',
+        noResults: 'No se encontraron resultados',
+        joined: 'Se unió',
+        showProfile: 'Mostrar perfil',
+        posting: 'Publicando...',
+        postPublished: '¡Publicación publicada!',
+        failedToPost: 'Error al publicar',
+        errorPosting: 'Error al publicar',
+        pleaseWriteSomething: 'Escribe algo',
+        postUpdated: '¡Publicación actualizada!',
+        postDeleted: '¡Publicación eliminada!',
+        postReposted: '¡Recompartido!',
+        repostRemoved: 'Recompartido eliminado',
+        postSaved: '¡Publicación guardada!',
+        postRemovedFromSaves: 'Publicación eliminada de guardados',
+        commentDeleted: 'Comentario eliminado',
+        profileUpdated: '¡Perfil actualizado!',
+        avatarUpdated: '¡Avatar actualizado!',
+        displayNameUpdated: '¡Nombre actualizado!',
+        usernameUpdated: '¡Usuario actualizado!',
+        settingsSaved: '¡Configuración guardada!',
+        passwordsDoNotMatch: 'Las contraseñas no coinciden',
+        pleaseFillAllFields: 'Complete todos los campos',
+        connectionError: 'Error de conexión',
+        invalidCredentials: 'Credenciales inválidas',
+        accountCreated: '¡Cuenta creada!',
+        welcomeBack: '¡Bienvenido de nuevo!',
+        allFieldsRequired: 'Todos los campos son obligatorios',
+        passwordTooShort: 'La contraseña debe tener al menos 6 caracteres'
+    },
+    fr: {
+        appName: 'FreedomNet',
+        signIn: 'Se connecter',
+        signUp: "S'inscrire",
+        emailOrUsername: 'Email ou nom',
+        password: 'Mot de passe',
+        rememberMe: 'Se souvenir',
+        forgotPassword: 'Mot de passe oublié?',
+        signInBtn: 'Se connecter',
+        fullName: 'Nom complet',
+        username: "Nom d'utilisateur",
+        email: 'Email',
+        confirmPassword: 'Confirmer',
+        createAccount: 'Créer',
+        home: 'Accueil',
+        explore: 'Explorer',
+        notifications: 'Notifications',
+        messages: 'Messages',
+        profile: 'Profil',
+        settings: 'Paramètres',
+        logout: 'Déconnexion',
+        post: 'Publier',
+        trendingNow: 'Tendances',
+        welcomeNotification: 'Bienvenue sur FreedomNet!',
+        noMessages: 'Aucun message',
+        posts: 'Publications',
+        followers: 'Abonnés',
+        following: 'Abonnements',
+        editProfile: 'Modifier',
+        appearance: 'Apparence',
+        theme: 'Thème',
+        dark: 'Sombre',
+        light: 'Clair',
+        language: 'Langue',
+        notificationsSettings: 'Notifications',
+        pushNotifications: 'Notifications push',
+        emailUpdates: 'Emails',
+        saveChanges: 'Enregistrer',
+        editPost: 'Modifier',
+        cancel: 'Annuler',
+        save: 'Enregistrer',
+        deletePost: 'Supprimer?',
+        deleteConfirm: 'Voulez-vous vraiment supprimer?',
+        delete: 'Supprimer',
+        addComment: 'Commenter',
+        comment: 'Commentaire',
+        edit: 'Modifier',
+        delete_: 'Supprimer',
+        changeAvatar: 'Changer avatar',
+        profileSettings: 'Paramètres profil',
+        displayName: 'Nom affiché',
+        displayNameHint: 'Modifiable tous les 14 jours',
+        usernameHint: 'Modifiable tous les 90 jours',
+        selectLanguage: 'Choisir langue',
+        search: 'Rechercher',
+        noResults: 'Aucun résultat',
+        joined: 'Inscrit le',
+        showProfile: 'Voir profil',
+        posting: 'Publication...',
+        postPublished: 'Publié!',
+        failedToPost: 'Échec publication',
+        errorPosting: 'Erreur publication',
+        pleaseWriteSomething: 'Écrivez quelque chose',
+        postUpdated: 'Mis à jour!',
+        postDeleted: 'Supprimé!',
+        postReposted: 'Republié!',
+        repostRemoved: 'Republié retiré',
+        postSaved: 'Sauvegardé!',
+        postRemovedFromSaves: 'Retiré des sauvegardes',
+        commentDeleted: 'Commentaire supprimé',
+        profileUpdated: 'Profil mis à jour!',
+        avatarUpdated: 'Avatar mis à jour!',
+        displayNameUpdated: 'Nom mis à jour!',
+        usernameUpdated: 'Nom utilisateur mis à jour!',
+        settingsSaved: 'Paramètres sauvegardés!',
+        passwordsDoNotMatch: 'Mots de passe différents',
+        pleaseFillAllFields: 'Remplissez tous les champs',
+        connectionError: 'Erreur connexion',
+        invalidCredentials: 'Identifiants invalides',
+        accountCreated: 'Compte créé!',
+        welcomeBack: 'Bon retour!',
+        allFieldsRequired: 'Tous les champs requis',
+        passwordTooShort: '6 caractères minimum'
+    },
+    de: {
+        appName: 'FreedomNet',
+        signIn: 'Anmelden',
+        signUp: 'Registrieren',
+        emailOrUsername: 'Email oder Benutzername',
+        password: 'Passwort',
+        rememberMe: 'Merken',
+        forgotPassword: 'Passwort vergessen?',
+        signInBtn: 'Anmelden',
+        fullName: 'Vollständiger Name',
+        username: 'Benutzername',
+        email: 'Email',
+        confirmPassword: 'Passwort bestätigen',
+        createAccount: 'Konto erstellen',
+        home: 'Startseite',
+        explore: 'Entdecken',
+        notifications: 'Benachrichtigungen',
+        messages: 'Nachrichten',
+        profile: 'Profil',
+        settings: 'Einstellungen',
+        logout: 'Abmelden',
+        post: 'Posten',
+        trendingNow: 'Im Trend',
+        welcomeNotification: 'Willkommen bei FreedomNet!',
+        noMessages: 'Keine Nachrichten',
+        posts: 'Beiträge',
+        followers: 'Follower',
+        following: 'Folgt',
+        editProfile: 'Bearbeiten',
+        appearance: 'Erscheinungsbild',
+        theme: 'Design',
+        dark: 'Dunkel',
+        light: 'Hell',
+        language: 'Sprache',
+        notificationsSettings: 'Benachrichtigungen',
+        pushNotifications: 'Push-Benachrichtigungen',
+        emailUpdates: 'E-Mail-Updates',
+        saveChanges: 'Speichern',
+        editPost: 'Bearbeiten',
+        cancel: 'Abbrechen',
+        save: 'Speichern',
+        deletePost: 'Löschen?',
+        deleteConfirm: 'Wirklich löschen?',
+        delete: 'Löschen',
+        addComment: 'Kommentieren',
+        comment: 'Kommentar',
+        edit: 'Bearbeiten',
+        delete_: 'Löschen',
+        changeAvatar: 'Avatar ändern',
+        profileSettings: 'Profileinstellungen',
+        displayName: 'Anzeigename',
+        displayNameHint: 'Alle 14 Tage änderbar',
+        usernameHint: 'Alle 90 Tage änderbar',
+        selectLanguage: 'Sprache wählen',
+        search: 'Suchen',
+        noResults: 'Keine Ergebnisse',
+        joined: 'Beigetreten',
+        showProfile: 'Profil anzeigen',
+        posting: 'Wird gepostet...',
+        postPublished: 'Beitrag veröffentlicht!',
+        failedToPost: 'Fehler beim Posten',
+        errorPosting: 'Fehler',
+        pleaseWriteSomething: 'Schreib etwas',
+        postUpdated: 'Aktualisiert!',
+        postDeleted: 'Gelöscht!',
+        postReposted: 'Repostet!',
+        repostRemoved: 'Repost entfernt',
+        postSaved: 'Gespeichert!',
+        postRemovedFromSaves: 'Aus Speicherungen entfernt',
+        commentDeleted: 'Kommentar gelöscht',
+        profileUpdated: 'Profil aktualisiert!',
+        avatarUpdated: 'Avatar aktualisiert!',
+        displayNameUpdated: 'Name aktualisiert!',
+        usernameUpdated: 'Benutzername aktualisiert!',
+        settingsSaved: 'Einstellungen gespeichert!',
+        passwordsDoNotMatch: 'Passwörter stimmen nicht überein',
+        pleaseFillAllFields: 'Alle Felder ausfüllen',
+        connectionError: 'Verbindungsfehler',
+        invalidCredentials: 'Ungültige Anmeldedaten',
+        accountCreated: 'Konto erstellt!',
+        welcomeBack: 'Willkommen zurück!',
+        allFieldsRequired: 'Alle Felder erforderlich',
+        passwordTooShort: 'Passwort zu kurz'
     }
 };
 
@@ -41,15 +448,41 @@ function updateLanguage(lang) {
     currentLanguage = lang;
     localStorage.setItem('language', lang);
     const t = translations[lang] || translations.en;
+    
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (t[key]) el.textContent = t[key];
+        if (t[key]) {
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                el.placeholder = t[key];
+            } else {
+                el.textContent = t[key];
+            }
+        }
     });
+    
     document.getElementById('pageTitle').textContent = t[currentPage] || 'Home';
-    if (document.getElementById('createPostBtn')) {
-        document.getElementById('createPostBtn').textContent = t.post || 'Post';
-    }
+    const postBtn = document.getElementById('createPostBtn');
+    if (postBtn) postBtn.textContent = t.post || 'Post';
+    
+    showCustomAlert('Language changed to ' + lang.toUpperCase());
 }
+
+// Disable right click and copy
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        return false;
+    }
+    if (e.key === 'F12') {
+        e.preventDefault();
+        return false;
+    }
+});
 
 const authScreen = document.querySelector('.auth-screen');
 const app = document.getElementById('app');
@@ -82,7 +515,7 @@ loginForm.addEventListener('submit', async (e) => {
     const rememberMe = document.getElementById('rememberMe').checked;
     
     if (!username || !password) {
-        showAuthMessage('Please fill in all fields', 'error');
+        showAuthMessage(translations[currentLanguage].pleaseFillAllFields, 'error');
         return;
     }
     
@@ -99,13 +532,13 @@ loginForm.addEventListener('submit', async (e) => {
             else sessionStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             currentUser = data.user;
-            showAuthMessage('Welcome back!', 'success');
+            showAuthMessage(translations[currentLanguage].welcomeBack, 'success');
             setTimeout(() => initApp(data.user), 500);
         } else {
-            showAuthMessage(data.error, 'error');
+            showAuthMessage(data.error || translations[currentLanguage].invalidCredentials, 'error');
         }
     } catch (error) {
-        showAuthMessage('Connection error', 'error');
+        showAuthMessage(translations[currentLanguage].connectionError, 'error');
     }
 });
 
@@ -118,15 +551,15 @@ registerForm.addEventListener('submit', async (e) => {
     const confirm = document.getElementById('regConfirmPassword').value;
     
     if (!fullName || !username || !email || !password) {
-        showAuthMessage('All fields required', 'error');
+        showAuthMessage(translations[currentLanguage].allFieldsRequired, 'error');
         return;
     }
     if (password !== confirm) {
-        showAuthMessage('Passwords do not match', 'error');
+        showAuthMessage(translations[currentLanguage].passwordsDoNotMatch, 'error');
         return;
     }
     if (password.length < 6) {
-        showAuthMessage('Password must be at least 6 characters', 'error');
+        showAuthMessage(translations[currentLanguage].passwordTooShort, 'error');
         return;
     }
     
@@ -142,13 +575,13 @@ registerForm.addEventListener('submit', async (e) => {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             currentUser = data.user;
-            showAuthMessage('Account created!', 'success');
+            showAuthMessage(translations[currentLanguage].accountCreated, 'success');
             setTimeout(() => initApp(data.user), 500);
         } else {
             showAuthMessage(data.error, 'error');
         }
     } catch (error) {
-        showAuthMessage('Connection error', 'error');
+        showAuthMessage(translations[currentLanguage].connectionError, 'error');
     }
 });
 
@@ -232,11 +665,12 @@ function switchPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(`${page}Page`).classList.add('active');
     
+    const t = translations[currentLanguage];
     const titles = {
-        home: 'Home', explore: 'Explore', notifications: 'Notifications',
-        messages: 'Messages', profile: 'Profile', settings: 'Settings'
+        home: t.home, explore: t.explore, notifications: t.notifications,
+        messages: t.messages, profile: t.profile, settings: t.settings
     };
-    document.getElementById('pageTitle').textContent = titles[page] || 'Home';
+    document.getElementById('pageTitle').textContent = titles[page] || t.home;
     
     if (page === 'home') loadPosts();
     if (page === 'profile') loadUserPosts();
@@ -275,13 +709,13 @@ document.getElementById('removeImageBtn')?.addEventListener('click', () => {
 document.getElementById('createPostBtn').addEventListener('click', async () => {
     const content = document.getElementById('postContent').value;
     if (!content.trim() && !currentPostImageUrl) {
-        showCustomAlert('Please write something or add an image');
+        showCustomAlert(translations[currentLanguage].pleaseWriteSomething);
         return;
     }
     
     const btn = document.getElementById('createPostBtn');
     btn.disabled = true;
-    btn.textContent = 'Posting...';
+    btn.textContent = translations[currentLanguage].posting;
     
     try {
         const res = await fetch(`${API_URL}/api/posts`, {
@@ -299,25 +733,26 @@ document.getElementById('createPostBtn').addEventListener('click', async () => {
             currentPostImageUrl = null;
             document.getElementById('imagePreview').style.display = 'none';
             await loadPosts();
-            showCustomAlert('Post published!');
+            showCustomAlert(translations[currentLanguage].postPublished);
         } else {
-            showCustomAlert('Failed to post');
+            showCustomAlert(translations[currentLanguage].failedToPost);
         }
     } catch (error) {
-        showCustomAlert('Error posting');
+        showCustomAlert(translations[currentLanguage].errorPosting);
     }
     
     btn.disabled = false;
-    btn.textContent = 'Post';
+    btn.textContent = translations[currentLanguage].post;
 });
 
 async function loadPosts() {
     const res = await fetch(`${API_URL}/api/posts`);
     allPosts = await res.json();
     const feed = document.getElementById('postsList');
+    const t = translations[currentLanguage];
     
     if (allPosts.length === 0) {
-        feed.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-tertiary)">No posts yet. Be the first!</div>';
+        feed.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-tertiary)">${t.noResults}</div>`;
         return;
     }
     
@@ -326,12 +761,13 @@ async function loadPosts() {
         const isLiked = userLikedPosts.has(post.id);
         const isReposted = userRepostedPosts.has(post.id);
         const isSaved = userSavedPosts.has(post.id);
+        const joinDate = post.user?.joinDate ? new Date(post.user.joinDate).toLocaleDateString() : '';
         return `
         <div class="post-card" data-post-id="${post.id}">
-            <img class="post-avatar" src="${postAvatar}" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username?.slice(0,2)}&background=1d9bf0&color=fff'">
+            <img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username?.slice(0,2)}&background=1d9bf0&color=fff'">
             <div class="post-body">
                 <div class="post-header">
-                    <span class="post-name">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
+                    <span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
                     <span class="post-username">@${escapeHtml(post.user?.username)}</span>
                     <span class="post-time">${formatTime(post.createdAt)}</span>
                     ${post.userId === currentUser.id ? `
@@ -344,8 +780,8 @@ async function loadPosts() {
                                 </svg>
                             </button>
                             <div class="post-menu-dropdown" id="menu-${post.id}">
-                                <div class="dropdown-item" onclick="editPost('${post.id}', '${escapeHtml(post.content).replace(/'/g, "\\'")}')">Edit</div>
-                                <div class="dropdown-item delete" onclick="deletePost('${post.id}')">Delete</div>
+                                <div class="dropdown-item" onclick="editPost('${post.id}', '${escapeHtml(post.content).replace(/'/g, "\\'")}')">${t.edit}</div>
+                                <div class="dropdown-item delete" onclick="deletePost('${post.id}')">${t.delete_}</div>
                             </div>
                         </div>
                     ` : ''}
@@ -418,6 +854,61 @@ function formatTime(dateString) {
     return `${days}d`;
 }
 
+window.showMiniProfile = function(userId) {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
+    
+    currentViewingUser = user;
+    const avatarUrl = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+    const joinDate = new Date(user.joinDate).toLocaleDateString();
+    const t = translations[currentLanguage];
+    
+    const modal = document.createElement('div');
+    modal.className = 'mini-profile-modal';
+    modal.innerHTML = `
+        <div class="mini-profile-content">
+            <div class="mini-profile-header">
+                <img src="${avatarUrl}" class="mini-profile-avatar" onclick="closeMiniProfile()">
+                <button class="mini-profile-close" onclick="closeMiniProfile()">×</button>
+            </div>
+            <div class="mini-profile-body">
+                <h3>${escapeHtml(user.displayName || user.username)}</h3>
+                <p class="mini-profile-username">@${escapeHtml(user.username)}</p>
+                ${user.bio ? `<p class="mini-profile-bio">${escapeHtml(user.bio)}</p>` : ''}
+                <p class="mini-profile-joined">${t.joined} ${joinDate}</p>
+                <div class="mini-profile-stats">
+                    <div><strong>${user.followers || 0}</strong> ${t.followers}</div>
+                    <div><strong>${user.following || 0}</strong> ${t.following}</div>
+                </div>
+                <button class="mini-profile-btn" onclick="goToFullProfile('${userId}')">${t.showProfile}</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('active'), 10);
+    
+    document.addEventListener('click', function closeOnClick(e) {
+        if (!modal.contains(e.target) && !e.target.closest('.post-avatar') && !e.target.closest('.post-name')) {
+            modal.remove();
+            document.removeEventListener('click', closeOnClick);
+        }
+    });
+};
+
+window.closeMiniProfile = function() {
+    const modal = document.querySelector('.mini-profile-modal');
+    if (modal) modal.remove();
+};
+
+window.goToFullProfile = function(userId) {
+    closeMiniProfile();
+    if (userId === currentUser.id) {
+        switchPage('profile');
+    } else {
+        showCustomAlert('Viewing other profiles coming soon!');
+    }
+};
+
 window.toggleMenu = function(event, postId) {
     event.stopPropagation();
     document.querySelectorAll('.post-menu-dropdown').forEach(menu => {
@@ -473,10 +964,10 @@ window.toggleRepost = async (postId) => {
     if (data.success) {
         if (data.reposted) {
             userRepostedPosts.add(postId);
-            showCustomAlert('Post reposted!');
+            showCustomAlert(translations[currentLanguage].postReposted);
         } else {
             userRepostedPosts.delete(postId);
-            showCustomAlert('Repost removed');
+            showCustomAlert(translations[currentLanguage].repostRemoved);
         }
         loadPosts();
     }
@@ -491,10 +982,10 @@ window.toggleSave = async (postId) => {
     const data = await res.json();
     if (data.saved) {
         userSavedPosts.add(postId);
-        showCustomAlert('Post saved!');
+        showCustomAlert(translations[currentLanguage].postSaved);
     } else {
         userSavedPosts.delete(postId);
-        showCustomAlert('Post removed from saves');
+        showCustomAlert(translations[currentLanguage].postRemovedFromSaves);
     }
     loadPosts();
 };
@@ -513,7 +1004,7 @@ window.deleteComment = async (postId, commentId) => {
     });
     if (res.ok) {
         loadPosts();
-        showCustomAlert('Comment deleted');
+        showCustomAlert(translations[currentLanguage].commentDeleted);
     }
 };
 
@@ -541,7 +1032,7 @@ document.getElementById('saveEditBtn').addEventListener('click', async () => {
     });
     document.getElementById('editModal').classList.remove('active');
     loadPosts();
-    showCustomAlert('Post updated!');
+    showCustomAlert(translations[currentLanguage].postUpdated);
 });
 
 document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
@@ -550,7 +1041,7 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
     });
     document.getElementById('deleteModal').classList.remove('active');
     loadPosts();
-    showCustomAlert('Post deleted!');
+    showCustomAlert(translations[currentLanguage].postDeleted);
 });
 
 document.getElementById('closeEditModal').addEventListener('click', () => {
@@ -570,7 +1061,7 @@ async function loadUserPosts() {
     const container = document.getElementById('userPostsList');
     if (container) {
         if (userPosts.length === 0) {
-            container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-tertiary)">No posts yet</div>';
+            container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-tertiary)">${translations[currentLanguage].noResults}</div>`;
             return;
         }
         container.innerHTML = userPosts.map(post => {
@@ -620,7 +1111,7 @@ document.getElementById('saveProfileBtn')?.addEventListener('click', async () =>
         localStorage.setItem('user', JSON.stringify(currentUser));
         document.getElementById('profileBio').textContent = bio || 'No bio yet';
         document.getElementById('editProfileModal').classList.remove('active');
-        showCustomAlert('Profile updated!');
+        showCustomAlert(translations[currentLanguage].profileUpdated);
     }
 });
 
@@ -638,6 +1129,7 @@ document.getElementById('languageSelect')?.addEventListener('change', (e) => {
     currentLanguage = e.target.value;
     localStorage.setItem('language', currentLanguage);
     updateLanguage(currentLanguage);
+    location.reload();
 });
 
 document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', async () => {
@@ -645,9 +1137,10 @@ document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', asy
     const newUsername = document.getElementById('usernameInput').value;
     const password = document.getElementById('confirmPasswordInput').value;
     const confirmPassword = document.getElementById('confirmNewPasswordInput').value;
+    const t = translations[currentLanguage];
     
     if (password !== confirmPassword) {
-        showCustomAlert('Passwords do not match');
+        showCustomAlert(t.passwordsDoNotMatch);
         return;
     }
     
@@ -661,7 +1154,7 @@ document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', asy
         if (res.ok) {
             currentUser = data.user;
             localStorage.setItem('user', JSON.stringify(currentUser));
-            document.getElementById('displayNameStatus').textContent = 'Display name updated!';
+            document.getElementById('displayNameStatus').textContent = t.displayNameUpdated;
             document.getElementById('displayNameStatus').className = 'settings-status success';
             document.getElementById('profileName').textContent = currentUser.displayName;
             document.getElementById('headerName').textContent = currentUser.displayName;
@@ -684,7 +1177,7 @@ document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', asy
         if (res.ok) {
             currentUser = data.user;
             localStorage.setItem('user', JSON.stringify(currentUser));
-            document.getElementById('usernameStatus').textContent = 'Username updated!';
+            document.getElementById('usernameStatus').textContent = t.usernameUpdated;
             document.getElementById('usernameStatus').className = 'settings-status success';
             document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
             setTimeout(() => {
@@ -699,7 +1192,7 @@ document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', asy
     document.getElementById('displayNameInput').value = '';
     document.getElementById('usernameInput').value = '';
     document.getElementById('confirmPasswordInput').value = '';
-    document.getElementById('confirmNewPasswordInput').value = '';
+    document.getElementById('confirmNewPasswordInput').value = ();
 });
 
 // Avatar Editor
@@ -709,7 +1202,7 @@ let currentAvatarCropper = null;
 document.getElementById('editAvatarBtn')?.addEventListener('click', () => {
     document.getElementById('avatarStep1').style.display = 'flex';
     document.getElementById('avatarStep2').style.display = 'none';
-    document.getElementById('avatarModalTitle').textContent = 'Change avatar';
+    document.getElementById('avatarModalTitle').textContent = translations[currentLanguage].changeAvatar;
     document.getElementById('avatarModal').classList.add('active');
     document.getElementById('avatarPreviewContainer').style.display = 'none';
     document.getElementById('nextAvatarBtn').style.display = 'none';
@@ -798,7 +1291,7 @@ document.getElementById('nextAvatarBtn')?.addEventListener('click', () => {
 document.getElementById('backAvatarBtn')?.addEventListener('click', () => {
     document.getElementById('avatarStep1').style.display = 'flex';
     document.getElementById('avatarStep2').style.display = 'none';
-    document.getElementById('avatarModalTitle').textContent = 'Change avatar';
+    document.getElementById('avatarModalTitle').textContent = translations[currentLanguage].changeAvatar;
 });
 
 document.querySelectorAll('.grid-btn').forEach(btn => {
@@ -849,7 +1342,7 @@ document.getElementById('saveAvatarBtn')?.addEventListener('click', async () => 
                 document.getElementById('profileAvatar').src = avatarUrl;
                 
                 document.getElementById('avatarModal').classList.remove('active');
-                showCustomAlert('Avatar updated!');
+                showCustomAlert(translations[currentLanguage].avatarUpdated);
                 loadPosts();
                 
                 if (currentAvatarCropper) {
@@ -868,6 +1361,7 @@ document.getElementById('searchInput')?.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     const searchResults = document.getElementById('searchResults');
     const trendingCard = document.querySelector('.trending-card');
+    const t = translations[currentLanguage];
     
     if (query.length > 0) {
         const filteredPosts = allPosts.filter(post => 
@@ -888,6 +1382,7 @@ document.getElementById('searchInput')?.addEventListener('input', (e) => {
         } else {
             trendingCard.style.display = 'block';
             searchResults.style.display = 'none';
+            searchResults.innerHTML = `<div style="text-align:center;padding:20px">${t.noResults}</div>`;
         }
     } else {
         trendingCard.style.display = 'block';
@@ -899,6 +1394,7 @@ document.getElementById('searchInput')?.addEventListener('input', (e) => {
 document.getElementById('userSearchInput')?.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     const resultsDiv = document.getElementById('userSearchResults');
+    const t = translations[currentLanguage];
     
     if (query.length > 0) {
         const filteredUsers = allUsers.filter(user => 
