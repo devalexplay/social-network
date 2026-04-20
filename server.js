@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -56,6 +56,14 @@ app.post('/api/upload-avatar', upload.single('avatar'), function(req, res) {
   }
   const avatarUrl = `/uploads/${req.file.filename}`;
   res.json({ success: true, avatarUrl: avatarUrl });
+});
+
+app.post('/api/upload-image', upload.single('image'), function(req, res) {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  const imageUrl = `/uploads/${req.file.filename}`;
+  res.json({ success: true, imageUrl: imageUrl });
 });
 
 app.post('/api/register', async (req, res) => {
@@ -186,6 +194,7 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/posts', function(req, res) {
   const userId = req.body.userId;
   const content = req.body.content;
+  const imageUrl = req.body.imageUrl || null;
   const user = users.find(function(u) {
     return u.id === userId;
   });
@@ -198,6 +207,7 @@ app.post('/api/posts', function(req, res) {
     id: (nextPostId++).toString(),
     userId: userId,
     content: content,
+    imageUrl: imageUrl,
     likes: 0,
     reposts: 0,
     comments: [],
@@ -223,6 +233,7 @@ app.get('/api/posts', function(req, res) {
       id: post.id,
       userId: post.userId,
       content: post.content,
+      imageUrl: post.imageUrl,
       likes: post.likes,
       reposts: post.reposts,
       comments: post.comments,
@@ -274,13 +285,16 @@ app.post('/api/posts/like', function(req, res) {
   
   if (post) {
     if (userLikes[userId] && userLikes[userId].includes(postId)) {
-      return res.json({ success: false, message: 'Already liked', likes: post.likes });
+      var index = userLikes[userId].indexOf(postId);
+      userLikes[userId].splice(index, 1);
+      post.likes = post.likes - 1;
+      return res.json({ success: true, liked: false, likes: post.likes });
     }
     
     if (!userLikes[userId]) userLikes[userId] = [];
     userLikes[userId].push(postId);
     post.likes = post.likes + 1;
-    res.json({ success: true, likes: post.likes });
+    res.json({ success: true, liked: true, likes: post.likes });
   } else {
     res.status(404).json({ error: 'Post not found' });
   }
@@ -295,13 +309,16 @@ app.post('/api/posts/repost', function(req, res) {
   
   if (post) {
     if (userReposts[userId] && userReposts[userId].includes(postId)) {
-      return res.json({ success: false, message: 'Already reposted', reposts: post.reposts });
+      var index = userReposts[userId].indexOf(postId);
+      userReposts[userId].splice(index, 1);
+      post.reposts = post.reposts - 1;
+      return res.json({ success: true, reposted: false, reposts: post.reposts });
     }
     
     if (!userReposts[userId]) userReposts[userId] = [];
     userReposts[userId].push(postId);
     post.reposts = post.reposts + 1;
-    res.json({ success: true, reposts: post.reposts });
+    res.json({ success: true, reposted: true, reposts: post.reposts });
   } else {
     res.status(404).json({ error: 'Post not found' });
   }
@@ -358,6 +375,41 @@ app.post('/api/posts/comment', function(req, res) {
   } else {
     res.status(404).json({ error: 'Post or user not found' });
   }
+});
+
+app.delete('/api/posts/comment', function(req, res) {
+  var postId = req.body.postId;
+  var commentId = req.body.commentId;
+  var userId = req.body.userId;
+  var post = posts.find(function(p) {
+    return p.id === postId;
+  });
+  
+  if (post) {
+    var commentIndex = post.comments.findIndex(function(c) {
+      return c.id === commentId && c.userId === userId;
+    });
+    if (commentIndex !== -1) {
+      post.comments.splice(commentIndex, 1);
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: 'Comment not found' });
+    }
+  } else {
+    res.status(404).json({ error: 'Post not found' });
+  }
+});
+
+app.get('/api/users', function(req, res) {
+  var allUsers = users.map(function(u) {
+    return {
+      id: u.id,
+      username: u.username,
+      displayName: u.displayName,
+      avatar: u.avatar
+    };
+  });
+  res.json(allUsers);
 });
 
 app.post('/api/user/update', async function(req, res) {
