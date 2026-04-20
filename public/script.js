@@ -205,6 +205,348 @@ const translations = {
         allFieldsRequired: 'Alle Felder erforderlich', passwordTooShort: 'Passwort zu kurz',
         noSavedPosts: 'Keine gespeicherten Beiträge', savePostHint: 'Klicken Sie auf das Lesezeichen-Symbol auf einem beliebigen Beitrag, um ihn hier zu speichern',
         online: 'Online', offline: 'Offline'
+    },
+    it: {
+        appName: 'FreedomNet', signIn: 'Accedi', signUp: 'Registrati',
+        emailOrUsername: 'Email o username', password: 'Password',
+        rememberMe: 'Ricordami', forgotPassword: 'Password dimenticata?',
+        signInBtn: 'Accedi', fullName: 'Nome visualizzato', username: 'Username',
+        email: 'Email', confirmPassword: 'Conferma password', createAccount: 'Crea account',
+        home: 'Home', explore: 'Esplora', notifications: 'Notifiche',
+        messages: 'Messaggi', profile: 'Profilo', settings: 'Impostazioni', bookmarks: 'Segnalibri',
+        logout: 'Esci', post: 'Pubblica', trendingNow: 'Tendenze',
+        welcomeNotification: 'Benvenuto su FreedomNet!', noMessages: 'Nessun messaggio',
+        posts: 'Post', followers: 'Follower', following: 'Seguiti',
+        editProfile: 'Modifica profilo', appearance: 'Aspetto', theme: 'Tema',
+        dark: 'Scuro', light: 'Chiaro', language: 'Lingua',
+        notificationsSettings: 'Notifiche', pushNotifications: 'Notifiche push',
+        emailUpdates: 'Aggiornamenti email', saveChanges: 'Salva modifiche',
+        editPost: 'Modifica post', cancel: 'Annulla', save: 'Salva',
+        deletePost: 'Eliminare il post?', deleteConfirm: 'Sei sicuro di voler eliminare questo post?',
+        delete: 'Elimina', addComment: 'Aggiungi commento', comment: 'Commenta',
+        edit: 'Modifica', delete_: 'Elimina', changeAvatar: 'Cambia avatar',
+        profileSettings: 'Impostazioni profilo', displayName: 'Nome visualizzato',
+        displayNameHint: 'Modificabile ogni 14 giorni', usernameHint: 'Modificabile ogni 90 giorni',
+        selectLanguage: 'Seleziona lingua', search: 'Cerca', noResults: 'Nessun risultato',
+        joined: 'Iscritto il', showProfile: 'Mostra profilo', posting: 'Pubblicazione...',
+        postPublished: 'Post pubblicato!', failedToPost: 'Impossibile pubblicare',
+        errorPosting: 'Errore', pleaseWriteSomething: 'Scrivi qualcosa',
+        postUpdated: 'Post aggiornato!', postDeleted: 'Post eliminato!',
+        postReposted: 'Post ripubblicato!', repostRemoved: 'Ripubblicazione rimossa',
+        postSaved: 'Post salvato!', postRemovedFromSaves: 'Post rimosso dai salvati',
+        commentDeleted: 'Commento eliminato', profileUpdated: 'Profilo aggiornato!',
+        avatarUpdated: 'Avatar aggiornato!', displayNameUpdated: 'Nome aggiornato!',
+        usernameUpdated: 'Username aggiornato!', settingsSaved: 'Impostazioni salvate!',
+        passwordsDoNotMatch: 'Le password non corrispondono', pleaseFillAllFields: 'Compila tutti i campi',
+        connectionError: 'Errore di connessione', invalidCredentials: 'Credenziali non valide',
+        accountCreated: 'Account creato!', welcomeBack: 'Bentornato!',
+        allFieldsRequired: 'Tutti i campi sono obbligatori', passwordTooShort: 'La password deve essere di almeno 6 caratteri',
+        noSavedPosts: 'Nessun post salvato', savePostHint: 'Clicca sull\'icona del segnalibro su qualsiasi post per salvarlo qui',
+        online: 'Online', offline: 'Offline'
+    },
+    pt: {
+        appName: 'FreedomNet', signIn: 'Entrar', signUp: 'Cadastrar',
+        emailOrUsername: 'Email ou usuário', password: 'Senha',
+        rememberMe: 'Lembrar-me', forgotPassword: 'Esqueceu a senha?',
+        signInBtn: 'Entrar', fullName: 'Nome de exibição', username: 'Usuário',
+        email: 'Email', confirmPassword: 'Confirmar senha', createAccount: 'Criar conta',
+        home: 'Início', explore: 'Explorar', notifications: 'Notificações',
+        messages: 'Mensagens', profile: 'Perfil', settings: 'Configurações', bookmarks: 'Favoritos',
+        logout: 'Sair', post: 'Publicar', trendingNow: 'Tendências',
+        welcomeNotification: 'Bem-vindo ao FreedomNet!', noMessages: 'Sem mensagens',
+        posts: 'Publicações', followers: 'Seguidores', following: 'Seguindo',
+        editProfile: 'Editar perfil', appearance: 'Aparência', theme: 'Tema',
+        dark: 'Escuro', light: 'Claro', language: 'Idioma',
+        notificationsSettings: 'Notificações', pushNotifications: 'Notificações push',
+        emailUpdates: 'Atualizações por email', saveChanges: 'Salvar alterações',
+        editPost: 'Editar publicação', cancel: 'Cancelar', save: 'Salvar',
+        deletePost: 'Excluir publicação?', deleteConfirm: 'Tem certeza que deseja excluir esta publicação?',
+        delete: 'Excluir', addComment: 'Adicionar comentário', comment: 'Comentar',
+        edit: 'Editar', delete_: 'Excluir', changeAvatar: 'Alterar avatar',
+        profileSettings: 'Configurações do perfil', displayName: 'Nome de exibição',
+        displayNameHint: 'Pode ser alterado a cada 14 dias', usernameHint: 'Pode ser alterado a cada 90 dias',
+        selectLanguage: 'Selecionar idioma', search: 'Buscar', noResults: 'Nenhum resultado encontrado',
+        joined: 'Entrou em', showProfile: 'Mostrar perfil', posting: 'Publicando...',
+        postPublished: 'Publicação publicada!', failedToPost: 'Falha ao publicar',
+        errorPosting: 'Erro ao publicar', pleaseWriteSomething: 'Escreva algo',
+        postUpdated: 'Publicação atualizada!', postDeleted: 'Publicação excluída!',
+        postReposted: 'Publicação repostada!', repostRemoved: 'Repost removido',
+        postSaved: 'Publicação salva!', postRemovedFromSaves: 'Publicação removida dos salvos',
+        commentDeleted: 'Comentário excluído', profileUpdated: 'Perfil atualizado!',
+        avatarUpdated: 'Avatar atualizado!', displayNameUpdated: 'Nome atualizado!',
+        usernameUpdated: 'Usuário atualizado!', settingsSaved: 'Configurações salvas!',
+        passwordsDoNotMatch: 'As senhas não coincidem', pleaseFillAllFields: 'Preencha todos os campos',
+        connectionError: 'Erro de conexão', invalidCredentials: 'Credenciais inválidas',
+        accountCreated: 'Conta criada!', welcomeBack: 'Bem-vindo de volta!',
+        allFieldsRequired: 'Todos os campos são obrigatórios', passwordTooShort: 'A senha deve ter pelo menos 6 caracteres',
+        noSavedPosts: 'Nenhuma publicação salva', savePostHint: 'Clique no ícone de favorito em qualquer publicação para salvá-la aqui',
+        online: 'Online', offline: 'Offline'
+    },
+    tr: {
+        appName: 'FreedomNet', signIn: 'Giriş yap', signUp: 'Kaydol',
+        emailOrUsername: 'E-posta veya kullanıcı adı', password: 'Şifre',
+        rememberMe: 'Beni hatırla', forgotPassword: 'Şifremi unuttum?',
+        signInBtn: 'Giriş yap', fullName: 'Görünen ad', username: 'Kullanıcı adı',
+        email: 'E-posta', confirmPassword: 'Şifreyi onayla', createAccount: 'Hesap oluştur',
+        home: 'Ana sayfa', explore: 'Keşfet', notifications: 'Bildirimler',
+        messages: 'Mesajlar', profile: 'Profil', settings: 'Ayarlar', bookmarks: 'Yer imleri',
+        logout: 'Çıkış yap', post: 'Paylaş', trendingNow: 'Trend olanlar',
+        welcomeNotification: 'FreedomNet\'e hoş geldiniz!', noMessages: 'Henüz mesaj yok',
+        posts: 'Paylaşımlar', followers: 'Takipçiler', following: 'Takip edilenler',
+        editProfile: 'Profili düzenle', appearance: 'Görünüm', theme: 'Tema',
+        dark: 'Koyu', light: 'Açık', language: 'Dil',
+        notificationsSettings: 'Bildirimler', pushNotifications: 'Push bildirimleri',
+        emailUpdates: 'E-posta güncellemeleri', saveChanges: 'Değişiklikleri kaydet',
+        editPost: 'Paylaşımı düzenle', cancel: 'İptal', save: 'Kaydet',
+        deletePost: 'Paylaşım silinsin mi?', deleteConfirm: 'Bu paylaşımı silmek istediğinize emin misiniz?',
+        delete: 'Sil', addComment: 'Yorum ekle', comment: 'Yorum yap',
+        edit: 'Düzenle', delete_: 'Sil', changeAvatar: 'Avatarı değiştir',
+        profileSettings: 'Profil ayarları', displayName: 'Görünen ad',
+        displayNameHint: '14 günde bir değiştirilebilir', usernameHint: '90 günde bir değiştirilebilir',
+        selectLanguage: 'Dil seç', search: 'Ara', noResults: 'Sonuç bulunamadı',
+        joined: 'Katılım tarihi', showProfile: 'Profili göster', posting: 'Paylaşılıyor...',
+        postPublished: 'Paylaşım yayınlandı!', failedToPost: 'Paylaşılamadı',
+        errorPosting: 'Hata', pleaseWriteSomething: 'Bir şeyler yazın',
+        postUpdated: 'Paylaşım güncellendi!', postDeleted: 'Paylaşım silindi!',
+        postReposted: 'Paylaşım yeniden paylaşıldı!', repostRemoved: 'Yeniden paylaşım kaldırıldı',
+        postSaved: 'Paylaşım kaydedildi!', postRemovedFromSaves: 'Paylaşım kaydedilenlerden kaldırıldı',
+        commentDeleted: 'Yorum silindi', profileUpdated: 'Profil güncellendi!',
+        avatarUpdated: 'Avatar güncellendi!', displayNameUpdated: 'Ad güncellendi!',
+        usernameUpdated: 'Kullanıcı adı güncellendi!', settingsSaved: 'Ayarlar kaydedildi!',
+        passwordsDoNotMatch: 'Şifreler eşleşmiyor', pleaseFillAllFields: 'Tüm alanları doldurun',
+        connectionError: 'Bağlantı hatası', invalidCredentials: 'Geçersiz kimlik bilgileri',
+        accountCreated: 'Hesap oluşturuldu!', welcomeBack: 'Tekrar hoş geldiniz!',
+        allFieldsRequired: 'Tüm alanlar zorunlu', passwordTooShort: 'Şifre en az 6 karakter olmalıdır',
+        noSavedPosts: 'Kaydedilmiş paylaşım yok', savePostHint: 'Herhangi bir paylaşımdaki yer imi simgesine tıklayarak buraya kaydedin',
+        online: 'Çevrimiçi', offline: 'Çevrimdışı'
+    },
+    ar: {
+        appName: 'فريدوم نت', signIn: 'تسجيل الدخول', signUp: 'اشتراك',
+        emailOrUsername: 'البريد الإلكتروني أو اسم المستخدم', password: 'كلمة المرور',
+        rememberMe: 'تذكرني', forgotPassword: 'نسيت كلمة المرور؟',
+        signInBtn: 'تسجيل الدخول', fullName: 'الاسم المعروض', username: 'اسم المستخدم',
+        email: 'البريد الإلكتروني', confirmPassword: 'تأكيد كلمة المرور', createAccount: 'إنشاء حساب',
+        home: 'الرئيسية', explore: 'استكشاف', notifications: 'الإشعارات',
+        messages: 'الرسائل', profile: 'الملف الشخصي', settings: 'الإعدادات', bookmarks: 'الإشارات المرجعية',
+        logout: 'تسجيل الخروج', post: 'نشر', trendingNow: 'الأكثر تداولا',
+        welcomeNotification: 'مرحبا بك في فريدوم نت!', noMessages: 'لا توجد رسائل',
+        posts: 'المنشورات', followers: 'المتابعون', following: 'يتابع',
+        editProfile: 'تعديل الملف', appearance: 'المظهر', theme: 'الثيم',
+        dark: 'داكن', light: 'فاتح', language: 'اللغة',
+        notificationsSettings: 'الإشعارات', pushNotifications: 'إشعارات فورية',
+        emailUpdates: 'تحديثات البريد', saveChanges: 'حفظ التغييرات',
+        editPost: 'تعديل المنشور', cancel: 'إلغاء', save: 'حفظ',
+        deletePost: 'حذف المنشور؟', deleteConfirm: 'هل أنت متأكد من حذف هذا المنشور؟',
+        delete: 'حذف', addComment: 'إضافة تعليق', comment: 'تعليق',
+        edit: 'تعديل', delete_: 'حذف', changeAvatar: 'تغيير الصورة الرمزية',
+        profileSettings: 'إعدادات الملف الشخصي', displayName: 'الاسم المعروض',
+        displayNameHint: 'يمكن تغييره كل 14 يوما', usernameHint: 'يمكن تغييره كل 90 يوما',
+        selectLanguage: 'اختر اللغة', search: 'بحث', noResults: 'لا توجد نتائج',
+        joined: 'انضم في', showProfile: 'عرض الملف الشخصي', posting: 'جاري النشر...',
+        postPublished: 'تم النشر!', failedToPost: 'فشل النشر',
+        errorPosting: 'خطأ', pleaseWriteSomething: 'يرجى كتابة شيء',
+        postUpdated: 'تم التحديث!', postDeleted: 'تم الحذف!',
+        postReposted: 'تمت إعادة النشر!', repostRemoved: 'تمت إزالة إعادة النشر',
+        postSaved: 'تم الحفظ!', postRemovedFromSaves: 'تمت الإزالة من المحفوظات',
+        commentDeleted: 'تم حذف التعليق', profileUpdated: 'تم تحديث الملف الشخصي!',
+        avatarUpdated: 'تم تحديث الصورة الرمزية!', displayNameUpdated: 'تم تحديث الاسم!',
+        usernameUpdated: 'تم تحديث اسم المستخدم!', settingsSaved: 'تم حفظ الإعدادات!',
+        passwordsDoNotMatch: 'كلمات المرور غير متطابقة', pleaseFillAllFields: 'يرجى ملء جميع الحقول',
+        connectionError: 'خطأ في الاتصال', invalidCredentials: 'بيانات اعتماد غير صالحة',
+        accountCreated: 'تم إنشاء الحساب!', welcomeBack: 'مرحبا بعودتك!',
+        allFieldsRequired: 'جميع الحقول مطلوبة', passwordTooShort: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+        noSavedPosts: 'لا توجد منشورات محفوظة', savePostHint: 'انقر على أيقونة الإشارة المرجعية على أي منشور لحفظه هنا',
+        online: 'متصل', offline: 'غير متصل'
+    },
+    hi: {
+        appName: 'फ्रीडमनेट', signIn: 'साइन इन करें', signUp: 'साइन अप करें',
+        emailOrUsername: 'ईमेल या उपयोगकर्ता नाम', password: 'पासवर्ड',
+        rememberMe: 'मुझे याद रखें', forgotPassword: 'पासवर्ड भूल गए?',
+        signInBtn: 'साइन इन', fullName: 'प्रदर्शित नाम', username: 'उपयोगकर्ता नाम',
+        email: 'ईमेल', confirmPassword: 'पासवर्ड की पुष्टि करें', createAccount: 'खाता बनाएं',
+        home: 'होम', explore: 'एक्सप्लोर', notifications: 'सूचनाएं',
+        messages: 'संदेश', profile: 'प्रोफाइल', settings: 'सेटिंग्स', bookmarks: 'बुकमार्क',
+        logout: 'लॉगआउट', post: 'पोस्ट करें', trendingNow: 'ट्रेंडिंग',
+        welcomeNotification: 'फ्रीडमनेट में आपका स्वागत है!', noMessages: 'कोई संदेश नहीं',
+        posts: 'पोस्ट', followers: 'फॉलोअर्स', following: 'फॉलोइंग',
+        editProfile: 'प्रोफाइल संपादित करें', appearance: 'दिखावट', theme: 'थीम',
+        dark: 'डार्क', light: 'लाइट', language: 'भाषा',
+        notificationsSettings: 'सूचनाएं', pushNotifications: 'पुश सूचनाएं',
+        emailUpdates: 'ईमेल अपडेट', saveChanges: 'बदलाव सहेजें',
+        editPost: 'पोस्ट संपादित करें', cancel: 'रद्द करें', save: 'सहेजें',
+        deletePost: 'पोस्ट हटाएं?', deleteConfirm: 'क्या आप यह पोस्ट हटाना चाहते हैं?',
+        delete: 'हटाएं', addComment: 'टिप्पणी जोड़ें', comment: 'टिप्पणी',
+        edit: 'संपादित करें', delete_: 'हटाएं', changeAvatar: 'अवतार बदलें',
+        profileSettings: 'प्रोफाइल सेटिंग्स', displayName: 'प्रदर्शित नाम',
+        displayNameHint: '14 दिन में बदला जा सकता है', usernameHint: '90 दिन में बदला जा सकता है',
+        selectLanguage: 'भाषा चुनें', search: 'खोजें', noResults: 'कोई परिणाम नहीं',
+        joined: 'शामिल हुए', showProfile: 'प्रोफाइल दिखाएं', posting: 'पोस्ट हो रहा है...',
+        postPublished: 'पोस्ट प्रकाशित!', failedToPost: 'पोस्ट विफल',
+        errorPosting: 'त्रुटि', pleaseWriteSomething: 'कृपया कुछ लिखें',
+        postUpdated: 'पोस्ट अपडेट!', postDeleted: 'पोस्ट हटा दिया गया!',
+        postReposted: 'पोस्ट रीपोस्ट!', repostRemoved: 'रीपोस्ट हटा दिया गया',
+        postSaved: 'पोस्ट सहेजा गया!', postRemovedFromSaves: 'पोस्ट सहेजे गए से हटा दिया गया',
+        commentDeleted: 'टिप्पणी हटा दी गई', profileUpdated: 'प्रोफाइल अपडेट!',
+        avatarUpdated: 'अवतार अपडेट!', displayNameUpdated: 'नाम अपडेट!',
+        usernameUpdated: 'उपयोगकर्ता नाम अपडेट!', settingsSaved: 'सेटिंग्स सहेजी गईं!',
+        passwordsDoNotMatch: 'पासवर्ड मेल नहीं खाते', pleaseFillAllFields: 'कृपया सभी फ़ील्ड भरें',
+        connectionError: 'कनेक्शन त्रुटि', invalidCredentials: 'अमान्य क्रेडेंशियल्स',
+        accountCreated: 'खाता बन गया!', welcomeBack: 'वापसी पर स्वागत है!',
+        allFieldsRequired: 'सभी फ़ील्ड आवश्यक हैं', passwordTooShort: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
+        noSavedPosts: 'कोई सहेजी गई पोस्ट नहीं', savePostHint: 'किसी भी पोस्ट पर बुकमार्क आइकन पर क्लिक करके इसे यहां सहेजें',
+        online: 'ऑनलाइन', offline: 'ऑफलाइन'
+    },
+    zh: {
+        appName: '自由网', signIn: '登录', signUp: '注册',
+        emailOrUsername: '邮箱或用户名', password: '密码',
+        rememberMe: '记住我', forgotPassword: '忘记密码？',
+        signInBtn: '登录', fullName: '显示名称', username: '用户名',
+        email: '邮箱', confirmPassword: '确认密码', createAccount: '创建账户',
+        home: '首页', explore: '探索', notifications: '通知',
+        messages: '消息', profile: '个人资料', settings: '设置', bookmarks: '书签',
+        logout: '退出', post: '发布', trendingNow: '热门趋势',
+        welcomeNotification: '欢迎来到自由网！', noMessages: '暂无消息',
+        posts: '帖子', followers: '粉丝', following: '关注',
+        editProfile: '编辑资料', appearance: '外观', theme: '主题',
+        dark: '深色', light: '浅色', language: '语言',
+        notificationsSettings: '通知设置', pushNotifications: '推送通知',
+        emailUpdates: '邮件更新', saveChanges: '保存更改',
+        editPost: '编辑帖子', cancel: '取消', save: '保存',
+        deletePost: '删除帖子？', deleteConfirm: '确定要删除此帖子吗？',
+        delete: '删除', addComment: '添加评论', comment: '评论',
+        edit: '编辑', delete_: '删除', changeAvatar: '更换头像',
+        profileSettings: '个人资料设置', displayName: '显示名称',
+        displayNameHint: '每14天可更改一次', usernameHint: '每90天可更改一次',
+        selectLanguage: '选择语言', search: '搜索', noResults: '未找到结果',
+        joined: '加入于', showProfile: '查看个人资料', posting: '发布中...',
+        postPublished: '发布成功！', failedToPost: '发布失败',
+        errorPosting: '错误', pleaseWriteSomething: '请写点什么',
+        postUpdated: '帖子已更新！', postDeleted: '帖子已删除！',
+        postReposted: '帖子已转发！', repostRemoved: '转发已取消',
+        postSaved: '帖子已保存！', postRemovedFromSaves: '帖子已从收藏中移除',
+        commentDeleted: '评论已删除', profileUpdated: '个人资料已更新！',
+        avatarUpdated: '头像已更新！', displayNameUpdated: '显示名称已更新！',
+        usernameUpdated: '用户名已更新！', settingsSaved: '设置已保存！',
+        passwordsDoNotMatch: '密码不匹配', pleaseFillAllFields: '请填写所有字段',
+        connectionError: '连接错误', invalidCredentials: '无效的凭证',
+        accountCreated: '账户已创建！', welcomeBack: '欢迎回来！',
+        allFieldsRequired: '所有字段都是必填的', passwordTooShort: '密码至少需要6个字符',
+        noSavedPosts: '暂无保存的帖子', savePostHint: '点击任何帖子上的书签图标即可在此处保存',
+        online: '在线', offline: '离线'
+    },
+    ja: {
+        appName: 'フリーダムネット', signIn: 'サインイン', signUp: 'サインアップ',
+        emailOrUsername: 'メールまたはユーザー名', password: 'パスワード',
+        rememberMe: '記憶する', forgotPassword: 'パスワードをお忘れですか？',
+        signInBtn: 'サインイン', fullName: '表示名', username: 'ユーザー名',
+        email: 'メール', confirmPassword: 'パスワードを確認', createAccount: 'アカウント作成',
+        home: 'ホーム', explore: '探索', notifications: '通知',
+        messages: 'メッセージ', profile: 'プロフィール', settings: '設定', bookmarks: 'ブックマーク',
+        logout: 'ログアウト', post: '投稿', trendingNow: 'トレンド',
+        welcomeNotification: 'FreedomNetへようこそ！', noMessages: 'メッセージはありません',
+        posts: '投稿', followers: 'フォロワー', following: 'フォロー中',
+        editProfile: 'プロフィール編集', appearance: '外観', theme: 'テーマ',
+        dark: 'ダーク', light: 'ライト', language: '言語',
+        notificationsSettings: '通知設定', pushNotifications: 'プッシュ通知',
+        emailUpdates: 'メール更新', saveChanges: '変更を保存',
+        editPost: '投稿を編集', cancel: 'キャンセル', save: '保存',
+        deletePost: '投稿を削除しますか？', deleteConfirm: 'この投稿を削除してもよろしいですか？',
+        delete: '削除', addComment: 'コメントを追加', comment: 'コメント',
+        edit: '編集', delete_: '削除', changeAvatar: 'アバターを変更',
+        profileSettings: 'プロフィール設定', displayName: '表示名',
+        displayNameHint: '14日ごとに変更可能', usernameHint: '90日ごとに変更可能',
+        selectLanguage: '言語を選択', search: '検索', noResults: '結果が見つかりません',
+        joined: '参加日', showProfile: 'プロフィールを表示', posting: '投稿中...',
+        postPublished: '投稿しました！', failedToPost: '投稿に失敗しました',
+        errorPosting: 'エラー', pleaseWriteSomething: '何か書いてください',
+        postUpdated: '投稿を更新しました！', postDeleted: '投稿を削除しました！',
+        postReposted: 'リポストしました！', repostRemoved: 'リポストを削除しました',
+        postSaved: '投稿を保存しました！', postRemovedFromSaves: '保存から削除しました',
+        commentDeleted: 'コメントを削除しました', profileUpdated: 'プロフィールを更新しました！',
+        avatarUpdated: 'アバターを更新しました！', displayNameUpdated: '表示名を更新しました！',
+        usernameUpdated: 'ユーザー名を更新しました！', settingsSaved: '設定を保存しました！',
+        passwordsDoNotMatch: 'パスワードが一致しません', pleaseFillAllFields: 'すべてのフィールドを入力してください',
+        connectionError: '接続エラー', invalidCredentials: '認証情報が無効です',
+        accountCreated: 'アカウントを作成しました！', welcomeBack: 'おかえりなさい！',
+        allFieldsRequired: 'すべてのフィールドは必須です', passwordTooShort: 'パスワードは6文字以上必要です',
+        noSavedPosts: '保存された投稿はありません', savePostHint: '任意の投稿のブックマークアイコンをクリックして、ここに保存します',
+        online: 'オンライン', offline: 'オフライン'
+    },
+    ko: {
+        appName: '프리덤넷', signIn: '로그인', signUp: '회원가입',
+        emailOrUsername: '이메일 또는 사용자명', password: '비밀번호',
+        rememberMe: '기억하기', forgotPassword: '비밀번호를 잊으셨나요?',
+        signInBtn: '로그인', fullName: '표시 이름', username: '사용자명',
+        email: '이메일', confirmPassword: '비밀번호 확인', createAccount: '계정 만들기',
+        home: '홈', explore: '탐색', notifications: '알림',
+        messages: '메시지', profile: '프로필', settings: '설정', bookmarks: '북마크',
+        logout: '로그아웃', post: '게시', trendingNow: '트렌드',
+        welcomeNotification: 'FreedomNet에 오신 것을 환영합니다!', noMessages: '메시지가 없습니다',
+        posts: '게시물', followers: '팔로워', following: '팔로잉',
+        editProfile: '프로필 수정', appearance: '외관', theme: '테마',
+        dark: '다크', light: '라이트', language: '언어',
+        notificationsSettings: '알림 설정', pushNotifications: '푸시 알림',
+        emailUpdates: '이메일 업데이트', saveChanges: '변경사항 저장',
+        editPost: '게시물 수정', cancel: '취소', save: '저장',
+        deletePost: '게시물을 삭제하시겠습니까?', deleteConfirm: '이 게시물을 삭제하시겠습니까?',
+        delete: '삭제', addComment: '댓글 추가', comment: '댓글',
+        edit: '수정', delete_: '삭제', changeAvatar: '아바타 변경',
+        profileSettings: '프로필 설정', displayName: '표시 이름',
+        displayNameHint: '14일마다 변경 가능', usernameHint: '90일마다 변경 가능',
+        selectLanguage: '언어 선택', search: '검색', noResults: '검색 결과가 없습니다',
+        joined: '가입일', showProfile: '프로필 보기', posting: '게시 중...',
+        postPublished: '게시되었습니다!', failedToPost: '게시 실패',
+        errorPosting: '오류', pleaseWriteSomething: '내용을 입력해주세요',
+        postUpdated: '게시물이 수정되었습니다!', postDeleted: '게시물이 삭제되었습니다!',
+        postReposted: '게시물이 리포스트되었습니다!', repostRemoved: '리포스트가 취소되었습니다',
+        postSaved: '게시물이 저장되었습니다!', postRemovedFromSaves: '저장에서 제거되었습니다',
+        commentDeleted: '댓글이 삭제되었습니다', profileUpdated: '프로필이 수정되었습니다!',
+        avatarUpdated: '아바타가 수정되었습니다!', displayNameUpdated: '표시 이름이 수정되었습니다!',
+        usernameUpdated: '사용자명이 수정되었습니다!', settingsSaved: '설정이 저장되었습니다!',
+        passwordsDoNotMatch: '비밀번호가 일치하지 않습니다', pleaseFillAllFields: '모든 필드를 입력해주세요',
+        connectionError: '연결 오류', invalidCredentials: '잘못된 인증 정보',
+        accountCreated: '계정이 생성되었습니다!', welcomeBack: '돌아오신 것을 환영합니다!',
+        allFieldsRequired: '모든 필드는 필수입니다', passwordTooShort: '비밀번호는 최소 6자 이상이어야 합니다',
+        noSavedPosts: '저장된 게시물이 없습니다', savePostHint: '게시물의 북마크 아이콘을 클릭하여 여기에 저장하세요',
+        online: '온라인', offline: '오프라인'
+    },
+    el: {
+        appName: 'FreedomNet', signIn: 'Σύνδεση', signUp: 'Εγγραφή',
+        emailOrUsername: 'Email ή όνομα χρήστη', password: 'Κωδικός',
+        rememberMe: 'Θυμήσου με', forgotPassword: 'Ξεχάσατε τον κωδικό;',
+        signInBtn: 'Σύνδεση', fullName: 'Εμφανιζόμενο όνομα', username: 'Όνομα χρήστη',
+        email: 'Email', confirmPassword: 'Επιβεβαίωση κωδικού', createAccount: 'Δημιουργία λογαριασμού',
+        home: 'Αρχική', explore: 'Εξερεύνηση', notifications: 'Ειδοποιήσεις',
+        messages: 'Μηνύματα', profile: 'Προφίλ', settings: 'Ρυθμίσεις', bookmarks: 'Σελιδοδείκτες',
+        logout: 'Αποσύνδεση', post: 'Δημοσίευση', trendingNow: 'Τάσεις',
+        welcomeNotification: 'Καλώς ήρθατε στο FreedomNet!', noMessages: 'Δεν υπάρχουν μηνύματα',
+        posts: 'Δημοσιεύσεις', followers: 'Ακόλουθοι', following: 'Ακολουθεί',
+        editProfile: 'Επεξεργασία προφίλ', appearance: 'Εμφάνιση', theme: 'Θέμα',
+        dark: 'Σκοτεινό', light: 'Φωτεινό', language: 'Γλώσσα',
+        notificationsSettings: 'Ειδοποιήσεις', pushNotifications: 'Push ειδοποιήσεις',
+        emailUpdates: 'Ενημερώσεις email', saveChanges: 'Αποθήκευση',
+        editPost: 'Επεξεργασία', cancel: 'Ακύρωση', save: 'Αποθήκευση',
+        deletePost: 'Διαγραφή δημοσίευσης;', deleteConfirm: 'Είστε σίγουροι;',
+        delete: 'Διαγραφή', addComment: 'Προσθήκη σχολίου', comment: 'Σχόλιο',
+        edit: 'Επεξεργασία', delete_: 'Διαγραφή', changeAvatar: 'Αλλαγή avatar',
+        profileSettings: 'Ρυθμίσεις προφίλ', displayName: 'Εμφανιζόμενο όνομα',
+        displayNameHint: 'Αλλάζει κάθε 14 ημέρες', usernameHint: 'Αλλάζει κάθε 90 ημέρες',
+        selectLanguage: 'Επιλογή γλώσσας', search: 'Αναζήτηση', noResults: 'Δεν βρέθηκαν αποτελέσματα',
+        joined: 'Εγγράφηκε', showProfile: 'Προβολή προφίλ', posting: 'Δημοσίευση...',
+        postPublished: 'Δημοσιεύθηκε!', failedToPost: 'Αποτυχία δημοσίευσης',
+        errorPosting: 'Σφάλμα', pleaseWriteSomething: 'Γράψτε κάτι',
+        postUpdated: 'Ενημερώθηκε!', postDeleted: 'Διαγράφηκε!',
+        postReposted: 'Αναδημοσίευση!', repostRemoved: 'Αφαιρέθηκε αναδημοσίευση',
+        postSaved: 'Αποθηκεύτηκε!', postRemovedFromSaves: 'Αφαιρέθηκε από αποθηκευμένα',
+        commentDeleted: 'Σχόλιο διαγράφηκε', profileUpdated: 'Το προφίλ ενημερώθηκε!',
+        avatarUpdated: 'Το avatar ενημερώθηκε!', displayNameUpdated: 'Το όνομα ενημερώθηκε!',
+        usernameUpdated: 'Το όνομα χρήστη ενημερώθηκε!', settingsSaved: 'Οι ρυθμίσεις αποθηκεύτηκαν!',
+        passwordsDoNotMatch: 'Οι κωδικοί δεν ταιριάζουν', pleaseFillAllFields: 'Συμπληρώστε όλα τα πεδία',
+        connectionError: 'Σφάλμα σύνδεσης', invalidCredentials: 'Λανθασμένα στοιχεία',
+        accountCreated: 'Ο λογαριασμός δημιουργήθηκε!', welcomeBack: 'Καλώς ήρθες πίσω!',
+        allFieldsRequired: 'Όλα τα πεδία είναι υποχρεωτικά', passwordTooShort: 'Ο κωδικός είναι πολύ μικρός',
+        noSavedPosts: 'Δεν υπάρχουν αποθηκευμένες δημοσιεύσεις', savePostHint: 'Πατήστε το εικονίδιο σελιδοδείκτη σε οποιαδήποτε δημοσίευση για αποθήκευση',
+        online: 'Συνδεδεμένος', offline: 'Εκτός σύνδεσης'
     }
 };
 
@@ -215,7 +557,16 @@ const monthNames = {
     ru: ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'],
     es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
     fr: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-    de: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+    de: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+    it: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'],
+    pt: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+    tr: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+    ar: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+    hi: ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'],
+    zh: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+    ja: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+    ko: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    el: ['Ιανουαρίου', 'Φεβρουαρίου', 'Μαρτίου', 'Απριλίου', 'Μαΐου', 'Ιουνίου', 'Ιουλίου', 'Αυγούστου', 'Σεπτεμβρίου', 'Οκτωβρίου', 'Νοεμβρίου', 'Δεκεμβρίου']
 };
 
 function formatJoinDate(dateString) {
@@ -277,12 +628,10 @@ function displaySavedPosts() {
         const isLiked = userLikedPosts.has(post.id);
         const isReposted = userRepostedPosts.has(post.id);
         const isSaved = userSavedPosts.has(post.id);
-        const isOnline = userStatuses[post.userId] || false;
         return `
         <div class="post-card" data-post-id="${post.id}">
             <div class="avatar-container">
                 <img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">
-                <div class="status-indicator ${isOnline ? 'online' : 'offline'}"></div>
             </div>
             <div class="post-body">
                 <div class="post-header">
@@ -327,16 +676,13 @@ function displaySavedPosts() {
 
 async function updateUserStatus() {
     if (!currentUser) return;
-    
     try {
         await fetch(`${API_URL}/api/user/heartbeat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: currentUser.id })
         });
-    } catch (error) {
-        console.log('Heartbeat failed');
-    }
+    } catch (error) {}
 }
 
 async function fetchUserStatuses() {
@@ -344,22 +690,26 @@ async function fetchUserStatuses() {
         const res = await fetch(`${API_URL}/api/user/statuses`);
         const data = await res.json();
         userStatuses = data;
-        loadPosts();
-        if (currentPage === 'profile') loadUserPosts();
-        if (currentPage === 'bookmarks') displaySavedPosts();
-    } catch (error) {
-        console.log('Failed to fetch statuses');
+        if (currentPage === 'profile') {
+            updateProfileStatus();
+        }
+    } catch (error) {}
+}
+
+function updateProfileStatus() {
+    const isOnline = userStatuses[currentUser?.id] || false;
+    const statusIndicator = document.getElementById('profileStatus');
+    if (statusIndicator) {
+        statusIndicator.className = `status-indicator ${isOnline ? 'online' : 'offline'}`;
     }
 }
 
 function startHeartbeat() {
     if (heartbeatInterval) clearInterval(heartbeatInterval);
-    
     updateUserStatus();
     heartbeatInterval = setInterval(() => {
         updateUserStatus();
     }, 30000);
-    
     setInterval(() => {
         fetchUserStatuses();
     }, 10000);
@@ -599,7 +949,10 @@ function switchPage(page) {
     document.getElementById('pageTitle').textContent = titles[page] || t.home;
     
     if (page === 'home') loadPosts();
-    if (page === 'profile') loadUserPosts();
+    if (page === 'profile') {
+        loadUserPosts();
+        updateProfileStatus();
+    }
     if (page === 'bookmarks') displaySavedPosts();
 }
 
@@ -688,12 +1041,10 @@ async function loadPosts() {
         const isLiked = userLikedPosts.has(post.id);
         const isReposted = userRepostedPosts.has(post.id);
         const isSaved = userSavedPosts.has(post.id);
-        const isOnline = userStatuses[post.userId] || false;
         return `
         <div class="post-card" data-post-id="${post.id}">
             <div class="avatar-container">
                 <img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username?.slice(0,2)}&background=1d9bf0&color=fff'">
-                <div class="status-indicator ${isOnline ? 'online' : 'offline'}"></div>
             </div>
             <div class="post-body">
                 <div class="post-header">
@@ -754,9 +1105,11 @@ async function loadPosts() {
                             </svg>
                             <span>${post.comments.length} comments</span>
                         </div>
-                        ${post.comments.slice(0, 2).map(c => `
+                        ${post.comments.slice(0, 2).map(c => {
+                            const commentAvatar = `https://ui-avatars.com/api/?name=${(c.displayName || c.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=32&rounded=true`;
+                            return `
                             <div class="comment-item">
-                                <div class="comment-avatar">${(c.displayName || c.username).charAt(0).toUpperCase()}</div>
+                                <img class="comment-avatar-img" src="${commentAvatar}" onerror="this.src='https://ui-avatars.com/api/?name=${c.username?.slice(0,2)}&background=1d9bf0&color=fff'">
                                 <div class="comment-content">
                                     <div class="comment-header">
                                         <span class="comment-name">${escapeHtml(c.displayName || c.username)}</span>
@@ -769,7 +1122,7 @@ async function loadPosts() {
                                     <button class="comment-delete" onclick="deleteComment('${post.id}', '${c.id}')">×</button>
                                 ` : ''}
                             </div>
-                        `).join('')}
+                        `}).join('')}
                         ${post.comments.length > 2 ? `<div class="more-comments" onclick="openCommentModal('${post.id}')">+${post.comments.length - 2} more comments</div>` : ''}
                     </div>
                 ` : ''}
@@ -1022,7 +1375,6 @@ async function loadUserPosts() {
             <div class="post-card">
                 <div class="avatar-container">
                     <img class="post-avatar" src="${postAvatar}">
-                    <div class="status-indicator online"></div>
                 </div>
                 <div class="post-body">
                     <div class="post-text">${escapeHtml(post.content)}</div>
@@ -1270,12 +1622,10 @@ document.getElementById('userSearchInput')?.addEventListener('input', (e) => {
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = filteredUsers.map(user => {
                 const userAvatar = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
-                const isOnline = userStatuses[user.id] || false;
                 return `
                     <div class="user-search-item" onclick="startConversation('${user.id}')">
                         <div class="avatar-container small">
                             <img class="user-search-avatar" src="${userAvatar}">
-                            <div class="status-indicator ${isOnline ? 'online' : 'offline'}"></div>
                         </div>
                         <div class="user-search-info">
                             <div class="user-search-name">${escapeHtml(user.displayName || user.username)}</div>
