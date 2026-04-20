@@ -1675,4 +1675,11 @@ input:checked + .toggle-slider:before {
     .post-actions {
         gap: 12px;
     }
+    
+.comment-avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
 }
