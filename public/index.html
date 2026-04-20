@@ -16,19 +16,19 @@
             </div>
             
             <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Sign in</button>
-                <button class="auth-tab" data-tab="register">Sign up</button>
+                <button class="auth-tab active" data-tab="login" data-i18n="signIn">Sign in</button>
+                <button class="auth-tab" data-tab="register" data-i18n="signUp">Sign up</button>
             </div>
             
             <form id="loginForm" class="auth-form active">
                 <div class="input-field">
                     <input type="text" id="loginUsername" required>
-                    <label>Email or username</label>
+                    <label data-i18n="emailOrUsername">Email or username</label>
                 </div>
                 
                 <div class="input-field">
                     <input type="password" id="loginPassword" required>
-                    <label>Password</label>
+                    <label data-i18n="password">Password</label>
                     <button type="button" class="password-toggle" data-target="loginPassword">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -40,33 +40,33 @@
                 <div class="auth-options">
                     <label class="checkbox">
                         <input type="checkbox" id="rememberMe">
-                        <span>Remember me</span>
+                        <span data-i18n="rememberMe">Remember me</span>
                     </label>
-                    <a href="#" class="forgot-link">Forgot password?</a>
+                    <a href="#" class="forgot-link" data-i18n="forgotPassword">Forgot password?</a>
                 </div>
                 
-                <button type="submit" class="btn-primary">Sign in</button>
+                <button type="submit" class="btn-primary" data-i18n="signInBtn">Sign in</button>
             </form>
             
             <form id="registerForm" class="auth-form">
                 <div class="input-field">
                     <input type="text" id="regFullName" required>
-                    <label>Full name</label>
+                    <label data-i18n="fullName">Full name</label>
                 </div>
                 
                 <div class="input-field">
                     <input type="text" id="regUsername" required>
-                    <label>Username</label>
+                    <label data-i18n="username">Username</label>
                 </div>
                 
                 <div class="input-field">
                     <input type="email" id="regEmail" required>
-                    <label>Email</label>
+                    <label data-i18n="email">Email</label>
                 </div>
                 
                 <div class="input-field">
                     <input type="password" id="regPassword" required>
-                    <label>Password</label>
+                    <label data-i18n="password">Password</label>
                     <button type="button" class="password-toggle" data-target="regPassword">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -77,10 +77,10 @@
                 
                 <div class="input-field">
                     <input type="password" id="regConfirmPassword" required>
-                    <label>Confirm password</label>
+                    <label data-i18n="confirmPassword">Confirm password</label>
                 </div>
                 
-                <button type="submit" class="btn-primary">Create account</button>
+                <button type="submit" class="btn-primary" data-i18n="createAccount">Create account</button>
             </form>
             
             <div id="authMessage" class="auth-message"></div>
@@ -98,7 +98,7 @@
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-7H9v7H5a2 2 0 0 1-2-2z"/>
                     </svg>
-                    <span>Home</span>
+                    <span data-i18n="home">Home</span>
                 </button>
                 <button class="nav-btn" data-page="explore">
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
@@ -106,34 +106,34 @@
                         <path d="M12 2a15 15 0 0 0 0 20 15 15 0 0 0 0-20z"/>
                         <path d="M2 12h20"/>
                     </svg>
-                    <span>Explore</span>
+                    <span data-i18n="explore">Explore</span>
                 </button>
                 <button class="nav-btn" data-page="notifications">
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                     </svg>
-                    <span>Notifications</span>
+                    <span data-i18n="notifications">Notifications</span>
                 </button>
                 <button class="nav-btn" data-page="messages">
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
-                    <span>Messages</span>
+                    <span data-i18n="messages">Messages</span>
                 </button>
                 <button class="nav-btn" data-page="profile">
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
                     </svg>
-                    <span>Profile</span>
+                    <span data-i18n="profile">Profile</span>
                 </button>
                 <button class="nav-btn" data-page="settings">
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="3"/>
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                     </svg>
-                    <span>Settings</span>
+                    <span data-i18n="settings">Settings</span>
                 </button>
             </nav>
             
@@ -144,7 +144,7 @@
                         <circle cx="12" cy="7" r="4"/>
                         <path d="M17 3.5a4 4 0 0 1 0 7"/>
                     </svg>
-                    <span>Change avatar</span>
+                    <span data-i18n="changeAvatar">Change avatar</span>
                 </button>
                 <button id="logoutBtn" class="logout-btn">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
@@ -152,7 +152,7 @@
                         <polyline points="16 17 21 12 16 7"/>
                         <line x1="21" y1="12" x2="9" y2="12"/>
                     </svg>
-                    <span>Logout</span>
+                    <span data-i18n="logout">Logout</span>
                 </button>
             </div>
         </div>
@@ -223,7 +223,7 @@
                             </div>
                         </div>
                         <div class="compose-actions">
-                            <button id="createPostBtn" class="btn-blue">Post</button>
+                            <button id="createPostBtn" class="btn-blue" data-i18n="post">Post</button>
                         </div>
                     </div>
                 </div>
@@ -242,7 +242,7 @@
                         </div>
                     </div>
                     <div class="trending-card">
-                        <h3>Trending now</h3>
+                        <h3 data-i18n="trendingNow">Trending now</h3>
                         <div class="trending-item">
                             <div class="trending-rank">1</div>
                             <div>
@@ -279,7 +279,7 @@
                             </svg>
                         </div>
                         <div class="notification-content">
-                            <p>Welcome to FreedomNet!</p>
+                            <p data-i18n="welcomeNotification">Welcome to FreedomNet!</p>
                             <span class="notification-time">Just now</span>
                         </div>
                     </div>
@@ -302,7 +302,7 @@
                         <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                         </svg>
-                        <p>No messages yet</p>
+                        <p data-i18n="noMessages">No messages yet</p>
                     </div>
                 </div>
             </div>
@@ -317,18 +317,18 @@
                     <div class="profile-stats">
                         <div class="profile-stat">
                             <span id="userPostCount">0</span>
-                            <label>Posts</label>
+                            <label data-i18n="posts">Posts</label>
                         </div>
                         <div class="profile-stat">
                             <span id="userFollowerCount">0</span>
-                            <label>Followers</label>
+                            <label data-i18n="followers">Followers</label>
                         </div>
                         <div class="profile-stat">
                             <span id="userFollowingCount">0</span>
-                            <label>Following</label>
+                            <label data-i18n="following">Following</label>
                         </div>
                     </div>
-                    <button id="editProfileBtn" class="btn-outline">Edit profile</button>
+                    <button id="editProfileBtn" class="btn-outline" data-i18n="editProfile">Edit profile</button>
                 </div>
                 <div id="userPostsList" class="profile-posts"></div>
             </div>
@@ -336,9 +336,9 @@
             <div id="settingsPage" class="page">
                 <div class="settings-container">
                     <div class="settings-group">
-                        <h3>Language</h3>
+                        <h3 data-i18n="language">Language</h3>
                         <div class="settings-item">
-                            <span>Select language</span>
+                            <span data-i18n="selectLanguage">Select language</span>
                             <select id="languageSelect" class="language-select">
                                 <option value="en">English</option>
                                 <option value="ru">Русский</option>
@@ -358,49 +358,49 @@
                     </div>
                     
                     <div class="settings-group">
-                        <h3>Appearance</h3>
+                        <h3 data-i18n="appearance">Appearance</h3>
                         <div class="settings-item">
-                            <span>Theme</span>
+                            <span data-i18n="theme">Theme</span>
                             <div class="theme-buttons">
-                                <button class="theme-option active" data-theme="dark">Dark</button>
-                                <button class="theme-option" data-theme="light">Light</button>
+                                <button class="theme-option active" data-theme="dark" data-i18n="dark">Dark</button>
+                                <button class="theme-option" data-theme="light" data-i18n="light">Light</button>
                             </div>
                         </div>
                     </div>
                     
                     <div class="settings-group">
-                        <h3>Profile Settings</h3>
+                        <h3 data-i18n="profileSettings">Profile Settings</h3>
                         <div class="settings-item vertical">
-                            <label>Display Name</label>
-                            <small class="settings-hint">Can be changed every 14 days</small>
+                            <label data-i18n="displayName">Display Name</label>
+                            <small class="settings-hint" data-i18n="displayNameHint">Can be changed every 14 days</small>
                             <input type="text" id="displayNameInput" class="settings-input" placeholder="Enter display name">
                             <div id="displayNameStatus" class="settings-status"></div>
                         </div>
                         <div class="settings-item vertical">
-                            <label>Username</label>
-                            <small class="settings-hint">Can be changed every 90 days</small>
+                            <label data-i18n="username">Username</label>
+                            <small class="settings-hint" data-i18n="usernameHint">Can be changed every 90 days</small>
                             <input type="text" id="usernameInput" class="settings-input" placeholder="Enter username">
                             <div id="usernameStatus" class="settings-status"></div>
                         </div>
                         <div class="settings-item vertical">
-                            <label>Confirm with password</label>
+                            <label data-i18n="confirmPassword">Confirm with password</label>
                             <input type="password" id="confirmPasswordInput" class="settings-input" placeholder="Enter your password">
                             <input type="password" id="confirmNewPasswordInput" class="settings-input" placeholder="Confirm password">
                         </div>
-                        <button id="saveProfileSettingsBtn" class="btn-blue btn-full">Save changes</button>
+                        <button id="saveProfileSettingsBtn" class="btn-blue btn-full" data-i18n="saveChanges">Save changes</button>
                     </div>
                     
                     <div class="settings-group">
-                        <h3>Notifications</h3>
+                        <h3 data-i18n="notificationsSettings">Notifications</h3>
                         <div class="settings-item">
-                            <span>Push notifications</span>
+                            <span data-i18n="pushNotifications">Push notifications</span>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="pushToggle" checked>
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
                         <div class="settings-item">
-                            <span>Email updates</span>
+                            <span data-i18n="emailUpdates">Email updates</span>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="emailToggle" checked>
                                 <span class="toggle-slider"></span>
@@ -418,44 +418,44 @@
     
     <div id="editModal" class="modal">
         <div class="modal-card">
-            <h3>Edit post</h3>
+            <h3 data-i18n="editPost">Edit post</h3>
             <textarea id="editPostContent" class="modal-textarea" rows="4"></textarea>
             <div class="modal-buttons">
-                <button id="closeEditModal" class="btn-outline">Cancel</button>
-                <button id="saveEditBtn" class="btn-blue">Save</button>
+                <button id="closeEditModal" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="saveEditBtn" class="btn-blue" data-i18n="save">Save</button>
             </div>
         </div>
     </div>
     
     <div id="deleteModal" class="modal delete-modal">
         <div class="modal-card delete-card">
-            <h3>Delete post?</h3>
-            <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+            <h3 data-i18n="deletePost">Delete post?</h3>
+            <p data-i18n="deleteConfirm">Are you sure you want to delete this post? This action cannot be undone.</p>
             <div class="modal-buttons delete-buttons">
-                <button id="cancelDeleteBtn" class="btn-outline">Cancel</button>
-                <button id="confirmDeleteBtn" class="btn-delete">Delete</button>
+                <button id="cancelDeleteBtn" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn-delete" data-i18n="delete">Delete</button>
             </div>
         </div>
     </div>
     
     <div id="editProfileModal" class="modal">
         <div class="modal-card">
-            <h3>Edit profile</h3>
+            <h3 data-i18n="editProfile">Edit profile</h3>
             <textarea id="editBioInput" class="modal-textarea" placeholder="Write something about yourself..." rows="4"></textarea>
             <div class="modal-buttons">
-                <button id="closeProfileModal" class="btn-outline">Cancel</button>
-                <button id="saveProfileBtn" class="btn-blue">Save</button>
+                <button id="closeProfileModal" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="saveProfileBtn" class="btn-blue" data-i18n="save">Save</button>
             </div>
         </div>
     </div>
     
     <div id="commentModal" class="modal">
         <div class="modal-card comment-modal">
-            <h3>Add comment</h3>
+            <h3 data-i18n="addComment">Add comment</h3>
             <textarea id="commentInput" class="modal-textarea" placeholder="Write your comment..." rows="3"></textarea>
             <div class="modal-buttons">
-                <button id="closeCommentModal" class="btn-outline">Cancel</button>
-                <button id="submitCommentBtn" class="btn-blue">Comment</button>
+                <button id="closeCommentModal" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="submitCommentBtn" class="btn-blue" data-i18n="comment">Comment</button>
             </div>
         </div>
     </div>
@@ -472,7 +472,7 @@
                     </div>
                 </div>
                 <div class="modal-buttons">
-                    <button id="closeAvatarModal" class="btn-outline">Cancel</button>
+                    <button id="closeAvatarModal" class="btn-outline" data-i18n="cancel">Cancel</button>
                     <button id="nextAvatarBtn" class="btn-blue" style="display:none">Next →</button>
                 </div>
             </div>
@@ -500,7 +500,7 @@
                 </div>
                 <div class="modal-buttons">
                     <button id="backAvatarBtn" class="btn-outline">← Back</button>
-                    <button id="saveAvatarBtn" class="btn-blue">Save</button>
+                    <button id="saveAvatarBtn" class="btn-blue" data-i18n="save">Save</button>
                 </div>
             </div>
         </div>
