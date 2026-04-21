@@ -211,7 +211,6 @@
                 <div class="user-info">
                     <div class="avatar-container">
                         <img id="headerAvatar" class="avatar-small" alt="">
-                        <div id="headerStatus" class="status-indicator online"></div>
                     </div>
                     <span id="headerName"></span>
                 </div>
@@ -221,7 +220,6 @@
                 <div class="compose-box">
                     <div class="avatar-container">
                         <img id="composeAvatar" class="avatar-medium" alt="">
-                        <div class="status-indicator online"></div>
                     </div>
                     <div class="compose-area">
                         <textarea id="postContent" class="compose-textarea" placeholder="What's happening?" rows="3"></textarea>
@@ -328,7 +326,6 @@
                 <div class="profile-info">
                     <div class="avatar-container profile-avatar-container">
                         <img id="profileAvatar" class="profile-avatar" alt="">
-                        <div id="profileStatus" class="status-indicator online"></div>
                     </div>
                     <h2 id="profileName"></h2>
                     <p id="profileUsername"></p>
@@ -391,41 +388,52 @@
                     <div class="settings-group">
                         <h3 data-i18n="profileSettings">Profile Settings</h3>
                         <div class="settings-item vertical">
-                            <label data-i18n="displayName">Display Name</label>
-                            <small class="settings-hint" data-i18n="displayNameHint">Can be changed every 14 days</small>
-                            <input type="text" id="displayNameInput" class="settings-input" placeholder="Enter display name">
-                            <div id="displayNameStatus" class="settings-status"></div>
+                            <button id="changeDisplayNameBtn" class="btn-outline" data-i18n="changeDisplayName">Change Display Name</button>
+                            <button id="changeUsernameBtn" class="btn-outline" data-i18n="changeUsername">Change Username</button>
                         </div>
-                        <div class="settings-item vertical">
-                            <label data-i18n="username">Username</label>
-                            <small class="settings-hint" data-i18n="usernameHint">Can be changed every 90 days</small>
-                            <input type="text" id="usernameInput" class="settings-input" placeholder="Enter username">
-                            <div id="usernameStatus" class="settings-status"></div>
-                        </div>
-                        <div class="settings-item vertical">
-                            <label data-i18n="confirmPassword">Confirm with password</label>
-                            <input type="password" id="confirmPasswordInput" class="settings-input" placeholder="Enter your password">
-                            <input type="password" id="confirmNewPasswordInput" class="settings-input" placeholder="Confirm password">
-                        </div>
-                        <button id="saveProfileSettingsBtn" class="btn-blue btn-full" data-i18n="saveChanges">Save changes</button>
                     </div>
                     
                     <div class="settings-group">
-                        <h3 data-i18n="notificationsSettings">Notifications</h3>
+                        <h3 data-i18n="matureContent">Mature Content</h3>
                         <div class="settings-item">
-                            <span data-i18n="pushNotifications">Push notifications</span>
+                            <div>
+                                <div data-i18n="showMatureContent">Show mature content</div>
+                                <small class="settings-hint" data-i18n="matureContentDesc">See Not Safe for Work mature and adult content in your feeds and search results.</small>
+                            </div>
                             <label class="toggle-switch">
-                                <input type="checkbox" id="pushToggle" checked>
+                                <input type="checkbox" id="matureContentToggle">
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
                         <div class="settings-item">
-                            <span data-i18n="emailUpdates">Email updates</span>
+                            <div>
+                                <div data-i18n="blurMatureMedia">Blur mature media</div>
+                                <small class="settings-hint" data-i18n="blurMatureDesc">Blur images and media that may be sensitive.</small>
+                            </div>
                             <label class="toggle-switch">
-                                <input type="checkbox" id="emailToggle" checked>
+                                <input type="checkbox" id="blurMatureToggle">
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3 data-i18n="experience">Experience</h3>
+                        <div class="settings-item">
+                            <div>
+                                <div data-i18n="defaultFeedView">Default feed view</div>
+                                <small class="settings-hint">Choose how posts appear in your feed</small>
+                            </div>
+                        </div>
+                        <div class="feed-view-buttons">
+                            <button id="cardModeBtn" class="feed-view-btn active" data-i18n="cardMode">Card Mode</button>
+                            <button id="compactModeBtn" class="feed-view-btn" data-i18n="compactMode">Compact Mode</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3 data-i18n="dangerZone">Danger Zone</h3>
+                        <button id="deleteAccountBtn" class="delete-account-btn" data-i18n="deleteAccount">Delete Account</button>
                     </div>
                 </div>
             </div>
