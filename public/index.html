@@ -5,684 +5,614 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>FreedomNet</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231d9bf0'/%3E%3C/svg%3E">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #000000;
-            color: #e7e9ea;
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        body[data-theme="light"] {
-            background-color: #ffffff;
-            color: #0f1419;
-        }
-
-        /* Auth Screen */
-        .auth-screen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1d9bf0, #0a5e8c);
-        }
-
-        .auth-container {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            padding: 2rem;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        body[data-theme="light"] .auth-container {
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .auth-logo h1 {
-            text-align: center;
-            color: #1d9bf0;
-            margin-bottom: 2rem;
-        }
-
-        .auth-tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #2f3336;
-        }
-
-        .auth-tab {
-            flex: 1;
-            background: none;
-            border: none;
-            padding: 0.75rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            color: #71767b;
-            transition: color 0.2s;
-        }
-
-        .auth-tab.active {
-            color: #1d9bf0;
-            border-bottom: 2px solid #1d9bf0;
-        }
-
-        .auth-form {
-            display: none;
-        }
-
-        .auth-form.active {
-            display: block;
-        }
-
-        .input-field {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .input-field input {
-            width: 100%;
-            padding: 1rem 0.75rem 0.5rem;
-            background: #000000;
-            border: 1px solid #2f3336;
-            border-radius: 8px;
-            color: #e7e9ea;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        body[data-theme="light"] .input-field input {
-            background: #ffffff;
-            color: #0f1419;
-            border-color: #cfd9de;
-        }
-
-        .input-field input:focus {
-            border-color: #1d9bf0;
-        }
-
-        .input-field label {
-            position: absolute;
-            left: 0.75rem;
-            top: 0.75rem;
-            color: #71767b;
-            transition: 0.2s;
-            pointer-events: none;
-        }
-
-        .input-field input:focus + label,
-        .input-field input:not(:placeholder-shown) + label {
-            top: 0.25rem;
-            font-size: 0.7rem;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 0.75rem;
-            top: 0.75rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #71767b;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 0.75rem;
-            background: #1d9bf0;
-            border: none;
-            border-radius: 9999px;
-            color: white;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover {
-            background: #1a8cd8;
-        }
-
-        .auth-options {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1.5rem;
-            font-size: 0.85rem;
-        }
-
-        .checkbox {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-        }
-
-        .forgot-link {
-            color: #1d9bf0;
-            text-decoration: none;
-        }
-
-        .auth-message {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: 0.85rem;
-            color: #f4212e;
-        }
-
-        /* App Layout */
-        .app {
-            display: none;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100vh;
-            padding: 1rem;
-            border-right: 1px solid #2f3336;
-            display: flex;
-            flex-direction: column;
-        }
-
-        body[data-theme="light"] .sidebar {
-            border-right-color: #e1e8ed;
-        }
-
-        .sidebar-logo h2 {
-            color: #1d9bf0;
-            padding: 1rem 0.5rem;
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem;
-            background: none;
-            border: none;
-            border-radius: 9999px;
-            color: #e7e9ea;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        body[data-theme="light"] .nav-btn {
-            color: #0f1419;
-        }
-
-        .nav-btn:hover {
-            background: rgba(29, 155, 240, 0.1);
-        }
-
-        .nav-btn.active {
-            color: #1d9bf0;
-            font-weight: 600;
-        }
-
-        .sidebar-bottom {
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid #2f3336;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .edit-avatar-btn, .logout-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            background: none;
-            border: none;
-            border-radius: 9999px;
-            color: #e7e9ea;
-            cursor: pointer;
-        }
-
-        body[data-theme="light"] .edit-avatar-btn, body[data-theme="light"] .logout-btn {
-            color: #0f1419;
-        }
-
-        .edit-avatar-btn:hover, .logout-btn:hover {
-            background: rgba(29, 155, 240, 0.1);
-        }
-
-        .mobile-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #000000;
-            border-top: 1px solid #2f3336;
-            padding: 0.5rem;
-            justify-content: space-around;
-            z-index: 100;
-        }
-
-        body[data-theme="light"] .mobile-nav {
-            background: #ffffff;
-            border-top-color: #e1e8ed;
-        }
-
-        .mobile-btn {
-            background: none;
-            border: none;
-            padding: 0.5rem;
-            color: #71767b;
-            cursor: pointer;
-        }
-
-        .mobile-btn.active {
-            color: #1d9bf0;
-        }
-
-        .main-content {
-            margin-left: 260px;
-            max-width: 600px;
-            margin-right: auto;
-            padding-bottom: 2rem;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            .main-content {
-                margin-left: 0;
-                margin-bottom: 70px;
-            }
-            .mobile-nav {
-                display: flex;
-            }
-        }
-
-        .main-header {
-            position: sticky;
-            top: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(12px);
-            padding: 1rem;
-            border-bottom: 1px solid #2f3336;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-        }
-
-        body[data-theme="light"] .main-header {
-            background: rgba(255, 255, 255, 0.85);
-            border-bottom-color: #e1e8ed;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .avatar-small {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* Compose */
-        .compose-box {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid #2f3336;
-        }
-
-        .avatar-medium {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .compose-area {
-            flex: 1;
-        }
-
-        .compose-textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: #e7e9ea;
-            font-size: 1.1rem;
-            resize: none;
-            outline: none;
-        }
-
-        body[data-theme="light"] .compose-textarea {
-            color: #0f1419;
-        }
-
-        .btn-blue {
-            background: #1d9bf0;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Post */
-        .post {
-            padding: 1rem;
-            border-bottom: 1px solid #2f3336;
-            transition: background 0.2s;
-        }
-
-        .post:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .post-header {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .post-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .post-body {
-            flex: 1;
-        }
-
-        .post-name {
-            font-weight: 700;
-        }
-
-        .post-username {
-            color: #71767b;
-            font-size: 0.85rem;
-        }
-
-        .post-content {
-            margin: 0.5rem 0;
-            word-wrap: break-word;
-        }
-
-        .post-image {
-            max-width: 100%;
-            border-radius: 16px;
-            margin-top: 0.5rem;
-        }
-
-        .post-actions {
-            display: flex;
-            gap: 2rem;
-            margin-top: 0.75rem;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: #71767b;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #000000;
-            margin-top: -60px;
-        }
-
-        .profile-stats {
-            display: flex;
-            gap: 1.5rem;
-            margin: 1rem 0;
-        }
-
-        .profile-stat {
-            text-align: center;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #2f3336;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            color: #e7e9ea;
-            cursor: pointer;
-        }
-
-        body[data-theme="light"] .btn-outline {
-            border-color: #cfd9de;
-            color: #0f1419;
-        }
-
-        .profile-tabs {
-            display: flex;
-            border-bottom: 1px solid #2f3336;
-            margin-top: 1rem;
-        }
-
-        .profile-tab {
-            flex: 1;
-            background: none;
-            border: none;
-            padding: 1rem;
-            color: #71767b;
-            cursor: pointer;
-        }
-
-        .profile-tab.active {
-            color: #1d9bf0;
-            border-bottom: 2px solid #1d9bf0;
-        }
-
-        .profile-tab-content {
-            display: none;
-        }
-
-        .profile-tab-content.active {
-            display: block;
-        }
-
-        .profile-posts-grid {
-            padding: 0.5rem;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-card {
-            background: #000000;
-            border-radius: 16px;
-            padding: 1.5rem;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        body[data-theme="light"] .modal-card {
-            background: #ffffff;
-        }
-
-        .custom-alert {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            align-items: center;
-            justify-content: center;
-            z-index: 1100;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="dark">
     <div class="auth-screen">
         <div class="auth-container">
-            <div class="auth-logo"><h1>FreedomNet</h1></div>
-            <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Sign in</button>
-                <button class="auth-tab" data-tab="register">Sign up</button>
+            <div class="auth-logo">
+                <h1>FreedomNet</h1>
             </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login" data-i18n="signIn">Sign in</button>
+                <button class="auth-tab" data-tab="register" data-i18n="signUp">Sign up</button>
+            </div>
+            
             <form id="loginForm" class="auth-form active">
-                <div class="input-field"><input type="text" id="loginUsername" required><label>Email or username</label></div>
-                <div class="input-field"><input type="password" id="loginPassword" required><label>Password</label></div>
-                <button type="submit" class="btn-primary">Sign in</button>
+                <div class="input-field">
+                    <input type="text" id="loginUsername" required>
+                    <label data-i18n="emailOrUsername">Email or username</label>
+                </div>
+                
+                <div class="input-field">
+                    <input type="password" id="loginPassword" required>
+                    <label data-i18n="password">Password</label>
+                    <button type="button" class="password-toggle" data-target="loginPassword">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="auth-options">
+                    <label class="checkbox">
+                        <input type="checkbox" id="rememberMe">
+                        <span data-i18n="rememberMe">Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-link" data-i18n="forgotPassword">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="btn-primary" data-i18n="signInBtn">Sign in</button>
             </form>
+            
             <form id="registerForm" class="auth-form">
-                <div class="input-field"><input type="text" id="regFullName" required><label>Display name</label></div>
-                <div class="input-field"><input type="text" id="regUsername" required><label>Username</label></div>
-                <div class="input-field"><input type="email" id="regEmail" required><label>Email</label></div>
-                <div class="input-field"><input type="password" id="regPassword" required><label>Password</label></div>
-                <div class="input-field"><input type="password" id="regConfirmPassword" required><label>Confirm password</label></div>
-                <button type="submit" class="btn-primary">Create account</button>
+                <div class="input-field">
+                    <input type="text" id="regFullName" required>
+                    <label data-i18n="fullName">Display name</label>
+                </div>
+                
+                <div class="input-field">
+                    <input type="text" id="regUsername" required>
+                    <label data-i18n="username">Username</label>
+                </div>
+                
+                <div class="input-field">
+                    <input type="email" id="regEmail" required>
+                    <label data-i18n="email">Email</label>
+                </div>
+                
+                <div class="input-field">
+                    <input type="password" id="regPassword" required>
+                    <label data-i18n="password">Password</label>
+                    <button type="button" class="password-toggle" data-target="regPassword">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="input-field">
+                    <input type="password" id="regConfirmPassword" required>
+                    <label data-i18n="confirmPassword">Confirm password</label>
+                </div>
+                
+                <button type="submit" class="btn-primary" data-i18n="createAccount">Create account</button>
             </form>
+            
             <div id="authMessage" class="auth-message"></div>
         </div>
     </div>
     
     <div id="app" class="app">
-        <div class="sidebar"><div class="sidebar-logo"><h2>FreedomNet</h2></div>
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <h2>FreedomNet</h2>
+            </div>
+            
             <nav class="sidebar-nav">
-                <button class="nav-btn active" data-page="home"><span>🏠 Home</span></button>
-                <button class="nav-btn" data-page="profile"><span>👤 Profile</span></button>
-                <button class="nav-btn" data-page="settings"><span>⚙️ Settings</span></button>
+                <button class="nav-btn active" data-page="home">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-7H9v7H5a2 2 0 0 1-2-2z"/>
+                    </svg>
+                    <span data-i18n="home">Home</span>
+                </button>
+                <button class="nav-btn" data-page="explore">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2a15 15 0 0 0 0 20 15 15 0 0 0 0-20z"/>
+                        <path d="M2 12h20"/>
+                    </svg>
+                    <span data-i18n="explore">Explore</span>
+                </button>
+                <button class="nav-btn" data-page="notifications">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span data-i18n="notifications">Notifications</span>
+                </button>
+                <button class="nav-btn" data-page="messages">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span data-i18n="messages">Messages</span>
+                </button>
+                <button class="nav-btn" data-page="profile">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span data-i18n="profile">Profile</span>
+                </button>
+                <button class="nav-btn" data-page="settings">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span data-i18n="settings">Settings</span>
+                </button>
+                <button class="nav-btn" data-page="bookmarks">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span data-i18n="bookmarks">Bookmarks</span>
+                </button>
+                <button class="nav-btn" data-page="help">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <span data-i18n="helpCenter">Help Center</span>
+                </button>
             </nav>
-            <div class="sidebar-bottom"><button id="logoutBtn" class="logout-btn">🚪 Logout</button></div>
+            
+            <div class="sidebar-bottom">
+                <button id="editAvatarBtn" class="edit-avatar-btn">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M17 3.5a4 4 0 0 1 0 7"/>
+                    </svg>
+                    <span data-i18n="changeAvatar">Change avatar</span>
+                </button>
+                <button id="logoutBtn" class="logout-btn">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span data-i18n="logout">Logout</span>
+                </button>
+            </div>
         </div>
+        
         <div class="mobile-nav">
-            <button class="mobile-btn active" data-page="home">🏠</button>
-            <button class="mobile-btn" data-page="profile">👤</button>
-            <button class="mobile-btn" data-page="settings">⚙️</button>
+            <button class="mobile-btn active" data-page="home">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-7H9v7H5a2 2 0 0 1-2-2z"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="explore">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 2a15 15 0 0 0 0 20 15 15 0 0 0 0-20z"/>
+                    <path d="M2 12h20"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="notifications">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="messages">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="profile">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="settings">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="bookmarks">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+            </button>
+            <button class="mobile-btn" data-page="help">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </button>
         </div>
+        
         <main class="main-content">
-            <header class="main-header"><h2 id="pageTitle">Home</h2><div class="user-info"><img id="headerAvatar" class="avatar-small" alt=""><span id="headerName"></span></div></header>
+            <header class="main-header">
+                <h2 id="pageTitle">Home</h2>
+                <div class="user-info">
+                    <div class="avatar-container">
+                        <img id="headerAvatar" class="avatar-small" alt="">
+                    </div>
+                    <span id="headerName"></span>
+                </div>
+            </header>
+            
             <div id="homePage" class="page active">
-                <div class="compose-box"><div class="avatar-container"><img id="composeAvatar" class="avatar-medium" alt=""></div><div class="compose-area"><textarea id="postContent" class="compose-textarea" placeholder="What's happening?" rows="3"></textarea><div class="compose-actions"><button id="createPostBtn" class="btn-blue">Post</button></div></div></div>
+                <div class="compose-box">
+                    <div class="avatar-container">
+                        <img id="composeAvatar" class="avatar-medium" alt="">
+                    </div>
+                    <div class="compose-area">
+                        <textarea id="postContent" class="compose-textarea" placeholder="What's happening?" rows="3"></textarea>
+                        <div class="compose-media">
+                            <button id="addImageBtn" class="media-btn" title="Add image">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="2.5"/>
+                                    <path d="M21 15l-5-5-6 6-3-3-3 3"/>
+                                </svg>
+                            </button>
+                            <div id="imagePreview" class="image-preview" style="display:none">
+                                <img id="previewImg" src="">
+                                <button id="removeImageBtn" class="remove-image">×</button>
+                            </div>
+                        </div>
+                        <div class="compose-actions">
+                            <button id="createPostBtn" class="btn-blue" data-i18n="post">Post</button>
+                        </div>
+                    </div>
+                </div>
                 <div id="postsList" class="posts-list"></div>
             </div>
-            <div id="profilePage" class="page">
-                <div id="profileCover" class="profile-cover" style="background: linear-gradient(135deg, #1d9bf0, #0a5e8c); height: 150px;"></div>
-                <div class="profile-info" style="padding: 0 1rem;"><div class="avatar-container"><img id="profileAvatar" class="profile-avatar" alt=""></div><h2 id="profileName"></h2><p id="profileUsername"></p><p id="profileBio" class="profile-bio"></p><div class="profile-stats"><div class="profile-stat"><span id="userPostCount">0</span><label>Posts</label></div><div class="profile-stat"><span id="userFollowerCount">0</span><label>Followers</label></div><div class="profile-stat"><span id="userFollowingCount">0</span><label>Following</label></div></div><button id="editProfileBtn" class="btn-outline">Edit profile</button></div>
-                <div class="profile-tabs"><button class="profile-tab active" data-profile-tab="posts">Posts</button></div>
-                <div id="profile-posts" class="profile-tab-content active"><div id="userPostsList" class="profile-posts-grid"></div></div>
+            
+            <div id="explorePage" class="page">
+                <div class="explore-container">
+                    <div class="search-container">
+                        <div class="search-wrapper">
+                            <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="M21 21l-4.35-4.35"/>
+                            </svg>
+                            <input type="text" id="searchInput" class="search-input" placeholder="Search FreedomNet...">
+                        </div>
+                    </div>
+                    <div class="trending-card">
+                        <h3 data-i18n="trendingNow">Trending now</h3>
+                        <div class="trending-item">
+                            <div class="trending-rank">1</div>
+                            <div>
+                                <div class="trending-name">#FreedomNet</div>
+                                <div class="trending-posts">1,234 posts</div>
+                            </div>
+                        </div>
+                        <div class="trending-item">
+                            <div class="trending-rank">2</div>
+                            <div>
+                                <div class="trending-name">#Community</div>
+                                <div class="trending-posts">892 posts</div>
+                            </div>
+                        </div>
+                        <div class="trending-item">
+                            <div class="trending-rank">3</div>
+                            <div>
+                                <div class="trending-name">#Welcome</div>
+                                <div class="trending-posts">567 posts</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="searchResults" class="search-results" style="display:none"></div>
+                </div>
             </div>
-            <div id="settingsPage" class="page"><div class="settings-container" style="padding:1rem"><button id="deleteAccountBtn" style="background:#f4212e; color:white; border:none; padding:0.75rem; border-radius:9999px;">Delete Account</button></div></div>
-            <footer class="app-footer" style="text-align:center; padding:1rem; font-size:0.75rem;"><p>© FreedomNet, Inc.</p></footer>
+            
+            <div id="notificationsPage" class="page">
+                <div class="notifications-list">
+                    <div class="notification-item">
+                        <div class="notification-icon">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 8v4M12 16h.01"/>
+                            </svg>
+                        </div>
+                        <div class="notification-content">
+                            <p data-i18n="welcomeNotification">Welcome to FreedomNet!</p>
+                            <span class="notification-time">Just now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="messagesPage" class="page">
+                <div class="messages-container">
+                    <div class="messages-sidebar">
+                        <div class="messages-search">
+                            <div class="search-wrapper small">
+                                <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="M21 21l-4.35-4.35"/>
+                                </svg>
+                                <input type="text" id="userSearchInput" class="search-input small" placeholder="Search users...">
+                            </div>
+                            <div id="userSearchResults" class="user-search-results"></div>
+                        </div>
+                        <div id="messagesList" class="messages-list"></div>
+                    </div>
+                    <div class="messages-area">
+                        <div class="messages-header">
+                            <img id="messagesHeaderAvatar" class="messages-header-avatar" alt="">
+                            <span id="messagesHeaderName" class="messages-header-name"></span>
+                        </div>
+                        <div id="messagesContent" class="messages-content"></div>
+                        <div class="messages-input-area">
+                            <input type="text" id="messageInput" class="messages-input" placeholder="Type a message...">
+                            <button id="sendMessageBtn" class="messages-send-btn">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="profilePage" class="page">
+                <div id="profileCover" class="profile-cover" style="background: linear-gradient(135deg, var(--accent), var(--accent-hover))">
+                    <div class="profile-cover-edit">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/>
+                            <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/>
+                        </svg>
+                        <span data-i18n="coverColorSelect">Change cover</span>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <div class="avatar-container profile-avatar-container">
+                        <img id="profileAvatar" class="profile-avatar" alt="">
+                    </div>
+                    <h2 id="profileName"></h2>
+                    <div class="profile-name-badge">
+                        <p id="profileUsername"></p>
+                        <span id="profileOfficialBadge" class="official-badge" style="display:none">⭐Official</span>
+                    </div>
+                    <p id="profileBio" class="profile-bio"></p>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span id="userPostCount">0</span>
+                            <label data-i18n="posts">Posts</label>
+                        </div>
+                        <div class="profile-stat">
+                            <span id="userFollowerCount">0</span>
+                            <label data-i18n="followers">Followers</label>
+                        </div>
+                        <div class="profile-stat">
+                            <span id="userFollowingCount">0</span>
+                            <label data-i18n="following">Following</label>
+                        </div>
+                    </div>
+                    <button id="editProfileBtn" class="btn-outline" data-i18n="editProfile">Edit profile</button>
+                </div>
+                
+                <div class="profile-tabs">
+                    <button class="profile-tab active" data-profile-tab="posts" data-i18n="postsTab">Posts</button>
+                    <button class="profile-tab" data-profile-tab="reposts" data-i18n="repostsTab">Reposts</button>
+                </div>
+                
+                <div id="profile-posts" class="profile-tab-content active">
+                    <div id="userPostsList" class="profile-posts-grid"></div>
+                </div>
+                <div id="profile-reposts" class="profile-tab-content">
+                    <div id="userRepostsList" class="profile-posts-grid"></div>
+                </div>
+            </div>
+            
+            <div id="settingsPage" class="page">
+                <div class="settings-container">
+                    <div class="settings-group">
+                        <h3 data-i18n="language">Language</h3>
+                        <div class="settings-item">
+                            <span data-i18n="selectLanguage">Select language</span>
+                            <select id="languageSelect" class="language-select">
+                                <option value="en">English</option>
+                                <option value="ru">Русский</option>
+                                <option value="es">Español</option>
+                                <option value="fr">Français</option>
+                                <option value="de">Deutsch</option>
+                                <option value="it">Italiano</option>
+                                <option value="pt">Português</option>
+                                <option value="tr">Türkçe</option>
+                                <option value="ar">العربية</option>
+                                <option value="hi">हिन्दी</option>
+                                <option value="zh">中文</option>
+                                <option value="ja">日本語</option>
+                                <option value="ko">한국어</option>
+                                <option value="el">Ελληνικά</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3 data-i18n="appearance">Appearance</h3>
+                        <div class="settings-item">
+                            <span data-i18n="theme">Theme</span>
+                            <div class="theme-buttons">
+                                <button class="theme-option active" data-theme="dark" data-i18n="dark">Dark</button>
+                                <button class="theme-option" data-theme="light" data-i18n="light">Light</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3 data-i18n="profileSettings">Profile Settings</h3>
+                        <div class="settings-item vertical">
+                            <div class="settings-button-row">
+                                <button id="changeDisplayNameBtn" class="btn-outline" data-i18n="changeDisplayName">Change Display Name</button>
+                                <small class="settings-button-hint" data-i18n="displayNameChangeHint">You can change the display name only once every 14 days.</small>
+                            </div>
+                            <div class="settings-button-row">
+                                <button id="changeUsernameBtn" class="btn-outline" data-i18n="changeUsername">Change Username</button>
+                                <small class="settings-button-hint" data-i18n="usernameChangeHint">You can change the username only once every 90 days.</small>
+                            </div>
+                            <div class="settings-button-row">
+                                <button id="changeEmailBtn" class="btn-outline" data-i18n="changeEmail">Change Email</button>
+                                <small class="settings-button-hint" data-i18n="changeEmailHint">After changing your email, it will be available for use on another account.</small>
+                            </div>
+                            <div class="settings-button-row">
+                                <button id="changePasswordBtn" class="btn-outline" data-i18n="changePassword">Change Password</button>
+                                <small class="settings-button-hint" data-i18n="changePasswordHintText">After changing the password, it will not be possible to completely revert it. For your security, in case of complete loss, please contact the Help Center.</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3 data-i18n="matureContent">Mature Content</h3>
+                        <div class="settings-item">
+                            <div>
+                                <div data-i18n="showMatureContent">Show mature content</div>
+                                <small class="settings-hint" data-i18n="matureContentDesc">See Not Safe for Work mature and adult content in your feeds and search results.</small>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="matureContentToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div data-i18n="blurMatureMedia">Blur mature media</div>
+                                <small class="settings-hint" data-i18n="blurMatureDesc">Blur images and media that may be sensitive.</small>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="blurMatureToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3 data-i18n="accountPrivacy">Account Privacy</h3>
+                        <button id="deleteAccountBtn" class="delete-account-btn" data-i18n="deleteAccount">Delete Account</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="bookmarksPage" class="page">
+                <div id="savedPostsList" class="saved-posts-list"></div>
+            </div>
+            
+            <div id="helpPage" class="page">
+                <div class="help-container">
+                    <div class="help-header">
+                        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <h2 data-i18n="helpCenter">Help Center</h2>
+                        <p data-i18n="askAI">Ask me anything about FreedomNet</p>
+                    </div>
+                    <div class="help-chat">
+                        <textarea id="helpQuestion" class="help-textarea" placeholder="Type your question here..." rows="3"></textarea>
+                        <button id="helpAskBtn" class="btn-blue">Ask AI Assistant</button>
+                        <div id="helpResponse" class="help-response-container"></div>
+                    </div>
+                    <div class="help-questions">
+                        <h4>Suggested questions:</h4>
+                        <div class="help-question-chip" onclick="document.getElementById('helpQuestion').value='How to change password?'; document.getElementById('helpAskBtn').click();">How to change password?</div>
+                        <div class="help-question-chip" onclick="document.getElementById('helpQuestion').value='How to change username?'; document.getElementById('helpAskBtn').click();">How to change username?</div>
+                        <div class="help-question-chip" onclick="document.getElementById('helpQuestion').value='How to delete account?'; document.getElementById('helpAskBtn').click();">How to delete account?</div>
+                        <div class="help-question-chip" onclick="document.getElementById('helpQuestion').value='How to create a post?'; document.getElementById('helpAskBtn').click();">How to create a post?</div>
+                        <div class="help-question-chip" onclick="document.getElementById('helpQuestion').value='How to send a message?'; document.getElementById('helpAskBtn').click();">How to send a message?</div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="app-footer">
+                <p>protected by SMMplanner © FreedomNet, Inc.</p>
+            </footer>
         </main>
     </div>
-    <div id="customAlert" class="custom-alert"><div class="custom-alert-content" style="background:#000; padding:1.5rem; border-radius:16px;"><p id="alertMessage"></p><button id="alertOkBtn" class="btn-blue">OK</button></div></div>
-    <script>
-        // Simplified FreedomNet with no reposts, profile posts like main feed
-        let currentUser = null;
-        let posts = [];
-        let users = [];
-        let nextPostId = 3;
-        
-        function showAlert(msg) { const el = document.getElementById('customAlert'); document.getElementById('alertMessage').innerText = msg; el.style.display = 'flex'; document.getElementById('alertOkBtn').onclick = () => el.style.display = 'none'; }
-        
-        function saveData() { localStorage.setItem('freedomnet_users', JSON.stringify(users)); localStorage.setItem('freedomnet_posts', JSON.stringify(posts)); localStorage.setItem('freedomnet_current', currentUser ? currentUser.username : ''); }
-        
-        function loadData() {
-            const storedUsers = localStorage.getItem('freedomnet_users');
-            if(storedUsers) users = JSON.parse(storedUsers); else { users = [{ id:1, fullName:'Admin', username:'admin', email:'admin@fn.com', password:'admin', bio:'Welcome to FreedomNet', avatar:'https://picsum.photos/id/1/100', followers:[], following:[] }]; saveData(); }
-            const storedPosts = localStorage.getItem('freedomnet_posts');
-            if(storedPosts) posts = JSON.parse(storedPosts); else { posts = [{ id:1, userId:1, content:'Hello FreedomNet! This is the first post.', image:null, likes:[], comments:[], createdAt:Date.now() }, { id:2, userId:1, content:'Enjoy the decentralized social network!', image:null, likes:[], comments:[], createdAt:Date.now()-3600000 }]; nextPostId=3; saveData(); }
-            const storedUser = localStorage.getItem('freedomnet_current');
-            if(storedUser) { const found = users.find(u=>u.username===storedUser); if(found) currentUser=found; }
-        }
-        
-        function renderPosts(container, postArray, showDelete=false, currentUserId=null) {
-            container.innerHTML = '';
-            if(!postArray.length) { container.innerHTML = '<div style="text-align:center;padding:2rem;">No posts yet</div>'; return; }
-            postArray.slice().reverse().forEach(p => {
-                const author = users.find(u=>u.id===p.userId);
-                if(!author) return;
-                const div = document.createElement('div'); div.className = 'post';
-                div.innerHTML = `<div class="post-header"><img class="post-avatar" src="${author.avatar||'https://picsum.photos/id/64/100'}" onerror="this.src='https://picsum.photos/id/64/100'"><div class="post-body"><div><span class="post-name">${escapeHtml(author.fullName)}</span> <span class="post-username">@${author.username}</span></div><div class="post-content">${escapeHtml(p.content)}</div>${p.image?`<img class="post-image" src="${p.image}">`:''}<div class="post-actions"><button class="action-btn like-btn" data-id="${p.id}">❤️ ${p.likes.length}</button><button class="action-btn comment-btn" data-id="${p.id}">💬 ${p.comments.length}</button>${showDelete?`<button class="action-btn delete-post-btn" data-id="${p.id}">🗑️ Delete</button>`:''}</div></div></div>`;
-                container.appendChild(div);
-            });
-            document.querySelectorAll('.like-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const id = parseInt(btn.dataset.id); const post = posts.find(p=>p.id===id); if(post && currentUser) { if(post.likes.includes(currentUser.username)) post.likes = post.likes.filter(u=>u!==currentUser.username); else post.likes.push(currentUser.username); saveData(); renderCurrentFeed(); if(document.getElementById('userPostsList') && document.getElementById('profilePage').classList.contains('active')) renderUserPosts(); } }));
-            document.querySelectorAll('.comment-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const id = parseInt(btn.dataset.id); const comment = prompt('Write your comment:'); if(comment && currentUser) { const post = posts.find(p=>p.id===id); post.comments.push({user:currentUser.username, text:comment, createdAt:Date.now()}); saveData(); renderCurrentFeed(); if(document.getElementById('userPostsList') && document.getElementById('profilePage').classList.contains('active')) renderUserPosts(); } }));
-            if(showDelete) document.querySelectorAll('.delete-post-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const id = parseInt(btn.dataset.id); if(confirm('Delete this post?')) { posts = posts.filter(p=>p.id!==id); saveData(); renderCurrentFeed(); renderUserPosts(); } }));
-        }
-        
-        function renderCurrentFeed() { if(currentUser) { const container = document.getElementById('postsList'); if(container) renderPosts(container, posts, false); } }
-        
-        function renderUserPosts() { if(currentUser) { const userPosts = posts.filter(p=>p.userId===currentUser.id); const container = document.getElementById('userPostsList'); if(container) renderPosts(container, userPosts, true, currentUser.id); } }
-        
-        function updateProfileUI() { if(currentUser) { document.getElementById('profileName').innerText = currentUser.fullName; document.getElementById('profileUsername').innerText = '@'+currentUser.username; document.getElementById('profileBio').innerText = currentUser.bio || 'No bio yet'; document.getElementById('headerName').innerText = currentUser.fullName; const avatarUrl = currentUser.avatar || 'https://picsum.photos/id/64/100'; document.getElementById('headerAvatar').src = avatarUrl; document.getElementById('profileAvatar').src = avatarUrl; document.getElementById('composeAvatar').src = avatarUrl; const postCount = posts.filter(p=>p.userId===currentUser.id).length; document.getElementById('userPostCount').innerText = postCount; document.getElementById('userFollowerCount').innerText = currentUser.followers?.length||0; document.getElementById('userFollowingCount').innerText = currentUser.following?.length||0; } }
-        
-        function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-        
-        function renderApp() { document.querySelector('.auth-screen').style.display = 'none'; document.getElementById('app').style.display = 'block'; updateProfileUI(); renderCurrentFeed(); renderUserPosts(); }
-        
-        function logout() { currentUser = null; localStorage.removeItem('freedomnet_current'); document.querySelector('.auth-screen').style.display = 'flex'; document.getElementById('app').style.display = 'none'; }
-        
-        document.getElementById('loginForm').addEventListener('submit', (e) => { e.preventDefault(); const username = document.getElementById('loginUsername').value; const password = document.getElementById('loginPassword').value; const user = users.find(u=>(u.username===username||u.email===username)&&u.password===password); if(user) { currentUser = user; saveData(); renderApp(); document.getElementById('authMessage').innerText = ''; } else { document.getElementById('authMessage').innerText = 'Invalid credentials'; } });
-        document.getElementById('registerForm').addEventListener('submit', (e) => { e.preventDefault(); const fullName = document.getElementById('regFullName').value; const username = document.getElementById('regUsername').value; const email = document.getElementById('regEmail').value; const password = document.getElementById('regPassword').value; const confirm = document.getElementById('regConfirmPassword').value; if(password!==confirm) { document.getElementById('authMessage').innerText = 'Passwords do not match'; return; } if(users.find(u=>u.username===username)) { document.getElementById('authMessage').innerText = 'Username taken'; return; } const newUser = { id: users.length+1, fullName, username, email, password, bio:'', avatar:'https://picsum.photos/id/'+(users.length+100)+'/100', followers:[], following:[] }; users.push(newUser); currentUser = newUser; saveData(); renderApp(); });
-        document.querySelectorAll('.auth-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); const formId = tab.dataset.tab === 'login' ? 'loginForm' : 'registerForm'; document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active')); document.getElementById(formId).classList.add('active'); }); });
-        document.getElementById('createPostBtn').addEventListener('click', () => { const content = document.getElementById('postContent').value.trim(); if(!content) return showAlert('Post cannot be empty'); const newPost = { id: nextPostId++, userId: currentUser.id, content, image: null, likes: [], comments: [], createdAt: Date.now() }; posts.push(newPost); saveData(); document.getElementById('postContent').value = ''; renderCurrentFeed(); renderUserPosts(); });
-        document.getElementById('editProfileBtn').addEventListener('click', () => { const newBio = prompt('Edit your bio:', currentUser.bio || ''); if(newBio !== null) { currentUser.bio = newBio; saveData(); updateProfileUI(); showAlert('Profile updated'); } });
-        document.getElementById('deleteAccountBtn').addEventListener('click', () => { if(confirm('Delete account permanently? All posts will be removed.')) { posts = posts.filter(p=>p.userId !== currentUser.id); users = users.filter(u=>u.id !== currentUser.id); logout(); showAlert('Account deleted'); } });
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-        
-        document.querySelectorAll('.nav-btn, .mobile-btn').forEach(btn => { btn.addEventListener('click', () => { const page = btn.dataset.page; document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(page+'Page').classList.add('active'); document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active')); document.querySelectorAll('.mobile-btn').forEach(m=>m.classList.remove('active')); btn.classList.add('active'); document.getElementById('pageTitle').innerText = page === 'home' ? 'Home' : (page === 'profile' ? 'Profile' : 'Settings'); if(page === 'profile') renderUserPosts(); if(page === 'home') renderCurrentFeed(); }); });
-        
-        loadData(); if(currentUser) renderApp(); else { document.querySelector('.auth-screen').style.display = 'flex'; document.getElementById('app').style.display = 'none'; }
-    </script>
+    
+    <div id="editModal" class="modal">
+        <div class="modal-card">
+            <h3 data-i18n="editPost">Edit post</h3>
+            <textarea id="editPostContent" class="modal-textarea" rows="4"></textarea>
+            <div class="modal-buttons">
+                <button id="closeEditModal" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="saveEditBtn" class="btn-blue" data-i18n="save">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="deleteModal" class="modal delete-modal">
+        <div class="modal-card delete-card">
+            <h3 data-i18n="deletePost">Delete post?</h3>
+            <p data-i18n="deleteConfirm">Are you sure you want to delete this post? This action cannot be undone.</p>
+            <div class="modal-buttons delete-buttons">
+                <button id="cancelDeleteBtn" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn-delete" data-i18n="delete">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="editProfileModal" class="modal">
+        <div class="modal-card">
+            <h3 data-i18n="editProfile">Edit profile</h3>
+            <textarea id="editBioInput" class="modal-textarea" placeholder="Write something about yourself..." rows="4"></textarea>
+            <div class="modal-buttons">
+                <button id="closeProfileModal" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="saveProfileBtn" class="btn-blue" data-i18n="save">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="commentModal" class="modal">
+        <div class="modal-card comment-modal">
+            <h3 data-i18n="addComment">Add comment</h3>
+            <textarea id="commentInput" class="modal-textarea" placeholder="Write your comment..." rows="3"></textarea>
+            <div class="modal-buttons">
+                <button id="closeCommentModal" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="submitCommentBtn" class="btn-blue" data-i18n="comment">Comment</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="avatarModal" class="modal">
+        <div class="modal-card">
+            <h3 id="avatarModalTitle" data-i18n="changeAvatar">Change avatar</h3>
+            <div class="avatar-upload-area">
+                <div class="avatar-preview-container">
+                    <img id="avatarPreviewImg" class="avatar-preview-img" alt="">
+                </div>
+                <input type="file" id="avatarFileInput" accept="image/*" style="display:none">
+                <button id="uploadAvatarBtn" class="btn-outline">Choose image from computer</button>
+            </div>
+            <div class="modal-buttons">
+                <button id="closeAvatarModal" class="btn-outline" data-i18n="cancel">Cancel</button>
+                <button id="saveAvatarBtn" class="btn-blue" data-i18n="save">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="coverColorModal" class="modal">
+        <div class="modal-card">
+            <h3 data-i18n="coverColorSelect">Select cover color</h3>
+            <div class="cover-color-palette">
+                <div class="cover-color-option" style="background: #1d9bf0" data-color="#1d9bf0"></div>
+                <div class="cover-color-option" style="background: #f4212e" data-color="#f4212e"></div>
+                <div class="cover-color-option" style="background: #00ba7c" data-color="#00ba7c"></div>
+                <div class="cover-color-option" style="background: #f7b32b" data-color="#f7b32b"></div>
+                <div class="cover-color-option" style="background: #8b5cf6" data-color="#8b5cf6"></div>
+                <div class="cover-color-option" style="background: #ec4899" data-color="#ec4899"></div>
+                <div class="cover-color-option" style="background: #06b6d4" data-color="#06b6d4"></div>
+                <div class="cover-color-option" style="background: #f97316" data-color="#f97316"></div>
+                <div class="cover-color-option" style="background: #84cc16" data-color="#84cc16"></div>
+                <div class="cover-color-option" style="background: #6366f1" data-color="#6366f1"></div>
+            </div>
+            <div class="cover-color-custom">
+                <input type="color" id="customCoverColor" class="cover-color-input" value="#1d9bf0">
+                <button id="applyCoverColor" class="btn-blue">Apply</button>
+            </div>
+            <div class="modal-buttons">
+                <button id="closeCoverModal" class="btn-outline" data-i18n="cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="customAlert" class="custom-alert">
+        <div class="custom-alert-content">
+            <p id="alertMessage"></p>
+            <button id="alertOkBtn" class="btn-blue">OK</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
 </body>
 </html>
