@@ -12,8 +12,6 @@ let userSavedPosts = new Set();
 let selectedImageFile = null;
 let currentPostImageUrl = null;
 let currentViewingUser = null;
-let heartbeatInterval = null;
-let userStatuses = {};
 
 const translations = {
     en: {
@@ -51,8 +49,7 @@ const translations = {
         connectionError: 'Connection error', invalidCredentials: 'Invalid credentials',
         accountCreated: 'Account created!', welcomeBack: 'Welcome back!',
         allFieldsRequired: 'All fields required', passwordTooShort: 'Password too short',
-        noSavedPosts: 'No saved posts yet', savePostHint: 'Click the bookmark icon on any post to save it here',
-        online: 'Online', offline: 'Offline'
+        noSavedPosts: 'No saved posts yet', savePostHint: 'Click the bookmark icon on any post to save it here'
     },
     ru: {
         appName: 'FreedomNet', signIn: 'Войти', signUp: 'Регистрация',
@@ -89,8 +86,7 @@ const translations = {
         connectionError: 'Ошибка соединения', invalidCredentials: 'Неверные данные',
         accountCreated: 'Аккаунт создан!', welcomeBack: 'С возвращением!',
         allFieldsRequired: 'Все поля обязательны', passwordTooShort: 'Пароль должен быть не менее 6 символов',
-        noSavedPosts: 'Нет сохраненных постов', savePostHint: 'Нажмите на значок закладки на любом посте, чтобы сохранить его здесь',
-        online: 'В сети', offline: 'Не в сети'
+        noSavedPosts: 'Нет сохраненных постов', savePostHint: 'Нажмите на значок закладки на любом посте, чтобы сохранить его здесь'
     },
     es: {
         appName: 'FreedomNet', signIn: 'Iniciar sesión', signUp: 'Registrarse',
@@ -127,8 +123,7 @@ const translations = {
         connectionError: 'Error de conexión', invalidCredentials: 'Credenciales inválidas',
         accountCreated: '¡Cuenta creada!', welcomeBack: '¡Bienvenido de nuevo!',
         allFieldsRequired: 'Todos los campos son obligatorios', passwordTooShort: 'La contraseña debe tener al menos 6 caracteres',
-        noSavedPosts: 'No hay publicaciones guardadas', savePostHint: 'Haga clic en el icono de marcador en cualquier publicación para guardarla aquí',
-        online: 'En línea', offline: 'Desconectado'
+        noSavedPosts: 'No hay publicaciones guardadas', savePostHint: 'Haga clic en el icono de marcador en cualquier publicación para guardarla aquí'
     },
     fr: {
         appName: 'FreedomNet', signIn: 'Se connecter', signUp: "S'inscrire",
@@ -165,8 +160,7 @@ const translations = {
         connectionError: 'Erreur connexion', invalidCredentials: 'Identifiants invalides',
         accountCreated: 'Compte créé!', welcomeBack: 'Bon retour!',
         allFieldsRequired: 'Tous les champs requis', passwordTooShort: '6 caractères minimum',
-        noSavedPosts: 'Aucune publication sauvegardée', savePostHint: 'Cliquez sur l\'icône de signet sur n\'importe quelle publication pour la sauvegarder ici',
-        online: 'En ligne', offline: 'Hors ligne'
+        noSavedPosts: 'Aucune publication sauvegardée', savePostHint: 'Cliquez sur l\'icône de signet sur n\'importe quelle publication pour la sauvegarder ici'
     },
     de: {
         appName: 'FreedomNet', signIn: 'Anmelden', signUp: 'Registrieren',
@@ -203,8 +197,7 @@ const translations = {
         connectionError: 'Verbindungsfehler', invalidCredentials: 'Ungültige Anmeldedaten',
         accountCreated: 'Konto erstellt!', welcomeBack: 'Willkommen zurück!',
         allFieldsRequired: 'Alle Felder erforderlich', passwordTooShort: 'Passwort zu kurz',
-        noSavedPosts: 'Keine gespeicherten Beiträge', savePostHint: 'Klicken Sie auf das Lesezeichen-Symbol auf einem beliebigen Beitrag, um ihn hier zu speichern',
-        online: 'Online', offline: 'Offline'
+        noSavedPosts: 'Keine gespeicherten Beiträge', savePostHint: 'Klicken Sie auf das Lesezeichen-Symbol auf einem beliebigen Beitrag, um ihn hier zu speichern'
     },
     it: {
         appName: 'FreedomNet', signIn: 'Accedi', signUp: 'Registrati',
@@ -241,8 +234,7 @@ const translations = {
         connectionError: 'Errore di connessione', invalidCredentials: 'Credenziali non valide',
         accountCreated: 'Account creato!', welcomeBack: 'Bentornato!',
         allFieldsRequired: 'Tutti i campi sono obbligatori', passwordTooShort: 'La password deve essere di almeno 6 caratteri',
-        noSavedPosts: 'Nessun post salvato', savePostHint: 'Clicca sull\'icona del segnalibro su qualsiasi post per salvarlo qui',
-        online: 'Online', offline: 'Offline'
+        noSavedPosts: 'Nessun post salvato', savePostHint: 'Clicca sull\'icona del segnalibro su qualsiasi post per salvarlo qui'
     },
     pt: {
         appName: 'FreedomNet', signIn: 'Entrar', signUp: 'Cadastrar',
@@ -279,8 +271,7 @@ const translations = {
         connectionError: 'Erro de conexão', invalidCredentials: 'Credenciais inválidas',
         accountCreated: 'Conta criada!', welcomeBack: 'Bem-vindo de volta!',
         allFieldsRequired: 'Todos os campos são obrigatórios', passwordTooShort: 'A senha deve ter pelo menos 6 caracteres',
-        noSavedPosts: 'Nenhuma publicação salva', savePostHint: 'Clique no ícone de favorito em qualquer publicação para salvá-la aqui',
-        online: 'Online', offline: 'Offline'
+        noSavedPosts: 'Nenhuma publicação salva', savePostHint: 'Clique no ícone de favorito em qualquer publicação para salvá-la aqui'
     },
     tr: {
         appName: 'FreedomNet', signIn: 'Giriş yap', signUp: 'Kaydol',
@@ -317,8 +308,7 @@ const translations = {
         connectionError: 'Bağlantı hatası', invalidCredentials: 'Geçersiz kimlik bilgileri',
         accountCreated: 'Hesap oluşturuldu!', welcomeBack: 'Tekrar hoş geldiniz!',
         allFieldsRequired: 'Tüm alanlar zorunlu', passwordTooShort: 'Şifre en az 6 karakter olmalıdır',
-        noSavedPosts: 'Kaydedilmiş paylaşım yok', savePostHint: 'Herhangi bir paylaşımdaki yer imi simgesine tıklayarak buraya kaydedin',
-        online: 'Çevrimiçi', offline: 'Çevrimdışı'
+        noSavedPosts: 'Kaydedilmiş paylaşım yok', savePostHint: 'Herhangi bir paylaşımdaki yer imi simgesine tıklayarak buraya kaydedin'
     },
     ar: {
         appName: 'فريدوم نت', signIn: 'تسجيل الدخول', signUp: 'اشتراك',
@@ -355,8 +345,7 @@ const translations = {
         connectionError: 'خطأ في الاتصال', invalidCredentials: 'بيانات اعتماد غير صالحة',
         accountCreated: 'تم إنشاء الحساب!', welcomeBack: 'مرحبا بعودتك!',
         allFieldsRequired: 'جميع الحقول مطلوبة', passwordTooShort: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
-        noSavedPosts: 'لا توجد منشورات محفوظة', savePostHint: 'انقر على أيقونة الإشارة المرجعية على أي منشور لحفظه هنا',
-        online: 'متصل', offline: 'غير متصل'
+        noSavedPosts: 'لا توجد منشورات محفوظة', savePostHint: 'انقر على أيقونة الإشارة المرجعية على أي منشور لحفظه هنا'
     },
     hi: {
         appName: 'फ्रीडमनेट', signIn: 'साइन इन करें', signUp: 'साइन अप करें',
@@ -393,8 +382,7 @@ const translations = {
         connectionError: 'कनेक्शन त्रुटि', invalidCredentials: 'अमान्य क्रेडेंशियल्स',
         accountCreated: 'खाता बन गया!', welcomeBack: 'वापसी पर स्वागत है!',
         allFieldsRequired: 'सभी फ़ील्ड आवश्यक हैं', passwordTooShort: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
-        noSavedPosts: 'कोई सहेजी गई पोस्ट नहीं', savePostHint: 'किसी भी पोस्ट पर बुकमार्क आइकन पर क्लिक करके इसे यहां सहेजें',
-        online: 'ऑनलाइन', offline: 'ऑफलाइन'
+        noSavedPosts: 'कोई सहेजी गई पोस्ट नहीं', savePostHint: 'किसी भी पोस्ट पर बुकमार्क आइकन पर क्लिक करके इसे यहां सहेजें'
     },
     zh: {
         appName: '自由网', signIn: '登录', signUp: '注册',
@@ -431,8 +419,7 @@ const translations = {
         connectionError: '连接错误', invalidCredentials: '无效的凭证',
         accountCreated: '账户已创建！', welcomeBack: '欢迎回来！',
         allFieldsRequired: '所有字段都是必填的', passwordTooShort: '密码至少需要6个字符',
-        noSavedPosts: '暂无保存的帖子', savePostHint: '点击任何帖子上的书签图标即可在此处保存',
-        online: '在线', offline: '离线'
+        noSavedPosts: '暂无保存的帖子', savePostHint: '点击任何帖子上的书签图标即可在此处保存'
     },
     ja: {
         appName: 'フリーダムネット', signIn: 'サインイン', signUp: 'サインアップ',
@@ -469,8 +456,7 @@ const translations = {
         connectionError: '接続エラー', invalidCredentials: '認証情報が無効です',
         accountCreated: 'アカウントを作成しました！', welcomeBack: 'おかえりなさい！',
         allFieldsRequired: 'すべてのフィールドは必須です', passwordTooShort: 'パスワードは6文字以上必要です',
-        noSavedPosts: '保存された投稿はありません', savePostHint: '任意の投稿のブックマークアイコンをクリックして、ここに保存します',
-        online: 'オンライン', offline: 'オフライン'
+        noSavedPosts: '保存された投稿はありません', savePostHint: '任意の投稿のブックマークアイコンをクリックして、ここに保存します'
     },
     ko: {
         appName: '프리덤넷', signIn: '로그인', signUp: '회원가입',
@@ -507,8 +493,7 @@ const translations = {
         connectionError: '연결 오류', invalidCredentials: '잘못된 인증 정보',
         accountCreated: '계정이 생성되었습니다!', welcomeBack: '돌아오신 것을 환영합니다!',
         allFieldsRequired: '모든 필드는 필수입니다', passwordTooShort: '비밀번호는 최소 6자 이상이어야 합니다',
-        noSavedPosts: '저장된 게시물이 없습니다', savePostHint: '게시물의 북마크 아이콘을 클릭하여 여기에 저장하세요',
-        online: '온라인', offline: '오프라인'
+        noSavedPosts: '저장된 게시물이 없습니다', savePostHint: '게시물의 북마크 아이콘을 클릭하여 여기에 저장하세요'
     },
     el: {
         appName: 'FreedomNet', signIn: 'Σύνδεση', signUp: 'Εγγραφή',
@@ -545,8 +530,7 @@ const translations = {
         connectionError: 'Σφάλμα σύνδεσης', invalidCredentials: 'Λανθασμένα στοιχεία',
         accountCreated: 'Ο λογαριασμός δημιουργήθηκε!', welcomeBack: 'Καλώς ήρθες πίσω!',
         allFieldsRequired: 'Όλα τα πεδία είναι υποχρεωτικά', passwordTooShort: 'Ο κωδικός είναι πολύ μικρός',
-        noSavedPosts: 'Δεν υπάρχουν αποθηκευμένες δημοσιεύσεις', savePostHint: 'Πατήστε το εικονίδιο σελιδοδείκτη σε οποιαδήποτε δημοσίευση για αποθήκευση',
-        online: 'Συνδεδεμένος', offline: 'Εκτός σύνδεσης'
+        noSavedPosts: 'Δεν υπάρχουν αποθηκευμένες δημοσιεύσεις', savePostHint: 'Πατήστε το εικονίδιο σελιδοδείκτη σε οποιαδήποτε δημοσίευση για αποθήκευση'
     }
 };
 
@@ -673,74 +657,6 @@ function displaySavedPosts() {
         </div>
     `}).join('');
 }
-
-async function updateUserStatus() {
-    if (!currentUser) return;
-    try {
-        await fetch(`${API_URL}/api/user/heartbeat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: currentUser.id })
-        });
-    } catch (error) {}
-}
-
-async function fetchUserStatuses() {
-    try {
-        const res = await fetch(`${API_URL}/api/user/statuses`);
-        const data = await res.json();
-        userStatuses = data;
-        if (currentPage === 'profile') {
-            updateProfileStatus();
-        }
-    } catch (error) {}
-}
-
-function updateProfileStatus() {
-    const isOnline = userStatuses[currentUser?.id] || false;
-    const statusIndicator = document.getElementById('profileStatus');
-    if (statusIndicator) {
-        statusIndicator.className = `status-indicator ${isOnline ? 'online' : 'offline'}`;
-    }
-}
-
-function startHeartbeat() {
-    if (heartbeatInterval) clearInterval(heartbeatInterval);
-    updateUserStatus();
-    heartbeatInterval = setInterval(() => {
-        updateUserStatus();
-    }, 30000);
-    setInterval(() => {
-        fetchUserStatuses();
-    }, 10000);
-}
-
-function stopHeartbeat() {
-    if (heartbeatInterval) {
-        clearInterval(heartbeatInterval);
-        heartbeatInterval = null;
-    }
-}
-
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        if (heartbeatInterval) {
-            clearInterval(heartbeatInterval);
-            heartbeatInterval = null;
-        }
-    } else {
-        if (currentUser) {
-            startHeartbeat();
-            fetchUserStatuses();
-        }
-    }
-});
-
-window.addEventListener('beforeunload', () => {
-    if (heartbeatInterval) {
-        clearInterval(heartbeatInterval);
-    }
-});
 
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
@@ -918,9 +834,7 @@ async function initApp(user) {
     
     await loadAllUsers();
     await loadUserInteractions();
-    await fetchUserStatuses();
     await loadPosts();
-    startHeartbeat();
 }
 
 document.querySelectorAll('.nav-btn, .mobile-btn').forEach(btn => {
@@ -949,10 +863,7 @@ function switchPage(page) {
     document.getElementById('pageTitle').textContent = titles[page] || t.home;
     
     if (page === 'home') loadPosts();
-    if (page === 'profile') {
-        loadUserPosts();
-        updateProfileStatus();
-    }
+    if (page === 'profile') loadUserPosts();
     if (page === 'bookmarks') displaySavedPosts();
 }
 
@@ -1160,25 +1071,18 @@ window.showMiniProfile = function(userId) {
     const avatarUrl = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
     const joinDateFormatted = formatJoinDate(user.joinDate);
     const t = translations[currentLanguage];
-    const isOnline = userStatuses[userId] || false;
     
     const modal = document.createElement('div');
     modal.className = 'mini-profile-modal';
     modal.innerHTML = `
         <div class="mini-profile-content">
             <div class="mini-profile-header">
-                <div class="mini-profile-avatar-container">
-                    <img src="${avatarUrl}" class="mini-profile-avatar" onclick="closeMiniProfile()">
-                    <div class="status-indicator ${isOnline ? 'online' : 'offline'}"></div>
-                </div>
+                <img src="${avatarUrl}" class="mini-profile-avatar" onclick="closeMiniProfile()">
                 <button class="mini-profile-close" onclick="closeMiniProfile()">×</button>
             </div>
             <div class="mini-profile-body">
                 <h3>${escapeHtml(user.displayName || user.username)}</h3>
                 <p class="mini-profile-username">@${escapeHtml(user.username)}</p>
-                <div class="mini-profile-status">
-                    <span class="status-text ${isOnline ? 'online-text' : 'offline-text'}">${isOnline ? t.online : t.offline}</span>
-                </div>
                 ${user.bio ? `<p class="mini-profile-bio">${escapeHtml(user.bio)}</p>` : ''}
                 <p class="mini-profile-joined">${t.joined} ${joinDateFormatted}</p>
                 <div class="mini-profile-stats">
@@ -1391,7 +1295,6 @@ async function loadUserPosts() {
 }
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-    stopHeartbeat();
     localStorage.clear();
     sessionStorage.clear();
     location.reload();
