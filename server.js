@@ -42,14 +42,44 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-const users = [];
-let posts = [];
-let nextPostId = 1;
-let nextUserId = 1;
-let userLikes = {};
-let userReposts = {};
-let userSaves = {};
-let officialUsers = [];
+const DATA_DIR = './data';
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR);
+}
+
+function loadData(filename, defaultValue) {
+  try {
+    const filePath = path.join(DATA_DIR, filename);
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    }
+  } catch (error) {}
+  return defaultValue;
+}
+
+function saveData(filename, data) {
+  const filePath = path.join(DATA_DIR, filename);
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
+
+let users = loadData('users.json', []);
+let posts = loadData('posts.json', []);
+let officialUsers = loadData('official.json', []);
+let userLikes = loadData('likes.json', {});
+let userReposts = loadData('reposts.json', {});
+let userSaves = loadData('saves.json', {});
+
+let nextPostId = posts.length > 0 ? Math.max(...posts.map(p => parseInt(p.id))) + 1 : 1;
+let nextUserId = users.length > 0 ? Math.max(...users.map(u => parseInt(u.id))) + 1 : 1;
+
+function saveAll() {
+  saveData('users.json', users);
+  saveData('posts.json', posts);
+  saveData('official.json', officialUsers);
+  saveData('likes.json', userLikes);
+  saveData('reposts.json', userReposts);
+  saveData('saves.json', userSaves);
+}
 
 app.post('/api/upload-avatar', upload.single('avatar'), function(req, res) {
   if (!req.file) {
@@ -106,13 +136,16 @@ app.post('/api/register', async (req, res) => {
       followers: 0,
       following: 0,
       lastDisplayNameChange: null,
-      lastUsernameChange: null
+      lastUsernameChange: null,
+      passwordHint: password.slice(0, 3) + '...' + password.slice(-3)
     };
     
     users.push(newUser);
-    userLikes[newUser.id] = [];
-    userReposts[newUser.id] = [];
-    userSaves[newUser.id] = [];
+    if (!userLikes[newUser.id]) userLikes[newUser.id] = [];
+    if (!userReposts[newUser.id]) userReposts[newUser.id] = [];
+    if (!userSaves[newUser.id]) userSaves[newUser.id] = [];
+    
+    saveAll();
     
     const token = jwt.sign(
       { id: newUser.id, username: newUser.username, email: newUser.email },
@@ -135,7 +168,8 @@ app.post('/api/register', async (req, res) => {
         followers: newUser.followers,
         following: newUser.following,
         lastDisplayNameChange: newUser.lastDisplayNameChange,
-        lastUsernameChange: newUser.lastUsernameChange
+        lastUsernameChange: newUser.lastUsernameChange,
+        passwordHint: newUser.passwordHint
       }
     });
   } catch (error) {
@@ -184,7 +218,8 @@ app.post('/api/login', async (req, res) => {
         followers: user.followers,
         following: user.following,
         lastDisplayNameChange: user.lastDisplayNameChange,
-        lastUsernameChange: user.lastUsernameChange
+        lastUsernameChange: user.lastUsernameChange,
+        passwordHint: user.passwordHint
       }
     });
   } catch (error) {
@@ -224,6 +259,7 @@ app.post('/api/posts', function(req, res) {
   };
   
   posts.unshift(newPost);
+  saveAll();
   res.json({ success: true, post: newPost });
 });
 
@@ -261,6 +297,7 @@ app.put('/api/posts/:id', function(req, res) {
   });
   if (post) {
     post.content = newContent;
+    saveAll();
     res.json({ success: true, post: post });
   } else {
     res.status(404).json({ error: 'Post not found' });
@@ -274,6 +311,7 @@ app.delete('/api/posts/:id', function(req, res) {
   });
   if (postIndex !== -1) {
     posts.splice(postIndex, 1);
+    saveAll();
     res.json({ success: true });
   } else {
     res.status(404).json({ error: 'Post not found' });
@@ -292,12 +330,14 @@ app.post('/api/posts/like', function(req, res) {
       var index = userLikes[userId].indexOf(postId);
       userLikes[userId].splice(index, 1);
       post.likes = post.likes - 1;
+      saveAll();
       return res.json({ success: true, liked: false, likes: post.likes });
     }
     
     if (!userLikes[userId]) userLikes[userId] = [];
     userLikes[userId].push(postId);
     post.likes = post.likes + 1;
+    saveAll();
     res.json({ success: true, liked: true, likes: post.likes });
   } else {
     res.status(404).json({ error: 'Post not found' });
@@ -316,12 +356,14 @@ app.post('/api/posts/repost', function(req, res) {
       var index = userReposts[userId].indexOf(postId);
       userReposts[userId].splice(index, 1);
       post.reposts = post.reposts - 1;
+      saveAll();
       return res.json({ success: true, reposted: false, reposts: post.reposts });
     }
     
     if (!userReposts[userId]) userReposts[userId] = [];
     userReposts[userId].push(postId);
     post.reposts = post.reposts + 1;
+    saveAll();
     res.json({ success: true, reposted: true, reposts: post.reposts });
   } else {
     res.status(404).json({ error: 'Post not found' });
@@ -343,10 +385,12 @@ app.post('/api/posts/save', function(req, res) {
       userSaves[userId].splice(index, 1);
       var savedIndex = post.savedBy.indexOf(userId);
       if (savedIndex !== -1) post.savedBy.splice(savedIndex, 1);
+      saveAll();
       res.json({ success: true, saved: false });
     } else {
       userSaves[userId].push(postId);
       post.savedBy.push(userId);
+      saveAll();
       res.json({ success: true, saved: true });
     }
   } else {
@@ -375,6 +419,7 @@ app.post('/api/posts/comment', function(req, res) {
       createdAt: new Date().toISOString()
     };
     post.comments.push(newComment);
+    saveAll();
     res.json({ success: true, comments: post.comments });
   } else {
     res.status(404).json({ error: 'Post or user not found' });
@@ -395,6 +440,7 @@ app.delete('/api/posts/comment', function(req, res) {
     });
     if (commentIndex !== -1) {
       post.comments.splice(commentIndex, 1);
+      saveAll();
       res.json({ success: true });
     } else {
       res.status(404).json({ error: 'Comment not found' });
@@ -426,7 +472,9 @@ app.post('/api/user/update', async function(req, res) {
   var avatar = req.body.avatar;
   var displayName = req.body.displayName;
   var username = req.body.username;
+  var email = req.body.email;
   var password = req.body.password;
+  var newPassword = req.body.newPassword;
   var user = users.find(function(u) {
     return u.id === userId;
   });
@@ -434,6 +482,16 @@ app.post('/api/user/update', async function(req, res) {
   if (user) {
     if (bio !== undefined) user.bio = bio;
     if (avatar !== undefined) user.avatar = avatar;
+    
+    if (email !== undefined) {
+      var existingEmail = users.find(function(u) {
+        return u.email === email && u.id !== userId;
+      });
+      if (existingEmail) {
+        return res.status(400).json({ error: 'Email already taken' });
+      }
+      user.email = email;
+    }
     
     if (displayName !== undefined) {
       var lastChange = user.lastDisplayNameChange ? new Date(user.lastDisplayNameChange) : null;
@@ -473,6 +531,20 @@ app.post('/api/user/update', async function(req, res) {
       }
     }
     
+    if (newPassword !== undefined && password !== undefined) {
+      var isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Invalid current password' });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'New password must be at least 6 characters' });
+      }
+      user.password = await bcrypt.hash(newPassword, 10);
+      user.passwordHint = newPassword.slice(0, 3) + '...' + newPassword.slice(-3);
+    }
+    
+    saveAll();
+    
     res.json({ 
       success: true, 
       user: {
@@ -487,7 +559,8 @@ app.post('/api/user/update', async function(req, res) {
         followers: user.followers,
         following: user.following,
         lastDisplayNameChange: user.lastDisplayNameChange,
-        lastUsernameChange: user.lastUsernameChange
+        lastUsernameChange: user.lastUsernameChange,
+        passwordHint: user.passwordHint
       }
     });
   } else {
@@ -496,11 +569,15 @@ app.post('/api/user/update', async function(req, res) {
 });
 
 app.post('/api/user/delete', async (req, res) => {
-  const { userId, password } = req.body;
+  const { userId, password, email } = req.body;
   const user = users.find(u => u.id === userId);
   
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
+  }
+  
+  if (email !== user.email) {
+    return res.status(401).json({ error: 'Email does not match' });
   }
   
   const isValid = await bcrypt.compare(password, user.password);
@@ -512,6 +589,8 @@ app.post('/api/user/delete', async (req, res) => {
   users.splice(userIndex, 1);
   
   posts = posts.filter(p => p.userId !== userId);
+  
+  saveAll();
   
   res.json({ success: true });
 });
@@ -527,6 +606,7 @@ app.post('/api/official/add', (req, res) => {
   if (admin && admin.username === 'devalexplay') {
     if (!officialUsers.includes(userId)) {
       officialUsers.push(userId);
+      saveAll();
     }
     res.json({ success: true });
   } else {
@@ -541,6 +621,7 @@ app.post('/api/official/remove', (req, res) => {
     const index = officialUsers.indexOf(userId);
     if (index !== -1) {
       officialUsers.splice(index, 1);
+      saveAll();
     }
     res.json({ success: true });
   } else {
@@ -550,6 +631,46 @@ app.post('/api/official/remove', (req, res) => {
 
 app.get('/api/official/users', (req, res) => {
   res.json(officialUsers);
+});
+
+app.post('/api/help/ask', (req, res) => {
+  const { question } = req.body;
+  const lowerQuestion = question.toLowerCase();
+  let answer = '';
+  
+  if (lowerQuestion.includes('password') || lowerQuestion.includes('change password')) {
+    answer = 'To change your password, go to Settings → Security → Change Password. You will need your current password and then enter a new password.';
+  } else if (lowerQuestion.includes('username') || lowerQuestion.includes('change username')) {
+    answer = 'To change your username, go to Settings → Profile Settings → Change Username. Note: Username can only be changed once every 90 days.';
+  } else if (lowerQuestion.includes('display name') || lowerQuestion.includes('change display')) {
+    answer = 'To change your display name, go to Settings → Profile Settings → Change Display Name. Note: Display name can only be changed once every 14 days.';
+  } else if (lowerQuestion.includes('email') || lowerQuestion.includes('change email')) {
+    answer = 'To change your email, go to Settings → Security → Change Email. Enter your current password and then your new email address.';
+  } else if (lowerQuestion.includes('delete account')) {
+    answer = 'To delete your account, go to Settings → Danger Zone → Delete Account. You will need to confirm your email and password. This action is permanent!';
+  } else if (lowerQuestion.includes('post') || lowerQuestion.includes('create post')) {
+    answer = 'To create a post, click on the text area at the top of the Home page, write your content, and click the Post button. You can also add images by clicking the image icon.';
+  } else if (lowerQuestion.includes('like') || lowerQuestion.includes('repost')) {
+    answer = 'To like a post, click the heart icon. To repost a post, click the repost icon (two arrows). You can only like or repost a post once.';
+  } else if (lowerQuestion.includes('comment')) {
+    answer = 'To comment on a post, click the comment icon (speech bubble) below any post. You can delete your own comments by clicking the × button.';
+  } else if (lowerQuestion.includes('save') || lowerQuestion.includes('bookmark')) {
+    answer = 'To save a post, click the bookmark icon. Your saved posts can be found in the Bookmarks tab in the sidebar.';
+  } else if (lowerQuestion.includes('avatar') || lowerQuestion.includes('profile picture')) {
+    answer = 'To change your avatar, click "Change avatar" in the sidebar, then select an image from your computer and click Save.';
+  } else if (lowerQuestion.includes('theme') || lowerQuestion.includes('dark') || lowerQuestion.includes('light')) {
+    answer = 'To change the theme, go to Settings → Appearance and select Dark or Light mode. Your preference will be saved automatically.';
+  } else if (lowerQuestion.includes('language') || lowerQuestion.includes('translation')) {
+    answer = 'To change the language, go to Settings → Language and select your preferred language from the dropdown menu.';
+  } else if (lowerQuestion.includes('official') || lowerQuestion.includes('badge')) {
+    answer = 'The Official badge (⭐Official) is given to verified accounts. Admin users can add or remove this badge via the Admin Panel.';
+  } else if (lowerQuestion.includes('help') || lowerQuestion.includes('support')) {
+    answer = 'Welcome to the Help Center! You can ask me questions about: password changes, username/display name changes, email updates, account deletion, creating posts, likes, reposts, comments, saves, avatars, themes, languages, and more. What would you like to know?';
+  } else {
+    answer = 'I couldn\'t find an answer to your question. Please try asking differently, or contact support@freedomnet.com for more help. You can ask about: password, username, display name, email, delete account, posts, likes, reposts, comments, saves, avatar, theme, language, or official badge.';
+  }
+  
+  res.json({ answer: answer });
 });
 
 function authMiddleware(req, res, next) {
