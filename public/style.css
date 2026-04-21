@@ -805,27 +805,19 @@ body {
 }
 
 .comments-section {
-    margin-top: 12px;
-    padding-top: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
     border-top: 1px solid var(--border-color);
-}
-
-.comments-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    color: var(--text-tertiary);
-    font-size: 13px;
 }
 
 .comment-item {
     display: flex;
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     padding: 8px;
     border-radius: 12px;
     transition: background 0.2s;
+    position: relative;
 }
 
 .comment-item:hover {
@@ -833,8 +825,8 @@ body {
 }
 
 .comment-avatar-img {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
@@ -849,63 +841,139 @@ body {
     gap: 8px;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 
 .comment-name {
     font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .comment-username {
     color: var(--text-tertiary);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .comment-time {
     color: var(--text-tertiary);
-    font-size: 10px;
+    font-size: 11px;
 }
 
 .comment-text {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.4;
+    margin-bottom: 8px;
 }
 
-.comment-delete {
+.comment-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.comment-action-btn {
     background: none;
     border: none;
     color: var(--text-tertiary);
     cursor: pointer;
-    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 12px;
-    padding: 2px 4px;
-    border-radius: 4px;
-}
-
-.comment-delete:hover {
-    color: var(--error);
-    background: rgba(244, 33, 46, 0.1);
-}
-
-.more-comments {
-    color: var(--accent);
-    font-size: 13px;
-    cursor: pointer;
-    margin-top: 8px;
-    padding: 8px;
-    text-align: center;
+    padding: 4px 8px;
     border-radius: 20px;
+    transition: all 0.2s;
+}
+
+.comment-action-btn:hover {
+    background: var(--bg-hover);
+    color: var(--accent);
+}
+
+.comment-action-btn.liked {
+    color: var(--error);
+}
+
+.comment-menu {
+    position: relative;
+}
+
+.comment-menu-btn {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 50%;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+.comment-menu-btn:hover {
+    background: var(--bg-hover);
+    color: var(--accent);
+}
+
+.comment-menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    z-index: 100;
+    display: none;
+    min-width: 140px;
+    overflow: hidden;
+}
+
+.comment-menu-dropdown.show {
+    display: block;
+}
+
+.comment-menu-item {
+    padding: 10px 16px;
+    cursor: pointer;
     transition: background 0.2s;
+    font-size: 13px;
+    color: var(--text-primary);
 }
 
-.more-comments:hover {
-    background: rgba(29, 155, 240, 0.1);
+.comment-menu-item:hover {
+    background: var(--bg-hover);
 }
 
-.saved-posts-list {
-    padding: 0;
-    margin-bottom: 60px;
+.comment-menu-item.delete {
+    color: var(--error);
+}
+
+.comment-reply {
+    margin-top: 12px;
+    padding-left: 48px;
+}
+
+.comment-reply-input {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+}
+
+.comment-reply-input:focus {
+    border-color: var(--accent);
+}
+
+.comment-reply-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 .search-container {
@@ -1034,91 +1102,211 @@ body {
 
 .messages-container {
     display: flex;
-    flex-direction: column;
     height: calc(100vh - 70px);
+}
+
+.messages-sidebar {
+    width: 320px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
 }
 
 .messages-search {
     padding: 16px;
     border-bottom: 1px solid var(--border-color);
-    position: relative;
 }
 
-.search-wrapper.small {
-    max-width: 100%;
-}
-
-.search-input.small {
-    padding: 10px 16px 10px 40px;
-    font-size: 14px;
-}
-
-.user-search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    margin-top: 4px;
-    z-index: 100;
-    max-height: 300px;
+.messages-list {
+    flex: 1;
     overflow-y: auto;
 }
 
-.user-search-item {
+.message-thread {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 16px;
     cursor: pointer;
     transition: background 0.2s;
 }
 
-.user-search-item:hover {
+.message-thread:hover {
     background: var(--bg-hover);
 }
 
-.user-search-avatar {
+.message-thread.active {
+    background: rgba(29, 155, 240, 0.1);
+}
+
+.message-thread-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.message-thread-info {
+    flex: 1;
+}
+
+.message-thread-name {
+    font-weight: 600;
+    font-size: 15px;
+    display: block;
+}
+
+.message-thread-preview {
+    color: var(--text-tertiary);
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.message-thread-time {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.messages-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.messages-header-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
 }
 
-.user-search-info {
-    flex: 1;
-}
-
-.user-search-name {
+.messages-header-name {
     font-weight: 600;
-    font-size: 14px;
+    font-size: 16px;
 }
 
-.user-search-username {
+.messages-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.message-bubble {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.message-bubble.sent {
+    background: var(--accent);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.message-bubble.received {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+.message-time {
+    font-size: 10px;
     color: var(--text-tertiary);
-    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+.messages-input-area {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 12px;
+}
+
+.messages-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 30px;
+    color: var(--text-primary);
+    font-size: 15px;
+    outline: none;
+    font-family: inherit;
+}
+
+.messages-input:focus {
+    border-color: var(--accent);
+}
+
+.messages-send-btn {
+    padding: 8px 20px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
 }
 
 .messages-empty {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-tertiary);
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-}
-
-.messages-empty svg {
-    margin-bottom: 16px;
+    color: var(--text-tertiary);
+    gap: 16px;
 }
 
 .profile-cover {
-    height: 120px;
+    height: 160px;
     background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    position: relative;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.profile-cover:hover {
+    opacity: 0.9;
+}
+
+.profile-cover-edit {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    padding: 8px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.profile-cover:hover .profile-cover-edit {
+    opacity: 1;
 }
 
 .profile-info {
@@ -1287,6 +1475,17 @@ body {
     font-size: 12px;
 }
 
+.profile-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-tertiary);
+}
+
+.profile-empty-state svg {
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
 .settings-container {
     max-width: 600px;
     margin: 0 auto;
@@ -1426,6 +1625,31 @@ input:checked + .toggle-slider:before {
 
 .blur-mature:hover {
     filter: blur(5px);
+}
+
+.cover-color-palette {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.cover-color-option {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.cover-color-option:hover {
+    transform: scale(1.05);
+    border-color: var(--text-primary);
+}
+
+.cover-color-option.selected {
+    border-color: var(--accent);
+    transform: scale(1.05);
 }
 
 .help-container {
@@ -2025,5 +2249,13 @@ input:checked + .toggle-slider:before {
     .profile-tab {
         padding: 10px 16px;
         font-size: 13px;
+    }
+    
+    .messages-sidebar {
+        width: 280px;
+    }
+    
+    .message-bubble {
+        max-width: 85%;
     }
 }
