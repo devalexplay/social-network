@@ -3,18 +3,22 @@ let currentUser = null;
 let currentPage = 'home';
 let allPosts = [];
 let allUsers = [];
+let allMessages = [];
 let currentEditPostId = null;
 let currentDeletePostId = null;
 let currentCommentPostId = null;
+let currentEditCommentId = null;
+let currentEditCommentPostId = null;
 let userLikedPosts = new Set();
 let userRepostedPosts = new Set();
 let userSavedPosts = new Set();
+let userLikedComments = new Set();
 let selectedImageFile = null;
 let currentPostImageUrl = null;
 let currentViewingUser = null;
-let feedViewMode = 'card';
 let profileTab = 'posts';
-let settingsTab = 'general';
+let currentChatUser = null;
+let messageInterval = null;
 
 const ADMIN_USERNAME = 'devalexplay';
 
@@ -26,7 +30,7 @@ const translations = {
         signInBtn: 'Sign in', fullName: 'Display name', username: 'Username',
         email: 'Email', confirmPassword: 'Confirm password', createAccount: 'Create account',
         home: 'Home', explore: 'Explore', notifications: 'Notifications',
-        messages: 'Messages', profile: 'Profile', settings: 'Settings', bookmarks: 'Bookmarks',
+        messages: 'Messages', profile: 'Profile', settings: 'Settings', bookmarks: 'Bookmarks', helpCenter: 'Help Center',
         logout: 'Logout', post: 'Post', trendingNow: 'Trending now',
         welcomeNotification: 'Welcome to FreedomNet!', noMessages: 'No messages yet',
         posts: 'Posts', followers: 'Followers', following: 'Following',
@@ -64,20 +68,24 @@ const translations = {
         usernameChanged: 'Username changed successfully!', displayNameChanged: 'Display name changed successfully!',
         matureContent: 'Mature Content', matureContentDesc: 'See Not Safe for Work mature and adult content in your feeds and search results.',
         blurMature: 'Blur mature (18+)', blurMatureDesc: 'Blur images and media that may be sensitive.',
-        experience: 'Experience', defaultFeedView: 'Default feed view', cardMode: 'Card Mode', compactMode: 'Compact Mode',
         showMatureContent: 'Show mature content', blurMatureMedia: 'Blur mature media',
         displayNameChangeHint: 'You can change the display name only once every 14 days.',
         usernameChangeHint: 'You can change the username only once every 90 days.',
-        dangerZone: 'Danger Zone', security: 'Security', privacy: 'Privacy', helpCenter: 'Help Center',
-        changeEmail: 'Change Email', newEmail: 'New email', emailChanged: 'Email changed successfully!',
-        changePassword: 'Change Password', newPassword: 'New password', passwordChanged: 'Password changed successfully!',
-        currentPasswordRequired: 'Current password required', forgotPasswordHint: 'Forgot password? Hint:',
-        askQuestion: 'Ask a question', typeQuestion: 'Type your question here...', aiResponse: 'AI Response',
-        postsTab: 'Posts', repostsTab: 'Reposts', settingsTab: 'Settings', helpTab: 'Help',
-        general: 'General', profileTabTitle: 'Profile', repostsTitle: 'Reposts', settingsTitle: 'Settings',
-        helpTitle: 'Help Center', askAI: 'Ask AI Assistant', typeMessage: 'Type your message...',
-        send: 'Send', aiThinking: 'AI is thinking...', noReposts: 'No reposts yet', cancel: 'Cancel', save: 'Save',
-        changePasswordHint: 'Your password hint is:', enterNewPassword: 'Enter new password', confirmNewPassword: 'Confirm new password'
+        accountPrivacy: 'Account Privacy', changeEmail: 'Change Email', changePassword: 'Change Password',
+        newEmail: 'New email', emailChanged: 'Email changed successfully!', newPassword: 'New password',
+        passwordChanged: 'Password changed successfully!', currentPasswordRequired: 'Current password required',
+        forgotPasswordHint: 'Forgot password? Hint:', askQuestion: 'Ask a question', typeQuestion: 'Type your question here...',
+        aiResponse: 'AI Response', postsTab: 'Posts', repostsTab: 'Reposts', settingsTab: 'Settings',
+        helpTab: 'Help', general: 'General', profileTabTitle: 'Profile', repostsTitle: 'Reposts',
+        settingsTitle: 'Settings', helpTitle: 'Help Center', askAI: 'Ask AI Assistant', typeMessage: 'Type a message...',
+        send: 'Send', aiThinking: 'AI is thinking...', noReposts: 'No reposts yet',
+        changePasswordHint: 'Your password hint is:', enterNewPassword: 'Enter new password', confirmNewPassword: 'Confirm new password',
+        changeEmailHint: 'After changing your email, it will be available for use on another account.',
+        changePasswordHintText: 'After changing the password, it will not be possible to completely revert it. For your security, in case of complete loss, please contact the Help Center.',
+        reply: 'Reply', editComment: 'Edit comment', deleteComment: 'Delete comment', commentLiked: 'Comment liked', commentUnliked: 'Comment unliked',
+        commentUpdated: 'Comment updated!', noMessagesYet: 'No messages yet', startConversation: 'Start a conversation',
+        selectConversation: 'Select a conversation to start messaging', typeMessageHere: 'Type a message...', sending: 'Sending...',
+        coverColorSelect: 'Select cover color', presetColors: 'Preset colors', customColor: 'Custom color'
     },
     ru: {
         appName: 'FreedomNet', signIn: 'Войти', signUp: 'Регистрация',
@@ -86,7 +94,7 @@ const translations = {
         signInBtn: 'Войти', fullName: 'Отображаемое имя', username: 'Имя пользователя',
         email: 'Email', confirmPassword: 'Подтвердите пароль', createAccount: 'Создать аккаунт',
         home: 'Главная', explore: 'Обзор', notifications: 'Уведомления',
-        messages: 'Сообщения', profile: 'Профиль', settings: 'Настройки', bookmarks: 'Закладки',
+        messages: 'Сообщения', profile: 'Профиль', settings: 'Настройки', bookmarks: 'Закладки', helpCenter: 'Центр помощи',
         logout: 'Выйти', post: 'Опубликовать', trendingNow: 'В тренде',
         welcomeNotification: 'Добро пожаловать в FreedomNet!', noMessages: 'Нет сообщений',
         posts: 'Посты', followers: 'Подписчики', following: 'Подписки',
@@ -124,20 +132,24 @@ const translations = {
         usernameChanged: 'Имя пользователя успешно изменено!', displayNameChanged: 'Отображаемое имя успешно изменено!',
         matureContent: 'Контент для взрослых', matureContentDesc: 'Показывать контент для взрослых в ленте и результатах поиска.',
         blurMature: 'Размытие (18+)', blurMatureDesc: 'Размывать изображения и медиа, которые могут быть чувствительными.',
-        experience: 'Опыт', defaultFeedView: 'Вид ленты по умолчанию', cardMode: 'Карточки', compactMode: 'Компактный',
         showMatureContent: 'Показывать контент для взрослых', blurMatureMedia: 'Размывать медиа для взрослых',
         displayNameChangeHint: 'Вы можете изменить отображаемое имя только раз в 14 дней.',
         usernameChangeHint: 'Вы можете изменить имя пользователя только раз в 90 дней.',
-        dangerZone: 'Опасная зона', security: 'Безопасность', privacy: 'Конфиденциальность', helpCenter: 'Центр помощи',
-        changeEmail: 'Изменить email', newEmail: 'Новый email', emailChanged: 'Email успешно изменен!',
-        changePassword: 'Изменить пароль', newPassword: 'Новый пароль', passwordChanged: 'Пароль успешно изменен!',
-        currentPasswordRequired: 'Требуется текущий пароль', forgotPasswordHint: 'Забыли пароль? Подсказка:',
-        askQuestion: 'Задать вопрос', typeQuestion: 'Введите ваш вопрос...', aiResponse: 'Ответ ИИ',
-        postsTab: 'Посты', repostsTab: 'Репосты', settingsTab: 'Настройки', helpTab: 'Помощь',
-        general: 'Общие', profileTabTitle: 'Профиль', repostsTitle: 'Репосты', settingsTitle: 'Настройки',
-        helpTitle: 'Центр помощи', askAI: 'Спросить ИИ помощника', typeMessage: 'Введите ваше сообщение...',
-        send: 'Отправить', aiThinking: 'ИИ думает...', noReposts: 'Нет репостов', cancel: 'Отмена', save: 'Сохранить',
-        changePasswordHint: 'Подсказка вашего пароля:', enterNewPassword: 'Введите новый пароль', confirmNewPassword: 'Подтвердите новый пароль'
+        accountPrivacy: 'Конфиденциальность аккаунта', changeEmail: 'Изменить email', changePassword: 'Изменить пароль',
+        newEmail: 'Новый email', emailChanged: 'Email успешно изменен!', newPassword: 'Новый пароль',
+        passwordChanged: 'Пароль успешно изменен!', currentPasswordRequired: 'Требуется текущий пароль',
+        forgotPasswordHint: 'Забыли пароль? Подсказка:', askQuestion: 'Задать вопрос', typeQuestion: 'Введите ваш вопрос...',
+        aiResponse: 'Ответ ИИ', postsTab: 'Посты', repostsTab: 'Репосты', settingsTab: 'Настройки',
+        helpTab: 'Помощь', general: 'Общие', profileTabTitle: 'Профиль', repostsTitle: 'Репосты',
+        settingsTitle: 'Настройки', helpTitle: 'Центр помощи', askAI: 'Спросить ИИ помощника', typeMessage: 'Введите ваше сообщение...',
+        send: 'Отправить', aiThinking: 'ИИ думает...', noReposts: 'Нет репостов',
+        changePasswordHint: 'Подсказка вашего пароля:', enterNewPassword: 'Введите новый пароль', confirmNewPassword: 'Подтвердите новый пароль',
+        changeEmailHint: 'После смены email он станет доступен для использования на другом аккаунте.',
+        changePasswordHintText: 'После смены пароля его нельзя будет полностью восстановить. В случае полной потери, пожалуйста, обратитесь в Центр помощи.',
+        reply: 'Ответить', editComment: 'Редактировать', deleteComment: 'Удалить', commentLiked: 'Лайк поставлен', commentUnliked: 'Лайк убран',
+        commentUpdated: 'Комментарий обновлен!', noMessagesYet: 'Нет сообщений', startConversation: 'Начать разговор',
+        selectConversation: 'Выберите разговор', typeMessageHere: 'Введите сообщение...', sending: 'Отправка...',
+        coverColorSelect: 'Выберите цвет обложки', presetColors: 'Готовые цвета', customColor: 'Свой цвет'
     },
     es: {
         appName: 'FreedomNet', signIn: 'Iniciar sesión', signUp: 'Registrarse',
@@ -146,7 +158,7 @@ const translations = {
         signInBtn: 'Iniciar sesión', fullName: 'Nombre mostrado', username: 'Usuario',
         email: 'Email', confirmPassword: 'Confirmar contraseña', createAccount: 'Crear cuenta',
         home: 'Inicio', explore: 'Explorar', notifications: 'Notificaciones',
-        messages: 'Mensajes', profile: 'Perfil', settings: 'Ajustes', bookmarks: 'Marcadores',
+        messages: 'Mensajes', profile: 'Perfil', settings: 'Ajustes', bookmarks: 'Marcadores', helpCenter: 'Centro de ayuda',
         logout: 'Cerrar sesión', post: 'Publicar', trendingNow: 'Tendencias',
         welcomeNotification: '¡Bienvenido a FreedomNet!', noMessages: 'Sin mensajes',
         posts: 'Publicaciones', followers: 'Seguidores', following: 'Siguiendo',
@@ -184,20 +196,24 @@ const translations = {
         usernameChanged: '¡Nombre de usuario cambiado exitosamente!', displayNameChanged: '¡Nombre mostrado cambiado exitosamente!',
         matureContent: 'Contenido maduro', matureContentDesc: 'Ver contenido para adultos en tus feeds y resultados de búsqueda.',
         blurMature: 'Desenfocar maduro (18+)', blurMatureDesc: 'Desenfocar imágenes y medios que pueden ser sensibles.',
-        experience: 'Experiencia', defaultFeedView: 'Vista de feed predeterminada', cardMode: 'Modo tarjeta', compactMode: 'Modo compacto',
         showMatureContent: 'Mostrar contenido maduro', blurMatureMedia: 'Desenfocar medios maduros',
         displayNameChangeHint: 'Puedes cambiar el nombre mostrado solo una vez cada 14 días.',
         usernameChangeHint: 'Puedes cambiar el nombre de usuario solo una vez cada 90 días.',
-        dangerZone: 'Zona de peligro', security: 'Seguridad', privacy: 'Privacidad', helpCenter: 'Centro de ayuda',
-        changeEmail: 'Cambiar email', newEmail: 'Nuevo email', emailChanged: '¡Email cambiado exitosamente!',
-        changePassword: 'Cambiar contraseña', newPassword: 'Nueva contraseña', passwordChanged: '¡Contraseña cambiada exitosamente!',
-        currentPasswordRequired: 'Se requiere contraseña actual', forgotPasswordHint: '¿Olvidaste tu contraseña? Pista:',
-        askQuestion: 'Hacer una pregunta', typeQuestion: 'Escribe tu pregunta aquí...', aiResponse: 'Respuesta IA',
-        postsTab: 'Publicaciones', repostsTab: 'Reposts', settingsTab: 'Configuración', helpTab: 'Ayuda',
-        general: 'General', profileTabTitle: 'Perfil', repostsTitle: 'Reposts', settingsTitle: 'Configuración',
-        helpTitle: 'Centro de ayuda', askAI: 'Preguntar al asistente IA', typeMessage: 'Escribe tu mensaje...',
-        send: 'Enviar', aiThinking: 'IA está pensando...', noReposts: 'No hay reposts', cancel: 'Cancelar', save: 'Guardar',
-        changePasswordHint: 'La pista de tu contraseña es:', enterNewPassword: 'Ingresa nueva contraseña', confirmNewPassword: 'Confirmar nueva contraseña'
+        accountPrivacy: 'Privacidad de la cuenta', changeEmail: 'Cambiar email', changePassword: 'Cambiar contraseña',
+        newEmail: 'Nuevo email', emailChanged: '¡Email cambiado exitosamente!', newPassword: 'Nueva contraseña',
+        passwordChanged: '¡Contraseña cambiada exitosamente!', currentPasswordRequired: 'Se requiere contraseña actual',
+        forgotPasswordHint: '¿Olvidaste tu contraseña? Pista:', askQuestion: 'Hacer una pregunta', typeQuestion: 'Escribe tu pregunta aquí...',
+        aiResponse: 'Respuesta IA', postsTab: 'Publicaciones', repostsTab: 'Reposts', settingsTab: 'Configuración',
+        helpTab: 'Ayuda', general: 'General', profileTabTitle: 'Perfil', repostsTitle: 'Reposts',
+        settingsTitle: 'Configuración', helpTitle: 'Centro de ayuda', askAI: 'Preguntar al asistente IA', typeMessage: 'Escribe tu mensaje...',
+        send: 'Enviar', aiThinking: 'IA está pensando...', noReposts: 'No hay reposts',
+        changePasswordHint: 'La pista de tu contraseña es:', enterNewPassword: 'Ingresa nueva contraseña', confirmNewPassword: 'Confirmar nueva contraseña',
+        changeEmailHint: 'Después de cambiar tu email, estará disponible para usar en otra cuenta.',
+        changePasswordHintText: 'Después de cambiar la contraseña, no será posible revertirla completamente. Por tu seguridad, en caso de pérdida total, contacta al Centro de ayuda.',
+        reply: 'Responder', editComment: 'Editar comentario', deleteComment: 'Eliminar comentario', commentLiked: 'Comentario liked', commentUnliked: 'Comentario unliked',
+        commentUpdated: '¡Comentario actualizado!', noMessagesYet: 'No hay mensajes', startConversation: 'Iniciar una conversación',
+        selectConversation: 'Selecciona una conversación', typeMessageHere: 'Escribe un mensaje...', sending: 'Enviando...',
+        coverColorSelect: 'Seleccionar color de portada', presetColors: 'Colores preestablecidos', customColor: 'Color personalizado'
     },
     fr: {
         appName: 'FreedomNet', signIn: 'Se connecter', signUp: "S'inscrire",
@@ -206,7 +222,7 @@ const translations = {
         signInBtn: 'Se connecter', fullName: 'Nom affiché', username: "Nom d'utilisateur",
         email: 'Email', confirmPassword: 'Confirmer', createAccount: 'Créer',
         home: 'Accueil', explore: 'Explorer', notifications: 'Notifications',
-        messages: 'Messages', profile: 'Profil', settings: 'Paramètres', bookmarks: 'Signets',
+        messages: 'Messages', profile: 'Profil', settings: 'Paramètres', bookmarks: 'Signets', helpCenter: "Centre d'aide",
         logout: 'Déconnexion', post: 'Publier', trendingNow: 'Tendances',
         welcomeNotification: 'Bienvenue sur FreedomNet!', noMessages: 'Aucun message',
         posts: 'Publications', followers: 'Abonnés', following: 'Abonnements',
@@ -244,20 +260,24 @@ const translations = {
         usernameChanged: 'Nom d\'utilisateur changé avec succès !', displayNameChanged: 'Nom affiché changé avec succès !',
         matureContent: 'Contenu mature', matureContentDesc: 'Voir le contenu pour adultes dans vos flux et résultats de recherche.',
         blurMature: 'Flouter mature (18+)', blurMatureDesc: 'Flouter les images et médias qui peuvent être sensibles.',
-        experience: 'Expérience', defaultFeedView: 'Vue de flux par défaut', cardMode: 'Mode carte', compactMode: 'Mode compact',
         showMatureContent: 'Afficher le contenu mature', blurMatureMedia: 'Flouter les médias matures',
         displayNameChangeHint: 'Vous ne pouvez changer le nom affiché qu\'une fois tous les 14 jours.',
         usernameChangeHint: 'Vous ne pouvez changer le nom d\'utilisateur qu\'une fois tous les 90 jours.',
-        dangerZone: 'Zone de danger', security: 'Sécurité', privacy: 'Confidentialité', helpCenter: 'Centre d\'aide',
-        changeEmail: 'Changer l\'email', newEmail: 'Nouvel email', emailChanged: 'Email changé avec succès !',
-        changePassword: 'Changer le mot de passe', newPassword: 'Nouveau mot de passe', passwordChanged: 'Mot de passe changé avec succès !',
-        currentPasswordRequired: 'Mot de passe actuel requis', forgotPasswordHint: 'Mot de passe oublié ? Indice :',
-        askQuestion: 'Poser une question', typeQuestion: 'Tapez votre question ici...', aiResponse: 'Réponse IA',
-        postsTab: 'Publications', repostsTab: 'Reposts', settingsTab: 'Paramètres', helpTab: 'Aide',
-        general: 'Général', profileTabTitle: 'Profil', repostsTitle: 'Reposts', settingsTitle: 'Paramètres',
-        helpTitle: 'Centre d\'aide', askAI: 'Demander à l\'assistant IA', typeMessage: 'Tapez votre message...',
-        send: 'Envoyer', aiThinking: 'L\'IA réfléchit...', noReposts: 'Aucun repost', cancel: 'Annuler', save: 'Enregistrer',
-        changePasswordHint: 'L\'indice de votre mot de passe est :', enterNewPassword: 'Entrez le nouveau mot de passe', confirmNewPassword: 'Confirmez le nouveau mot de passe'
+        accountPrivacy: 'Confidentialité du compte', changeEmail: 'Changer l\'email', changePassword: 'Changer le mot de passe',
+        newEmail: 'Nouvel email', emailChanged: 'Email changé avec succès !', newPassword: 'Nouveau mot de passe',
+        passwordChanged: 'Mot de passe changé avec succès !', currentPasswordRequired: 'Mot de passe actuel requis',
+        forgotPasswordHint: 'Mot de passe oublié ? Indice :', askQuestion: 'Poser une question', typeQuestion: 'Tapez votre question ici...',
+        aiResponse: 'Réponse IA', postsTab: 'Publications', repostsTab: 'Reposts', settingsTab: 'Paramètres',
+        helpTab: 'Aide', general: 'Général', profileTabTitle: 'Profil', repostsTitle: 'Reposts',
+        settingsTitle: 'Paramètres', helpTitle: 'Centre d\'aide', askAI: 'Demander à l\'assistant IA', typeMessage: 'Tapez votre message...',
+        send: 'Envoyer', aiThinking: 'L\'IA réfléchit...', noReposts: 'Aucun repost',
+        changePasswordHint: 'L\'indice de votre mot de passe est :', enterNewPassword: 'Entrez le nouveau mot de passe', confirmNewPassword: 'Confirmez le nouveau mot de passe',
+        changeEmailHint: 'Après avoir changé votre email, il sera disponible pour une utilisation sur un autre compte.',
+        changePasswordHintText: 'Après avoir changé le mot de passe, il ne sera pas possible de le restaurer complètement. Pour votre sécurité, en cas de perte totale, veuillez contacter le Centre d\'aide.',
+        reply: 'Répondre', editComment: 'Modifier', deleteComment: 'Supprimer', commentLiked: 'Commentaire aimé', commentUnliked: 'Commentaire non aimé',
+        commentUpdated: 'Commentaire mis à jour !', noMessagesYet: 'Aucun message', startConversation: 'Commencer une conversation',
+        selectConversation: 'Sélectionnez une conversation', typeMessageHere: 'Tapez un message...', sending: 'Envoi...',
+        coverColorSelect: 'Choisir la couleur de couverture', presetColors: 'Couleurs prédéfinies', customColor: 'Couleur personnalisée'
     },
     de: {
         appName: 'FreedomNet', signIn: 'Anmelden', signUp: 'Registrieren',
@@ -266,7 +286,7 @@ const translations = {
         signInBtn: 'Anmelden', fullName: 'Anzeigename', username: 'Benutzername',
         email: 'Email', confirmPassword: 'Passwort bestätigen', createAccount: 'Konto erstellen',
         home: 'Startseite', explore: 'Entdecken', notifications: 'Benachrichtigungen',
-        messages: 'Nachrichten', profile: 'Profil', settings: 'Einstellungen', bookmarks: 'Lesezeichen',
+        messages: 'Nachrichten', profile: 'Profil', settings: 'Einstellungen', bookmarks: 'Lesezeichen', helpCenter: 'Hilfezentrum',
         logout: 'Abmelden', post: 'Posten', trendingNow: 'Im Trend',
         welcomeNotification: 'Willkommen bei FreedomNet!', noMessages: 'Keine Nachrichten',
         posts: 'Beiträge', followers: 'Follower', following: 'Folgt',
@@ -304,20 +324,152 @@ const translations = {
         usernameChanged: 'Benutzername erfolgreich geändert!', displayNameChanged: 'Anzeigename erfolgreich geändert!',
         matureContent: 'Erwachseneninhalte', matureContentDesc: 'Erwachseneninhalte in Ihren Feeds und Suchergebnissen anzeigen.',
         blurMature: 'Unschärfe (18+)', blurMatureDesc: 'Bilder und Medien, die möglicherweise sensibel sind, unschärfen.',
-        experience: 'Erfahrung', defaultFeedView: 'Standard-Feed-Ansicht', cardMode: 'Kartenmodus', compactMode: 'Kompaktmodus',
         showMatureContent: 'Erwachseneninhalte anzeigen', blurMatureMedia: 'Erwachsenenmedien unschärfen',
         displayNameChangeHint: 'Sie können den Anzeigenamen nur einmal alle 14 Tage ändern.',
         usernameChangeHint: 'Sie können den Benutzernamen nur einmal alle 90 Tage ändern.',
-        dangerZone: 'Gefahrenzone', security: 'Sicherheit', privacy: 'Datenschutz', helpCenter: 'Hilfezentrum',
-        changeEmail: 'E-Mail ändern', newEmail: 'Neue E-Mail', emailChanged: 'E-Mail erfolgreich geändert!',
-        changePassword: 'Passwort ändern', newPassword: 'Neues Passwort', passwordChanged: 'Passwort erfolgreich geändert!',
-        currentPasswordRequired: 'Aktuelles Passwort erforderlich', forgotPasswordHint: 'Passwort vergessen? Hinweis:',
-        askQuestion: 'Frage stellen', typeQuestion: 'Geben Sie Ihre Frage ein...', aiResponse: 'KI-Antwort',
-        postsTab: 'Beiträge', repostsTab: 'Reposts', settingsTab: 'Einstellungen', helpTab: 'Hilfe',
-        general: 'Allgemein', profileTabTitle: 'Profil', repostsTitle: 'Reposts', settingsTitle: 'Einstellungen',
-        helpTitle: 'Hilfezentrum', askAI: 'KI-Assistent fragen', typeMessage: 'Geben Sie Ihre Nachricht ein...',
-        send: 'Senden', aiThinking: 'KI denkt nach...', noReposts: 'Keine Reposts', cancel: 'Abbrechen', save: 'Speichern',
-        changePasswordHint: 'Ihr Passworthinweis lautet:', enterNewPassword: 'Neues Passwort eingeben', confirmNewPassword: 'Neues Passwort bestätigen'
+        accountPrivacy: 'Kontodatenschutz', changeEmail: 'E-Mail ändern', changePassword: 'Passwort ändern',
+        newEmail: 'Neue E-Mail', emailChanged: 'E-Mail erfolgreich geändert!', newPassword: 'Neues Passwort',
+        passwordChanged: 'Passwort erfolgreich geändert!', currentPasswordRequired: 'Aktuelles Passwort erforderlich',
+        forgotPasswordHint: 'Passwort vergessen? Hinweis:', askQuestion: 'Frage stellen', typeQuestion: 'Geben Sie Ihre Frage ein...',
+        aiResponse: 'KI-Antwort', postsTab: 'Beiträge', repostsTab: 'Reposts', settingsTab: 'Einstellungen',
+        helpTab: 'Hilfe', general: 'Allgemein', profileTabTitle: 'Profil', repostsTitle: 'Reposts',
+        settingsTitle: 'Einstellungen', helpTitle: 'Hilfezentrum', askAI: 'KI-Assistent fragen', typeMessage: 'Geben Sie Ihre Nachricht ein...',
+        send: 'Senden', aiThinking: 'KI denkt nach...', noReposts: 'Keine Reposts',
+        changePasswordHint: 'Ihr Passworthinweis lautet:', enterNewPassword: 'Neues Passwort eingeben', confirmNewPassword: 'Neues Passwort bestätigen',
+        changeEmailHint: 'Nachdem Sie Ihre E-Mail geändert haben, steht sie für die Verwendung auf einem anderen Konto zur Verfügung.',
+        changePasswordHintText: 'Nach der Änderung des Passworts kann es nicht vollständig rückgängig gemacht werden. Wenden Sie sich im Falle eines vollständigen Verlusts an das Hilfezentrum.',
+        reply: 'Antworten', editComment: 'Bearbeiten', deleteComment: 'Löschen', commentLiked: 'Kommentar gefällt', commentUnliked: 'Kommentar nicht mehr gefällt',
+        commentUpdated: 'Kommentar aktualisiert!', noMessagesYet: 'Keine Nachrichten', startConversation: 'Gespräch beginnen',
+        selectConversation: 'Wählen Sie ein Gespräch aus', typeMessageHere: 'Nachricht eingeben...', sending: 'Senden...',
+        coverColorSelect: 'Titelfarbe auswählen', presetColors: 'Voreingestellte Farben', customColor: 'Benutzerdefinierte Farbe'
+    },
+    it: {
+        appName: 'FreedomNet', signIn: 'Accedi', signUp: 'Registrati',
+        emailOrUsername: 'Email o username', password: 'Password',
+        rememberMe: 'Ricordami', forgotPassword: 'Password dimenticata?',
+        signInBtn: 'Accedi', fullName: 'Nome visualizzato', username: 'Username',
+        email: 'Email', confirmPassword: 'Conferma password', createAccount: 'Crea account',
+        home: 'Home', explore: 'Esplora', notifications: 'Notifiche',
+        messages: 'Messaggi', profile: 'Profilo', settings: 'Impostazioni', bookmarks: 'Segnalibri', helpCenter: 'Centro assistenza',
+        logout: 'Esci', post: 'Pubblica', trendingNow: 'Tendenze',
+        welcomeNotification: 'Benvenuto su FreedomNet!', noMessages: 'Nessun messaggio',
+        posts: 'Post', followers: 'Follower', following: 'Seguiti',
+        editProfile: 'Modifica profilo', appearance: 'Aspetto', theme: 'Tema',
+        dark: 'Scuro', light: 'Chiaro', language: 'Lingua',
+        notificationsSettings: 'Notifiche', pushNotifications: 'Notifiche push',
+        emailUpdates: 'Aggiornamenti email', saveChanges: 'Salva modifiche',
+        editPost: 'Modifica post', cancel: 'Annulla', save: 'Salva',
+        deletePost: 'Eliminare il post?', deleteConfirm: 'Sei sicuro di voler eliminare questo post?',
+        delete: 'Elimina', addComment: 'Aggiungi commento', comment: 'Commenta',
+        edit: 'Modifica', delete_: 'Elimina', changeAvatar: 'Cambia avatar',
+        profileSettings: 'Impostazioni profilo', displayName: 'Nome visualizzato',
+        displayNameHint: 'Modificabile ogni 14 giorni', usernameHint: 'Modificabile ogni 90 giorni',
+        selectLanguage: 'Seleziona lingua', search: 'Cerca', noResults: 'Nessun risultato',
+        joined: 'Iscritto il', showProfile: 'Mostra profilo', posting: 'Pubblicazione...',
+        postPublished: 'Post pubblicato!', failedToPost: 'Impossibile pubblicare',
+        errorPosting: 'Errore', pleaseWriteSomething: 'Scrivi qualcosa',
+        postUpdated: 'Post aggiornato!', postDeleted: 'Post eliminato!',
+        postReposted: 'Post ripubblicato!', repostRemoved: 'Ripubblicazione rimossa',
+        postSaved: 'Post salvato!', postRemovedFromSaves: 'Post rimosso dai salvati',
+        commentDeleted: 'Commento eliminato', profileUpdated: 'Profilo aggiornato!',
+        avatarUpdated: 'Avatar aggiornato!', displayNameUpdated: 'Nome aggiornato!',
+        usernameUpdated: 'Username aggiornato!', settingsSaved: 'Impostazioni salvate!',
+        passwordsDoNotMatch: 'Le password non corrispondono', pleaseFillAllFields: 'Compila tutti i campi',
+        connectionError: 'Errore di connessione', invalidCredentials: 'Credenziali non valide',
+        accountCreated: 'Account creato!', welcomeBack: 'Bentornato!',
+        allFieldsRequired: 'Tutti i campi sono obbligatori', passwordTooShort: 'La password deve essere di almeno 6 caratteri',
+        noSavedPosts: 'Nessun post salvato', savePostHint: 'Clicca sull\'icona del segnalibro su qualsiasi post per salvarlo qui',
+        adminPanel: 'Pannello di controllo', addOfficialTitle: 'Aggiungi titolo Ufficiale', removeOfficialTitle: 'Rimuovi titolo Ufficiale',
+        official: '⭐Official', deleteAccount: 'Elimina account', deleteAccountWarning: 'ATTENZIONE: Questa azione è permanente!',
+        deleteAccountConfirm: 'Sei assolutamente sicuro? Questo eliminerà il tuo account e tutti i tuoi dati per sempre.',
+        deleteAccountSuccess: 'Account eliminato con successo', changeUsername: 'Cambia username',
+        changeDisplayName: 'Cambia nome visualizzato', newUsername: 'Nuovo username', newDisplayName: 'Nuovo nome visualizzato',
+        currentPassword: 'Password attuale', confirmNewPassword: 'Conferma nuova password',
+        usernameChanged: 'Username cambiato con successo!', displayNameChanged: 'Nome visualizzato cambiato con successo!',
+        matureContent: 'Contenuti maturi', matureContentDesc: 'Mostra contenuti per adulti nei feed e nei risultati di ricerca.',
+        blurMature: 'Sfoca maturi (18+)', blurMatureDesc: 'Sfoca immagini e media che potrebbero essere sensibili.',
+        showMatureContent: 'Mostra contenuti maturi', blurMatureMedia: 'Sfoca media maturi',
+        displayNameChangeHint: 'Puoi cambiare il nome visualizzato solo una volta ogni 14 giorni.',
+        usernameChangeHint: 'Puoi cambiare il nome utente solo una volta ogni 90 giorni.',
+        accountPrivacy: 'Privacy dell\'account', changeEmail: 'Cambia email', changePassword: 'Cambia password',
+        newEmail: 'Nuova email', emailChanged: 'Email cambiata con successo!', newPassword: 'Nuova password',
+        passwordChanged: 'Password cambiata con successo!', currentPasswordRequired: 'Password attuale richiesta',
+        forgotPasswordHint: 'Password dimenticata? Suggerimento:', askQuestion: 'Fai una domanda', typeQuestion: 'Scrivi la tua domanda qui...',
+        aiResponse: 'Risposta AI', postsTab: 'Post', repostsTab: 'Repost', settingsTab: 'Impostazioni',
+        helpTab: 'Aiuto', general: 'Generale', profileTabTitle: 'Profilo', repostsTitle: 'Repost',
+        settingsTitle: 'Impostazioni', helpTitle: 'Centro assistenza', askAI: 'Chiedi all\'assistente AI', typeMessage: 'Scrivi il tuo messaggio...',
+        send: 'Invia', aiThinking: 'L\'AI sta pensando...', noReposts: 'Nessun repost',
+        changePasswordHint: 'Il suggerimento della tua password è:', enterNewPassword: 'Inserisci nuova password', confirmNewPassword: 'Conferma nuova password',
+        changeEmailHint: 'Dopo aver cambiato la tua email, sarà disponibile per l\'uso su un altro account.',
+        changePasswordHintText: 'Dopo aver cambiato la password, non sarà possibile ripristinarla completamente. Per la tua sicurezza, in caso di perdita totale, contatta il Centro assistenza.',
+        reply: 'Rispondi', editComment: 'Modifica commento', deleteComment: 'Elimina commento', commentLiked: 'Commento apprezzato', commentUnliked: 'Apprezzamento rimosso',
+        commentUpdated: 'Commento aggiornato!', noMessagesYet: 'Nessun messaggio', startConversation: 'Inizia una conversazione',
+        selectConversation: 'Seleziona una conversazione', typeMessageHere: 'Scrivi un messaggio...', sending: 'Invio...',
+        coverColorSelect: 'Seleziona colore copertina', presetColors: 'Colori preimpostati', customColor: 'Colore personalizzato'
+    },
+    pt: {
+        appName: 'FreedomNet', signIn: 'Entrar', signUp: 'Cadastrar',
+        emailOrUsername: 'Email ou usuário', password: 'Senha',
+        rememberMe: 'Lembrar-me', forgotPassword: 'Esqueceu a senha?',
+        signInBtn: 'Entrar', fullName: 'Nome de exibição', username: 'Usuário',
+        email: 'Email', confirmPassword: 'Confirmar senha', createAccount: 'Criar conta',
+        home: 'Início', explore: 'Explorar', notifications: 'Notificações',
+        messages: 'Mensagens', profile: 'Perfil', settings: 'Configurações', bookmarks: 'Favoritos', helpCenter: 'Central de ajuda',
+        logout: 'Sair', post: 'Publicar', trendingNow: 'Tendências',
+        welcomeNotification: 'Bem-vindo ao FreedomNet!', noMessages: 'Sem mensagens',
+        posts: 'Publicações', followers: 'Seguidores', following: 'Seguindo',
+        editProfile: 'Editar perfil', appearance: 'Aparência', theme: 'Tema',
+        dark: 'Escuro', light: 'Claro', language: 'Idioma',
+        notificationsSettings: 'Notificações', pushNotifications: 'Notificações push',
+        emailUpdates: 'Atualizações por email', saveChanges: 'Salvar alterações',
+        editPost: 'Editar publicação', cancel: 'Cancelar', save: 'Salvar',
+        deletePost: 'Excluir publicação?', deleteConfirm: 'Tem certeza que deseja excluir esta publicação?',
+        delete: 'Excluir', addComment: 'Adicionar comentário', comment: 'Comentar',
+        edit: 'Editar', delete_: 'Excluir', changeAvatar: 'Alterar avatar',
+        profileSettings: 'Configurações do perfil', displayName: 'Nome de exibição',
+        displayNameHint: 'Pode ser alterado a cada 14 dias', usernameHint: 'Pode ser alterado a cada 90 dias',
+        selectLanguage: 'Selecionar idioma', search: 'Buscar', noResults: 'Nenhum resultado encontrado',
+        joined: 'Entrou em', showProfile: 'Mostrar perfil', posting: 'Publicando...',
+        postPublished: 'Publicação publicada!', failedToPost: 'Falha ao publicar',
+        errorPosting: 'Erro ao publicar', pleaseWriteSomething: 'Escreva algo',
+        postUpdated: 'Publicação atualizada!', postDeleted: 'Publicação excluída!',
+        postReposted: 'Publicação repostada!', repostRemoved: 'Repost removido',
+        postSaved: 'Publicação salva!', postRemovedFromSaves: 'Publicação removida dos salvos',
+        commentDeleted: 'Comentário excluído', profileUpdated: 'Perfil atualizado!',
+        avatarUpdated: 'Avatar atualizado!', displayNameUpdated: 'Nome atualizado!',
+        usernameUpdated: 'Usuário atualizado!', settingsSaved: 'Configurações salvas!',
+        passwordsDoNotMatch: 'As senhas não coincidem', pleaseFillAllFields: 'Preencha todos os campos',
+        connectionError: 'Erro de conexão', invalidCredentials: 'Credenciais inválidas',
+        accountCreated: 'Conta criada!', welcomeBack: 'Bem-vindo de volta!',
+        allFieldsRequired: 'Todos os campos são obrigatórios', passwordTooShort: 'A senha deve ter pelo menos 6 caracteres',
+        noSavedPosts: 'Nenhuma publicação salva', savePostHint: 'Clique no ícone de favorito em qualquer publicação para salvá-la aqui',
+        adminPanel: 'Painel de administração', addOfficialTitle: 'Adicionar título Oficial', removeOfficialTitle: 'Remover título Oficial',
+        official: '⭐Official', deleteAccount: 'Excluir conta', deleteAccountWarning: 'ATENÇÃO: Esta ação é permanente!',
+        deleteAccountConfirm: 'Você tem certeza absoluta? Isso excluirá sua conta e todos os seus dados para sempre.',
+        deleteAccountSuccess: 'Conta excluída com sucesso', changeUsername: 'Alterar nome de usuário',
+        changeDisplayName: 'Alterar nome de exibição', newUsername: 'Novo nome de usuário', newDisplayName: 'Novo nome de exibição',
+        currentPassword: 'Senha atual', confirmNewPassword: 'Confirmar nova senha',
+        usernameChanged: 'Nome de usuário alterado com sucesso!', displayNameChanged: 'Nome de exibição alterado com sucesso!',
+        matureContent: 'Conteúdo adulto', matureContentDesc: 'Ver conteúdo adulto em seus feeds e resultados de pesquisa.',
+        blurMature: 'Desfocar adulto (18+)', blurMatureDesc: 'Desfocar imagens e mídias que podem ser sensíveis.',
+        showMatureContent: 'Mostrar conteúdo adulto', blurMatureMedia: 'Desfocar mídia adulta',
+        displayNameChangeHint: 'Você pode alterar o nome de exibição apenas uma vez a cada 14 dias.',
+        usernameChangeHint: 'Você pode alterar o nome de usuário apenas uma vez a cada 90 dias.',
+        accountPrivacy: 'Privacidade da conta', changeEmail: 'Alterar email', changePassword: 'Alterar senha',
+        newEmail: 'Novo email', emailChanged: 'Email alterado com sucesso!', newPassword: 'Nova senha',
+        passwordChanged: 'Senha alterada com sucesso!', currentPasswordRequired: 'Senha atual necessária',
+        forgotPasswordHint: 'Esqueceu a senha? Dica:', askQuestion: 'Fazer uma pergunta', typeQuestion: 'Digite sua pergunta aqui...',
+        aiResponse: 'Resposta da IA', postsTab: 'Publicações', repostsTab: 'Reposts', settingsTab: 'Configurações',
+        helpTab: 'Ajuda', general: 'Geral', profileTabTitle: 'Perfil', repostsTitle: 'Reposts',
+        settingsTitle: 'Configurações', helpTitle: 'Central de ajuda', askAI: 'Perguntar ao assistente IA', typeMessage: 'Digite sua mensagem...',
+        send: 'Enviar', aiThinking: 'IA está pensando...', noReposts: 'Nenhum repost',
+        changePasswordHint: 'A dica da sua senha é:', enterNewPassword: 'Digite a nova senha', confirmNewPassword: 'Confirme a nova senha',
+        changeEmailHint: 'Depois de alterar seu email, ele estará disponível para uso em outra conta.',
+        changePasswordHintText: 'Depois de alterar a senha, não será possível revertê-la completamente. Para sua segurança, em caso de perda total, entre em contato com a Central de ajuda.',
+        reply: 'Responder', editComment: 'Editar comentário', deleteComment: 'Excluir comentário', commentLiked: 'Comentário curtido', commentUnliked: 'Curtida removida',
+        commentUpdated: 'Comentário atualizado!', noMessagesYet: 'Nenhuma mensagem', startConversation: 'Iniciar uma conversa',
+        selectConversation: 'Selecione uma conversa', typeMessageHere: 'Digite uma mensagem...', sending: 'Enviando...',
+        coverColorSelect: 'Selecionar cor da capa', presetColors: 'Cores predefinidas', customColor: 'Cor personalizada'
     }
 };
 
@@ -371,9 +523,6 @@ function updateLanguage(lang) {
     const postBtn = document.getElementById('createPostBtn');
     if (postBtn) postBtn.textContent = t.post || 'Post';
     if (currentPage === 'bookmarks') displaySavedPosts();
-    if (currentPage === 'profile') {
-        document.querySelector('.profile-tabs .tab-btn.active')?.click();
-    }
 }
 
 function showCustomAlert(message) {
@@ -383,6 +532,25 @@ function showCustomAlert(message) {
     document.getElementById('alertOkBtn').onclick = () => alert.classList.remove('active');
 }
 
+function formatTime(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    if (minutes < 1) return 'now';
+    if (minutes < 60) return `${minutes}m`;
+    if (hours < 24) return `${hours}h`;
+    return `${days}d`;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function displaySavedPosts() {
     const container = document.getElementById('savedPostsList');
     if (!container) return;
@@ -390,10 +558,7 @@ function displaySavedPosts() {
     const savedPostIds = Array.from(userSavedPosts);
     const savedPosts = allPosts.filter(post => savedPostIds.includes(post.id));
     if (savedPosts.length === 0) {
-        container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-tertiary)">
-            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:16px"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-            <p>${t.noSavedPosts}</p><small>${t.savePostHint}</small>
-        </div>`;
+        container.innerHTML = `<div class="profile-empty-state"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><p>${t.noSavedPosts}</p><small>${t.savePostHint}</small></div>`;
         return;
     }
     container.innerHTML = savedPosts.map(post => {
@@ -402,39 +567,7 @@ function displaySavedPosts() {
         const isReposted = userRepostedPosts.has(post.id);
         const isSaved = userSavedPosts.has(post.id);
         const isOfficial = officialUsers.has(post.userId) || post.user?.username === ADMIN_USERNAME;
-        return `
-        <div class="post-card ${feedViewMode === 'compact' ? 'compact-mode' : ''}" data-post-id="${post.id}">
-            <div class="avatar-container"><img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer"></div>
-            <div class="post-body">
-                <div class="post-header">
-                    <div class="post-name-container">
-                        <span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
-                        ${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}
-                    </div>
-                    <span class="post-username">@${escapeHtml(post.user?.username)}</span>
-                    <span class="post-time">${formatTime(post.createdAt)}</span>
-                </div>
-                <div class="post-text">${escapeHtml(post.content)}</div>
-                ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${blurMatureEnabled ? 'blur-mature' : ''}" alt="Post image">` : ''}
-                <div class="post-actions">
-                    <button class="action-btn like" onclick="toggleLike('${post.id}')" style="color:${isLiked ? 'var(--error)' : ''}">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${isLiked ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                        <span>${post.likes}</span>
-                    </button>
-                    <button class="action-btn comment" onclick="openCommentModal('${post.id}')">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        <span>${post.comments?.length || 0}</span>
-                    </button>
-                    <button class="action-btn repost" onclick="toggleRepost('${post.id}')" style="color:${isReposted ? 'var(--success)' : ''}">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-                        <span>${post.reposts || 0}</span>
-                    </button>
-                    <button class="action-btn save ${isSaved ? 'saved' : ''}" onclick="toggleSave('${post.id}')">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${isSaved ? '#ffd700' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                    </button>
-                </div>
-            </div>
-        </div>`;
+        return `<div class="post-card"><div class="avatar-container"><img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer"></div><div class="post-body"><div class="post-header"><div class="post-name-container"><span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}</div><span class="post-username">@${escapeHtml(post.user?.username)}</span><span class="post-time">${formatTime(post.createdAt)}</span></div><div class="post-text">${escapeHtml(post.content)}</div>${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${blurMatureEnabled ? 'blur-mature' : ''}" alt="Post image">` : ''}<div class="post-actions"><button class="action-btn like" onclick="toggleLike('${post.id}')" style="color:${isLiked ? 'var(--error)' : ''}"><svg viewBox="0 0 24 24" width="18" height="18" fill="${isLiked ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>${post.likes}</span></button><button class="action-btn comment" onclick="openCommentModal('${post.id}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>${post.comments?.length || 0}</span></button><button class="action-btn repost" onclick="toggleRepost('${post.id}')" style="color:${isReposted ? 'var(--success)' : ''}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>${post.reposts || 0}</span></button><button class="action-btn save ${isSaved ? 'saved' : ''}" onclick="toggleSave('${post.id}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="${isSaved ? '#ffd700' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button></div></div></div>`;
     }).join('');
 }
 
@@ -559,47 +692,88 @@ async function loadAllUsers() {
     allUsers = await res.json();
 }
 
+async function loadMessages() {
+    const res = await fetch(`${API_URL}/api/messages/${currentUser.id}`);
+    allMessages = await res.json();
+    if (currentChatUser) displayMessages(currentChatUser);
+    displayChatList();
+}
+
+async function sendMessage(receiverId, content) {
+    const res = await fetch(`${API_URL}/api/messages/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senderId: currentUser.id, receiverId, content })
+    });
+    if (res.ok) await loadMessages();
+}
+
+function displayChatList() {
+    const container = document.getElementById('messagesList');
+    if (!container) return;
+    const t = translations[currentLanguage];
+    const conversations = new Map();
+    allMessages.forEach(msg => {
+        const otherId = msg.senderId === currentUser.id ? msg.receiverId : msg.senderId;
+        if (!conversations.has(otherId) || new Date(msg.createdAt) > new Date(conversations.get(otherId).createdAt)) {
+            const otherUser = allUsers.find(u => u.id === otherId);
+            if (otherUser) conversations.set(otherId, { ...msg, otherUser });
+        }
+    });
+    if (conversations.size === 0) {
+        container.innerHTML = `<div class="profile-empty-state"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>${t.noMessagesYet}</p></div>`;
+        return;
+    }
+    container.innerHTML = Array.from(conversations.values()).map(conv => {
+        const avatar = conv.otherUser?.avatar || `https://ui-avatars.com/api/?name=${(conv.otherUser?.displayName || conv.otherUser?.username).slice(0,2)}&background=1d9bf0&color=fff`;
+        return `<div class="message-thread ${currentChatUser === conv.otherUser?.id ? 'active' : ''}" onclick="openChat('${conv.otherUser?.id}')"><img class="message-thread-avatar" src="${avatar}"><div class="message-thread-info"><span class="message-thread-name">${escapeHtml(conv.otherUser?.displayName || conv.otherUser?.username)}</span><span class="message-thread-preview">${escapeHtml(conv.content?.substring(0, 50) || '')}</span></div><div class="message-thread-time">${formatTime(conv.createdAt)}</div></div>`;
+    }).join('');
+}
+
+function displayMessages(userId) {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
+    currentChatUser = userId;
+    const container = document.getElementById('messagesContent');
+    const t = translations[currentLanguage];
+    const userMessages = allMessages.filter(msg => (msg.senderId === currentUser.id && msg.receiverId === userId) || (msg.senderId === userId && msg.receiverId === currentUser.id));
+    userMessages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    container.innerHTML = userMessages.map(msg => `<div class="message-bubble ${msg.senderId === currentUser.id ? 'sent' : 'received'}">${escapeHtml(msg.content)}<span class="message-time">${formatTime(msg.createdAt)}</span></div>`).join('');
+    if (container.children.length === 0) container.innerHTML = `<div class="messages-empty"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>${t.noMessagesYet}</p><small>${t.startConversation}</small></div>`;
+    document.getElementById('messagesHeaderName').textContent = user.displayName || user.username;
+    const avatar = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff`;
+    document.getElementById('messagesHeaderAvatar').src = avatar;
+    container.scrollTop = container.scrollHeight;
+}
+
+window.openChat = function(userId) { displayMessages(userId); displayChatList(); };
+document.getElementById('sendMessageBtn')?.addEventListener('click', async () => {
+    const input = document.getElementById('messageInput');
+    const content = input.value.trim();
+    if (!content || !currentChatUser) return;
+    input.value = '';
+    await sendMessage(currentChatUser, content);
+    await loadMessages();
+    displayMessages(currentChatUser);
+});
+
 async function loadOfficialUsers() {
     try {
         const res = await fetch(`${API_URL}/api/official/users`);
         const data = await res.json();
         officialUsers = new Set(data);
-        if (currentUser && currentUser.username === ADMIN_USERNAME) {
-            officialUsers.add(currentUser.id);
-        }
+        if (currentUser && currentUser.username === ADMIN_USERNAME) officialUsers.add(currentUser.id);
     } catch (error) {}
 }
 
 async function addOfficialUser(userId) {
-    try {
-        const res = await fetch(`${API_URL}/api/official/add`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, adminId: currentUser.id })
-        });
-        if (res.ok) {
-            officialUsers.add(userId);
-            loadPosts();
-            if (currentPage === 'profile') loadUserPosts();
-            showCustomAlert('Official title added!');
-        }
-    } catch (error) {}
+    const res = await fetch(`${API_URL}/api/official/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, adminId: currentUser.id }) });
+    if (res.ok) { officialUsers.add(userId); loadPosts(); if (currentPage === 'profile') loadUserPosts(); showCustomAlert('Official title added!'); }
 }
 
 async function removeOfficialUser(userId) {
-    try {
-        const res = await fetch(`${API_URL}/api/official/remove`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, adminId: currentUser.id })
-        });
-        if (res.ok) {
-            officialUsers.delete(userId);
-            loadPosts();
-            if (currentPage === 'profile') loadUserPosts();
-            showCustomAlert('Official title removed!');
-        }
-    } catch (error) {}
+    const res = await fetch(`${API_URL}/api/official/remove`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, adminId: currentUser.id }) });
+    if (res.ok) { officialUsers.delete(userId); loadPosts(); if (currentPage === 'profile') loadUserPosts(); showCustomAlert('Official title removed!'); }
 }
 
 async function initApp(user) {
@@ -608,10 +782,8 @@ async function initApp(user) {
     app.classList.add('active');
     const savedMatureContent = localStorage.getItem('matureContentEnabled') === 'true';
     const savedBlurMature = localStorage.getItem('blurMatureEnabled') === 'true';
-    const savedFeedView = localStorage.getItem('feedViewMode') || 'card';
     matureContentEnabled = savedMatureContent;
     blurMatureEnabled = savedBlurMature;
-    feedViewMode = savedFeedView;
     const avatarUrl = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent((user.displayName || user.username).slice(0,2))}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
     document.getElementById('headerAvatar').src = avatarUrl;
     document.getElementById('headerName').textContent = user.displayName || user.username;
@@ -631,34 +803,17 @@ async function initApp(user) {
     updateLanguage(savedLang);
     const matureToggle = document.getElementById('matureContentToggle');
     const blurToggle = document.getElementById('blurMatureToggle');
-    const cardModeBtn = document.getElementById('cardModeBtn');
-    const compactModeBtn = document.getElementById('compactModeBtn');
     if (matureToggle) matureToggle.checked = matureContentEnabled;
     if (blurToggle) blurToggle.checked = blurMatureEnabled;
-    if (cardModeBtn && feedViewMode === 'card') cardModeBtn.classList.add('active');
-    if (compactModeBtn && feedViewMode === 'compact') compactModeBtn.classList.add('active');
     await loadAllUsers();
     await loadUserInteractions();
     await loadOfficialUsers();
     await loadPosts();
+    await loadMessages();
     if (user.username === ADMIN_USERNAME) showAdminPanel();
-    setupSettingsTabs();
     setupProfileTabs();
-}
-
-function setupSettingsTabs() {
-    const tabs = document.querySelectorAll('.settings-tab');
-    const contents = document.querySelectorAll('.settings-tab-content');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const tabId = tab.dataset.settingsTab;
-            tabs.forEach(t => t.classList.remove('active'));
-            contents.forEach(c => c.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(`settings-${tabId}`).classList.add('active');
-            settingsTab = tabId;
-        });
-    });
+    if (messageInterval) clearInterval(messageInterval);
+    messageInterval = setInterval(async () => { await loadMessages(); }, 5000);
 }
 
 function setupProfileTabs() {
@@ -676,43 +831,6 @@ function setupProfileTabs() {
             if (tabId === 'reposts') loadUserReposts();
         });
     });
-}
-
-async function loadUserReposts() {
-    const userRepostIds = Array.from(userRepostedPosts);
-    const repostedPosts = allPosts.filter(post => userRepostIds.includes(post.id));
-    const container = document.getElementById('userRepostsList');
-    const t = translations[currentLanguage];
-    if (!container) return;
-    if (repostedPosts.length === 0) {
-        container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-tertiary)">${t.noReposts}</div>`;
-        return;
-    }
-    container.innerHTML = repostedPosts.map(post => {
-        const postAvatar = post.user?.avatar || `https://ui-avatars.com/api/?name=${(post.user?.displayName || post.user?.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
-        const isOfficial = officialUsers.has(post.userId) || post.user?.username === ADMIN_USERNAME;
-        return `
-        <div class="post-card ${feedViewMode === 'compact' ? 'compact-mode' : ''}">
-            <div class="avatar-container"><img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer"></div>
-            <div class="post-body">
-                <div class="post-header">
-                    <div class="post-name-container">
-                        <span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
-                        ${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}
-                    </div>
-                    <span class="post-username">@${escapeHtml(post.user?.username)}</span>
-                    <span class="post-time">${formatTime(post.createdAt)}</span>
-                </div>
-                <div class="post-text">${escapeHtml(post.content)}</div>
-                ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${blurMatureEnabled ? 'blur-mature' : ''}" alt="Post image">` : ''}
-                <div class="post-actions">
-                    <span>❤️ ${post.likes}</span>
-                    <span>💬 ${post.comments?.length || 0}</span>
-                    <span>🔄 ${post.reposts || 0}</span>
-                </div>
-            </div>
-        </div>`;
-    }).join('');
 }
 
 function showAdminPanel() {
@@ -746,22 +864,14 @@ function openAdminPanel() {
                     const isOfficial = officialUsers.has(user.id);
                     return `<div class="admin-user-item"><div class="admin-user-info"><div class="admin-user-name">${escapeHtml(user.displayName || user.username)}</div><div class="admin-user-username">@${escapeHtml(user.username)}</div></div><button class="admin-action-btn ${isOfficial ? 'remove' : 'add'}" onclick="${isOfficial ? `removeOfficialUser('${user.id}')` : `addOfficialUser('${user.id}')`}; document.body.removeChild(modal);">${isOfficial ? t.removeOfficialTitle : t.addOfficialTitle}</button></div>`;
                 }).join('');
-            } else {
-                resultsDiv.style.display = 'block';
-                resultsDiv.innerHTML = `<div class="admin-no-results">${t.noResults}</div>`;
-            }
-        } else {
-            resultsDiv.style.display = 'none';
-        }
+            } else { resultsDiv.style.display = 'block'; resultsDiv.innerHTML = `<div class="admin-no-results">${t.noResults}</div>`; }
+        } else { resultsDiv.style.display = 'none'; }
     });
     modal.querySelector('#closeAdminPanel').onclick = () => document.body.removeChild(modal);
 }
 
 document.querySelectorAll('.nav-btn, .mobile-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const page = btn.dataset.page;
-        switchPage(page);
-    });
+    btn.addEventListener('click', () => { const page = btn.dataset.page; switchPage(page); });
 });
 
 function switchPage(page) {
@@ -773,11 +883,12 @@ function switchPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(`${page}Page`).classList.add('active');
     const t = translations[currentLanguage];
-    const titles = { home: t.home, explore: t.explore, notifications: t.notifications, messages: t.messages, profile: t.profile, settings: t.settings, bookmarks: t.bookmarks };
+    const titles = { home: t.home, explore: t.explore, notifications: t.notifications, messages: t.messages, profile: t.profile, settings: t.settings, bookmarks: t.bookmarks, help: t.helpCenter };
     document.getElementById('pageTitle').textContent = titles[page] || t.home;
     if (page === 'home') loadPosts();
     if (page === 'profile') { loadUserPosts(); loadUserReposts(); }
     if (page === 'bookmarks') displaySavedPosts();
+    if (page === 'messages') { loadMessages(); displayChatList(); if (currentChatUser) displayMessages(currentChatUser); }
 }
 
 document.getElementById('addImageBtn')?.addEventListener('click', () => {
@@ -809,31 +920,20 @@ document.getElementById('removeImageBtn')?.addEventListener('click', () => {
 
 document.getElementById('createPostBtn').addEventListener('click', async () => {
     const content = document.getElementById('postContent').value;
-    if (!content.trim() && !currentPostImageUrl) {
-        showCustomAlert(translations[currentLanguage].pleaseWriteSomething);
-        return;
-    }
+    if (!content.trim() && !currentPostImageUrl) { showCustomAlert(translations[currentLanguage].pleaseWriteSomething); return; }
     const btn = document.getElementById('createPostBtn');
     btn.disabled = true;
     btn.textContent = translations[currentLanguage].posting;
     try {
-        const res = await fetch(`${API_URL}/api/posts`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: currentUser.id, content: content, imageUrl: currentPostImageUrl })
-        });
+        const res = await fetch(`${API_URL}/api/posts`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, content: content, imageUrl: currentPostImageUrl }) });
         if (res.ok) {
             document.getElementById('postContent').value = '';
             currentPostImageUrl = null;
             document.getElementById('imagePreview').style.display = 'none';
             await loadPosts();
             showCustomAlert(translations[currentLanguage].postPublished);
-        } else {
-            showCustomAlert(translations[currentLanguage].failedToPost);
-        }
-    } catch (error) {
-        showCustomAlert(translations[currentLanguage].errorPosting);
-    }
+        } else { showCustomAlert(translations[currentLanguage].failedToPost); }
+    } catch (error) { showCustomAlert(translations[currentLanguage].errorPosting); }
     btn.disabled = false;
     btn.textContent = translations[currentLanguage].post;
 });
@@ -845,10 +945,7 @@ async function loadPosts() {
     const t = translations[currentLanguage];
     let filteredPosts = allPosts;
     if (!matureContentEnabled) filteredPosts = allPosts.filter(post => !post.isMature);
-    if (filteredPosts.length === 0) {
-        feed.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-tertiary)">${t.noResults}</div>`;
-        return;
-    }
+    if (filteredPosts.length === 0) { feed.innerHTML = `<div class="profile-empty-state"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><p>${t.noResults}</p></div>`; return; }
     feed.innerHTML = filteredPosts.map(post => {
         const postAvatar = post.user?.avatar || `https://ui-avatars.com/api/?name=${(post.user?.displayName || post.user?.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
         const isLiked = userLikedPosts.has(post.id);
@@ -858,49 +955,93 @@ async function loadPosts() {
         const isAdmin = currentUser?.username === ADMIN_USERNAME;
         const canDeletePost = isAdmin || post.userId === currentUser?.id;
         const imageBlurClass = (blurMatureEnabled && post.isMature) ? 'blur-mature' : '';
-        return `<div class="post-card ${feedViewMode === 'compact' ? 'compact-mode' : ''}" data-post-id="${post.id}">
-            <div class="avatar-container"><img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username?.slice(0,2)}&background=1d9bf0&color=fff'"></div>
-            <div class="post-body">
-                <div class="post-header">
-                    <div class="post-name-container"><span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}</div>
-                    <span class="post-username">@${escapeHtml(post.user?.username)}</span>
-                    <span class="post-time">${formatTime(post.createdAt)}</span>
-                    ${canDeletePost ? `<div class="post-menu"><button class="menu-btn" onclick="toggleMenu(event, '${post.id}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button><div class="post-menu-dropdown" id="menu-${post.id}">${post.userId === currentUser?.id ? `<div class="dropdown-item" onclick="editPost('${post.id}', '${escapeHtml(post.content).replace(/'/g, "\\'")}')">${t.edit}</div>` : ''}<div class="dropdown-item delete" onclick="deletePost('${post.id}')">${t.delete_}</div></div></div>` : ''}
-                </div>
-                <div class="post-text">${escapeHtml(post.content)}</div>
-                ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${imageBlurClass}" alt="Post image">` : ''}
-                <div class="post-actions">
-                    <button class="action-btn like" onclick="toggleLike('${post.id}')" style="color:${isLiked ? 'var(--error)' : ''}"><svg viewBox="0 0 24 24" width="18" height="18" fill="${isLiked ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>${post.likes}</span></button>
-                    <button class="action-btn comment" onclick="openCommentModal('${post.id}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>${post.comments?.length || 0}</span></button>
-                    <button class="action-btn repost" onclick="toggleRepost('${post.id}')" style="color:${isReposted ? 'var(--success)' : ''}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>${post.reposts || 0}</span></button>
-                    <button class="action-btn save ${isSaved ? 'saved' : ''}" onclick="toggleSave('${post.id}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="${isSaved ? '#ffd700' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                </div>
-                ${post.comments && post.comments.length > 0 ? `<div class="comments-section"><div class="comments-header"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>${post.comments.length} comments</span></div>${post.comments.slice(0, 2).map(c => {
-                    const commentAvatar = `https://ui-avatars.com/api/?name=${(c.displayName || c.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=32&rounded=true`;
-                    const canDeleteComment = isAdmin || c.userId === currentUser?.id;
-                    const isCommentOfficial = officialUsers.has(c.userId) || c.username === ADMIN_USERNAME;
-                    return `<div class="comment-item"><img class="comment-avatar-img" src="${commentAvatar}" onerror="this.src='https://ui-avatars.com/api/?name=${c.username?.slice(0,2)}&background=1d9bf0&color=fff'"><div class="comment-content"><div class="comment-header"><div class="comment-name-container"><span class="comment-name">${escapeHtml(c.displayName || c.username)}</span>${isCommentOfficial ? `<span class="official-badge small">${t.official}</span>` : ''}</div><span class="comment-username">@${escapeHtml(c.username)}</span><span class="comment-time">${formatTime(c.createdAt)}</span></div><div class="comment-text">${escapeHtml(c.comment)}</div></div>${canDeleteComment ? `<button class="comment-delete" onclick="deleteComment('${post.id}', '${c.id}')">×</button>` : ''}</div>`;
-                }).join('')}${post.comments.length > 2 ? `<div class="more-comments" onclick="openCommentModal('${post.id}')">+${post.comments.length - 2} more comments</div>` : ''}</div>` : ''}
-            </div>
-        </div>`;
+        return `<div class="post-card" data-post-id="${post.id}"><div class="avatar-container"><img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer"></div><div class="post-body"><div class="post-header"><div class="post-name-container"><span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}</div><span class="post-username">@${escapeHtml(post.user?.username)}</span><span class="post-time">${formatTime(post.createdAt)}</span>${canDeletePost ? `<div class="post-menu"><button class="menu-btn" onclick="toggleMenu(event, '${post.id}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button><div class="post-menu-dropdown" id="menu-${post.id}">${post.userId === currentUser?.id ? `<div class="dropdown-item" onclick="editPost('${post.id}', '${escapeHtml(post.content).replace(/'/g, "\\'")}')">${t.edit}</div>` : ''}<div class="dropdown-item delete" onclick="deletePost('${post.id}')">${t.delete_}</div></div></div>` : ''}</div><div class="post-text">${escapeHtml(post.content)}</div>${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${imageBlurClass}" alt="Post image">` : ''}<div class="post-actions"><button class="action-btn like" onclick="toggleLike('${post.id}')" style="color:${isLiked ? 'var(--error)' : ''}"><svg viewBox="0 0 24 24" width="18" height="18" fill="${isLiked ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>${post.likes}</span></button><button class="action-btn comment" onclick="openCommentModal('${post.id}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>${post.comments?.length || 0}</span></button><button class="action-btn repost" onclick="toggleRepost('${post.id}')" style="color:${isReposted ? 'var(--success)' : ''}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>${post.reposts || 0}</span></button><button class="action-btn save ${isSaved ? 'saved' : ''}" onclick="toggleSave('${post.id}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="${isSaved ? '#ffd700' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button></div>${post.comments && post.comments.length > 0 ? `<div class="comments-section"><div class="comments-header"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>${post.comments.length} comments</span></div>${post.comments.slice(0, 2).map(c => { const commentAvatar = `https://ui-avatars.com/api/?name=${(c.displayName || c.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=32&rounded=true`; const canDeleteComment = isAdmin || c.userId === currentUser?.id; const isCommentOfficial = officialUsers.has(c.userId) || c.username === ADMIN_USERNAME; return `<div class="comment-item"><img class="comment-avatar-img" src="${commentAvatar}"><div class="comment-content"><div class="comment-header"><div class="comment-name-container"><span class="comment-name">${escapeHtml(c.displayName || c.username)}</span>${isCommentOfficial ? `<span class="official-badge small">${t.official}</span>` : ''}</div><span class="comment-username">@${escapeHtml(c.username)}</span><span class="comment-time">${formatTime(c.createdAt)}</span></div><div class="comment-text">${escapeHtml(c.comment)}</div><div class="comment-actions"><button class="comment-action-btn like" onclick="toggleCommentLike('${post.id}', '${c.id}')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>${c.likes || 0}</span></button><button class="comment-action-btn" onclick="replyToComment('${post.id}', '${c.id}', '${escapeHtml(c.displayName || c.username)}')">${t.reply}</button></div></div>${canDeleteComment ? `<div class="comment-menu"><button class="comment-menu-btn" onclick="toggleCommentMenu(event, '${post.id}', '${c.id}')">•••</button><div class="comment-menu-dropdown" id="comment-menu-${post.id}-${c.id}"><div class="comment-menu-item" onclick="editComment('${post.id}', '${c.id}', '${escapeHtml(c.comment).replace(/'/g, "\\'")}')">${t.editComment}</div><div class="comment-menu-item delete" onclick="deleteComment('${post.id}', '${c.id}')">${t.deleteComment}</div></div></div>` : ''}</div>`; }).join('')}${post.comments.length > 2 ? `<div class="more-comments" onclick="openCommentModal('${post.id}')">+${post.comments.length - 2} more comments</div>` : ''}</div>` : ''}</div></div>`;
     }).join('');
     const userPosts = allPosts.filter(p => p.userId === currentUser.id);
     document.getElementById('userPostCount').textContent = userPosts.length;
     if (currentPage === 'bookmarks') displaySavedPosts();
 }
 
-function formatTime(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now - date;
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-    if (minutes < 1) return 'now';
-    if (minutes < 60) return `${minutes}m`;
-    if (hours < 24) return `${hours}h`;
-    return `${days}d`;
+window.toggleMenu = function(event, postId) { event.stopPropagation(); document.querySelectorAll('.post-menu-dropdown').forEach(menu => { if (menu.id !== `menu-${postId}`) menu.classList.remove('show'); }); const menu = document.getElementById(`menu-${postId}`); menu.classList.toggle('show'); };
+window.toggleCommentMenu = function(event, postId, commentId) { event.stopPropagation(); document.querySelectorAll('.comment-menu-dropdown').forEach(menu => { if (menu.id !== `comment-menu-${postId}-${commentId}`) menu.classList.remove('show'); }); const menu = document.getElementById(`comment-menu-${postId}-${commentId}`); menu.classList.toggle('show'); };
+document.addEventListener('click', function() { document.querySelectorAll('.post-menu-dropdown, .comment-menu-dropdown').forEach(menu => menu.classList.remove('show')); });
+window.editPost = function(postId, currentContent) { currentEditPostId = postId; document.getElementById('editPostContent').value = currentContent; document.getElementById('editModal').classList.add('active'); };
+window.deletePost = async (postId) => { const res = await fetch(`${API_URL}/api/posts/${postId}`, { method: 'DELETE' }); if (res.ok) { loadPosts(); showCustomAlert(translations[currentLanguage].postDeleted); } };
+window.toggleLike = async (postId) => { const res = await fetch(`${API_URL}/api/posts/like`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, userId: currentUser.id }) }); const data = await res.json(); if (data.success) { if (data.liked) userLikedPosts.add(postId); else userLikedPosts.delete(postId); loadPosts(); } };
+window.toggleRepost = async (postId) => { const res = await fetch(`${API_URL}/api/posts/repost`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, userId: currentUser.id }) }); const data = await res.json(); if (data.success) { if (data.reposted) { userRepostedPosts.add(postId); showCustomAlert(translations[currentLanguage].postReposted); } else { userRepostedPosts.delete(postId); showCustomAlert(translations[currentLanguage].repostRemoved); } loadPosts(); } };
+window.toggleSave = async (postId) => { const res = await fetch(`${API_URL}/api/posts/save`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, userId: currentUser.id }) }); const data = await res.json(); if (data.saved) { userSavedPosts.add(postId); showCustomAlert(translations[currentLanguage].postSaved); } else { userSavedPosts.delete(postId); showCustomAlert(translations[currentLanguage].postRemovedFromSaves); } loadPosts(); };
+window.openCommentModal = function(postId) { currentCommentPostId = postId; document.getElementById('commentInput').value = ''; document.getElementById('commentModal').classList.add('active'); };
+window.toggleCommentLike = async (postId, commentId) => { const t = translations[currentLanguage]; if (userLikedComments.has(`${postId}-${commentId}`)) { userLikedComments.delete(`${postId}-${commentId}`); showCustomAlert(t.commentUnliked); } else { userLikedComments.add(`${postId}-${commentId}`); showCustomAlert(t.commentLiked); } loadPosts(); };
+window.replyToComment = function(postId, commentId, username) { document.getElementById('commentInput').value = `@${username} `; document.getElementById('commentInput').focus(); currentCommentPostId = postId; };
+window.editComment = function(postId, commentId, currentText) { currentEditCommentPostId = postId; currentEditCommentId = commentId; document.getElementById('editPostContent').value = currentText; document.getElementById('editModal').classList.add('active'); };
+window.deleteComment = async (postId, commentId) => { const res = await fetch(`${API_URL}/api/posts/comment`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, commentId, userId: currentUser.id }) }); if (res.ok) { loadPosts(); showCustomAlert(translations[currentLanguage].commentDeleted); } };
+document.getElementById('submitCommentBtn').addEventListener('click', async () => { const comment = document.getElementById('commentInput').value; if (!comment.trim()) return; await fetch(`${API_URL}/api/posts/comment`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId: currentCommentPostId, userId: currentUser.id, comment }) }); document.getElementById('commentModal').classList.remove('active'); loadPosts(); });
+document.getElementById('saveEditBtn').addEventListener('click', async () => { const newContent = document.getElementById('editPostContent').value; if (!newContent.trim()) return; if (currentEditCommentId) { const res = await fetch(`${API_URL}/api/posts/comment/${currentEditCommentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId: currentEditCommentPostId, content: newContent }) }); if (res.ok) { loadPosts(); showCustomAlert(translations[currentLanguage].commentUpdated); } currentEditCommentId = null; currentEditCommentPostId = null; } else { await fetch(`${API_URL}/api/posts/${currentEditPostId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: newContent }) }); loadPosts(); showCustomAlert(translations[currentLanguage].postUpdated); } document.getElementById('editModal').classList.remove('active'); });
+document.getElementById('confirmDeleteBtn').addEventListener('click', async () => { await fetch(`${API_URL}/api/posts/${currentDeletePostId}`, { method: 'DELETE' }); document.getElementById('deleteModal').classList.remove('active'); loadPosts(); showCustomAlert(translations[currentLanguage].postDeleted); });
+document.getElementById('closeEditModal').addEventListener('click', () => { document.getElementById('editModal').classList.remove('active'); });
+document.getElementById('cancelDeleteBtn').addEventListener('click', () => { document.getElementById('deleteModal').classList.remove('active'); });
+document.getElementById('closeCommentModal').addEventListener('click', () => { document.getElementById('commentModal').classList.remove('active'); });
+
+async function loadUserPosts() {
+    const userPosts = allPosts.filter(p => p.userId === currentUser.id);
+    const container = document.getElementById('userPostsList');
+    if (container) {
+        if (userPosts.length === 0) { container.innerHTML = `<div class="profile-empty-state"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><p>${translations[currentLanguage].noResults}</p></div>`; return; }
+        container.innerHTML = userPosts.map(post => { const postAvatar = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`; const isOfficial = officialUsers.has(currentUser.id) || currentUser.username === ADMIN_USERNAME; const imageBlurClass = (blurMatureEnabled && post.isMature) ? 'blur-mature' : ''; return `<div class="post-card"><div class="avatar-container"><img class="post-avatar" src="${postAvatar}"></div><div class="post-body"><div class="post-header"><div class="post-name-container"><span class="post-name">${escapeHtml(currentUser.displayName || currentUser.username)}</span>${isOfficial ? `<span class="official-badge">${translations[currentLanguage].official}</span>` : ''}</div><span class="post-username">@${escapeHtml(currentUser.username)}</span><span class="post-time">${formatTime(post.createdAt)}</span></div><div class="post-text">${escapeHtml(post.content)}</div>${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${imageBlurClass}" alt="Post image">` : ''}<div class="post-actions"><span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> ${post.likes}</span><span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ${post.comments?.length || 0}</span><span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> ${post.reposts || 0}</span></div></div></div>`; }).join('');
+    }
 }
+
+async function loadUserReposts() {
+    const userRepostIds = Array.from(userRepostedPosts);
+    const repostedPosts = allPosts.filter(post => userRepostIds.includes(post.id));
+    const container = document.getElementById('userRepostsList');
+    const t = translations[currentLanguage];
+    if (!container) return;
+    if (repostedPosts.length === 0) { container.innerHTML = `<div class="profile-empty-state"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><p>${t.noReposts}</p></div>`; return; }
+    container.innerHTML = repostedPosts.map(post => { const postAvatar = post.user?.avatar || `https://ui-avatars.com/api/?name=${(post.user?.displayName || post.user?.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`; const isOfficial = officialUsers.has(post.userId) || post.user?.username === ADMIN_USERNAME; return `<div class="post-card"><div class="avatar-container"><img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer"></div><div class="post-body"><div class="post-header"><div class="post-name-container"><span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}</div><span class="post-username">@${escapeHtml(post.user?.username)}</span><span class="post-time">${formatTime(post.createdAt)}</span></div><div class="post-text">${escapeHtml(post.content)}</div>${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${blurMatureEnabled ? 'blur-mature' : ''}" alt="Post image">` : ''}<div class="post-actions"><span>❤️ ${post.likes}</span><span>💬 ${post.comments?.length || 0}</span><span>🔄 ${post.reposts || 0}</span></div></div></div>`; }).join('');
+}
+
+document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); sessionStorage.clear(); location.reload(); });
+document.getElementById('editProfileBtn')?.addEventListener('click', () => { document.getElementById('editBioInput').value = currentUser.bio || ''; document.getElementById('editProfileModal').classList.add('active'); });
+document.getElementById('closeProfileModal')?.addEventListener('click', () => { document.getElementById('editProfileModal').classList.remove('active'); });
+document.getElementById('saveProfileBtn')?.addEventListener('click', async () => { const bio = document.getElementById('editBioInput').value; const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, bio }) }); if (res.ok) { const data = await res.json(); currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); document.getElementById('profileBio').textContent = bio || 'No bio yet'; document.getElementById('editProfileModal').classList.remove('active'); showCustomAlert(translations[currentLanguage].profileUpdated); } });
+document.querySelectorAll('.theme-option').forEach(btn => { btn.addEventListener('click', () => { const theme = btn.dataset.theme; document.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); }); });
+document.getElementById('languageSelect')?.addEventListener('change', (e) => { currentLanguage = e.target.value; localStorage.setItem('language', currentLanguage); updateLanguage(currentLanguage); loadPosts(); if (currentPage === 'bookmarks') displaySavedPosts(); });
+document.getElementById('matureContentToggle')?.addEventListener('change', (e) => { matureContentEnabled = e.target.checked; localStorage.setItem('matureContentEnabled', matureContentEnabled); loadPosts(); });
+document.getElementById('blurMatureToggle')?.addEventListener('change', (e) => { blurMatureEnabled = e.target.checked; localStorage.setItem('blurMatureEnabled', blurMatureEnabled); loadPosts(); });
+document.getElementById('helpAskBtn')?.addEventListener('click', async () => { const question = document.getElementById('helpQuestion').value; if (!question.trim()) return; const responseDiv = document.getElementById('helpResponse'); responseDiv.innerHTML = `<div style="text-align:center;padding:20px">${translations[currentLanguage].aiThinking}</div>`; const res = await fetch(`${API_URL}/api/help/ask`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: question }) }); const data = await res.json(); responseDiv.innerHTML = `<div class="help-response"><strong>${translations[currentLanguage].aiResponse}:</strong><p>${data.answer}</p></div>`; });
+
+function openPasswordModal(title, onSubmit) {
+    const t = translations[currentLanguage];
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.style.display = 'flex';
+    modal.innerHTML = `<div class="modal-card"><h3>${title}</h3><input type="text" id="modalNewValue" class="settings-input" placeholder="${t.newDisplayName}" style="width:100%;margin:10px 0"><input type="password" id="modalPassword" class="settings-input" placeholder="${t.currentPassword}" style="width:100%;margin:10px 0"><input type="password" id="modalConfirmPassword" class="settings-input" placeholder="${t.confirmNewPassword}" style="width:100%;margin:10px 0"><div class="modal-buttons"><button id="modalCancelBtn" class="btn-outline">${t.cancel}</button><button id="modalConfirmBtn" class="btn-blue">${t.save}</button></div></div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('#modalCancelBtn').onclick = () => document.body.removeChild(modal);
+    modal.querySelector('#modalConfirmBtn').onclick = () => {
+        const newValue = modal.querySelector('#modalNewValue').value;
+        const password = modal.querySelector('#modalPassword').value;
+        const confirmPassword = modal.querySelector('#modalConfirmPassword').value;
+        if (!newValue || !password) { showCustomAlert(t.pleaseFillAllFields); return; }
+        if (password !== confirmPassword) { showCustomAlert(t.passwordsDoNotMatch); return; }
+        onSubmit(newValue, password);
+        document.body.removeChild(modal);
+    };
+}
+
+document.getElementById('changeUsernameBtn')?.addEventListener('click', () => { openPasswordModal(translations[currentLanguage].changeUsername, async (newUsername, password) => { const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, username: newUsername, password: password }) }); const data = await res.json(); if (res.ok) { currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); showCustomAlert(translations[currentLanguage].usernameChanged); location.reload(); } else { showCustomAlert(data.error || translations[currentLanguage].invalidCredentials); } }); });
+document.getElementById('changeDisplayNameBtn')?.addEventListener('click', () => { openPasswordModal(translations[currentLanguage].changeDisplayName, async (newDisplayName, password) => { const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, displayName: newDisplayName }) }); const data = await res.json(); if (res.ok) { currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); showCustomAlert(translations[currentLanguage].displayNameChanged); location.reload(); } else { showCustomAlert(data.error || translations[currentLanguage].invalidCredentials); } }); });
+document.getElementById('changeEmailBtn')?.addEventListener('click', () => { openPasswordModal(translations[currentLanguage].changeEmail, async (newEmail, password) => { const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, email: newEmail, password: password }) }); const data = await res.json(); if (res.ok) { currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); showCustomAlert(translations[currentLanguage].emailChanged); } else { showCustomAlert(data.error || translations[currentLanguage].invalidCredentials); } }); });
+document.getElementById('changePasswordBtn')?.addEventListener('click', () => { const t = translations[currentLanguage]; const modal = document.createElement('div'); modal.className = 'modal active'; modal.style.display = 'flex'; modal.innerHTML = `<div class="modal-card"><h3>${t.changePassword}</h3><p style="font-size:12px;color:var(--text-tertiary);margin-bottom:10px">${t.forgotPasswordHint} ${currentUser.passwordHint || '***'}</p><input type="password" id="currentPassword" class="settings-input" placeholder="${t.currentPassword}" style="width:100%;margin:10px 0"><input type="password" id="newPassword" class="settings-input" placeholder="${t.newPassword}" style="width:100%;margin:10px 0"><input type="password" id="confirmPassword" class="settings-input" placeholder="${t.confirmNewPassword}" style="width:100%;margin:10px 0"><div class="modal-buttons"><button id="modalCancelBtn" class="btn-outline">${t.cancel}</button><button id="modalConfirmBtn" class="btn-blue">${t.save}</button></div></div>`; document.body.appendChild(modal); modal.querySelector('#modalCancelBtn').onclick = () => document.body.removeChild(modal); modal.querySelector('#modalConfirmBtn').onclick = async () => { const currentPassword = modal.querySelector('#currentPassword').value; const newPassword = modal.querySelector('#newPassword').value; const confirmPassword = modal.querySelector('#confirmPassword').value; if (!currentPassword || !newPassword || !confirmPassword) { showCustomAlert(t.pleaseFillAllFields); return; } if (newPassword !== confirmPassword) { showCustomAlert(t.passwordsDoNotMatch); return; } if (newPassword.length < 6) { showCustomAlert(t.passwordTooShort); return; } const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, password: currentPassword, newPassword: newPassword }) }); const data = await res.json(); if (res.ok) { currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); showCustomAlert(t.passwordChanged); } else { showCustomAlert(data.error || t.invalidCredentials); } document.body.removeChild(modal); }; });
+document.getElementById('deleteAccountBtn')?.addEventListener('click', () => { const t = translations[currentLanguage]; const modal = document.createElement('div'); modal.className = 'modal active'; modal.style.display = 'flex'; modal.innerHTML = `<div class="modal-card"><h3 style="color:var(--error)">${t.deleteAccount}</h3><p style="color:var(--error);margin-bottom:16px"><strong>${t.deleteAccountWarning}</strong></p><p>${t.deleteAccountConfirm}</p><input type="email" id="deleteEmailInput" class="settings-input" placeholder="${t.email}" style="width:100%;margin:20px 0 10px 0"><input type="password" id="deletePasswordInput" class="settings-input" placeholder="${t.currentPassword}" style="width:100%;margin:10px 0"><input type="password" id="deleteConfirmPasswordInput" class="settings-input" placeholder="${t.confirmNewPassword}" style="width:100%;margin:10px 0"><div class="modal-buttons"><button id="modalCancelBtn" class="btn-outline">${t.cancel}</button><button id="modalConfirmBtn" class="btn-delete" style="background:var(--error)">${t.delete}</button></div></div>`; document.body.appendChild(modal); modal.querySelector('#modalCancelBtn').onclick = () => document.body.removeChild(modal); modal.querySelector('#modalConfirmBtn').onclick = async () => { const email = modal.querySelector('#deleteEmailInput')?.value; const password = modal.querySelector('#deletePasswordInput')?.value; const confirmPassword = modal.querySelector('#deleteConfirmPasswordInput')?.value; if (!email || !password || !confirmPassword) { showCustomAlert(t.pleaseFillAllFields); return; } if (password !== confirmPassword) { showCustomAlert(t.passwordsDoNotMatch); return; } if (email !== currentUser.email) { showCustomAlert('Email does not match'); return; } const res = await fetch(`${API_URL}/api/user/delete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, password: password, email: email }) }); if (res.ok) { showCustomAlert(t.deleteAccountSuccess); localStorage.clear(); sessionStorage.clear(); setTimeout(() => location.reload(), 1500); } else { const data = await res.json(); showCustomAlert(data.error || t.invalidCredentials); } document.body.removeChild(modal); }; });
+
+let currentAvatarFile = null;
+document.getElementById('editAvatarBtn')?.addEventListener('click', () => { const avatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`; document.getElementById('avatarPreviewImg').src = avatarUrl; document.getElementById('avatarModal').classList.add('active'); document.getElementById('avatarFileInput').value = ''; currentAvatarFile = null; });
+document.getElementById('closeAvatarModal')?.addEventListener('click', () => { document.getElementById('avatarModal').classList.remove('active'); });
+document.getElementById('uploadAvatarBtn')?.addEventListener('click', () => { document.getElementById('avatarFileInput').click(); });
+document.getElementById('avatarFileInput')?.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { currentAvatarFile = file; const reader = new FileReader(); reader.onload = function(event) { document.getElementById('avatarPreviewImg').src = event.target.result; }; reader.readAsDataURL(file); } });
+document.getElementById('saveAvatarBtn')?.addEventListener('click', async () => { if (!currentAvatarFile) { showCustomAlert('Please select an image first'); return; } const formData = new FormData(); formData.append('avatar', currentAvatarFile); const uploadRes = await fetch(`${API_URL}/api/upload-avatar`, { method: 'POST', body: formData }); const uploadData = await uploadRes.json(); if (uploadRes.ok) { const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, avatar: uploadData.avatarUrl }) }); if (res.ok) { const data = await res.json(); currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); const avatarUrl = currentUser.avatar; document.getElementById('headerAvatar').src = avatarUrl; document.getElementById('composeAvatar').src = avatarUrl; document.getElementById('profileAvatar').src = avatarUrl; document.getElementById('avatarModal').classList.remove('active'); showCustomAlert(translations[currentLanguage].avatarUpdated); loadPosts(); } } else { showCustomAlert('Failed to upload image'); } });
 
 window.showMiniProfile = function(userId) {
     const user = allUsers.find(u => u.id === userId);
@@ -915,195 +1056,10 @@ window.showMiniProfile = function(userId) {
     modal.innerHTML = `<div class="mini-profile-content"><div class="mini-profile-header"><img src="${avatarUrl}" class="mini-profile-avatar" onclick="closeMiniProfile()"><button class="mini-profile-close" onclick="closeMiniProfile()">×</button></div><div class="mini-profile-body"><div class="mini-profile-name-row"><h3>${escapeHtml(user.displayName || user.username)}</h3>${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}</div><p class="mini-profile-username">@${escapeHtml(user.username)}</p>${user.bio ? `<p class="mini-profile-bio">${escapeHtml(user.bio)}</p>` : ''}<p class="mini-profile-joined">${t.joined} ${joinDateFormatted}</p><div class="mini-profile-stats"><div><strong>${user.followers || 0}</strong> ${t.followers}</div><div><strong>${user.following || 0}</strong> ${t.following}</div></div><button class="mini-profile-btn" onclick="goToFullProfile('${userId}')">${t.showProfile}</button>${isAdmin && user.id !== currentUser.id ? `<button class="mini-profile-admin-btn" onclick="${isOfficial ? `removeOfficialUser('${user.id}')` : `addOfficialUser('${user.id}')`}; closeMiniProfile();">${isOfficial ? t.removeOfficialTitle : t.addOfficialTitle}</button>` : ''}</div></div>`;
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('active'), 10);
-    document.addEventListener('click', function closeOnClick(e) {
-        if (!modal.contains(e.target) && !e.target.closest('.post-avatar') && !e.target.closest('.post-name')) {
-            modal.remove();
-            document.removeEventListener('click', closeOnClick);
-        }
-    });
+    document.addEventListener('click', function closeOnClick(e) { if (!modal.contains(e.target) && !e.target.closest('.post-avatar') && !e.target.closest('.post-name')) { modal.remove(); document.removeEventListener('click', closeOnClick); } });
 };
-
 window.closeMiniProfile = function() { const modal = document.querySelector('.mini-profile-modal'); if (modal) modal.remove(); };
 window.goToFullProfile = function(userId) { closeMiniProfile(); if (userId === currentUser.id) switchPage('profile'); else showCustomAlert('Viewing other profiles coming soon!'); };
-window.toggleMenu = function(event, postId) { event.stopPropagation(); document.querySelectorAll('.post-menu-dropdown').forEach(menu => { if (menu.id !== `menu-${postId}`) menu.classList.remove('show'); }); const menu = document.getElementById(`menu-${postId}`); menu.classList.toggle('show'); };
-document.addEventListener('click', function() { document.querySelectorAll('.post-menu-dropdown').forEach(menu => menu.classList.remove('show')); });
-window.editPost = function(postId, currentContent) { currentEditPostId = postId; document.getElementById('editPostContent').value = currentContent; document.getElementById('editModal').classList.add('active'); };
-window.deletePost = async (postId) => { const res = await fetch(`${API_URL}/api/posts/${postId}`, { method: 'DELETE' }); if (res.ok) { loadPosts(); showCustomAlert(translations[currentLanguage].postDeleted); } };
-window.toggleLike = async (postId) => { const res = await fetch(`${API_URL}/api/posts/like`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, userId: currentUser.id }) }); const data = await res.json(); if (data.success) { if (data.liked) userLikedPosts.add(postId); else userLikedPosts.delete(postId); loadPosts(); } };
-window.toggleRepost = async (postId) => { const res = await fetch(`${API_URL}/api/posts/repost`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, userId: currentUser.id }) }); const data = await res.json(); if (data.success) { if (data.reposted) { userRepostedPosts.add(postId); showCustomAlert(translations[currentLanguage].postReposted); } else { userRepostedPosts.delete(postId); showCustomAlert(translations[currentLanguage].repostRemoved); } loadPosts(); } };
-window.toggleSave = async (postId) => { const res = await fetch(`${API_URL}/api/posts/save`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, userId: currentUser.id }) }); const data = await res.json(); if (data.saved) { userSavedPosts.add(postId); showCustomAlert(translations[currentLanguage].postSaved); } else { userSavedPosts.delete(postId); showCustomAlert(translations[currentLanguage].postRemovedFromSaves); } loadPosts(); };
-window.openCommentModal = function(postId) { currentCommentPostId = postId; document.getElementById('commentInput').value = ''; document.getElementById('commentModal').classList.add('active'); };
-window.deleteComment = async (postId, commentId) => { const res = await fetch(`${API_URL}/api/posts/comment`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, commentId, userId: currentUser.id }) }); if (res.ok) { loadPosts(); showCustomAlert(translations[currentLanguage].commentDeleted); } };
-document.getElementById('submitCommentBtn').addEventListener('click', async () => { const comment = document.getElementById('commentInput').value; if (!comment.trim()) return; await fetch(`${API_URL}/api/posts/comment`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId: currentCommentPostId, userId: currentUser.id, comment }) }); document.getElementById('commentModal').classList.remove('active'); loadPosts(); });
-document.getElementById('saveEditBtn').addEventListener('click', async () => { const newContent = document.getElementById('editPostContent').value; if (!newContent.trim()) return; await fetch(`${API_URL}/api/posts/${currentEditPostId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: newContent }) }); document.getElementById('editModal').classList.remove('active'); loadPosts(); showCustomAlert(translations[currentLanguage].postUpdated); });
-document.getElementById('confirmDeleteBtn').addEventListener('click', async () => { await fetch(`${API_URL}/api/posts/${currentDeletePostId}`, { method: 'DELETE' }); document.getElementById('deleteModal').classList.remove('active'); loadPosts(); showCustomAlert(translations[currentLanguage].postDeleted); });
-document.getElementById('closeEditModal').addEventListener('click', () => { document.getElementById('editModal').classList.remove('active'); });
-document.getElementById('cancelDeleteBtn').addEventListener('click', () => { document.getElementById('deleteModal').classList.remove('active'); });
-document.getElementById('closeCommentModal').addEventListener('click', () => { document.getElementById('commentModal').classList.remove('active'); });
-
-async function loadUserPosts() {
-    const userPosts = allPosts.filter(p => p.userId === currentUser.id);
-    const container = document.getElementById('userPostsList');
-    if (container) {
-        if (userPosts.length === 0) { container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-tertiary)">${translations[currentLanguage].noResults}</div>`; return; }
-        container.innerHTML = userPosts.map(post => {
-            const postAvatar = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
-            const isOfficial = officialUsers.has(currentUser.id) || currentUser.username === ADMIN_USERNAME;
-            const imageBlurClass = (blurMatureEnabled && post.isMature) ? 'blur-mature' : '';
-            return `<div class="post-card ${feedViewMode === 'compact' ? 'compact-mode' : ''}"><div class="avatar-container"><img class="post-avatar" src="${postAvatar}"></div><div class="post-body"><div class="post-header"><div class="post-name-container"><span class="post-name">${escapeHtml(currentUser.displayName || currentUser.username)}</span>${isOfficial ? `<span class="official-badge">${translations[currentLanguage].official}</span>` : ''}</div><span class="post-username">@${escapeHtml(currentUser.username)}</span><span class="post-time">${formatTime(post.createdAt)}</span></div><div class="post-text">${escapeHtml(post.content)}</div>${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${imageBlurClass}" alt="Post image">` : ''}<div class="post-actions"><span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> ${post.likes}</span><span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ${post.comments?.length || 0}</span><span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> ${post.reposts || 0}</span></div></div></div>`;
-        }).join('');
-    }
-}
-
-document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); sessionStorage.clear(); location.reload(); });
-document.getElementById('editProfileBtn')?.addEventListener('click', () => { document.getElementById('editBioInput').value = currentUser.bio || ''; document.getElementById('editProfileModal').classList.add('active'); });
-document.getElementById('closeProfileModal')?.addEventListener('click', () => { document.getElementById('editProfileModal').classList.remove('active'); });
-document.getElementById('saveProfileBtn')?.addEventListener('click', async () => { const bio = document.getElementById('editBioInput').value; const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, bio }) }); if (res.ok) { const data = await res.json(); currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); document.getElementById('profileBio').textContent = bio || 'No bio yet'; document.getElementById('editProfileModal').classList.remove('active'); showCustomAlert(translations[currentLanguage].profileUpdated); } });
-document.querySelectorAll('.theme-option').forEach(btn => { btn.addEventListener('click', () => { const theme = btn.dataset.theme; document.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); }); });
-document.getElementById('languageSelect')?.addEventListener('change', (e) => { currentLanguage = e.target.value; localStorage.setItem('language', currentLanguage); updateLanguage(currentLanguage); loadPosts(); if (currentPage === 'bookmarks') displaySavedPosts(); });
-document.getElementById('matureContentToggle')?.addEventListener('change', (e) => { matureContentEnabled = e.target.checked; localStorage.setItem('matureContentEnabled', matureContentEnabled); loadPosts(); });
-document.getElementById('blurMatureToggle')?.addEventListener('change', (e) => { blurMatureEnabled = e.target.checked; localStorage.setItem('blurMatureEnabled', blurMatureEnabled); loadPosts(); });
-document.getElementById('cardModeBtn')?.addEventListener('click', () => { feedViewMode = 'card'; localStorage.setItem('feedViewMode', 'card'); document.getElementById('cardModeBtn').classList.add('active'); document.getElementById('compactModeBtn').classList.remove('active'); loadPosts(); });
-document.getElementById('compactModeBtn')?.addEventListener('click', () => { feedViewMode = 'compact'; localStorage.setItem('feedViewMode', 'compact'); document.getElementById('compactModeBtn').classList.add('active'); document.getElementById('cardModeBtn').classList.remove('active'); loadPosts(); });
-
-document.getElementById('changeUsernameBtn')?.addEventListener('click', () => {
-    const t = translations[currentLanguage];
-    const modal = document.createElement('div');
-    modal.className = 'modal active';
-    modal.style.display = 'flex';
-    modal.innerHTML = `<div class="modal-card"><h3>${t.changeUsername}</h3><input type="text" id="newUsername" class="settings-input" placeholder="${t.newUsername}" style="width:100%;margin:10px 0"><input type="password" id="passwordConfirm" class="settings-input" placeholder="${t.currentPassword}" style="width:100%;margin:10px 0"><input type="password" id="passwordConfirm2" class="settings-input" placeholder="${t.confirmNewPassword}" style="width:100%;margin:10px 0"><div class="modal-buttons"><button id="modalCancelBtn" class="btn-outline">${t.cancel}</button><button id="modalConfirmBtn" class="btn-blue">${t.save}</button></div></div>`;
-    document.body.appendChild(modal);
-    modal.querySelector('#modalCancelBtn').onclick = () => document.body.removeChild(modal);
-    modal.querySelector('#modalConfirmBtn').onclick = async () => {
-        const newUsername = modal.querySelector('#newUsername').value;
-        const password = modal.querySelector('#passwordConfirm').value;
-        const confirmPassword = modal.querySelector('#passwordConfirm2').value;
-        if (!newUsername || !password) { showCustomAlert(t.pleaseFillAllFields); return; }
-        if (password !== confirmPassword) { showCustomAlert(t.passwordsDoNotMatch); return; }
-        const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, username: newUsername, password: password }) });
-        const data = await res.json();
-        if (res.ok) { currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); showCustomAlert(t.usernameChanged); location.reload(); }
-        else { showCustomAlert(data.error || t.invalidCredentials); }
-        document.body.removeChild(modal);
-    };
-});
-
-document.getElementById('changeDisplayNameBtn')?.addEventListener('click', () => {
-    const t = translations[currentLanguage];
-    const modal = document.createElement('div');
-    modal.className = 'modal active';
-    modal.style.display = 'flex';
-    modal.innerHTML = `<div class="modal-card"><h3>${t.changeDisplayName}</h3><input type="text" id="newDisplayName" class="settings-input" placeholder="${t.newDisplayName}" style="width:100%;margin:10px 0"><input type="password" id="passwordConfirm" class="settings-input" placeholder="${t.currentPassword}" style="width:100%;margin:10px 0"><div class="modal-buttons"><button id="modalCancelBtn" class="btn-outline">${t.cancel}</button><button id="modalConfirmBtn" class="btn-blue">${t.save}</button></div></div>`;
-    document.body.appendChild(modal);
-    modal.querySelector('#modalCancelBtn').onclick = () => document.body.removeChild(modal);
-    modal.querySelector('#modalConfirmBtn').onclick = async () => {
-        const newDisplayName = modal.querySelector('#newDisplayName').value;
-        const password = modal.querySelector('#passwordConfirm').value;
-        if (!newDisplayName || !password) { showCustomAlert(t.pleaseFillAllFields); return; }
-        const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, displayName: newDisplayName }) });
-        const data = await res.json();
-        if (res.ok) { currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); showCustomAlert(t.displayNameChanged); location.reload(); }
-        else { showCustomAlert(data.error || t.invalidCredentials); }
-        document.body.removeChild(modal);
-    };
-});
-
-document.getElementById('changeEmailBtn')?.addEventListener('click', () => {
-    const t = translations[currentLanguage];
-    const modal = document.createElement('div');
-    modal.className = 'modal active';
-    modal.style.display = 'flex';
-    modal.innerHTML = `<div class="modal-card"><h3>${t.changeEmail}</h3><input type="email" id="newEmail" class="settings-input" placeholder="${t.newEmail}" style="width:100%;margin:10px 0"><input type="password" id="passwordConfirm" class="settings-input" placeholder="${t.currentPassword}" style="width:100%;margin:10px 0"><div class="modal-buttons"><button id="modalCancelBtn" class="btn-outline">${t.cancel}</button><button id="modalConfirmBtn" class="btn-blue">${t.save}</button></div></div>`;
-    document.body.appendChild(modal);
-    modal.querySelector('#modalCancelBtn').onclick = () => document.body.removeChild(modal);
-    modal.querySelector('#modalConfirmBtn').onclick = async () => {
-        const newEmail = modal.querySelector('#newEmail').value;
-        const password = modal.querySelector('#passwordConfirm').value;
-        if (!newEmail || !password) { showCustomAlert(t.pleaseFillAllFields); return; }
-        const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, email: newEmail, password: password }) });
-        const data = await res.json();
-        if (res.ok) { currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); showCustomAlert(t.emailChanged); }
-        else { showCustomAlert(data.error || t.invalidCredentials); }
-        document.body.removeChild(modal);
-    };
-});
-
-document.getElementById('changePasswordBtn')?.addEventListener('click', () => {
-    const t = translations[currentLanguage];
-    const modal = document.createElement('div');
-    modal.className = 'modal active';
-    modal.style.display = 'flex';
-    modal.innerHTML = `<div class="modal-card"><h3>${t.changePassword}</h3><p style="font-size:12px;color:var(--text-tertiary);margin-bottom:10px">${t.forgotPasswordHint} ${currentUser.passwordHint || '***'}</p><input type="password" id="currentPassword" class="settings-input" placeholder="${t.currentPassword}" style="width:100%;margin:10px 0"><input type="password" id="newPassword" class="settings-input" placeholder="${t.newPassword}" style="width:100%;margin:10px 0"><input type="password" id="confirmPassword" class="settings-input" placeholder="${t.confirmNewPassword}" style="width:100%;margin:10px 0"><div class="modal-buttons"><button id="modalCancelBtn" class="btn-outline">${t.cancel}</button><button id="modalConfirmBtn" class="btn-blue">${t.save}</button></div></div>`;
-    document.body.appendChild(modal);
-    modal.querySelector('#modalCancelBtn').onclick = () => document.body.removeChild(modal);
-    modal.querySelector('#modalConfirmBtn').onclick = async () => {
-        const currentPassword = modal.querySelector('#currentPassword').value;
-        const newPassword = modal.querySelector('#newPassword').value;
-        const confirmPassword = modal.querySelector('#confirmPassword').value;
-        if (!currentPassword || !newPassword || !confirmPassword) { showCustomAlert(t.pleaseFillAllFields); return; }
-        if (newPassword !== confirmPassword) { showCustomAlert(t.passwordsDoNotMatch); return; }
-        if (newPassword.length < 6) { showCustomAlert(t.passwordTooShort); return; }
-        const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, password: currentPassword, newPassword: newPassword }) });
-        const data = await res.json();
-        if (res.ok) { currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); showCustomAlert(t.passwordChanged); }
-        else { showCustomAlert(data.error || t.invalidCredentials); }
-        document.body.removeChild(modal);
-    };
-});
-
-document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
-    const t = translations[currentLanguage];
-    const modal = document.createElement('div');
-    modal.className = 'modal active';
-    modal.style.display = 'flex';
-    modal.innerHTML = `<div class="modal-card"><h3 style="color:var(--error)">${t.deleteAccount}</h3><p style="color:var(--error);margin-bottom:16px"><strong>${t.deleteAccountWarning}</strong></p><p>${t.deleteAccountConfirm}</p><input type="email" id="deleteEmailInput" class="settings-input" placeholder="${t.email}" style="width:100%;margin:20px 0 10px 0"><input type="password" id="deletePasswordInput" class="settings-input" placeholder="${t.currentPassword}" style="width:100%;margin:10px 0"><input type="password" id="deleteConfirmPasswordInput" class="settings-input" placeholder="${t.confirmNewPassword}" style="width:100%;margin:10px 0"><div class="modal-buttons"><button id="modalCancelBtn" class="btn-outline">${t.cancel}</button><button id="modalConfirmBtn" class="btn-delete" style="background:var(--error)">${t.delete}</button></div></div>`;
-    document.body.appendChild(modal);
-    modal.querySelector('#modalCancelBtn').onclick = () => document.body.removeChild(modal);
-    modal.querySelector('#modalConfirmBtn').onclick = async () => {
-        const email = modal.querySelector('#deleteEmailInput')?.value;
-        const password = modal.querySelector('#deletePasswordInput')?.value;
-        const confirmPassword = modal.querySelector('#deleteConfirmPasswordInput')?.value;
-        if (!email || !password || !confirmPassword) { showCustomAlert(t.pleaseFillAllFields); return; }
-        if (password !== confirmPassword) { showCustomAlert(t.passwordsDoNotMatch); return; }
-        if (email !== currentUser.email) { showCustomAlert('Email does not match'); return; }
-        const res = await fetch(`${API_URL}/api/user/delete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, password: password, email: email }) });
-        if (res.ok) { showCustomAlert(t.deleteAccountSuccess); localStorage.clear(); sessionStorage.clear(); setTimeout(() => location.reload(), 1500); }
-        else { const data = await res.json(); showCustomAlert(data.error || t.invalidCredentials); }
-        document.body.removeChild(modal);
-    };
-});
-
-document.getElementById('helpAskBtn')?.addEventListener('click', async () => {
-    const question = document.getElementById('helpQuestion').value;
-    if (!question.trim()) return;
-    const responseDiv = document.getElementById('helpResponse');
-    responseDiv.innerHTML = `<div style="text-align:center;padding:20px">${translations[currentLanguage].aiThinking}</div>`;
-    const res = await fetch(`${API_URL}/api/help/ask`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: question }) });
-    const data = await res.json();
-    responseDiv.innerHTML = `<div class="help-response"><strong>${translations[currentLanguage].aiResponse}:</strong><p>${data.answer}</p></div>`;
-});
-
-let currentAvatarFile = null;
-document.getElementById('editAvatarBtn')?.addEventListener('click', () => {
-    const avatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
-    document.getElementById('avatarPreviewImg').src = avatarUrl;
-    document.getElementById('avatarModal').classList.add('active');
-    document.getElementById('avatarFileInput').value = '';
-    currentAvatarFile = null;
-});
-document.getElementById('closeAvatarModal')?.addEventListener('click', () => { document.getElementById('avatarModal').classList.remove('active'); });
-document.getElementById('uploadAvatarBtn')?.addEventListener('click', () => { document.getElementById('avatarFileInput').click(); });
-document.getElementById('avatarFileInput')?.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { currentAvatarFile = file; const reader = new FileReader(); reader.onload = function(event) { document.getElementById('avatarPreviewImg').src = event.target.result; }; reader.readAsDataURL(file); } });
-document.getElementById('saveAvatarBtn')?.addEventListener('click', async () => {
-    if (!currentAvatarFile) { showCustomAlert('Please select an image first'); return; }
-    const formData = new FormData(); formData.append('avatar', currentAvatarFile);
-    const uploadRes = await fetch(`${API_URL}/api/upload-avatar`, { method: 'POST', body: formData });
-    const uploadData = await uploadRes.json();
-    if (uploadRes.ok) {
-        const res = await fetch(`${API_URL}/api/user/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.id, avatar: uploadData.avatarUrl }) });
-        if (res.ok) { const data = await res.json(); currentUser = data.user; localStorage.setItem('user', JSON.stringify(currentUser)); const avatarUrl = currentUser.avatar; document.getElementById('headerAvatar').src = avatarUrl; document.getElementById('composeAvatar').src = avatarUrl; document.getElementById('profileAvatar').src = avatarUrl; document.getElementById('avatarModal').classList.remove('active'); showCustomAlert(translations[currentLanguage].avatarUpdated); loadPosts(); }
-    } else { showCustomAlert('Failed to upload image'); }
-});
 
 document.getElementById('searchInput')?.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
@@ -1127,13 +1083,12 @@ document.getElementById('userSearchInput')?.addEventListener('input', (e) => {
         const filteredUsers = allUsers.filter(user => user.id !== currentUser.id && (user.displayName?.toLowerCase().includes(query) || user.username?.toLowerCase().includes(query)));
         if (filteredUsers.length > 0) {
             resultsDiv.style.display = 'block';
-            resultsDiv.innerHTML = filteredUsers.map(user => { const userAvatar = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`; const isOfficial = officialUsers.has(user.id) || user.username === ADMIN_USERNAME; return `<div class="user-search-item" onclick="startConversation('${user.id}')"><div class="avatar-container small"><img class="user-search-avatar" src="${userAvatar}"></div><div class="user-search-info"><div class="user-search-name">${escapeHtml(user.displayName || user.username)}${isOfficial ? ` <span class="official-badge small">${translations[currentLanguage].official}</span>` : ''}</div><div class="user-search-username">@${escapeHtml(user.username)}</div></div></div>`; }).join('');
+            resultsDiv.innerHTML = filteredUsers.map(user => { const userAvatar = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`; const isOfficial = officialUsers.has(user.id) || user.username === ADMIN_USERNAME; return `<div class="user-search-item" onclick="openChat('${user.id}')"><div class="avatar-container small"><img class="user-search-avatar" src="${userAvatar}"></div><div class="user-search-info"><div class="user-search-name">${escapeHtml(user.displayName || user.username)}${isOfficial ? ` <span class="official-badge small">${translations[currentLanguage].official}</span>` : ''}</div><div class="user-search-username">@${escapeHtml(user.username)}</div></div></div>`; }).join('');
         } else { resultsDiv.style.display = 'none'; }
     } else { resultsDiv.style.display = 'none'; }
 });
 
-window.startConversation = function(userId) { const user = allUsers.find(u => u.id === userId); if (user) { showCustomAlert(`Messaging ${user.displayName || user.username} coming soon!`); document.getElementById('userSearchResults').style.display = 'none'; document.getElementById('userSearchInput').value = ''; } };
 window.scrollToPost = function(postId) { const postElement = document.querySelector(`.post-card[data-post-id="${postId}"]`); if (postElement) { postElement.scrollIntoView({ behavior: 'smooth', block: 'center' }); postElement.style.background = 'var(--bg-hover)'; setTimeout(() => { postElement.style.background = ''; }, 2000); } switchPage('home'); };
-function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
 function checkAuth() { const token = localStorage.getItem('token') || sessionStorage.getItem('token'); const user = localStorage.getItem('user'); if (token && user) { currentUser = JSON.parse(user); initApp(currentUser); } }
 checkAuth();
