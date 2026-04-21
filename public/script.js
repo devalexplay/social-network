@@ -12,6 +12,9 @@ let userSavedPosts = new Set();
 let selectedImageFile = null;
 let currentPostImageUrl = null;
 let currentViewingUser = null;
+let feedViewMode = 'card';
+
+const ADMIN_USERNAME = 'devalexplay';
 
 const translations = {
     en: {
@@ -49,7 +52,18 @@ const translations = {
         connectionError: 'Connection error', invalidCredentials: 'Invalid credentials',
         accountCreated: 'Account created!', welcomeBack: 'Welcome back!',
         allFieldsRequired: 'All fields required', passwordTooShort: 'Password too short',
-        noSavedPosts: 'No saved posts yet', savePostHint: 'Click the bookmark icon on any post to save it here'
+        noSavedPosts: 'No saved posts yet', savePostHint: 'Click the bookmark icon on any post to save it here',
+        adminPanel: 'Admin Panel', addOfficialTitle: 'Add Official Title', removeOfficialTitle: 'Remove Official Title',
+        official: 'Official', deleteAccount: 'Delete Account', deleteAccountWarning: 'WARNING: This action is permanent!', 
+        deleteAccountConfirm: 'Are you absolutely sure? This will delete your account and all your data forever.',
+        deleteAccountSuccess: 'Account deleted successfully', changeUsername: 'Change Username',
+        changeDisplayName: 'Change Display Name', newUsername: 'New username', newDisplayName: 'New display name',
+        currentPassword: 'Current password', confirmNewPassword: 'Confirm new password',
+        usernameChanged: 'Username changed successfully!', displayNameChanged: 'Display name changed successfully!',
+        matureContent: 'Mature Content', matureContentDesc: 'See Not Safe for Work mature and adult content in your feeds and search results.',
+        blurMature: 'Blur mature (18+)', blurMatureDesc: 'Blur images and media that may be sensitive.',
+        experience: 'Experience', defaultFeedView: 'Default feed view', cardMode: 'Card Mode', compactMode: 'Compact Mode',
+        showMatureContent: 'Show mature content', blurMatureMedia: 'Blur mature media'
     },
     ru: {
         appName: 'FreedomNet', signIn: 'Войти', signUp: 'Регистрация',
@@ -86,7 +100,18 @@ const translations = {
         connectionError: 'Ошибка соединения', invalidCredentials: 'Неверные данные',
         accountCreated: 'Аккаунт создан!', welcomeBack: 'С возвращением!',
         allFieldsRequired: 'Все поля обязательны', passwordTooShort: 'Пароль должен быть не менее 6 символов',
-        noSavedPosts: 'Нет сохраненных постов', savePostHint: 'Нажмите на значок закладки на любом посте, чтобы сохранить его здесь'
+        noSavedPosts: 'Нет сохраненных постов', savePostHint: 'Нажмите на значок закладки на любом посте, чтобы сохранить его здесь',
+        adminPanel: 'Панель администратора', addOfficialTitle: 'Добавить статус Official', removeOfficialTitle: 'Удалить статус Official',
+        official: 'Official', deleteAccount: 'Удалить аккаунт', deleteAccountWarning: 'ВНИМАНИЕ: Это действие необратимо!',
+        deleteAccountConfirm: 'Вы абсолютно уверены? Это удалит ваш аккаунт и все данные навсегда.',
+        deleteAccountSuccess: 'Аккаунт успешно удален', changeUsername: 'Изменить имя пользователя',
+        changeDisplayName: 'Изменить отображаемое имя', newUsername: 'Новое имя пользователя', newDisplayName: 'Новое отображаемое имя',
+        currentPassword: 'Текущий пароль', confirmNewPassword: 'Подтвердите новый пароль',
+        usernameChanged: 'Имя пользователя успешно изменено!', displayNameChanged: 'Отображаемое имя успешно изменено!',
+        matureContent: 'Контент для взрослых', matureContentDesc: 'Показывать контент для взрослых в ленте и результатах поиска.',
+        blurMature: 'Размытие (18+)', blurMatureDesc: 'Размывать изображения и медиа, которые могут быть чувствительными.',
+        experience: 'Опыт', defaultFeedView: 'Вид ленты по умолчанию', cardMode: 'Карточки', compactMode: 'Компактный',
+        showMatureContent: 'Показывать контент для взрослых', blurMatureMedia: 'Размывать медиа для взрослых'
     },
     es: {
         appName: 'FreedomNet', signIn: 'Iniciar sesión', signUp: 'Registrarse',
@@ -123,7 +148,18 @@ const translations = {
         connectionError: 'Error de conexión', invalidCredentials: 'Credenciales inválidas',
         accountCreated: '¡Cuenta creada!', welcomeBack: '¡Bienvenido de nuevo!',
         allFieldsRequired: 'Todos los campos son obligatorios', passwordTooShort: 'La contraseña debe tener al menos 6 caracteres',
-        noSavedPosts: 'No hay publicaciones guardadas', savePostHint: 'Haga clic en el icono de marcador en cualquier publicación para guardarla aquí'
+        noSavedPosts: 'No hay publicaciones guardadas', savePostHint: 'Haga clic en el icono de marcador en cualquier publicación para guardarla aquí',
+        adminPanel: 'Panel de administración', addOfficialTitle: 'Agregar título Oficial', removeOfficialTitle: 'Eliminar título Oficial',
+        official: 'Oficial', deleteAccount: 'Eliminar cuenta', deleteAccountWarning: '¡ADVERTENCIA! ¡Esta acción es permanente!',
+        deleteAccountConfirm: '¿Estás absolutamente seguro? Esto eliminará tu cuenta y todos tus datos para siempre.',
+        deleteAccountSuccess: 'Cuenta eliminada exitosamente', changeUsername: 'Cambiar nombre de usuario',
+        changeDisplayName: 'Cambiar nombre mostrado', newUsername: 'Nuevo nombre de usuario', newDisplayName: 'Nuevo nombre mostrado',
+        currentPassword: 'Contraseña actual', confirmNewPassword: 'Confirmar nueva contraseña',
+        usernameChanged: '¡Nombre de usuario cambiado exitosamente!', displayNameChanged: '¡Nombre mostrado cambiado exitosamente!',
+        matureContent: 'Contenido maduro', matureContentDesc: 'Ver contenido para adultos en tus feeds y resultados de búsqueda.',
+        blurMature: 'Desenfocar maduro (18+)', blurMatureDesc: 'Desenfocar imágenes y medios que pueden ser sensibles.',
+        experience: 'Experiencia', defaultFeedView: 'Vista de feed predeterminada', cardMode: 'Modo tarjeta', compactMode: 'Modo compacto',
+        showMatureContent: 'Mostrar contenido maduro', blurMatureMedia: 'Desenfocar medios maduros'
     },
     fr: {
         appName: 'FreedomNet', signIn: 'Se connecter', signUp: "S'inscrire",
@@ -160,7 +196,18 @@ const translations = {
         connectionError: 'Erreur connexion', invalidCredentials: 'Identifiants invalides',
         accountCreated: 'Compte créé!', welcomeBack: 'Bon retour!',
         allFieldsRequired: 'Tous les champs requis', passwordTooShort: '6 caractères minimum',
-        noSavedPosts: 'Aucune publication sauvegardée', savePostHint: 'Cliquez sur l\'icône de signet sur n\'importe quelle publication pour la sauvegarder ici'
+        noSavedPosts: 'Aucune publication sauvegardée', savePostHint: 'Cliquez sur l\'icône de signet sur n\'importe quelle publication pour la sauvegarder ici',
+        adminPanel: 'Panneau d\'administration', addOfficialTitle: 'Ajouter le titre Officiel', removeOfficialTitle: 'Supprimer le titre Officiel',
+        official: 'Officiel', deleteAccount: 'Supprimer le compte', deleteAccountWarning: 'ATTENTION : Cette action est permanente !',
+        deleteAccountConfirm: 'Êtes-vous absolument sûr ? Cela supprimera votre compte et toutes vos données pour toujours.',
+        deleteAccountSuccess: 'Compte supprimé avec succès', changeUsername: 'Changer le nom d\'utilisateur',
+        changeDisplayName: 'Changer le nom affiché', newUsername: 'Nouveau nom d\'utilisateur', newDisplayName: 'Nouveau nom affiché',
+        currentPassword: 'Mot de passe actuel', confirmNewPassword: 'Confirmer le nouveau mot de passe',
+        usernameChanged: 'Nom d\'utilisateur changé avec succès !', displayNameChanged: 'Nom affiché changé avec succès !',
+        matureContent: 'Contenu mature', matureContentDesc: 'Voir le contenu pour adultes dans vos flux et résultats de recherche.',
+        blurMature: 'Flouter mature (18+)', blurMatureDesc: 'Flouter les images et médias qui peuvent être sensibles.',
+        experience: 'Expérience', defaultFeedView: 'Vue de flux par défaut', cardMode: 'Mode carte', compactMode: 'Mode compact',
+        showMatureContent: 'Afficher le contenu mature', blurMatureMedia: 'Flouter les médias matures'
     },
     de: {
         appName: 'FreedomNet', signIn: 'Anmelden', signUp: 'Registrieren',
@@ -197,7 +244,18 @@ const translations = {
         connectionError: 'Verbindungsfehler', invalidCredentials: 'Ungültige Anmeldedaten',
         accountCreated: 'Konto erstellt!', welcomeBack: 'Willkommen zurück!',
         allFieldsRequired: 'Alle Felder erforderlich', passwordTooShort: 'Passwort zu kurz',
-        noSavedPosts: 'Keine gespeicherten Beiträge', savePostHint: 'Klicken Sie auf das Lesezeichen-Symbol auf einem beliebigen Beitrag, um ihn hier zu speichern'
+        noSavedPosts: 'Keine gespeicherten Beiträge', savePostHint: 'Klicken Sie auf das Lesezeichen-Symbol auf einem beliebigen Beitrag, um ihn hier zu speichern',
+        adminPanel: 'Admin-Panel', addOfficialTitle: 'Offiziellen Titel hinzufügen', removeOfficialTitle: 'Offiziellen Titel entfernen',
+        official: 'Offiziell', deleteAccount: 'Konto löschen', deleteAccountWarning: 'WARNUNG: Diese Aktion ist dauerhaft!',
+        deleteAccountConfirm: 'Sind Sie absolut sicher? Dies wird Ihr Konto und alle Ihre Daten für immer löschen.',
+        deleteAccountSuccess: 'Konto erfolgreich gelöscht', changeUsername: 'Benutzername ändern',
+        changeDisplayName: 'Anzeigenamen ändern', newUsername: 'Neuer Benutzername', newDisplayName: 'Neuer Anzeigename',
+        currentPassword: 'Aktuelles Passwort', confirmNewPassword: 'Neues Passwort bestätigen',
+        usernameChanged: 'Benutzername erfolgreich geändert!', displayNameChanged: 'Anzeigename erfolgreich geändert!',
+        matureContent: 'Erwachseneninhalte', matureContentDesc: 'Erwachseneninhalte in Ihren Feeds und Suchergebnissen anzeigen.',
+        blurMature: 'Unschärfe (18+)', blurMatureDesc: 'Bilder und Medien, die möglicherweise sensibel sind, unschärfen.',
+        experience: 'Erfahrung', defaultFeedView: 'Standard-Feed-Ansicht', cardMode: 'Kartenmodus', compactMode: 'Kompaktmodus',
+        showMatureContent: 'Erwachseneninhalte anzeigen', blurMatureMedia: 'Erwachsenenmedien unschärfen'
     },
     it: {
         appName: 'FreedomNet', signIn: 'Accedi', signUp: 'Registrati',
@@ -234,7 +292,18 @@ const translations = {
         connectionError: 'Errore di connessione', invalidCredentials: 'Credenziali non valide',
         accountCreated: 'Account creato!', welcomeBack: 'Bentornato!',
         allFieldsRequired: 'Tutti i campi sono obbligatori', passwordTooShort: 'La password deve essere di almeno 6 caratteri',
-        noSavedPosts: 'Nessun post salvato', savePostHint: 'Clicca sull\'icona del segnalibro su qualsiasi post per salvarlo qui'
+        noSavedPosts: 'Nessun post salvato', savePostHint: 'Clicca sull\'icona del segnalibro su qualsiasi post per salvarlo qui',
+        adminPanel: 'Pannello di controllo', addOfficialTitle: 'Aggiungi titolo Ufficiale', removeOfficialTitle: 'Rimuovi titolo Ufficiale',
+        official: 'Ufficiale', deleteAccount: 'Elimina account', deleteAccountWarning: 'ATTENZIONE: Questa azione è permanente!',
+        deleteAccountConfirm: 'Sei assolutamente sicuro? Questo eliminerà il tuo account e tutti i tuoi dati per sempre.',
+        deleteAccountSuccess: 'Account eliminato con successo', changeUsername: 'Cambia username',
+        changeDisplayName: 'Cambia nome visualizzato', newUsername: 'Nuovo username', newDisplayName: 'Nuovo nome visualizzato',
+        currentPassword: 'Password attuale', confirmNewPassword: 'Conferma nuova password',
+        usernameChanged: 'Username cambiato con successo!', displayNameChanged: 'Nome visualizzato cambiato con successo!',
+        matureContent: 'Contenuti maturi', matureContentDesc: 'Mostra contenuti per adulti nei feed e nei risultati di ricerca.',
+        blurMature: 'Sfoca maturi (18+)', blurMatureDesc: 'Sfoca immagini e media che potrebbero essere sensibili.',
+        experience: 'Esperienza', defaultFeedView: 'Vista feed predefinita', cardMode: 'Modalità scheda', compactMode: 'Modalità compatta',
+        showMatureContent: 'Mostra contenuti maturi', blurMatureMedia: 'Sfoca media maturi'
     },
     pt: {
         appName: 'FreedomNet', signIn: 'Entrar', signUp: 'Cadastrar',
@@ -271,7 +340,18 @@ const translations = {
         connectionError: 'Erro de conexão', invalidCredentials: 'Credenciais inválidas',
         accountCreated: 'Conta criada!', welcomeBack: 'Bem-vindo de volta!',
         allFieldsRequired: 'Todos os campos são obrigatórios', passwordTooShort: 'A senha deve ter pelo menos 6 caracteres',
-        noSavedPosts: 'Nenhuma publicação salva', savePostHint: 'Clique no ícone de favorito em qualquer publicação para salvá-la aqui'
+        noSavedPosts: 'Nenhuma publicação salva', savePostHint: 'Clique no ícone de favorito em qualquer publicação para salvá-la aqui',
+        adminPanel: 'Painel de administração', addOfficialTitle: 'Adicionar título Oficial', removeOfficialTitle: 'Remover título Oficial',
+        official: 'Oficial', deleteAccount: 'Excluir conta', deleteAccountWarning: 'ATENÇÃO: Esta ação é permanente!',
+        deleteAccountConfirm: 'Você tem certeza absoluta? Isso excluirá sua conta e todos os seus dados para sempre.',
+        deleteAccountSuccess: 'Conta excluída com sucesso', changeUsername: 'Alterar nome de usuário',
+        changeDisplayName: 'Alterar nome de exibição', newUsername: 'Novo nome de usuário', newDisplayName: 'Novo nome de exibição',
+        currentPassword: 'Senha atual', confirmNewPassword: 'Confirmar nova senha',
+        usernameChanged: 'Nome de usuário alterado com sucesso!', displayNameChanged: 'Nome de exibição alterado com sucesso!',
+        matureContent: 'Conteúdo adulto', matureContentDesc: 'Ver conteúdo adulto em seus feeds e resultados de pesquisa.',
+        blurMature: 'Desfocar adulto (18+)', blurMatureDesc: 'Desfocar imagens e mídias que podem ser sensíveis.',
+        experience: 'Experiência', defaultFeedView: 'Visualização de feed padrão', cardMode: 'Modo cartão', compactMode: 'Modo compacto',
+        showMatureContent: 'Mostrar conteúdo adulto', blurMatureMedia: 'Desfocar mídia adulta'
     },
     tr: {
         appName: 'FreedomNet', signIn: 'Giriş yap', signUp: 'Kaydol',
@@ -308,7 +388,18 @@ const translations = {
         connectionError: 'Bağlantı hatası', invalidCredentials: 'Geçersiz kimlik bilgileri',
         accountCreated: 'Hesap oluşturuldu!', welcomeBack: 'Tekrar hoş geldiniz!',
         allFieldsRequired: 'Tüm alanlar zorunlu', passwordTooShort: 'Şifre en az 6 karakter olmalıdır',
-        noSavedPosts: 'Kaydedilmiş paylaşım yok', savePostHint: 'Herhangi bir paylaşımdaki yer imi simgesine tıklayarak buraya kaydedin'
+        noSavedPosts: 'Kaydedilmiş paylaşım yok', savePostHint: 'Herhangi bir paylaşımdaki yer imi simgesine tıklayarak buraya kaydedin',
+        adminPanel: 'Yönetici paneli', addOfficialTitle: 'Resmi unvan ekle', removeOfficialTitle: 'Resmi unvanı kaldır',
+        official: 'Resmi', deleteAccount: 'Hesabı sil', deleteAccountWarning: 'UYARI: Bu işlem kalıcıdır!',
+        deleteAccountConfirm: 'Kesinlikle emin misiniz? Bu, hesabınızı ve tüm verilerinizi sonsuza kadar silecektir.',
+        deleteAccountSuccess: 'Hesap başarıyla silindi', changeUsername: 'Kullanıcı adını değiştir',
+        changeDisplayName: 'Görünen adı değiştir', newUsername: 'Yeni kullanıcı adı', newDisplayName: 'Yeni görünen ad',
+        currentPassword: 'Mevcut şifre', confirmNewPassword: 'Yeni şifreyi onayla',
+        usernameChanged: 'Kullanıcı adı başarıyla değiştirildi!', displayNameChanged: 'Görünen ad başarıyla değiştirildi!',
+        matureContent: 'Yetişkin içeriği', matureContentDesc: 'Akışlarınızda ve arama sonuçlarında yetişkin içeriğini gösterin.',
+        blurMature: 'Bulanıklaştır (18+)', blurMatureDesc: 'Hassas olabilecek görselleri ve medyayı bulanıklaştırın.',
+        experience: 'Deneyim', defaultFeedView: 'Varsayılan akış görünümü', cardMode: 'Kart modu', compactMode: 'Kompakt mod',
+        showMatureContent: 'Yetişkin içeriğini göster', blurMatureMedia: 'Yetişkin medyasını bulanıklaştır'
     },
     ar: {
         appName: 'فريدوم نت', signIn: 'تسجيل الدخول', signUp: 'اشتراك',
@@ -345,7 +436,18 @@ const translations = {
         connectionError: 'خطأ في الاتصال', invalidCredentials: 'بيانات اعتماد غير صالحة',
         accountCreated: 'تم إنشاء الحساب!', welcomeBack: 'مرحبا بعودتك!',
         allFieldsRequired: 'جميع الحقول مطلوبة', passwordTooShort: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
-        noSavedPosts: 'لا توجد منشورات محفوظة', savePostHint: 'انقر على أيقونة الإشارة المرجعية على أي منشور لحفظه هنا'
+        noSavedPosts: 'لا توجد منشورات محفوظة', savePostHint: 'انقر على أيقونة الإشارة المرجعية على أي منشور لحفظه هنا',
+        adminPanel: 'لوحة التحكم', addOfficialTitle: 'إضافة لقب رسمي', removeOfficialTitle: 'إزالة اللقب الرسمي',
+        official: 'رسمي', deleteAccount: 'حذف الحساب', deleteAccountWarning: 'تحذير: هذا الإجراء دائم!',
+        deleteAccountConfirm: 'هل أنت متأكد تماما؟ سيؤدي هذا إلى حذف حسابك وجميع بياناتك إلى الأبد.',
+        deleteAccountSuccess: 'تم حذف الحساب بنجاح', changeUsername: 'تغيير اسم المستخدم',
+        changeDisplayName: 'تغيير الاسم المعروض', newUsername: 'اسم المستخدم الجديد', newDisplayName: 'الاسم المعروض الجديد',
+        currentPassword: 'كلمة المرور الحالية', confirmNewPassword: 'تأكيد كلمة المرور الجديدة',
+        usernameChanged: 'تم تغيير اسم المستخدم بنجاح!', displayNameChanged: 'تم تغيير الاسم المعروض بنجاح!',
+        matureContent: 'محتوى للبالغين', matureContentDesc: 'عرض محتوى للبالغين في خلاصاتك ونتائج البحث.',
+        blurMature: 'طمس (18+)', blurMatureDesc: 'طمس الصور والوسائط التي قد تكون حساسة.',
+        experience: 'تجربة', defaultFeedView: 'عرض الخلاصة الافتراضي', cardMode: 'وضع البطاقة', compactMode: 'وضع مضغوط',
+        showMatureContent: 'إظهار محتوى للبالغين', blurMatureMedia: 'طمس وسائط للبالغين'
     },
     hi: {
         appName: 'फ्रीडमनेट', signIn: 'साइन इन करें', signUp: 'साइन अप करें',
@@ -382,7 +484,18 @@ const translations = {
         connectionError: 'कनेक्शन त्रुटि', invalidCredentials: 'अमान्य क्रेडेंशियल्स',
         accountCreated: 'खाता बन गया!', welcomeBack: 'वापसी पर स्वागत है!',
         allFieldsRequired: 'सभी फ़ील्ड आवश्यक हैं', passwordTooShort: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
-        noSavedPosts: 'कोई सहेजी गई पोस्ट नहीं', savePostHint: 'किसी भी पोस्ट पर बुकमार्क आइकन पर क्लिक करके इसे यहां सहेजें'
+        noSavedPosts: 'कोई सहेजी गई पोस्ट नहीं', savePostHint: 'किसी भी पोस्ट पर बुकमार्क आइकन पर क्लिक करके इसे यहां सहेजें',
+        adminPanel: 'व्यवस्थापक पैनल', addOfficialTitle: 'आधिकारिक शीर्षक जोड़ें', removeOfficialTitle: 'आधिकारिक शीर्षक हटाएं',
+        official: 'आधिकारिक', deleteAccount: 'खाता हटाएं', deleteAccountWarning: 'चेतावनी: यह क्रिया स्थायी है!',
+        deleteAccountConfirm: 'क्या आप पूरी तरह सुनिश्चित हैं? यह आपका खाता और आपका सारा डेटा हमेशा के लिए हटा देगा।',
+        deleteAccountSuccess: 'खाता सफलतापूर्वक हटा दिया गया', changeUsername: 'उपयोगकर्ता नाम बदलें',
+        changeDisplayName: 'प्रदर्शित नाम बदलें', newUsername: 'नया उपयोगकर्ता नाम', newDisplayName: 'नया प्रदर्शित नाम',
+        currentPassword: 'वर्तमान पासवर्ड', confirmNewPassword: 'नए पासवर्ड की पुष्टि करें',
+        usernameChanged: 'उपयोगकर्ता नाम सफलतापूर्वक बदल दिया गया!', displayNameChanged: 'प्रदर्शित नाम सफलतापूर्वक बदल दिया गया!',
+        matureContent: 'वयस्क सामग्री', matureContentDesc: 'अपने फ़ीड और खोज परिणामों में वयस्क सामग्री देखें।',
+        blurMature: 'धुंधला करें (18+)', blurMatureDesc: 'संवेदनशील हो सकने वाली छवियों और मीडिया को धुंधला करें।',
+        experience: 'अनुभव', defaultFeedView: 'डिफ़ॉल्ट फ़ीड दृश्य', cardMode: 'कार्ड मोड', compactMode: 'कॉम्पैक्ट मोड',
+        showMatureContent: 'वयस्क सामग्री दिखाएं', blurMatureMedia: 'वयस्क मीडिया धुंधला करें'
     },
     zh: {
         appName: '自由网', signIn: '登录', signUp: '注册',
@@ -419,7 +532,18 @@ const translations = {
         connectionError: '连接错误', invalidCredentials: '无效的凭证',
         accountCreated: '账户已创建！', welcomeBack: '欢迎回来！',
         allFieldsRequired: '所有字段都是必填的', passwordTooShort: '密码至少需要6个字符',
-        noSavedPosts: '暂无保存的帖子', savePostHint: '点击任何帖子上的书签图标即可在此处保存'
+        noSavedPosts: '暂无保存的帖子', savePostHint: '点击任何帖子上的书签图标即可在此处保存',
+        adminPanel: '管理面板', addOfficialTitle: '添加官方称号', removeOfficialTitle: '移除官方称号',
+        official: '官方', deleteAccount: '删除账户', deleteAccountWarning: '警告：此操作不可逆！',
+        deleteAccountConfirm: '您确定吗？这将永久删除您的账户和所有数据。',
+        deleteAccountSuccess: '账户已成功删除', changeUsername: '更改用户名',
+        changeDisplayName: '更改显示名称', newUsername: '新用户名', newDisplayName: '新显示名称',
+        currentPassword: '当前密码', confirmNewPassword: '确认新密码',
+        usernameChanged: '用户名已成功更改！', displayNameChanged: '显示名称已成功更改！',
+        matureContent: '成人内容', matureContentDesc: '在信息流和搜索结果中显示成人内容。',
+        blurMature: '模糊处理（18+）', blurMatureDesc: '对可能敏感的图片和媒体进行模糊处理。',
+        experience: '体验', defaultFeedView: '默认信息流视图', cardMode: '卡片模式', compactMode: '紧凑模式',
+        showMatureContent: '显示成人内容', blurMatureMedia: '模糊成人媒体'
     },
     ja: {
         appName: 'フリーダムネット', signIn: 'サインイン', signUp: 'サインアップ',
@@ -456,7 +580,18 @@ const translations = {
         connectionError: '接続エラー', invalidCredentials: '認証情報が無効です',
         accountCreated: 'アカウントを作成しました！', welcomeBack: 'おかえりなさい！',
         allFieldsRequired: 'すべてのフィールドは必須です', passwordTooShort: 'パスワードは6文字以上必要です',
-        noSavedPosts: '保存された投稿はありません', savePostHint: '任意の投稿のブックマークアイコンをクリックして、ここに保存します'
+        noSavedPosts: '保存された投稿はありません', savePostHint: '任意の投稿のブックマークアイコンをクリックして、ここに保存します',
+        adminPanel: '管理パネル', addOfficialTitle: '公式タイトルを追加', removeOfficialTitle: '公式タイトルを削除',
+        official: '公式', deleteAccount: 'アカウントを削除', deleteAccountWarning: '警告：この操作は元に戻せません！',
+        deleteAccountConfirm: '本当によろしいですか？これにより、アカウントとすべてのデータが永久に削除されます。',
+        deleteAccountSuccess: 'アカウントが正常に削除されました', changeUsername: 'ユーザー名を変更',
+        changeDisplayName: '表示名を変更', newUsername: '新しいユーザー名', newDisplayName: '新しい表示名',
+        currentPassword: '現在のパスワード', confirmNewPassword: '新しいパスワードを確認',
+        usernameChanged: 'ユーザー名が正常に変更されました！', displayNameChanged: '表示名が正常に変更されました！',
+        matureContent: 'アダルトコンテンツ', matureContentDesc: 'フィードと検索結果にアダルトコンテンツを表示します。',
+        blurMature: 'ぼかし（18+）', blurMatureDesc: 'センシティブな可能性のある画像やメディアをぼかします。',
+        experience: 'エクスペリエンス', defaultFeedView: 'デフォルトフィードビュー', cardMode: 'カードモード', compactMode: 'コンパクトモード',
+        showMatureContent: 'アダルトコンテンツを表示', blurMatureMedia: 'アダルトメディアをぼかす'
     },
     ko: {
         appName: '프리덤넷', signIn: '로그인', signUp: '회원가입',
@@ -493,7 +628,18 @@ const translations = {
         connectionError: '연결 오류', invalidCredentials: '잘못된 인증 정보',
         accountCreated: '계정이 생성되었습니다!', welcomeBack: '돌아오신 것을 환영합니다!',
         allFieldsRequired: '모든 필드는 필수입니다', passwordTooShort: '비밀번호는 최소 6자 이상이어야 합니다',
-        noSavedPosts: '저장된 게시물이 없습니다', savePostHint: '게시물의 북마크 아이콘을 클릭하여 여기에 저장하세요'
+        noSavedPosts: '저장된 게시물이 없습니다', savePostHint: '게시물의 북마크 아이콘을 클릭하여 여기에 저장하세요',
+        adminPanel: '관리자 패널', addOfficialTitle: '공식 타이틀 추가', removeOfficialTitle: '공식 타이틀 제거',
+        official: '공식', deleteAccount: '계정 삭제', deleteAccountWarning: '경고: 이 작업은 영구적입니다!',
+        deleteAccountConfirm: '정말 확실하신가요? 이렇게 하면 계정과 모든 데이터가 영구적으로 삭제됩니다.',
+        deleteAccountSuccess: '계정이 성공적으로 삭제되었습니다', changeUsername: '사용자명 변경',
+        changeDisplayName: '표시 이름 변경', newUsername: '새 사용자명', newDisplayName: '새 표시 이름',
+        currentPassword: '현재 비밀번호', confirmNewPassword: '새 비밀번호 확인',
+        usernameChanged: '사용자명이 성공적으로 변경되었습니다!', displayNameChanged: '표시 이름이 성공적으로 변경되었습니다!',
+        matureContent: '성인 콘텐츠', matureContentDesc: '피드 및 검색 결과에 성인 콘텐츠를 표시합니다.',
+        blurMature: '흐림 처리 (18+)', blurMatureDesc: '민감할 수 있는 이미지 및 미디어를 흐리게 처리합니다.',
+        experience: '경험', defaultFeedView: '기본 피드 보기', cardMode: '카드 모드', compactMode: '콤팩트 모드',
+        showMatureContent: '성인 콘텐츠 표시', blurMatureMedia: '성인 미디어 흐림 처리'
     },
     el: {
         appName: 'FreedomNet', signIn: 'Σύνδεση', signUp: 'Εγγραφή',
@@ -530,11 +676,25 @@ const translations = {
         connectionError: 'Σφάλμα σύνδεσης', invalidCredentials: 'Λανθασμένα στοιχεία',
         accountCreated: 'Ο λογαριασμός δημιουργήθηκε!', welcomeBack: 'Καλώς ήρθες πίσω!',
         allFieldsRequired: 'Όλα τα πεδία είναι υποχρεωτικά', passwordTooShort: 'Ο κωδικός είναι πολύ μικρός',
-        noSavedPosts: 'Δεν υπάρχουν αποθηκευμένες δημοσιεύσεις', savePostHint: 'Πατήστε το εικονίδιο σελιδοδείκτη σε οποιαδήποτε δημοσίευση για αποθήκευση'
+        noSavedPosts: 'Δεν υπάρχουν αποθηκευμένες δημοσιεύσεις', savePostHint: 'Πατήστε το εικονίδιο σελιδοδείκτη σε οποιαδήποτε δημοσίευση για αποθήκευση',
+        adminPanel: 'Πίνακας διαχειριστή', addOfficialTitle: 'Προσθήκη επίσημου τίτλου', removeOfficialTitle: 'Κατάργηση επίσημου τίτλου',
+        official: 'Επίσημο', deleteAccount: 'Διαγραφή λογαριασμού', deleteAccountWarning: 'ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Αυτή η ενέργεια είναι μόνιμη!',
+        deleteAccountConfirm: 'Είστε απολύτως σίγουροι; Αυτό θα διαγράψει το λογαριασμό σας και όλα τα δεδομένα σας για πάντα.',
+        deleteAccountSuccess: 'Ο λογαριασμός διαγράφηκε επιτυχώς', changeUsername: 'Αλλαγή ονόματος χρήστη',
+        changeDisplayName: 'Αλλαγή εμφανιζόμενου ονόματος', newUsername: 'Νέο όνομα χρήστη', newDisplayName: 'Νέο εμφανιζόμενο όνομα',
+        currentPassword: 'Τρέχων κωδικός', confirmNewPassword: 'Επιβεβαίωση νέου κωδικού',
+        usernameChanged: 'Το όνομα χρήστη άλλαξε επιτυχώς!', displayNameChanged: 'Το εμφανιζόμενο όνομα άλλαξε επιτυχώς!',
+        matureContent: 'Περιεχόμενο ενηλίκων', matureContentDesc: 'Δείτε περιεχόμενο για ενήλικες στις ροές και τα αποτελέσματα αναζήτησής σας.',
+        blurMature: 'Θόλωμα (18+)', blurMatureDesc: 'Θολώστε εικόνες και μέσα που μπορεί να είναι ευαίσθητα.',
+        experience: 'Εμπειρία', defaultFeedView: 'Προεπιλεγμένη προβολή ροής', cardMode: 'Λειτουργία καρτέλας', compactMode: 'Συμπαγής λειτουργία',
+        showMatureContent: 'Εμφάνιση περιεχομένου ενηλίκων', blurMatureMedia: 'Θόλωμα μέσων ενηλίκων'
     }
 };
 
 let currentLanguage = 'en';
+let officialUsers = new Set();
+let matureContentEnabled = false;
+let blurMatureEnabled = false;
 
 const monthNames = {
     en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -612,19 +772,23 @@ function displaySavedPosts() {
         const isLiked = userLikedPosts.has(post.id);
         const isReposted = userRepostedPosts.has(post.id);
         const isSaved = userSavedPosts.has(post.id);
+        const isOfficial = officialUsers.has(post.userId);
         return `
-        <div class="post-card" data-post-id="${post.id}">
+        <div class="post-card ${feedViewMode === 'compact' ? 'compact-mode' : ''}" data-post-id="${post.id}">
             <div class="avatar-container">
                 <img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">
             </div>
             <div class="post-body">
                 <div class="post-header">
-                    <span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
+                    <div class="post-name-container">
+                        <span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
+                        ${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}
+                    </div>
                     <span class="post-username">@${escapeHtml(post.user?.username)}</span>
                     <span class="post-time">${formatTime(post.createdAt)}</span>
                 </div>
                 <div class="post-text">${escapeHtml(post.content)}</div>
-                ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" alt="Post image">` : ''}
+                ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${blurMatureEnabled ? 'blur-mature' : ''}" alt="Post image">` : ''}
                 <div class="post-actions">
                     <button class="action-btn like" onclick="toggleLike('${post.id}')" style="color:${isLiked ? 'var(--error)' : ''}">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="${isLiked ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2">
@@ -790,6 +954,105 @@ function showCustomAlert(message) {
     };
 }
 
+function openModal(title, content, onConfirm) {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-card" style="max-width: 450px;">
+            <h3>${title}</h3>
+            ${content}
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button id="modalCancelBtn" class="btn-outline">${translations[currentLanguage].cancel}</button>
+                <button id="modalConfirmBtn" class="btn-delete" style="background: var(--error);">${translations[currentLanguage].delete}</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    modal.querySelector('#modalCancelBtn').onclick = () => {
+        document.body.removeChild(modal);
+    };
+    
+    modal.querySelector('#modalConfirmBtn').onclick = () => {
+        onConfirm();
+        document.body.removeChild(modal);
+    };
+}
+
+function openInputModal(title, placeholder, buttonText, onSubmit) {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-card" style="max-width: 450px;">
+            <h3>${title}</h3>
+            <input type="text" id="modalInput" class="settings-input" placeholder="${placeholder}" style="width: 100%; margin: 20px 0;">
+            <div class="modal-buttons">
+                <button id="modalCancelBtn" class="btn-outline">${translations[currentLanguage].cancel}</button>
+                <button id="modalConfirmBtn" class="btn-blue">${buttonText}</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    modal.querySelector('#modalCancelBtn').onclick = () => {
+        document.body.removeChild(modal);
+    };
+    
+    modal.querySelector('#modalConfirmBtn').onclick = () => {
+        const value = modal.querySelector('#modalInput').value;
+        if (value) {
+            onSubmit(value);
+            document.body.removeChild(modal);
+        } else {
+            showCustomAlert(translations[currentLanguage].pleaseFillAllFields);
+        }
+    };
+}
+
+function openPasswordModal(title, onSubmit) {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-card" style="max-width: 450px;">
+            <h3>${title}</h3>
+            <input type="text" id="modalNewValue" class="settings-input" placeholder="${translations[currentLanguage].newDisplayName}" style="width: 100%; margin: 10px 0;">
+            <input type="password" id="modalPassword" class="settings-input" placeholder="${translations[currentLanguage].currentPassword}" style="width: 100%; margin: 10px 0;">
+            <input type="password" id="modalConfirmPassword" class="settings-input" placeholder="${translations[currentLanguage].confirmNewPassword}" style="width: 100%; margin: 10px 0;">
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button id="modalCancelBtn" class="btn-outline">${translations[currentLanguage].cancel}</button>
+                <button id="modalConfirmBtn" class="btn-blue">${translations[currentLanguage].save}</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    modal.querySelector('#modalCancelBtn').onclick = () => {
+        document.body.removeChild(modal);
+    };
+    
+    modal.querySelector('#modalConfirmBtn').onclick = () => {
+        const newValue = modal.querySelector('#modalNewValue').value;
+        const password = modal.querySelector('#modalPassword').value;
+        const confirmPassword = modal.querySelector('#modalConfirmPassword').value;
+        
+        if (!newValue || !password) {
+            showCustomAlert(translations[currentLanguage].pleaseFillAllFields);
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            showCustomAlert(translations[currentLanguage].passwordsDoNotMatch);
+            return;
+        }
+        
+        onSubmit(newValue, password);
+        document.body.removeChild(modal);
+    };
+}
+
 async function loadUserInteractions() {
     const res = await fetch(`${API_URL}/api/user/liked`, {
         method: 'POST',
@@ -807,10 +1070,58 @@ async function loadAllUsers() {
     allUsers = await res.json();
 }
 
+async function loadOfficialUsers() {
+    try {
+        const res = await fetch(`${API_URL}/api/official/users`);
+        const data = await res.json();
+        officialUsers = new Set(data);
+    } catch (error) {}
+}
+
+async function addOfficialUser(userId) {
+    try {
+        const res = await fetch(`${API_URL}/api/official/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, adminId: currentUser.id })
+        });
+        if (res.ok) {
+            officialUsers.add(userId);
+            loadPosts();
+            if (currentPage === 'profile') loadUserPosts();
+            showCustomAlert('Official title added!');
+        }
+    } catch (error) {}
+}
+
+async function removeOfficialUser(userId) {
+    try {
+        const res = await fetch(`${API_URL}/api/official/remove`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, adminId: currentUser.id })
+        });
+        if (res.ok) {
+            officialUsers.delete(userId);
+            loadPosts();
+            if (currentPage === 'profile') loadUserPosts();
+            showCustomAlert('Official title removed!');
+        }
+    } catch (error) {}
+}
+
 async function initApp(user) {
     currentUser = user;
     authScreen.style.display = 'none';
     app.classList.add('active');
+    
+    const savedMatureContent = localStorage.getItem('matureContentEnabled') === 'true';
+    const savedBlurMature = localStorage.getItem('blurMatureEnabled') === 'true';
+    const savedFeedView = localStorage.getItem('feedViewMode') || 'card';
+    
+    matureContentEnabled = savedMatureContent;
+    blurMatureEnabled = savedBlurMature;
+    feedViewMode = savedFeedView;
     
     const avatarUrl = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent((user.displayName || user.username).slice(0,2))}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
     
@@ -832,9 +1143,103 @@ async function initApp(user) {
     document.getElementById('languageSelect').value = savedLang;
     updateLanguage(savedLang);
     
+    const matureToggle = document.getElementById('matureContentToggle');
+    const blurToggle = document.getElementById('blurMatureToggle');
+    const cardModeBtn = document.getElementById('cardModeBtn');
+    const compactModeBtn = document.getElementById('compactModeBtn');
+    
+    if (matureToggle) matureToggle.checked = matureContentEnabled;
+    if (blurToggle) blurToggle.checked = blurMatureEnabled;
+    if (cardModeBtn && feedViewMode === 'card') cardModeBtn.classList.add('active');
+    if (compactModeBtn && feedViewMode === 'compact') compactModeBtn.classList.add('active');
+    
     await loadAllUsers();
     await loadUserInteractions();
+    await loadOfficialUsers();
     await loadPosts();
+    
+    if (user.username === ADMIN_USERNAME) {
+        showAdminPanel();
+    }
+}
+
+function showAdminPanel() {
+    const sidebarBottom = document.querySelector('.sidebar-bottom');
+    if (sidebarBottom && !document.getElementById('adminPanelBtn')) {
+        const adminBtn = document.createElement('button');
+        adminBtn.id = 'adminPanelBtn';
+        adminBtn.className = 'admin-panel-btn';
+        adminBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/>
+            </svg>
+            <span data-i18n="adminPanel">Admin Panel</span>
+        `;
+        adminBtn.onclick = () => openAdminPanel();
+        sidebarBottom.insertBefore(adminBtn, sidebarBottom.firstChild);
+    }
+}
+
+function openAdminPanel() {
+    const t = translations[currentLanguage];
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-card admin-panel-card">
+            <h3>${t.adminPanel}</h3>
+            <div class="admin-panel-search">
+                <input type="text" id="adminUserSearch" class="settings-input" placeholder="Search users...">
+                <div id="adminUserResults" class="admin-user-results"></div>
+            </div>
+            <div class="modal-buttons">
+                <button id="closeAdminPanel" class="btn-outline">${t.cancel}</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    const searchInput = modal.querySelector('#adminUserSearch');
+    const resultsDiv = modal.querySelector('#adminUserResults');
+    
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        if (query.length > 0) {
+            const filteredUsers = allUsers.filter(user => 
+                user.id !== currentUser.id && (
+                    user.displayName?.toLowerCase().includes(query) ||
+                    user.username?.toLowerCase().includes(query)
+                )
+            );
+            
+            if (filteredUsers.length > 0) {
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = filteredUsers.map(user => {
+                    const isOfficial = officialUsers.has(user.id);
+                    return `
+                        <div class="admin-user-item">
+                            <div class="admin-user-info">
+                                <div class="admin-user-name">${escapeHtml(user.displayName || user.username)}</div>
+                                <div class="admin-user-username">@${escapeHtml(user.username)}</div>
+                            </div>
+                            <button class="admin-action-btn ${isOfficial ? 'remove' : 'add'}" onclick="${isOfficial ? `removeOfficialUser('${user.id}')` : `addOfficialUser('${user.id}')`}; document.body.removeChild(modal);">
+                                ${isOfficial ? t.removeOfficialTitle : t.addOfficialTitle}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = `<div class="admin-no-results">${t.noResults}</div>`;
+            }
+        } else {
+            resultsDiv.style.display = 'none';
+        }
+    });
+    
+    modal.querySelector('#closeAdminPanel').onclick = () => {
+        document.body.removeChild(modal);
+    };
 }
 
 document.querySelectorAll('.nav-btn, .mobile-btn').forEach(btn => {
@@ -942,27 +1347,39 @@ async function loadPosts() {
     const feed = document.getElementById('postsList');
     const t = translations[currentLanguage];
     
-    if (allPosts.length === 0) {
+    let filteredPosts = allPosts;
+    if (!matureContentEnabled) {
+        filteredPosts = allPosts.filter(post => !post.isMature);
+    }
+    
+    if (filteredPosts.length === 0) {
         feed.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-tertiary)">${t.noResults}</div>`;
         return;
     }
     
-    feed.innerHTML = allPosts.map(post => {
+    feed.innerHTML = filteredPosts.map(post => {
         const postAvatar = post.user?.avatar || `https://ui-avatars.com/api/?name=${(post.user?.displayName || post.user?.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
         const isLiked = userLikedPosts.has(post.id);
         const isReposted = userRepostedPosts.has(post.id);
         const isSaved = userSavedPosts.has(post.id);
+        const isOfficial = officialUsers.has(post.userId);
+        const isAdmin = currentUser?.username === ADMIN_USERNAME;
+        const canDeletePost = isAdmin || post.userId === currentUser?.id;
+        const imageBlurClass = (blurMatureEnabled && post.isMature) ? 'blur-mature' : '';
         return `
-        <div class="post-card" data-post-id="${post.id}">
+        <div class="post-card ${feedViewMode === 'compact' ? 'compact-mode' : ''}" data-post-id="${post.id}">
             <div class="avatar-container">
                 <img class="post-avatar" src="${postAvatar}" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer" onerror="this.src='https://ui-avatars.com/api/?name=${post.user?.username?.slice(0,2)}&background=1d9bf0&color=fff'">
             </div>
             <div class="post-body">
                 <div class="post-header">
-                    <span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
+                    <div class="post-name-container">
+                        <span class="post-name" onclick="showMiniProfile('${post.userId}')" style="cursor:pointer">${escapeHtml(post.user?.displayName || post.user?.username)}</span>
+                        ${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}
+                    </div>
                     <span class="post-username">@${escapeHtml(post.user?.username)}</span>
                     <span class="post-time">${formatTime(post.createdAt)}</span>
-                    ${post.userId === currentUser.id ? `
+                    ${canDeletePost ? `
                         <div class="post-menu">
                             <button class="menu-btn" onclick="toggleMenu(event, '${post.id}')">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -972,14 +1389,14 @@ async function loadPosts() {
                                 </svg>
                             </button>
                             <div class="post-menu-dropdown" id="menu-${post.id}">
-                                <div class="dropdown-item" onclick="editPost('${post.id}', '${escapeHtml(post.content).replace(/'/g, "\\'")}')">${t.edit}</div>
+                                ${post.userId === currentUser?.id ? `<div class="dropdown-item" onclick="editPost('${post.id}', '${escapeHtml(post.content).replace(/'/g, "\\'")}')">${t.edit}</div>` : ''}
                                 <div class="dropdown-item delete" onclick="deletePost('${post.id}')">${t.delete_}</div>
                             </div>
                         </div>
                     ` : ''}
                 </div>
                 <div class="post-text">${escapeHtml(post.content)}</div>
-                ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" alt="Post image">` : ''}
+                ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${imageBlurClass}" alt="Post image">` : ''}
                 <div class="post-actions">
                     <button class="action-btn like" onclick="toggleLike('${post.id}')" style="color:${isLiked ? 'var(--error)' : ''}">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="${isLiked ? '#f4212e' : 'none'}" stroke="currentColor" stroke-width="2">
@@ -1018,18 +1435,22 @@ async function loadPosts() {
                         </div>
                         ${post.comments.slice(0, 2).map(c => {
                             const commentAvatar = `https://ui-avatars.com/api/?name=${(c.displayName || c.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=32&rounded=true`;
+                            const canDeleteComment = isAdmin || c.userId === currentUser?.id;
                             return `
                             <div class="comment-item">
                                 <img class="comment-avatar-img" src="${commentAvatar}" onerror="this.src='https://ui-avatars.com/api/?name=${c.username?.slice(0,2)}&background=1d9bf0&color=fff'">
                                 <div class="comment-content">
                                     <div class="comment-header">
-                                        <span class="comment-name">${escapeHtml(c.displayName || c.username)}</span>
+                                        <div class="comment-name-container">
+                                            <span class="comment-name">${escapeHtml(c.displayName || c.username)}</span>
+                                            ${officialUsers.has(c.userId) ? `<span class="official-badge small">${t.official}</span>` : ''}
+                                        </div>
                                         <span class="comment-username">@${escapeHtml(c.username)}</span>
                                         <span class="comment-time">${formatTime(c.createdAt)}</span>
                                     </div>
                                     <div class="comment-text">${escapeHtml(c.comment)}</div>
                                 </div>
-                                ${c.userId === currentUser.id ? `
+                                ${canDeleteComment ? `
                                     <button class="comment-delete" onclick="deleteComment('${post.id}', '${c.id}')">×</button>
                                 ` : ''}
                             </div>
@@ -1071,6 +1492,8 @@ window.showMiniProfile = function(userId) {
     const avatarUrl = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
     const joinDateFormatted = formatJoinDate(user.joinDate);
     const t = translations[currentLanguage];
+    const isOfficial = officialUsers.has(user.id);
+    const isAdmin = currentUser?.username === ADMIN_USERNAME;
     
     const modal = document.createElement('div');
     modal.className = 'mini-profile-modal';
@@ -1081,7 +1504,10 @@ window.showMiniProfile = function(userId) {
                 <button class="mini-profile-close" onclick="closeMiniProfile()">×</button>
             </div>
             <div class="mini-profile-body">
-                <h3>${escapeHtml(user.displayName || user.username)}</h3>
+                <div class="mini-profile-name-row">
+                    <h3>${escapeHtml(user.displayName || user.username)}</h3>
+                    ${isOfficial ? `<span class="official-badge">${t.official}</span>` : ''}
+                </div>
                 <p class="mini-profile-username">@${escapeHtml(user.username)}</p>
                 ${user.bio ? `<p class="mini-profile-bio">${escapeHtml(user.bio)}</p>` : ''}
                 <p class="mini-profile-joined">${t.joined} ${joinDateFormatted}</p>
@@ -1090,6 +1516,11 @@ window.showMiniProfile = function(userId) {
                     <div><strong>${user.following || 0}</strong> ${t.following}</div>
                 </div>
                 <button class="mini-profile-btn" onclick="goToFullProfile('${userId}')">${t.showProfile}</button>
+                ${isAdmin && user.id !== currentUser.id ? `
+                    <button class="mini-profile-admin-btn" onclick="${isOfficial ? `removeOfficialUser('${user.id}')` : `addOfficialUser('${user.id}')`}; closeMiniProfile();">
+                        ${isOfficial ? t.removeOfficialTitle : t.addOfficialTitle}
+                    </button>
+                ` : ''}
             </div>
         </div>
     `;
@@ -1141,9 +1572,14 @@ window.editPost = function(postId, currentContent) {
     document.getElementById('editModal').classList.add('active');
 };
 
-window.deletePost = function(postId) {
-    currentDeletePostId = postId;
-    document.getElementById('deleteModal').classList.add('active');
+window.deletePost = async (postId) => {
+    const res = await fetch(`${API_URL}/api/posts/${postId}`, {
+        method: 'DELETE'
+    });
+    if (res.ok) {
+        loadPosts();
+        showCustomAlert(translations[currentLanguage].postDeleted);
+    }
 };
 
 window.toggleLike = async (postId) => {
@@ -1275,14 +1711,24 @@ async function loadUserPosts() {
         }
         container.innerHTML = userPosts.map(post => {
             const postAvatar = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+            const isOfficial = officialUsers.has(currentUser.id);
+            const imageBlurClass = (blurMatureEnabled && post.isMature) ? 'blur-mature' : '';
             return `
-            <div class="post-card">
+            <div class="post-card ${feedViewMode === 'compact' ? 'compact-mode' : ''}">
                 <div class="avatar-container">
                     <img class="post-avatar" src="${postAvatar}">
                 </div>
                 <div class="post-body">
+                    <div class="post-header">
+                        <div class="post-name-container">
+                            <span class="post-name">${escapeHtml(currentUser.displayName || currentUser.username)}</span>
+                            ${isOfficial ? `<span class="official-badge">${translations[currentLanguage].official}</span>` : ''}
+                        </div>
+                        <span class="post-username">@${escapeHtml(currentUser.username)}</span>
+                        <span class="post-time">${formatTime(post.createdAt)}</span>
+                    </div>
                     <div class="post-text">${escapeHtml(post.content)}</div>
-                    ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" alt="Post image">` : ''}
+                    ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image ${imageBlurClass}" alt="Post image">` : ''}
                     <div class="post-actions">
                         <span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> ${post.likes}</span>
                         <span style="color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ${post.comments?.length || 0}</span>
@@ -1344,42 +1790,36 @@ document.getElementById('languageSelect')?.addEventListener('change', (e) => {
     if (currentPage === 'bookmarks') displaySavedPosts();
 });
 
-document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', async () => {
-    const newDisplayName = document.getElementById('displayNameInput').value;
-    const newUsername = document.getElementById('usernameInput').value;
-    const password = document.getElementById('confirmPasswordInput').value;
-    const confirmPassword = document.getElementById('confirmNewPasswordInput').value;
-    const t = translations[currentLanguage];
-    
-    if (password !== confirmPassword) {
-        showCustomAlert(t.passwordsDoNotMatch);
-        return;
-    }
-    
-    if (newDisplayName) {
-        const res = await fetch(`${API_URL}/api/user/update`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: currentUser.id, displayName: newDisplayName })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            currentUser = data.user;
-            localStorage.setItem('user', JSON.stringify(currentUser));
-            document.getElementById('displayNameStatus').textContent = t.displayNameUpdated;
-            document.getElementById('displayNameStatus').className = 'settings-status success';
-            document.getElementById('profileName').textContent = currentUser.displayName;
-            document.getElementById('headerName').textContent = currentUser.displayName;
-            setTimeout(() => {
-                document.getElementById('displayNameStatus').textContent = '';
-            }, 3000);
-        } else {
-            document.getElementById('displayNameStatus').textContent = data.error || 'Error';
-            document.getElementById('displayNameStatus').className = 'settings-status error';
-        }
-    }
-    
-    if (newUsername && password) {
+document.getElementById('matureContentToggle')?.addEventListener('change', (e) => {
+    matureContentEnabled = e.target.checked;
+    localStorage.setItem('matureContentEnabled', matureContentEnabled);
+    loadPosts();
+});
+
+document.getElementById('blurMatureToggle')?.addEventListener('change', (e) => {
+    blurMatureEnabled = e.target.checked;
+    localStorage.setItem('blurMatureEnabled', blurMatureEnabled);
+    loadPosts();
+});
+
+document.getElementById('cardModeBtn')?.addEventListener('click', () => {
+    feedViewMode = 'card';
+    localStorage.setItem('feedViewMode', 'card');
+    document.getElementById('cardModeBtn').classList.add('active');
+    document.getElementById('compactModeBtn').classList.remove('active');
+    loadPosts();
+});
+
+document.getElementById('compactModeBtn')?.addEventListener('click', () => {
+    feedViewMode = 'compact';
+    localStorage.setItem('feedViewMode', 'compact');
+    document.getElementById('compactModeBtn').classList.add('active');
+    document.getElementById('cardModeBtn').classList.remove('active');
+    loadPosts();
+});
+
+document.getElementById('changeUsernameBtn')?.addEventListener('click', () => {
+    openPasswordModal(translations[currentLanguage].changeUsername, async (newUsername, password) => {
         const res = await fetch(`${API_URL}/api/user/update`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1389,22 +1829,61 @@ document.getElementById('saveProfileSettingsBtn')?.addEventListener('click', asy
         if (res.ok) {
             currentUser = data.user;
             localStorage.setItem('user', JSON.stringify(currentUser));
-            document.getElementById('usernameStatus').textContent = t.usernameUpdated;
-            document.getElementById('usernameStatus').className = 'settings-status success';
-            document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
-            setTimeout(() => {
-                document.getElementById('usernameStatus').textContent = '';
-            }, 3000);
+            showCustomAlert(translations[currentLanguage].usernameChanged);
+            location.reload();
         } else {
-            document.getElementById('usernameStatus').textContent = data.error || 'Error';
-            document.getElementById('usernameStatus').className = 'settings-status error';
+            showCustomAlert(data.error || translations[currentLanguage].invalidCredentials);
         }
-    }
-    
-    document.getElementById('displayNameInput').value = '';
-    document.getElementById('usernameInput').value = '';
-    document.getElementById('confirmPasswordInput').value = '';
-    document.getElementById('confirmNewPasswordInput').value = '';
+    });
+});
+
+document.getElementById('changeDisplayNameBtn')?.addEventListener('click', () => {
+    openPasswordModal(translations[currentLanguage].changeDisplayName, async (newDisplayName, password) => {
+        const res = await fetch(`${API_URL}/api/user/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, displayName: newDisplayName })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            currentUser = data.user;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            showCustomAlert(translations[currentLanguage].displayNameChanged);
+            location.reload();
+        } else {
+            showCustomAlert(data.error || translations[currentLanguage].invalidCredentials);
+        }
+    });
+});
+
+document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
+    openModal(translations[currentLanguage].deleteAccount, `
+        <p style="color: var(--error); margin-bottom: 16px;"><strong>${translations[currentLanguage].deleteAccountWarning}</strong></p>
+        <p>${translations[currentLanguage].deleteAccountConfirm}</p>
+        <input type="password" id="deletePasswordInput" class="settings-input" placeholder="${translations[currentLanguage].currentPassword}" style="width: 100%; margin: 20px 0 0 0;">
+    `, async () => {
+        const password = document.getElementById('deletePasswordInput')?.value;
+        if (!password) {
+            showCustomAlert(translations[currentLanguage].pleaseFillAllFields);
+            return;
+        }
+        
+        const res = await fetch(`${API_URL}/api/user/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, password: password })
+        });
+        
+        if (res.ok) {
+            showCustomAlert(translations[currentLanguage].deleteAccountSuccess);
+            localStorage.clear();
+            sessionStorage.clear();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            const data = await res.json();
+            showCustomAlert(data.error || translations[currentLanguage].invalidCredentials);
+        }
+    });
 });
 
 let currentAvatarFile = null;
@@ -1484,11 +1963,15 @@ document.getElementById('searchInput')?.addEventListener('input', (e) => {
     const trendingCard = document.querySelector('.trending-card');
     
     if (query.length > 0) {
-        const filteredPosts = allPosts.filter(post => 
+        let filteredPosts = allPosts.filter(post => 
             post.content.toLowerCase().includes(query) ||
             post.user?.displayName?.toLowerCase().includes(query) ||
             post.user?.username?.toLowerCase().includes(query)
         );
+        
+        if (!matureContentEnabled) {
+            filteredPosts = filteredPosts.filter(post => !post.isMature);
+        }
         
         if (filteredPosts.length > 0) {
             trendingCard.style.display = 'none';
@@ -1525,13 +2008,14 @@ document.getElementById('userSearchInput')?.addEventListener('input', (e) => {
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = filteredUsers.map(user => {
                 const userAvatar = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
+                const isOfficial = officialUsers.has(user.id);
                 return `
                     <div class="user-search-item" onclick="startConversation('${user.id}')">
                         <div class="avatar-container small">
                             <img class="user-search-avatar" src="${userAvatar}">
                         </div>
                         <div class="user-search-info">
-                            <div class="user-search-name">${escapeHtml(user.displayName || user.username)}</div>
+                            <div class="user-search-name">${escapeHtml(user.displayName || user.username)}${isOfficial ? ` <span class="official-badge small">${translations[currentLanguage].official}</span>` : ''}</div>
                             <div class="user-search-username">@${escapeHtml(user.username)}</div>
                         </div>
                     </div>
