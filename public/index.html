@@ -346,100 +346,143 @@
                     </div>
                     <button id="editProfileBtn" class="btn-outline" data-i18n="editProfile">Edit profile</button>
                 </div>
-                <div id="userPostsList" class="profile-posts"></div>
+                
+                <div class="profile-tabs">
+                    <button class="profile-tab active" data-profile-tab="posts" data-i18n="postsTab">Posts</button>
+                    <button class="profile-tab" data-profile-tab="reposts" data-i18n="repostsTab">Reposts</button>
+                </div>
+                
+                <div id="profile-posts" class="profile-tab-content active">
+                    <div id="userPostsList" class="profile-posts"></div>
+                </div>
+                <div id="profile-reposts" class="profile-tab-content">
+                    <div id="userRepostsList" class="profile-posts"></div>
+                </div>
             </div>
             
             <div id="settingsPage" class="page">
                 <div class="settings-container">
-                    <div class="settings-group">
-                        <h3 data-i18n="language">Language</h3>
-                        <div class="settings-item">
-                            <span data-i18n="selectLanguage">Select language</span>
-                            <select id="languageSelect" class="language-select">
-                                <option value="en">English</option>
-                                <option value="ru">Русский</option>
-                                <option value="es">Español</option>
-                                <option value="fr">Français</option>
-                                <option value="de">Deutsch</option>
-                                <option value="it">Italiano</option>
-                                <option value="pt">Português</option>
-                                <option value="tr">Türkçe</option>
-                                <option value="ar">العربية</option>
-                                <option value="hi">हिन्दी</option>
-                                <option value="zh">中文</option>
-                                <option value="ja">日本語</option>
-                                <option value="ko">한국어</option>
-                                <option value="el">Ελληνικά</option>
-                            </select>
+                    <div class="settings-tabs">
+                        <button class="settings-tab active" data-settings-tab="general" data-i18n="general">General</button>
+                        <button class="settings-tab" data-settings-tab="security" data-i18n="security">Security</button>
+                        <button class="settings-tab" data-settings-tab="privacy" data-i18n="privacy">Privacy</button>
+                        <button class="settings-tab" data-settings-tab="help" data-i18n="helpCenter">Help Center</button>
+                    </div>
+                    
+                    <div id="settings-general" class="settings-tab-content active">
+                        <div class="settings-group">
+                            <h3 data-i18n="language">Language</h3>
+                            <div class="settings-item">
+                                <span data-i18n="selectLanguage">Select language</span>
+                                <select id="languageSelect" class="language-select">
+                                    <option value="en">English</option>
+                                    <option value="ru">Русский</option>
+                                    <option value="es">Español</option>
+                                    <option value="fr">Français</option>
+                                    <option value="de">Deutsch</option>
+                                    <option value="it">Italiano</option>
+                                    <option value="pt">Português</option>
+                                    <option value="tr">Türkçe</option>
+                                    <option value="ar">العربية</option>
+                                    <option value="hi">हिन्दी</option>
+                                    <option value="zh">中文</option>
+                                    <option value="ja">日本語</option>
+                                    <option value="ko">한국어</option>
+                                    <option value="el">Ελληνικά</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h3 data-i18n="appearance">Appearance</h3>
+                            <div class="settings-item">
+                                <span data-i18n="theme">Theme</span>
+                                <div class="theme-buttons">
+                                    <button class="theme-option active" data-theme="dark" data-i18n="dark">Dark</button>
+                                    <button class="theme-option" data-theme="light" data-i18n="light">Light</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h3 data-i18n="profileSettings">Profile Settings</h3>
+                            <div class="settings-item vertical">
+                                <div class="settings-button-row">
+                                    <button id="changeDisplayNameBtn" class="btn-outline" data-i18n="changeDisplayName">Change Display Name</button>
+                                    <small class="settings-button-hint" data-i18n="displayNameChangeHint">You can change the display name only once every 14 days.</small>
+                                </div>
+                                <div class="settings-button-row">
+                                    <button id="changeUsernameBtn" class="btn-outline" data-i18n="changeUsername">Change Username</button>
+                                    <small class="settings-button-hint" data-i18n="usernameChangeHint">You can change the username only once every 90 days.</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h3 data-i18n="experience">Experience</h3>
+                            <div class="settings-item">
+                                <div>
+                                    <div data-i18n="defaultFeedView">Default feed view</div>
+                                    <small class="settings-hint">Choose how posts appear in your feed</small>
+                                </div>
+                            </div>
+                            <div class="feed-view-buttons">
+                                <button id="cardModeBtn" class="feed-view-btn active" data-i18n="cardMode">Card Mode</button>
+                                <button id="compactModeBtn" class="feed-view-btn" data-i18n="compactMode">Compact Mode</button>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="settings-group">
-                        <h3 data-i18n="appearance">Appearance</h3>
-                        <div class="settings-item">
-                            <span data-i18n="theme">Theme</span>
-                            <div class="theme-buttons">
-                                <button class="theme-option active" data-theme="dark" data-i18n="dark">Dark</button>
-                                <button class="theme-option" data-theme="light" data-i18n="light">Light</button>
+                    <div id="settings-security" class="settings-tab-content">
+                        <div class="settings-group">
+                            <h3 data-i18n="security">Security</h3>
+                            <div class="settings-item vertical">
+                                <button id="changeEmailBtn" class="btn-outline" data-i18n="changeEmail">Change Email</button>
+                                <button id="changePasswordBtn" class="btn-outline" data-i18n="changePassword">Change Password</button>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="settings-group">
-                        <h3 data-i18n="profileSettings">Profile Settings</h3>
-                        <div class="settings-item vertical">
-                            <div class="settings-button-row">
-                                <button id="changeDisplayNameBtn" class="btn-outline" data-i18n="changeDisplayName">Change Display Name</button>
-                                <small class="settings-button-hint" data-i18n="displayNameChangeHint">You can change the display name only once every 14 days.</small>
+                    <div id="settings-privacy" class="settings-tab-content">
+                        <div class="settings-group">
+                            <h3 data-i18n="matureContent">Mature Content</h3>
+                            <div class="settings-item">
+                                <div>
+                                    <div data-i18n="showMatureContent">Show mature content</div>
+                                    <small class="settings-hint" data-i18n="matureContentDesc">See Not Safe for Work mature and adult content in your feeds and search results.</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="matureContentToggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
-                            <div class="settings-button-row">
-                                <button id="changeUsernameBtn" class="btn-outline" data-i18n="changeUsername">Change Username</button>
-                                <small class="settings-button-hint" data-i18n="usernameChangeHint">You can change the username only once every 90 days.</small>
+                            <div class="settings-item">
+                                <div>
+                                    <div data-i18n="blurMatureMedia">Blur mature media</div>
+                                    <small class="settings-hint" data-i18n="blurMatureDesc">Blur images and media that may be sensitive.</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="blurMatureToggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h3 data-i18n="dangerZone">Danger Zone</h3>
+                            <button id="deleteAccountBtn" class="delete-account-btn" data-i18n="deleteAccount">Delete Account</button>
                         </div>
                     </div>
                     
-                    <div class="settings-group">
-                        <h3 data-i18n="matureContent">Mature Content</h3>
-                        <div class="settings-item">
-                            <div>
-                                <div data-i18n="showMatureContent">Show mature content</div>
-                                <small class="settings-hint" data-i18n="matureContentDesc">See Not Safe for Work mature and adult content in your feeds and search results.</small>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="matureContentToggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="settings-item">
-                            <div>
-                                <div data-i18n="blurMatureMedia">Blur mature media</div>
-                                <small class="settings-hint" data-i18n="blurMatureDesc">Blur images and media that may be sensitive.</small>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="blurMatureToggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="settings-group">
-                        <h3 data-i18n="experience">Experience</h3>
-                        <div class="settings-item">
-                            <div>
-                                <div data-i18n="defaultFeedView">Default feed view</div>
-                                <small class="settings-hint">Choose how posts appear in your feed</small>
+                    <div id="settings-help" class="settings-tab-content">
+                        <div class="settings-group">
+                            <h3 data-i18n="helpCenter">Help Center</h3>
+                            <div class="help-chat">
+                                <textarea id="helpQuestion" class="help-textarea" placeholder="Type your question here..." rows="3"></textarea>
+                                <button id="helpAskBtn" class="btn-blue">Ask AI Assistant</button>
+                                <div id="helpResponse" class="help-response-container"></div>
                             </div>
                         </div>
-                        <div class="feed-view-buttons">
-                            <button id="cardModeBtn" class="feed-view-btn active" data-i18n="cardMode">Card Mode</button>
-                            <button id="compactModeBtn" class="feed-view-btn" data-i18n="compactMode">Compact Mode</button>
-                        </div>
-                    </div>
-                    
-                    <div class="settings-group">
-                        <h3 data-i18n="dangerZone">Danger Zone</h3>
-                        <button id="deleteAccountBtn" class="delete-account-btn" data-i18n="deleteAccount">Delete Account</button>
                     </div>
                 </div>
             </div>
