@@ -388,8 +388,14 @@
                     <div class="settings-group">
                         <h3 data-i18n="profileSettings">Profile Settings</h3>
                         <div class="settings-item vertical">
-                            <button id="changeDisplayNameBtn" class="btn-outline" data-i18n="changeDisplayName">Change Display Name</button>
-                            <button id="changeUsernameBtn" class="btn-outline" data-i18n="changeUsername">Change Username</button>
+                            <div class="settings-button-row">
+                                <button id="changeDisplayNameBtn" class="btn-outline" data-i18n="changeDisplayName">Change Display Name</button>
+                                <small class="settings-button-hint" data-i18n="displayNameChangeHint">You can change the display name only once every 14 days.</small>
+                            </div>
+                            <div class="settings-button-row">
+                                <button id="changeUsernameBtn" class="btn-outline" data-i18n="changeUsername">Change Username</button>
+                                <small class="settings-button-hint" data-i18n="usernameChangeHint">You can change the username only once every 90 days.</small>
+                            </div>
                         </div>
                     </div>
                     
