@@ -54,7 +54,7 @@ const translations = {
         allFieldsRequired: 'All fields required', passwordTooShort: 'Password too short',
         noSavedPosts: 'No saved posts yet', savePostHint: 'Click the bookmark icon on any post to save it here',
         adminPanel: 'Admin Panel', addOfficialTitle: 'Add Official Title', removeOfficialTitle: 'Remove Official Title',
-        official: 'Official', deleteAccount: 'Delete Account', deleteAccountWarning: 'WARNING: This action is permanent!', 
+        official: '⭐ Official', deleteAccount: 'Delete Account', deleteAccountWarning: 'WARNING: This action is permanent!', 
         deleteAccountConfirm: 'Are you absolutely sure? This will delete your account and all your data forever.',
         deleteAccountSuccess: 'Account deleted successfully', changeUsername: 'Change Username',
         changeDisplayName: 'Change Display Name', newUsername: 'New username', newDisplayName: 'New display name',
@@ -63,7 +63,10 @@ const translations = {
         matureContent: 'Mature Content', matureContentDesc: 'See Not Safe for Work mature and adult content in your feeds and search results.',
         blurMature: 'Blur mature (18+)', blurMatureDesc: 'Blur images and media that may be sensitive.',
         experience: 'Experience', defaultFeedView: 'Default feed view', cardMode: 'Card Mode', compactMode: 'Compact Mode',
-        showMatureContent: 'Show mature content', blurMatureMedia: 'Blur mature media'
+        showMatureContent: 'Show mature content', blurMatureMedia: 'Blur mature media',
+        displayNameChangeHint: 'You can change the display name only once every 14 days.',
+        usernameChangeHint: 'You can change the username only once every 90 days.',
+        dangerZone: 'Danger Zone'
     },
     ru: {
         appName: 'FreedomNet', signIn: 'Войти', signUp: 'Регистрация',
@@ -102,7 +105,7 @@ const translations = {
         allFieldsRequired: 'Все поля обязательны', passwordTooShort: 'Пароль должен быть не менее 6 символов',
         noSavedPosts: 'Нет сохраненных постов', savePostHint: 'Нажмите на значок закладки на любом посте, чтобы сохранить его здесь',
         adminPanel: 'Панель администратора', addOfficialTitle: 'Добавить статус Official', removeOfficialTitle: 'Удалить статус Official',
-        official: 'Official', deleteAccount: 'Удалить аккаунт', deleteAccountWarning: 'ВНИМАНИЕ: Это действие необратимо!',
+        official: '⭐ Official', deleteAccount: 'Удалить аккаунт', deleteAccountWarning: 'ВНИМАНИЕ: Это действие необратимо!',
         deleteAccountConfirm: 'Вы абсолютно уверены? Это удалит ваш аккаунт и все данные навсегда.',
         deleteAccountSuccess: 'Аккаунт успешно удален', changeUsername: 'Изменить имя пользователя',
         changeDisplayName: 'Изменить отображаемое имя', newUsername: 'Новое имя пользователя', newDisplayName: 'Новое отображаемое имя',
@@ -111,7 +114,10 @@ const translations = {
         matureContent: 'Контент для взрослых', matureContentDesc: 'Показывать контент для взрослых в ленте и результатах поиска.',
         blurMature: 'Размытие (18+)', blurMatureDesc: 'Размывать изображения и медиа, которые могут быть чувствительными.',
         experience: 'Опыт', defaultFeedView: 'Вид ленты по умолчанию', cardMode: 'Карточки', compactMode: 'Компактный',
-        showMatureContent: 'Показывать контент для взрослых', blurMatureMedia: 'Размывать медиа для взрослых'
+        showMatureContent: 'Показывать контент для взрослых', blurMatureMedia: 'Размывать медиа для взрослых',
+        displayNameChangeHint: 'Вы можете изменить отображаемое имя только раз в 14 дней.',
+        usernameChangeHint: 'Вы можете изменить имя пользователя только раз в 90 дней.',
+        dangerZone: 'Опасная зона'
     },
     es: {
         appName: 'FreedomNet', signIn: 'Iniciar sesión', signUp: 'Registrarse',
@@ -150,7 +156,7 @@ const translations = {
         allFieldsRequired: 'Todos los campos son obligatorios', passwordTooShort: 'La contraseña debe tener al menos 6 caracteres',
         noSavedPosts: 'No hay publicaciones guardadas', savePostHint: 'Haga clic en el icono de marcador en cualquier publicación para guardarla aquí',
         adminPanel: 'Panel de administración', addOfficialTitle: 'Agregar título Oficial', removeOfficialTitle: 'Eliminar título Oficial',
-        official: 'Oficial', deleteAccount: 'Eliminar cuenta', deleteAccountWarning: '¡ADVERTENCIA! ¡Esta acción es permanente!',
+        official: '⭐ Oficial', deleteAccount: 'Eliminar cuenta', deleteAccountWarning: '¡ADVERTENCIA! ¡Esta acción es permanente!',
         deleteAccountConfirm: '¿Estás absolutamente seguro? Esto eliminará tu cuenta y todos tus datos para siempre.',
         deleteAccountSuccess: 'Cuenta eliminada exitosamente', changeUsername: 'Cambiar nombre de usuario',
         changeDisplayName: 'Cambiar nombre mostrado', newUsername: 'Nuevo nombre de usuario', newDisplayName: 'Nuevo nombre mostrado',
@@ -159,7 +165,10 @@ const translations = {
         matureContent: 'Contenido maduro', matureContentDesc: 'Ver contenido para adultos en tus feeds y resultados de búsqueda.',
         blurMature: 'Desenfocar maduro (18+)', blurMatureDesc: 'Desenfocar imágenes y medios que pueden ser sensibles.',
         experience: 'Experiencia', defaultFeedView: 'Vista de feed predeterminada', cardMode: 'Modo tarjeta', compactMode: 'Modo compacto',
-        showMatureContent: 'Mostrar contenido maduro', blurMatureMedia: 'Desenfocar medios maduros'
+        showMatureContent: 'Mostrar contenido maduro', blurMatureMedia: 'Desenfocar medios maduros',
+        displayNameChangeHint: 'Puedes cambiar el nombre mostrado solo una vez cada 14 días.',
+        usernameChangeHint: 'Puedes cambiar el nombre de usuario solo una vez cada 90 días.',
+        dangerZone: 'Zona de peligro'
     },
     fr: {
         appName: 'FreedomNet', signIn: 'Se connecter', signUp: "S'inscrire",
@@ -198,7 +207,7 @@ const translations = {
         allFieldsRequired: 'Tous les champs requis', passwordTooShort: '6 caractères minimum',
         noSavedPosts: 'Aucune publication sauvegardée', savePostHint: 'Cliquez sur l\'icône de signet sur n\'importe quelle publication pour la sauvegarder ici',
         adminPanel: 'Panneau d\'administration', addOfficialTitle: 'Ajouter le titre Officiel', removeOfficialTitle: 'Supprimer le titre Officiel',
-        official: 'Officiel', deleteAccount: 'Supprimer le compte', deleteAccountWarning: 'ATTENTION : Cette action est permanente !',
+        official: '⭐ Officiel', deleteAccount: 'Supprimer le compte', deleteAccountWarning: 'ATTENTION : Cette action est permanente !',
         deleteAccountConfirm: 'Êtes-vous absolument sûr ? Cela supprimera votre compte et toutes vos données pour toujours.',
         deleteAccountSuccess: 'Compte supprimé avec succès', changeUsername: 'Changer le nom d\'utilisateur',
         changeDisplayName: 'Changer le nom affiché', newUsername: 'Nouveau nom d\'utilisateur', newDisplayName: 'Nouveau nom affiché',
@@ -207,7 +216,10 @@ const translations = {
         matureContent: 'Contenu mature', matureContentDesc: 'Voir le contenu pour adultes dans vos flux et résultats de recherche.',
         blurMature: 'Flouter mature (18+)', blurMatureDesc: 'Flouter les images et médias qui peuvent être sensibles.',
         experience: 'Expérience', defaultFeedView: 'Vue de flux par défaut', cardMode: 'Mode carte', compactMode: 'Mode compact',
-        showMatureContent: 'Afficher le contenu mature', blurMatureMedia: 'Flouter les médias matures'
+        showMatureContent: 'Afficher le contenu mature', blurMatureMedia: 'Flouter les médias matures',
+        displayNameChangeHint: 'Vous ne pouvez changer le nom affiché qu\'une fois tous les 14 jours.',
+        usernameChangeHint: 'Vous ne pouvez changer le nom d\'utilisateur qu\'une fois tous les 90 jours.',
+        dangerZone: 'Zone de danger'
     },
     de: {
         appName: 'FreedomNet', signIn: 'Anmelden', signUp: 'Registrieren',
@@ -246,7 +258,7 @@ const translations = {
         allFieldsRequired: 'Alle Felder erforderlich', passwordTooShort: 'Passwort zu kurz',
         noSavedPosts: 'Keine gespeicherten Beiträge', savePostHint: 'Klicken Sie auf das Lesezeichen-Symbol auf einem beliebigen Beitrag, um ihn hier zu speichern',
         adminPanel: 'Admin-Panel', addOfficialTitle: 'Offiziellen Titel hinzufügen', removeOfficialTitle: 'Offiziellen Titel entfernen',
-        official: 'Offiziell', deleteAccount: 'Konto löschen', deleteAccountWarning: 'WARNUNG: Diese Aktion ist dauerhaft!',
+        official: '⭐ Offiziell', deleteAccount: 'Konto löschen', deleteAccountWarning: 'WARNUNG: Diese Aktion ist dauerhaft!',
         deleteAccountConfirm: 'Sind Sie absolut sicher? Dies wird Ihr Konto und alle Ihre Daten für immer löschen.',
         deleteAccountSuccess: 'Konto erfolgreich gelöscht', changeUsername: 'Benutzername ändern',
         changeDisplayName: 'Anzeigenamen ändern', newUsername: 'Neuer Benutzername', newDisplayName: 'Neuer Anzeigename',
@@ -255,7 +267,10 @@ const translations = {
         matureContent: 'Erwachseneninhalte', matureContentDesc: 'Erwachseneninhalte in Ihren Feeds und Suchergebnissen anzeigen.',
         blurMature: 'Unschärfe (18+)', blurMatureDesc: 'Bilder und Medien, die möglicherweise sensibel sind, unschärfen.',
         experience: 'Erfahrung', defaultFeedView: 'Standard-Feed-Ansicht', cardMode: 'Kartenmodus', compactMode: 'Kompaktmodus',
-        showMatureContent: 'Erwachseneninhalte anzeigen', blurMatureMedia: 'Erwachsenenmedien unschärfen'
+        showMatureContent: 'Erwachseneninhalte anzeigen', blurMatureMedia: 'Erwachsenenmedien unschärfen',
+        displayNameChangeHint: 'Sie können den Anzeigenamen nur einmal alle 14 Tage ändern.',
+        usernameChangeHint: 'Sie können den Benutzernamen nur einmal alle 90 Tage ändern.',
+        dangerZone: 'Gefahrenzone'
     },
     it: {
         appName: 'FreedomNet', signIn: 'Accedi', signUp: 'Registrati',
@@ -294,7 +309,7 @@ const translations = {
         allFieldsRequired: 'Tutti i campi sono obbligatori', passwordTooShort: 'La password deve essere di almeno 6 caratteri',
         noSavedPosts: 'Nessun post salvato', savePostHint: 'Clicca sull\'icona del segnalibro su qualsiasi post per salvarlo qui',
         adminPanel: 'Pannello di controllo', addOfficialTitle: 'Aggiungi titolo Ufficiale', removeOfficialTitle: 'Rimuovi titolo Ufficiale',
-        official: 'Ufficiale', deleteAccount: 'Elimina account', deleteAccountWarning: 'ATTENZIONE: Questa azione è permanente!',
+        official: '⭐ Ufficiale', deleteAccount: 'Elimina account', deleteAccountWarning: 'ATTENZIONE: Questa azione è permanente!',
         deleteAccountConfirm: 'Sei assolutamente sicuro? Questo eliminerà il tuo account e tutti i tuoi dati per sempre.',
         deleteAccountSuccess: 'Account eliminato con successo', changeUsername: 'Cambia username',
         changeDisplayName: 'Cambia nome visualizzato', newUsername: 'Nuovo username', newDisplayName: 'Nuovo nome visualizzato',
@@ -303,7 +318,10 @@ const translations = {
         matureContent: 'Contenuti maturi', matureContentDesc: 'Mostra contenuti per adulti nei feed e nei risultati di ricerca.',
         blurMature: 'Sfoca maturi (18+)', blurMatureDesc: 'Sfoca immagini e media che potrebbero essere sensibili.',
         experience: 'Esperienza', defaultFeedView: 'Vista feed predefinita', cardMode: 'Modalità scheda', compactMode: 'Modalità compatta',
-        showMatureContent: 'Mostra contenuti maturi', blurMatureMedia: 'Sfoca media maturi'
+        showMatureContent: 'Mostra contenuti maturi', blurMatureMedia: 'Sfoca media maturi',
+        displayNameChangeHint: 'Puoi cambiare il nome visualizzato solo una volta ogni 14 giorni.',
+        usernameChangeHint: 'Puoi cambiare il nome utente solo una volta ogni 90 giorni.',
+        dangerZone: 'Zona pericolo'
     },
     pt: {
         appName: 'FreedomNet', signIn: 'Entrar', signUp: 'Cadastrar',
@@ -342,7 +360,7 @@ const translations = {
         allFieldsRequired: 'Todos os campos são obrigatórios', passwordTooShort: 'A senha deve ter pelo menos 6 caracteres',
         noSavedPosts: 'Nenhuma publicação salva', savePostHint: 'Clique no ícone de favorito em qualquer publicação para salvá-la aqui',
         adminPanel: 'Painel de administração', addOfficialTitle: 'Adicionar título Oficial', removeOfficialTitle: 'Remover título Oficial',
-        official: 'Oficial', deleteAccount: 'Excluir conta', deleteAccountWarning: 'ATENÇÃO: Esta ação é permanente!',
+        official: '⭐ Oficial', deleteAccount: 'Excluir conta', deleteAccountWarning: 'ATENÇÃO: Esta ação é permanente!',
         deleteAccountConfirm: 'Você tem certeza absoluta? Isso excluirá sua conta e todos os seus dados para sempre.',
         deleteAccountSuccess: 'Conta excluída com sucesso', changeUsername: 'Alterar nome de usuário',
         changeDisplayName: 'Alterar nome de exibição', newUsername: 'Novo nome de usuário', newDisplayName: 'Novo nome de exibição',
@@ -351,7 +369,10 @@ const translations = {
         matureContent: 'Conteúdo adulto', matureContentDesc: 'Ver conteúdo adulto em seus feeds e resultados de pesquisa.',
         blurMature: 'Desfocar adulto (18+)', blurMatureDesc: 'Desfocar imagens e mídias que podem ser sensíveis.',
         experience: 'Experiência', defaultFeedView: 'Visualização de feed padrão', cardMode: 'Modo cartão', compactMode: 'Modo compacto',
-        showMatureContent: 'Mostrar conteúdo adulto', blurMatureMedia: 'Desfocar mídia adulta'
+        showMatureContent: 'Mostrar conteúdo adulto', blurMatureMedia: 'Desfocar mídia adulta',
+        displayNameChangeHint: 'Você pode alterar o nome de exibição apenas uma vez a cada 14 dias.',
+        usernameChangeHint: 'Você pode alterar o nome de usuário apenas uma vez a cada 90 dias.',
+        dangerZone: 'Zona de perigo'
     },
     tr: {
         appName: 'FreedomNet', signIn: 'Giriş yap', signUp: 'Kaydol',
@@ -390,7 +411,7 @@ const translations = {
         allFieldsRequired: 'Tüm alanlar zorunlu', passwordTooShort: 'Şifre en az 6 karakter olmalıdır',
         noSavedPosts: 'Kaydedilmiş paylaşım yok', savePostHint: 'Herhangi bir paylaşımdaki yer imi simgesine tıklayarak buraya kaydedin',
         adminPanel: 'Yönetici paneli', addOfficialTitle: 'Resmi unvan ekle', removeOfficialTitle: 'Resmi unvanı kaldır',
-        official: 'Resmi', deleteAccount: 'Hesabı sil', deleteAccountWarning: 'UYARI: Bu işlem kalıcıdır!',
+        official: '⭐ Resmi', deleteAccount: 'Hesabı sil', deleteAccountWarning: 'UYARI: Bu işlem kalıcıdır!',
         deleteAccountConfirm: 'Kesinlikle emin misiniz? Bu, hesabınızı ve tüm verilerinizi sonsuza kadar silecektir.',
         deleteAccountSuccess: 'Hesap başarıyla silindi', changeUsername: 'Kullanıcı adını değiştir',
         changeDisplayName: 'Görünen adı değiştir', newUsername: 'Yeni kullanıcı adı', newDisplayName: 'Yeni görünen ad',
@@ -399,7 +420,10 @@ const translations = {
         matureContent: 'Yetişkin içeriği', matureContentDesc: 'Akışlarınızda ve arama sonuçlarında yetişkin içeriğini gösterin.',
         blurMature: 'Bulanıklaştır (18+)', blurMatureDesc: 'Hassas olabilecek görselleri ve medyayı bulanıklaştırın.',
         experience: 'Deneyim', defaultFeedView: 'Varsayılan akış görünümü', cardMode: 'Kart modu', compactMode: 'Kompakt mod',
-        showMatureContent: 'Yetişkin içeriğini göster', blurMatureMedia: 'Yetişkin medyasını bulanıklaştır'
+        showMatureContent: 'Yetişkin içeriğini göster', blurMatureMedia: 'Yetişkin medyasını bulanıklaştır',
+        displayNameChangeHint: 'Görünen adı yalnızca 14 günde bir değiştirebilirsiniz.',
+        usernameChangeHint: 'Kullanıcı adını yalnızca 90 günde bir değiştirebilirsiniz.',
+        dangerZone: 'Tehlikeli Bölge'
     },
     ar: {
         appName: 'فريدوم نت', signIn: 'تسجيل الدخول', signUp: 'اشتراك',
@@ -438,7 +462,7 @@ const translations = {
         allFieldsRequired: 'جميع الحقول مطلوبة', passwordTooShort: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
         noSavedPosts: 'لا توجد منشورات محفوظة', savePostHint: 'انقر على أيقونة الإشارة المرجعية على أي منشور لحفظه هنا',
         adminPanel: 'لوحة التحكم', addOfficialTitle: 'إضافة لقب رسمي', removeOfficialTitle: 'إزالة اللقب الرسمي',
-        official: 'رسمي', deleteAccount: 'حذف الحساب', deleteAccountWarning: 'تحذير: هذا الإجراء دائم!',
+        official: '⭐ رسمي', deleteAccount: 'حذف الحساب', deleteAccountWarning: 'تحذير: هذا الإجراء دائم!',
         deleteAccountConfirm: 'هل أنت متأكد تماما؟ سيؤدي هذا إلى حذف حسابك وجميع بياناتك إلى الأبد.',
         deleteAccountSuccess: 'تم حذف الحساب بنجاح', changeUsername: 'تغيير اسم المستخدم',
         changeDisplayName: 'تغيير الاسم المعروض', newUsername: 'اسم المستخدم الجديد', newDisplayName: 'الاسم المعروض الجديد',
@@ -447,7 +471,10 @@ const translations = {
         matureContent: 'محتوى للبالغين', matureContentDesc: 'عرض محتوى للبالغين في خلاصاتك ونتائج البحث.',
         blurMature: 'طمس (18+)', blurMatureDesc: 'طمس الصور والوسائط التي قد تكون حساسة.',
         experience: 'تجربة', defaultFeedView: 'عرض الخلاصة الافتراضي', cardMode: 'وضع البطاقة', compactMode: 'وضع مضغوط',
-        showMatureContent: 'إظهار محتوى للبالغين', blurMatureMedia: 'طمس وسائط للبالغين'
+        showMatureContent: 'إظهار محتوى للبالغين', blurMatureMedia: 'طمس وسائط للبالغين',
+        displayNameChangeHint: 'يمكنك تغيير الاسم المعروض مرة واحدة فقط كل 14 يومًا.',
+        usernameChangeHint: 'يمكنك تغيير اسم المستخدم مرة واحدة فقط كل 90 يومًا.',
+        dangerZone: 'منطقة الخطر'
     },
     hi: {
         appName: 'फ्रीडमनेट', signIn: 'साइन इन करें', signUp: 'साइन अप करें',
@@ -486,7 +513,7 @@ const translations = {
         allFieldsRequired: 'सभी फ़ील्ड आवश्यक हैं', passwordTooShort: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
         noSavedPosts: 'कोई सहेजी गई पोस्ट नहीं', savePostHint: 'किसी भी पोस्ट पर बुकमार्क आइकन पर क्लिक करके इसे यहां सहेजें',
         adminPanel: 'व्यवस्थापक पैनल', addOfficialTitle: 'आधिकारिक शीर्षक जोड़ें', removeOfficialTitle: 'आधिकारिक शीर्षक हटाएं',
-        official: 'आधिकारिक', deleteAccount: 'खाता हटाएं', deleteAccountWarning: 'चेतावनी: यह क्रिया स्थायी है!',
+        official: '⭐ आधिकारिक', deleteAccount: 'खाता हटाएं', deleteAccountWarning: 'चेतावनी: यह क्रिया स्थायी है!',
         deleteAccountConfirm: 'क्या आप पूरी तरह सुनिश्चित हैं? यह आपका खाता और आपका सारा डेटा हमेशा के लिए हटा देगा।',
         deleteAccountSuccess: 'खाता सफलतापूर्वक हटा दिया गया', changeUsername: 'उपयोगकर्ता नाम बदलें',
         changeDisplayName: 'प्रदर्शित नाम बदलें', newUsername: 'नया उपयोगकर्ता नाम', newDisplayName: 'नया प्रदर्शित नाम',
@@ -495,7 +522,10 @@ const translations = {
         matureContent: 'वयस्क सामग्री', matureContentDesc: 'अपने फ़ीड और खोज परिणामों में वयस्क सामग्री देखें।',
         blurMature: 'धुंधला करें (18+)', blurMatureDesc: 'संवेदनशील हो सकने वाली छवियों और मीडिया को धुंधला करें।',
         experience: 'अनुभव', defaultFeedView: 'डिफ़ॉल्ट फ़ीड दृश्य', cardMode: 'कार्ड मोड', compactMode: 'कॉम्पैक्ट मोड',
-        showMatureContent: 'वयस्क सामग्री दिखाएं', blurMatureMedia: 'वयस्क मीडिया धुंधला करें'
+        showMatureContent: 'वयस्क सामग्री दिखाएं', blurMatureMedia: 'वयस्क मीडिया धुंधला करें',
+        displayNameChangeHint: 'आप प्रदर्शित नाम को हर 14 दिनों में केवल एक बार बदल सकते हैं।',
+        usernameChangeHint: 'आप उपयोगकर्ता नाम को हर 90 दिनों में केवल एक बार बदल सकते हैं।',
+        dangerZone: 'खतरा क्षेत्र'
     },
     zh: {
         appName: '自由网', signIn: '登录', signUp: '注册',
@@ -534,7 +564,7 @@ const translations = {
         allFieldsRequired: '所有字段都是必填的', passwordTooShort: '密码至少需要6个字符',
         noSavedPosts: '暂无保存的帖子', savePostHint: '点击任何帖子上的书签图标即可在此处保存',
         adminPanel: '管理面板', addOfficialTitle: '添加官方称号', removeOfficialTitle: '移除官方称号',
-        official: '官方', deleteAccount: '删除账户', deleteAccountWarning: '警告：此操作不可逆！',
+        official: '⭐ 官方', deleteAccount: '删除账户', deleteAccountWarning: '警告：此操作不可逆！',
         deleteAccountConfirm: '您确定吗？这将永久删除您的账户和所有数据。',
         deleteAccountSuccess: '账户已成功删除', changeUsername: '更改用户名',
         changeDisplayName: '更改显示名称', newUsername: '新用户名', newDisplayName: '新显示名称',
@@ -543,7 +573,10 @@ const translations = {
         matureContent: '成人内容', matureContentDesc: '在信息流和搜索结果中显示成人内容。',
         blurMature: '模糊处理（18+）', blurMatureDesc: '对可能敏感的图片和媒体进行模糊处理。',
         experience: '体验', defaultFeedView: '默认信息流视图', cardMode: '卡片模式', compactMode: '紧凑模式',
-        showMatureContent: '显示成人内容', blurMatureMedia: '模糊成人媒体'
+        showMatureContent: '显示成人内容', blurMatureMedia: '模糊成人媒体',
+        displayNameChangeHint: '您每14天只能更改一次显示名称。',
+        usernameChangeHint: '您每90天只能更改一次用户名。',
+        dangerZone: '危险区域'
     },
     ja: {
         appName: 'フリーダムネット', signIn: 'サインイン', signUp: 'サインアップ',
@@ -582,7 +615,7 @@ const translations = {
         allFieldsRequired: 'すべてのフィールドは必須です', passwordTooShort: 'パスワードは6文字以上必要です',
         noSavedPosts: '保存された投稿はありません', savePostHint: '任意の投稿のブックマークアイコンをクリックして、ここに保存します',
         adminPanel: '管理パネル', addOfficialTitle: '公式タイトルを追加', removeOfficialTitle: '公式タイトルを削除',
-        official: '公式', deleteAccount: 'アカウントを削除', deleteAccountWarning: '警告：この操作は元に戻せません！',
+        official: '⭐ 公式', deleteAccount: 'アカウントを削除', deleteAccountWarning: '警告：この操作は元に戻せません！',
         deleteAccountConfirm: '本当によろしいですか？これにより、アカウントとすべてのデータが永久に削除されます。',
         deleteAccountSuccess: 'アカウントが正常に削除されました', changeUsername: 'ユーザー名を変更',
         changeDisplayName: '表示名を変更', newUsername: '新しいユーザー名', newDisplayName: '新しい表示名',
@@ -591,7 +624,10 @@ const translations = {
         matureContent: 'アダルトコンテンツ', matureContentDesc: 'フィードと検索結果にアダルトコンテンツを表示します。',
         blurMature: 'ぼかし（18+）', blurMatureDesc: 'センシティブな可能性のある画像やメディアをぼかします。',
         experience: 'エクスペリエンス', defaultFeedView: 'デフォルトフィードビュー', cardMode: 'カードモード', compactMode: 'コンパクトモード',
-        showMatureContent: 'アダルトコンテンツを表示', blurMatureMedia: 'アダルトメディアをぼかす'
+        showMatureContent: 'アダルトコンテンツを表示', blurMatureMedia: 'アダルトメディアをぼかす',
+        displayNameChangeHint: '表示名は14日に1回のみ変更できます。',
+        usernameChangeHint: 'ユーザー名は90日に1回のみ変更できます。',
+        dangerZone: '危険ゾーン'
     },
     ko: {
         appName: '프리덤넷', signIn: '로그인', signUp: '회원가입',
@@ -630,7 +666,7 @@ const translations = {
         allFieldsRequired: '모든 필드는 필수입니다', passwordTooShort: '비밀번호는 최소 6자 이상이어야 합니다',
         noSavedPosts: '저장된 게시물이 없습니다', savePostHint: '게시물의 북마크 아이콘을 클릭하여 여기에 저장하세요',
         adminPanel: '관리자 패널', addOfficialTitle: '공식 타이틀 추가', removeOfficialTitle: '공식 타이틀 제거',
-        official: '공식', deleteAccount: '계정 삭제', deleteAccountWarning: '경고: 이 작업은 영구적입니다!',
+        official: '⭐ 공식', deleteAccount: '계정 삭제', deleteAccountWarning: '경고: 이 작업은 영구적입니다!',
         deleteAccountConfirm: '정말 확실하신가요? 이렇게 하면 계정과 모든 데이터가 영구적으로 삭제됩니다.',
         deleteAccountSuccess: '계정이 성공적으로 삭제되었습니다', changeUsername: '사용자명 변경',
         changeDisplayName: '표시 이름 변경', newUsername: '새 사용자명', newDisplayName: '새 표시 이름',
@@ -639,7 +675,10 @@ const translations = {
         matureContent: '성인 콘텐츠', matureContentDesc: '피드 및 검색 결과에 성인 콘텐츠를 표시합니다.',
         blurMature: '흐림 처리 (18+)', blurMatureDesc: '민감할 수 있는 이미지 및 미디어를 흐리게 처리합니다.',
         experience: '경험', defaultFeedView: '기본 피드 보기', cardMode: '카드 모드', compactMode: '콤팩트 모드',
-        showMatureContent: '성인 콘텐츠 표시', blurMatureMedia: '성인 미디어 흐림 처리'
+        showMatureContent: '성인 콘텐츠 표시', blurMatureMedia: '성인 미디어 흐림 처리',
+        displayNameChangeHint: '표시 이름은 14일에 한 번만 변경할 수 있습니다.',
+        usernameChangeHint: '사용자명은 90일에 한 번만 변경할 수 있습니다.',
+        dangerZone: '위험 지역'
     },
     el: {
         appName: 'FreedomNet', signIn: 'Σύνδεση', signUp: 'Εγγραφή',
@@ -678,7 +717,7 @@ const translations = {
         allFieldsRequired: 'Όλα τα πεδία είναι υποχρεωτικά', passwordTooShort: 'Ο κωδικός είναι πολύ μικρός',
         noSavedPosts: 'Δεν υπάρχουν αποθηκευμένες δημοσιεύσεις', savePostHint: 'Πατήστε το εικονίδιο σελιδοδείκτη σε οποιαδήποτε δημοσίευση για αποθήκευση',
         adminPanel: 'Πίνακας διαχειριστή', addOfficialTitle: 'Προσθήκη επίσημου τίτλου', removeOfficialTitle: 'Κατάργηση επίσημου τίτλου',
-        official: 'Επίσημο', deleteAccount: 'Διαγραφή λογαριασμού', deleteAccountWarning: 'ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Αυτή η ενέργεια είναι μόνιμη!',
+        official: '⭐ Επίσημο', deleteAccount: 'Διαγραφή λογαριασμού', deleteAccountWarning: 'ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Αυτή η ενέργεια είναι μόνιμη!',
         deleteAccountConfirm: 'Είστε απολύτως σίγουροι; Αυτό θα διαγράψει το λογαριασμό σας και όλα τα δεδομένα σας για πάντα.',
         deleteAccountSuccess: 'Ο λογαριασμός διαγράφηκε επιτυχώς', changeUsername: 'Αλλαγή ονόματος χρήστη',
         changeDisplayName: 'Αλλαγή εμφανιζόμενου ονόματος', newUsername: 'Νέο όνομα χρήστη', newDisplayName: 'Νέο εμφανιζόμενο όνομα',
@@ -687,7 +726,10 @@ const translations = {
         matureContent: 'Περιεχόμενο ενηλίκων', matureContentDesc: 'Δείτε περιεχόμενο για ενήλικες στις ροές και τα αποτελέσματα αναζήτησής σας.',
         blurMature: 'Θόλωμα (18+)', blurMatureDesc: 'Θολώστε εικόνες και μέσα που μπορεί να είναι ευαίσθητα.',
         experience: 'Εμπειρία', defaultFeedView: 'Προεπιλεγμένη προβολή ροής', cardMode: 'Λειτουργία καρτέλας', compactMode: 'Συμπαγής λειτουργία',
-        showMatureContent: 'Εμφάνιση περιεχομένου ενηλίκων', blurMatureMedia: 'Θόλωμα μέσων ενηλίκων'
+        showMatureContent: 'Εμφάνιση περιεχομένου ενηλίκων', blurMatureMedia: 'Θόλωμα μέσων ενηλίκων',
+        displayNameChangeHint: 'Μπορείτε να αλλάξετε το εμφανιζόμενο όνομα μία φορά κάθε 14 ημέρες.',
+        usernameChangeHint: 'Μπορείτε να αλλάξετε το όνομα χρήστη μία φορά κάθε 90 ημέρες.',
+        dangerZone: 'Επικίνδυνη Ζώνη'
     }
 };
 
@@ -709,7 +751,7 @@ const monthNames = {
     hi: ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'],
     zh: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
     ja: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-    ko: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    ko: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12月'],
     el: ['Ιανουαρίου', 'Φεβρουαρίου', 'Μαρτίου', 'Απριλίου', 'Μαΐου', 'Ιουνίου', 'Ιουλίου', 'Αυγούστου', 'Σεπτεμβρίου', 'Οκτωβρίου', 'Νοεμβρίου', 'Δεκεμβρίου']
 };
 
@@ -772,7 +814,7 @@ function displaySavedPosts() {
         const isLiked = userLikedPosts.has(post.id);
         const isReposted = userRepostedPosts.has(post.id);
         const isSaved = userSavedPosts.has(post.id);
-        const isOfficial = officialUsers.has(post.userId);
+        const isOfficial = officialUsers.has(post.userId) || post.user?.username === ADMIN_USERNAME;
         return `
         <div class="post-card ${feedViewMode === 'compact' ? 'compact-mode' : ''}" data-post-id="${post.id}">
             <div class="avatar-container">
@@ -980,37 +1022,6 @@ function openModal(title, content, onConfirm) {
     };
 }
 
-function openInputModal(title, placeholder, buttonText, onSubmit) {
-    const modal = document.createElement('div');
-    modal.className = 'modal active';
-    modal.style.display = 'flex';
-    modal.innerHTML = `
-        <div class="modal-card" style="max-width: 450px;">
-            <h3>${title}</h3>
-            <input type="text" id="modalInput" class="settings-input" placeholder="${placeholder}" style="width: 100%; margin: 20px 0;">
-            <div class="modal-buttons">
-                <button id="modalCancelBtn" class="btn-outline">${translations[currentLanguage].cancel}</button>
-                <button id="modalConfirmBtn" class="btn-blue">${buttonText}</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-    
-    modal.querySelector('#modalCancelBtn').onclick = () => {
-        document.body.removeChild(modal);
-    };
-    
-    modal.querySelector('#modalConfirmBtn').onclick = () => {
-        const value = modal.querySelector('#modalInput').value;
-        if (value) {
-            onSubmit(value);
-            document.body.removeChild(modal);
-        } else {
-            showCustomAlert(translations[currentLanguage].pleaseFillAllFields);
-        }
-    };
-}
-
 function openPasswordModal(title, onSubmit) {
     const modal = document.createElement('div');
     modal.className = 'modal active';
@@ -1075,6 +1086,9 @@ async function loadOfficialUsers() {
         const res = await fetch(`${API_URL}/api/official/users`);
         const data = await res.json();
         officialUsers = new Set(data);
+        if (currentUser && currentUser.username === ADMIN_USERNAME) {
+            officialUsers.add(currentUser.id);
+        }
     } catch (error) {}
 }
 
@@ -1362,7 +1376,7 @@ async function loadPosts() {
         const isLiked = userLikedPosts.has(post.id);
         const isReposted = userRepostedPosts.has(post.id);
         const isSaved = userSavedPosts.has(post.id);
-        const isOfficial = officialUsers.has(post.userId);
+        const isOfficial = officialUsers.has(post.userId) || post.user?.username === ADMIN_USERNAME;
         const isAdmin = currentUser?.username === ADMIN_USERNAME;
         const canDeletePost = isAdmin || post.userId === currentUser?.id;
         const imageBlurClass = (blurMatureEnabled && post.isMature) ? 'blur-mature' : '';
@@ -1436,6 +1450,7 @@ async function loadPosts() {
                         ${post.comments.slice(0, 2).map(c => {
                             const commentAvatar = `https://ui-avatars.com/api/?name=${(c.displayName || c.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=32&rounded=true`;
                             const canDeleteComment = isAdmin || c.userId === currentUser?.id;
+                            const isCommentOfficial = officialUsers.has(c.userId) || c.username === ADMIN_USERNAME;
                             return `
                             <div class="comment-item">
                                 <img class="comment-avatar-img" src="${commentAvatar}" onerror="this.src='https://ui-avatars.com/api/?name=${c.username?.slice(0,2)}&background=1d9bf0&color=fff'">
@@ -1443,7 +1458,7 @@ async function loadPosts() {
                                     <div class="comment-header">
                                         <div class="comment-name-container">
                                             <span class="comment-name">${escapeHtml(c.displayName || c.username)}</span>
-                                            ${officialUsers.has(c.userId) ? `<span class="official-badge small">${t.official}</span>` : ''}
+                                            ${isCommentOfficial ? `<span class="official-badge small">${t.official}</span>` : ''}
                                         </div>
                                         <span class="comment-username">@${escapeHtml(c.username)}</span>
                                         <span class="comment-time">${formatTime(c.createdAt)}</span>
@@ -1492,7 +1507,7 @@ window.showMiniProfile = function(userId) {
     const avatarUrl = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
     const joinDateFormatted = formatJoinDate(user.joinDate);
     const t = translations[currentLanguage];
-    const isOfficial = officialUsers.has(user.id);
+    const isOfficial = officialUsers.has(user.id) || user.username === ADMIN_USERNAME;
     const isAdmin = currentUser?.username === ADMIN_USERNAME;
     
     const modal = document.createElement('div');
@@ -1711,7 +1726,7 @@ async function loadUserPosts() {
         }
         container.innerHTML = userPosts.map(post => {
             const postAvatar = currentUser.avatar || `https://ui-avatars.com/api/?name=${(currentUser.displayName || currentUser.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
-            const isOfficial = officialUsers.has(currentUser.id);
+            const isOfficial = officialUsers.has(currentUser.id) || currentUser.username === ADMIN_USERNAME;
             const imageBlurClass = (blurMatureEnabled && post.isMature) ? 'blur-mature' : '';
             return `
             <div class="post-card ${feedViewMode === 'compact' ? 'compact-mode' : ''}">
@@ -2008,7 +2023,7 @@ document.getElementById('userSearchInput')?.addEventListener('input', (e) => {
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = filteredUsers.map(user => {
                 const userAvatar = user.avatar || `https://ui-avatars.com/api/?name=${(user.displayName || user.username).slice(0,2)}&background=1d9bf0&color=fff&bold=true&size=128&rounded=true`;
-                const isOfficial = officialUsers.has(user.id);
+                const isOfficial = officialUsers.has(user.id) || user.username === ADMIN_USERNAME;
                 return `
                     <div class="user-search-item" onclick="startConversation('${user.id}')">
                         <div class="avatar-container small">
