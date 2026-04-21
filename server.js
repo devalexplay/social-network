@@ -519,3 +519,24 @@ app.get('*', function(req, res) {
 app.listen(PORT, function() {
   console.log('FreedomNet running on http://localhost:' + PORT);
 });
+
+app.post('/api/user/delete', async (req, res) => {
+    const { userId, password } = req.body;
+    const user = users.find(u => u.id === userId);
+    
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+        return res.status(401).json({ error: 'Invalid password' });
+    }
+    
+    const userIndex = users.findIndex(u => u.id === userId);
+    users.splice(userIndex, 1);
+    
+    posts = posts.filter(p => p.userId !== userId);
+    
+    res.json({ success: true });
+});
