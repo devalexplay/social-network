@@ -1332,6 +1332,57 @@ input:checked + .toggle-slider:before {
     transform: translateX(24px);
 }
 
+.blur-mature {
+    filter: blur(20px);
+    transition: filter 0.3s ease;
+    cursor: pointer;
+}
+
+.blur-mature:hover {
+    filter: blur(5px);
+}
+
+.feed-view-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.feed-view-btn {
+    flex: 1;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.feed-view-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.post-card.compact-mode {
+    padding: 12px 16px;
+}
+
+.post-card.compact-mode .post-avatar {
+    width: 32px;
+    height: 32px;
+}
+
+.post-card.compact-mode .post-text {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.post-card.compact-mode .post-actions {
+    gap: 16px;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -1611,6 +1662,183 @@ input:checked + .toggle-slider:before {
 
 .mini-profile-btn:hover {
     background: var(--accent-hover);
+}
+
+.mini-profile-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.mini-profile-name-row h3 {
+    margin: 0;
+}
+
+.mini-profile-admin-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 12px;
+}
+
+.mini-profile-admin-btn:hover {
+    background: var(--accent-hover);
+}
+
+.comment-name-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.post-name-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.official-badge {
+    background: linear-gradient(135deg, #1d9bf0, #0f7bc2);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.official-badge.small {
+    font-size: 8px;
+    padding: 1px 6px;
+}
+
+.admin-panel-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #1d9bf0, #0f7bc2);
+    border: none;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+.admin-panel-btn:hover {
+    transform: translateX(4px);
+    opacity: 0.9;
+}
+
+.admin-panel-card {
+    max-width: 500px;
+    width: 90%;
+}
+
+.admin-panel-search {
+    margin: 20px 0;
+}
+
+.admin-user-results {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 12px;
+}
+
+.admin-user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-user-item:hover {
+    background: var(--bg-hover);
+}
+
+.admin-user-info {
+    flex: 1;
+}
+
+.admin-user-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.admin-user-username {
+    color: var(--text-tertiary);
+    font-size: 12px;
+}
+
+.admin-action-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.admin-action-btn.add {
+    background: #22c55e;
+    color: white;
+}
+
+.admin-action-btn.add:hover {
+    background: #16a34a;
+}
+
+.admin-action-btn.remove {
+    background: #ef4444;
+    color: white;
+}
+
+.admin-action-btn.remove:hover {
+    background: #dc2626;
+}
+
+.admin-no-results {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-tertiary);
+}
+
+.delete-account-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid var(--error);
+    color: var(--error);
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+}
+
+.delete-account-btn:hover {
+    background: rgba(244, 33, 46, 0.1);
+    transform: scale(0.98);
 }
 
 @media (max-width: 768px) {
