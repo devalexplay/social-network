@@ -49,6 +49,7 @@ let nextUserId = 1;
 let userLikes = {};
 let userReposts = {};
 let userSaves = {};
+let officialUsers = [];
 
 app.post('/api/upload-avatar', upload.single('avatar'), function(req, res) {
   if (!req.file) {
@@ -195,6 +196,7 @@ app.post('/api/posts', function(req, res) {
   const userId = req.body.userId;
   const content = req.body.content;
   const imageUrl = req.body.imageUrl || null;
+  const isMature = req.body.isMature || false;
   const user = users.find(function(u) {
     return u.id === userId;
   });
@@ -208,6 +210,7 @@ app.post('/api/posts', function(req, res) {
     userId: userId,
     content: content,
     imageUrl: imageUrl,
+    isMature: isMature,
     likes: 0,
     reposts: 0,
     comments: [],
@@ -234,6 +237,7 @@ app.get('/api/posts', function(req, res) {
       userId: post.userId,
       content: post.content,
       imageUrl: post.imageUrl,
+      isMature: post.isMature,
       likes: post.likes,
       reposts: post.reposts,
       comments: post.comments,
@@ -406,7 +410,11 @@ app.get('/api/users', function(req, res) {
       id: u.id,
       username: u.username,
       displayName: u.displayName,
-      avatar: u.avatar
+      avatar: u.avatar,
+      bio: u.bio,
+      joinDate: u.joinDate,
+      followers: u.followers,
+      following: u.following
     };
   });
   res.json(allUsers);
@@ -487,9 +495,61 @@ app.post('/api/user/update', async function(req, res) {
   }
 });
 
+app.post('/api/user/delete', async (req, res) => {
+  const { userId, password } = req.body;
+  const user = users.find(u => u.id === userId);
+  
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  const isValid = await bcrypt.compare(password, user.password);
+  if (!isValid) {
+    return res.status(401).json({ error: 'Invalid password' });
+  }
+  
+  const userIndex = users.findIndex(u => u.id === userId);
+  users.splice(userIndex, 1);
+  
+  posts = posts.filter(p => p.userId !== userId);
+  
+  res.json({ success: true });
+});
+
 app.post('/api/user/liked', function(req, res) {
   var userId = req.body.userId;
   res.json({ liked: userLikes[userId] || [], reposted: userReposts[userId] || [], saved: userSaves[userId] || [] });
+});
+
+app.post('/api/official/add', (req, res) => {
+  const { userId, adminId } = req.body;
+  const admin = users.find(u => u.id === adminId);
+  if (admin && admin.username === 'devalexplay') {
+    if (!officialUsers.includes(userId)) {
+      officialUsers.push(userId);
+    }
+    res.json({ success: true });
+  } else {
+    res.status(403).json({ error: 'Unauthorized' });
+  }
+});
+
+app.post('/api/official/remove', (req, res) => {
+  const { userId, adminId } = req.body;
+  const admin = users.find(u => u.id === adminId);
+  if (admin && admin.username === 'devalexplay') {
+    const index = officialUsers.indexOf(userId);
+    if (index !== -1) {
+      officialUsers.splice(index, 1);
+    }
+    res.json({ success: true });
+  } else {
+    res.status(403).json({ error: 'Unauthorized' });
+  }
+});
+
+app.get('/api/official/users', (req, res) => {
+  res.json(officialUsers);
 });
 
 function authMiddleware(req, res, next) {
@@ -518,25 +578,4 @@ app.get('*', function(req, res) {
 
 app.listen(PORT, function() {
   console.log('FreedomNet running on http://localhost:' + PORT);
-});
-
-app.post('/api/user/delete', async (req, res) => {
-    const { userId, password } = req.body;
-    const user = users.find(u => u.id === userId);
-    
-    if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-    }
-    
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) {
-        return res.status(401).json({ error: 'Invalid password' });
-    }
-    
-    const userIndex = users.findIndex(u => u.id === userId);
-    users.splice(userIndex, 1);
-    
-    posts = posts.filter(p => p.userId !== userId);
-    
-    res.json({ success: true });
 });
