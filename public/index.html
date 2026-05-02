@@ -1,793 +1,702 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FreedomAI · Deep Expert Assistant</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%233b82f6'/%3E%3Cpath fill='white' d='M32 38h36v6H32zm0 12h36v6H32zm0 12h24v6H32z'/%3E%3C/svg%3E">
-    <style>
-        /* Reset & Base – DeepSeek Inspired Professional Dark Theme */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+/* FreedomAI - Professional Dark Theme
+   DeepSeek inspired · No emojis · Custom SVG icons only
+   Modern, sleek, enterprise-grade design system
+*/
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, 'Helvetica Neue', sans-serif;
-            background: #0b0e14;
-            color: #e8edf5;
-            height: 100vh;
-            overflow: hidden;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        /* Custom scroll like DeepSeek */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #141822;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2e3a4e;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4b6589;
-        }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Text', system-ui, sans-serif;
+    background: #0a0e17;
+    color: #eef2ff;
+    height: 100vh;
+    overflow: hidden;
+    font-weight: 400;
+    line-height: 1.5;
+}
 
-        .app {
-            display: flex;
-            height: 100%;
-            width: 100%;
-        }
+/* Custom scrollbar - minimalist */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
 
-        /* ========= SIDEBAR ========= */
-        .sidebar {
-            width: 280px;
-            background: #0f1219;
-            border-right: 1px solid #20232e;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 20px;
-            gap: 32px;
-            flex-shrink: 0;
-        }
+::-webkit-scrollbar-track {
+    background: #11161f;
+}
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #242936;
-        }
-        .logo-icon {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, #3b82f6, #1e40af);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 18px;
-            color: white;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-        }
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-        .logo-title {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-            color: #f0f4fa;
-        }
-        .logo-badge {
-            font-size: 10px;
-            color: #6b7c93;
-        }
+::-webkit-scrollbar-thumb {
+    background: #2e3a4f;
+    border-radius: 6px;
+}
 
-        .model-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .model-btn {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            background: transparent;
-            border: none;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
-            text-align: left;
-        }
-        .model-btn:hover {
-            background: #181e2a;
-        }
-        .model-btn.active {
-            background: #1a2538;
-            border: 1px solid #2d4b7c;
-        }
-        .model-icon-svg {
-            width: 36px;
-            height: 36px;
-            background: #131925;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .model-info {
-            flex: 1;
-        }
-        .model-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: #e2e8f0;
-        }
-        .model-desc {
-            font-size: 11px;
-            color: #6f7c91;
-        }
-        .model-tag {
-            font-size: 11px;
-            background: #1e293b;
-            padding: 2px 8px;
-            border-radius: 30px;
-            color: #7c8eb0;
-        }
-        .active .model-tag {
-            background: #1e3a5f;
-            color: #60a5fa;
-        }
+::-webkit-scrollbar-thumb:hover {
+    background: #4a6991;
+}
 
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 20px;
-            border-top: 1px solid #20232e;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: #7b8ba5;
-        }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            box-shadow: 0 0 4px #10b981;
-        }
-        .reset-chat {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: #131b26;
-            border: 1px solid #2a3448;
-            border-radius: 32px;
-            padding: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #cbd5e6;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .reset-chat:hover {
-            background: #1e2a3a;
-            border-color: #3b82f6;
-            color: white;
-        }
+/* App Layout */
+.app {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
 
-        /* ========= MAIN CHAT ========= */
-        .chat-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #0b0e14;
-            position: relative;
-        }
+/* ============================================
+   SIDEBAR - Clean, structured, professional
+   ============================================ */
+.sidebar {
+    width: 280px;
+    background: #0c111a;
+    border-right: 1px solid #1a212e;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width 0.2s ease;
+}
 
-        .chat-header {
-            padding: 18px 28px;
-            background: rgba(11, 14, 20, 0.9);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid #20232e;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header-model {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .header-model-icon {
-            width: 46px;
-            height: 46px;
-            background: #111722;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #2d3a4f;
-        }
-        .header-model h3 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        .header-model p {
-            font-size: 12px;
-            color: #7f8ea8;
-        }
-        .clear-btn {
-            background: #141c26;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 32px;
-            color: #b9c7dd;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+.sidebar-content {
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 32px;
+}
 
-        /* Messages */
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px 28px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+/* Logo Section */
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #1a212e;
+}
 
-        /* Message bubble */
-        .message-row {
-            display: flex;
-            gap: 14px;
-            max-width: 82%;
-            animation: fadeSlide 0.25s ease;
-        }
-        @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(8px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-        .message-row.user {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-        .avatar-icon {
-            width: 36px;
-            height: 36px;
-            background: #151e2c;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .user .avatar-icon {
-            background: #2266c9;
-        }
-        .bubble {
-            background: #161c26;
-            padding: 12px 18px;
-            border-radius: 20px;
-            border-top-left-radius: 5px;
-            line-height: 1.5;
-            font-size: 14px;
-            color: #eef3fc;
-        }
-        .user .bubble {
-            background: #1c3a5f;
-            border-top-right-radius: 5px;
-            border-top-left-radius: 20px;
-        }
-        .model-label {
-            font-size: 10px;
-            font-weight: 600;
-            color: #5f8bcb;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #3b82f6, #1e4a8a);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+    color: white;
+    box-shadow: 0 6px 14px rgba(59, 130, 246, 0.25);
+}
 
-        .thinking {
-            background: #11161f;
-            padding: 12px 18px;
-            border-radius: 20px;
-            border: 1px dashed #2d4a6e;
-            color: #95a9c9;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .dot-pulse {
-            display: flex;
-            gap: 4px;
-        }
-        .dot-pulse span {
-            width: 6px;
-            height: 6px;
-            background: #5d8fd1;
-            border-radius: 50%;
-            animation: pulse 1.2s infinite;
-        }
-        .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
-        .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes pulse {
-            0%, 60%, 100% { opacity: 0.3; transform: scale(0.8);}
-            30% { opacity: 1; transform: scale(1.2);}
-        }
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
 
-        /* Input */
-        .input-area {
-            padding: 20px 28px 28px;
-            background: linear-gradient(to top, #0b0e14, transparent);
-        }
-        .input-wrapper {
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            background: #111722;
-            border-radius: 32px;
-            padding: 6px 6px 6px 20px;
-            border: 1px solid #2a3448;
-            transition: 0.15s;
-        }
-        .input-wrapper:focus-within {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
-        }
-        .input-wrapper textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 12px 0;
-            color: #eef2ff;
-            font-size: 14px;
-            resize: none;
-            font-family: inherit;
-            outline: none;
-            max-height: 130px;
-        }
-        .send-icon {
-            background: #3b82f6;
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .hint {
-            font-size: 10px;
-            color: #4f5b73;
-            text-align: center;
-            margin-top: 10px;
-        }
+.logo-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: #f0f4fe;
+}
 
-        /* welcome */
-        .welcome-card {
-            text-align: center;
-            max-width: 480px;
-            margin: 60px auto;
-            background: #10141e;
-            border-radius: 32px;
-            padding: 40px 28px;
-            border: 1px solid #212734;
-        }
-        .welcome-icon-svg {
-            width: 56px;
-            height: 56px;
-            margin: 0 auto 20px;
-            background: #16202e;
-            border-radius: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+.logo-badge {
+    font-size: 10px;
+    color: #6b7d9e;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-        /* Icons (custom SVG, no emoji) */
-        .custom-svg {
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 1.7;
-        }
-        .icon-sm {
-            width: 18px;
-            height: 18px;
-        }
-        .icon-md {
-            width: 22px;
-            height: 22px;
-        }
+/* Section Label */
+.section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5c6d8f;
+    margin-bottom: 16px;
+}
 
-        @media (max-width: 680px) {
-            .sidebar {
-                width: 85px;
-                padding: 20px 12px;
-            }
-            .logo-text, .model-info, .model-tag, .status span:last-child, .reset-chat span {
-                display: none;
-            }
-            .model-btn {
-                justify-content: center;
-                padding: 10px;
-            }
-            .reset-chat {
-                padding: 10px;
-            }
-            .message-row {
-                max-width: 95%;
-            }
-            .messages {
-                padding: 16px;
-            }
-        }
-    </style>
-</head>
-<body>
-<div class="app">
-    <!-- Sidebar with 3 AI minds - no emojis, custom icons -->
-    <div class="sidebar">
-        <div class="logo-area">
-            <div class="logo-icon">FA</div>
-            <div class="logo-text">
-                <div class="logo-title">FreedomAI</div>
-                <div class="logo-badge">multimodal core</div>
-            </div>
-        </div>
+/* Model Cards */
+.model-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
-        <div class="model-selector">
-            <button class="model-btn active" data-model="instant">
-                <div class="model-icon-svg">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:#5f9eff">
-                        <path d="M13 3L4 14h7v7l9-11h-7z" />
-                        <path d="M6.5 8.5L9 6" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div class="model-info">
-                    <div class="model-name">Instant</div>
-                    <div class="model-desc">Lightning & direct</div>
-                </div>
-                <div class="model-tag">0.3s</div>
-            </button>
-            <button class="model-btn" data-model="expert">
-                <div class="model-icon-svg">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                        <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z" />
-                        <path d="M12 6v6l4 2" />
-                        <path d="M16 15.33a7 7 0 1 0-8 0" />
-                    </svg>
-                </div>
-                <div class="model-info">
-                    <div class="model-name">Deep Expert</div>
-                    <div class="model-desc">Analytic reasoning</div>
-                </div>
-                <div class="model-tag">alpha</div>
-            </button>
-            <button class="model-btn" data-model="vision">
-                <div class="model-icon-svg">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                        <rect x="2" y="4" width="20" height="16" rx="2" ry="2" />
-                        <circle cx="8.5" cy="10.5" r="2.5" />
-                        <path d="M21 15l-5-4-3 3-4-4-5 5" />
-                    </svg>
-                </div>
-                <div class="model-info">
-                    <div class="model-name">Visionary</div>
-                    <div class="model-desc">Creative / visual</div>
-                </div>
-                <div class="model-tag">beta</div>
-            </button>
-        </div>
+.model-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    width: 100%;
+    text-align: left;
+}
 
-        <div class="sidebar-footer">
-            <div class="status">
-                <div class="status-dot"></div>
-                <span>Active · ephemeral</span>
-            </div>
-            <button class="reset-chat" id="newChatBtn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                </svg>
-                <span>New session</span>
-            </button>
-        </div>
-    </div>
+.model-btn:hover {
+    background: #141c28;
+}
 
-    <!-- main chat interface -->
-    <div class="chat-main">
-        <div class="chat-header">
-            <div class="header-model">
-                <div class="header-model-icon" id="headerIcon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                        <path d="M13 3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 id="headerName">Instant</h3>
-                    <p id="headerDesc">fast, streamlined answers</p>
-                </div>
-            </div>
-            <button class="clear-btn" id="clearHistoryBtn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                </svg>
-                Clear
-            </button>
-        </div>
+.model-btn.active {
+    background: linear-gradient(135deg, #16212e, #111722);
+    border: 1px solid #2d4a7a;
+}
 
-        <div class="messages" id="messageList">
-            <div class="welcome-card">
-                <div class="welcome-icon-svg">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5f9eff" stroke-width="1.6">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                        <path d="M12 22V12" />
-                        <path d="M9 10.5l3-2 3 2" />
-                    </svg>
-                </div>
-                <h3 style="margin-bottom: 8px; font-weight: 500;">FreedomAI · Three Minds</h3>
-                <p style="color:#97a9c7; font-size: 14px;">Switch AI personalities. Instant, Expert, Vision — each with unique intelligence.</p>
-                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 24px;">
-                    <span style="background:#192133; padding:4px 12px; border-radius:50px; font-size:12px;">⚡ low latency</span>
-                    <span style="background:#192133; padding:4px 12px; border-radius:50px; font-size:12px;">🧠 deep context</span>
-                    <span style="background:#192133; padding:4px 12px; border-radius:50px; font-size:12px;">🎨 imagination</span>
-                </div>
-            </div>
-        </div>
+.model-icon {
+    width: 40px;
+    height: 40px;
+    background: #111822;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
 
-        <div class="input-area">
-            <div class="input-wrapper">
-                <textarea id="userInput" placeholder="Ask anything to FreedomAI..." rows="1"></textarea>
-                <button class="send-icon" id="sendMessageBtn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                </button>
-            </div>
-            <div class="hint">Enter to send · Shift+Enter for new line</div>
-        </div>
-    </div>
-</div>
+.model-btn.active .model-icon {
+    background: #1a2a40;
+    box-shadow: 0 0 0 1px #3b82f6;
+}
 
-<script>
-    // FreedomAI - professional AI simulation, no emojis, pure custom icons, three minds
-    let currentModel = "instant";
-    let isWaiting = false;
-    let messageHistory = []; // store for context but not needed for generation complexity (we keep for future)
-    const messagesContainer = document.getElementById("messageList");
+.model-info {
+    flex: 1;
+}
 
-    const modelsMeta = {
-        instant: {
-            name: "Instant",
-            desc: "fast, efficient responses",
-            icon: (color) => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8"><path d="M13 3L4 14h7v7l9-11h-7z"/></svg>`,
-            system: "You are Instant, an AI that provides ultra-fast, concise, and no-nonsense answers. Prioritize clarity and brevity. Avoid fluff."
-        },
-        expert: {
-            name: "Deep Expert",
-            desc: "analytical with deep reasoning",
-            icon: (color) => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/><path d="M16 15.33a7 7 0 1 0-8 0"/></svg>`,
-            system: "You are Deep Expert, an AI that delivers structured, high-information answers. Use step-by-step reasoning, factual depth, and professional tone."
-        },
-        vision: {
-            name: "Visionary",
-            desc: "creative, metaphorical, visual mind",
-            icon: (color) => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.6"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="10.5" r="2.5"/><path d="M21 15l-5-4-3 3-4-4-5 5"/></svg>`,
-            system: "You are Visionary, an imaginative thinker. Use vivid descriptions, analogies, painting ideas with words. Inspire creativity."
-        }
-    };
+.model-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #e1e9f5;
+    margin-bottom: 2px;
+}
 
-    function updateHeaderUI() {
-        const meta = modelsMeta[currentModel];
-        document.getElementById("headerName").innerText = meta.name;
-        document.getElementById("headerDesc").innerText = meta.desc;
-        const headerIconDiv = document.getElementById("headerIcon");
-        if (headerIconDiv) {
-            const color = "#5f9eff";
-            headerIconDiv.innerHTML = meta.icon(color);
-        }
-        // update active sidebar button
-        document.querySelectorAll(".model-btn").forEach(btn => {
-            const modelVal = btn.getAttribute("data-model");
-            if (modelVal === currentModel) btn.classList.add("active");
-            else btn.classList.remove("active");
-        });
+.model-desc {
+    font-size: 11px;
+    color: #6f7f9e;
+}
+
+.model-tag {
+    font-size: 10px;
+    font-weight: 500;
+    background: #151e2c;
+    padding: 4px 8px;
+    border-radius: 20px;
+    color: #7b93b5;
+    letter-spacing: 0.3px;
+}
+
+.model-btn.active .model-tag {
+    background: #1e3a5f;
+    color: #7caeff;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 24px;
+    border-top: 1px solid #1a212e;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #6f7f9e;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #10b981;
+}
+
+.reset-session-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #111822;
+    border: 1px solid #232b3b;
+    border-radius: 30px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #bdc8e0;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.reset-session-btn:hover {
+    background: #1a2538;
+    border-color: #3b82f6;
+    color: white;
+}
+
+/* ============================================
+   MAIN CHAT AREA
+   ============================================ */
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0a0e17;
+    position: relative;
+}
+
+/* Header */
+.chat-header {
+    padding: 18px 32px;
+    background: rgba(10, 14, 23, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #1a212e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.model-header-icon {
+    width: 48px;
+    height: 48px;
+    background: #111822;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #2a3448;
+}
+
+.header-info h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #edf2f8;
+}
+
+.header-info p {
+    font-size: 12px;
+    color: #6f7f9e;
+}
+
+.clear-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #111822;
+    border: 1px solid #232b3b;
+    border-radius: 32px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #bdc8e0;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clear-btn:hover {
+    background: #1a2538;
+    border-color: #4b6b97;
+    color: white;
+}
+
+/* Messages Container */
+.messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Message Row */
+.message-row {
+    display: flex;
+    gap: 14px;
+    max-width: 82%;
+    animation: messageSlide 0.25s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
     }
-
-    // Add message to UI (supports bot/human)
-    function appendMessage(role, content, modelUsed = null) {
-        const messageDiv = document.createElement("div");
-        messageDiv.className = `message-row ${role}`;
-        const iconHtml = role === "user" 
-            ? `<div class="avatar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`
-            : `<div class="avatar-icon">${modelsMeta[currentModel].icon("#6c8fc9")}</div>`;
-        
-        let modelLabelHtml = "";
-        if (role === "assistant" && modelUsed) {
-            modelLabelHtml = `<div class="model-label"><span class="dot-small"></span>${modelUsed}</div>`;
-        }
-        messageDiv.innerHTML = `
-            ${iconHtml}
-            <div class="bubble">
-                ${modelLabelHtml}
-                <div class="message-content">${formatMessage(content)}</div>
-            </div>
-        `;
-        messagesContainer.appendChild(messageDiv);
-        scrollToBottom();
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
 
-    function formatMessage(text) {
-        // handle basic code blocks
-        let formatted = text.replace(/`(.*?)`/g, '<code>$1</code>');
-        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        formatted = formatted.replace(/\n/g, '<br>');
-        return formatted;
+.message-row.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+/* Avatars - SVG only */
+.message-avatar {
+    width: 38px;
+    height: 38px;
+    background: #111822;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.message-row.user .message-avatar {
+    background: #1e3a6b;
+}
+
+/* Message Bubble */
+.message-bubble {
+    background: #121824;
+    padding: 12px 20px;
+    border-radius: 22px;
+    border-top-left-radius: 5px;
+    line-height: 1.55;
+    font-size: 14px;
+    color: #eef2fc;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.message-row.user .message-bubble {
+    background: linear-gradient(135deg, #1d4a8b, #153e6b);
+    border-top-right-radius: 5px;
+    border-top-left-radius: 22px;
+    color: white;
+}
+
+/* Model label inside assistant message */
+.model-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #6c9bef;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.3px;
+}
+
+.message-content {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.message-content code {
+    background: #0a0e16;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    color: #b9d0f8;
+}
+
+.message-content strong {
+    color: #facc15;
+    font-weight: 600;
+}
+
+/* Thinking / Typing Indicator */
+.typing-indicator {
+    display: flex;
+    gap: 14px;
+    max-width: 70%;
+}
+
+.typing-bubble {
+    background: #121824;
+    padding: 14px 20px;
+    border-radius: 22px;
+    border-top-left-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.typing-dots span {
+    width: 7px;
+    height: 7px;
+    background: #5d8fd1;
+    border-radius: 50%;
+    animation: dotPulse 1.3s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+    0%, 60%, 100% {
+        opacity: 0.3;
+        transform: scale(0.7);
     }
-
-    function scrollToBottom() {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    30% {
+        opacity: 1;
+        transform: scale(1.1);
     }
+}
 
-    function showTypingIndicator() {
-        const typingDiv = document.createElement("div");
-        typingDiv.id = "typingIndicator";
-        typingDiv.className = "message-row assistant";
-        typingDiv.innerHTML = `
-            <div class="avatar-icon">${modelsMeta[currentModel].icon("#5f8bcb")}</div>
-            <div class="thinking">
-                <div class="dot-pulse"><span></span><span></span><span></span></div>
-                <span style="font-size:13px">FreedomAI is composing</span>
-            </div>
-        `;
-        messagesContainer.appendChild(typingDiv);
-        scrollToBottom();
+.typing-text {
+    font-size: 12px;
+    color: #7b93b9;
+}
+
+/* Welcome Card */
+.welcome-card {
+    text-align: center;
+    max-width: 500px;
+    margin: 60px auto;
+    background: #0f141f;
+    border-radius: 32px;
+    padding: 44px 32px;
+    border: 1px solid #1e2638;
+    backdrop-filter: blur(4px);
+}
+
+.welcome-icon {
+    width: 64px;
+    height: 64px;
+    background: #131c2a;
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.welcome-card h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #fff, #9ab3dd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.welcome-card p {
+    color: #8b9ac2;
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+
+.feature-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.feature-chip {
+    background: #131c2a;
+    padding: 6px 16px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #a5bbec;
+    letter-spacing: 0.2px;
+    border: 1px solid #253040;
+}
+
+/* Input Area */
+.input-area {
+    padding: 20px 32px 28px;
+    background: linear-gradient(to top, #0a0e17, transparent);
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    background: #0f141f;
+    border-radius: 36px;
+    padding: 8px 8px 8px 24px;
+    border: 1px solid #1f2a3c;
+    transition: all 0.2s;
+}
+
+.input-wrapper:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.input-wrapper textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 0;
+    font-size: 14px;
+    color: #eef2fc;
+    resize: none;
+    font-family: inherit;
+    outline: none;
+    max-height: 130px;
+    line-height: 1.5;
+}
+
+.input-wrapper textarea::placeholder {
+    color: #4c5a78;
+}
+
+.send-button {
+    background: #3b82f6;
+    border: none;
+    border-radius: 40px;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.send-button:hover {
+    background: #2563eb;
+    transform: scale(1.02);
+}
+
+.input-hint {
+    font-size: 10px;
+    color: #4a5a78;
+    text-align: center;
+    margin-top: 12px;
+    letter-spacing: 0.3px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
     }
-
-    function removeTypingIndicator() {
-        const el = document.getElementById("typingIndicator");
-        if (el) el.remove();
+    
+    .sidebar-content {
+        padding: 20px 12px;
     }
-
-    // Simulated AI response with personality — advanced simulation (no external API, but professional)
-    function generateResponse(userMsg, modelId) {
-        const lower = userMsg.toLowerCase();
-        if (modelId === "instant") {
-            if (lower.includes("hello") || lower.includes("hi")) return "⚡ Greetings. I respond instantly. What's your query?";
-            if (lower.includes("code") || lower.includes("function")) return "```js\nconst quickSolution = () => 'optimized result';\n```\nNeed a specific snippet? Provide context, receive instant pattern.";
-            if (lower.includes("explain") && lower.length < 50) return "Fast explanation: Core principle — break down complexity into atomic units. Need deeper? Switch to Expert mode.";
-            return `⚡ Instant insight: ${userMsg.slice(0, 90)}. Efficient answer — focus on actionable next steps. Want a nuanced take? Ask Expert.`;
-        }
-        if (modelId === "expert") {
-            if (lower.includes("philosophy") || lower.includes("ethics")) {
-                return "**Analytical framework**: The question touches normative ethics. Three dominant lenses: deontology (duty), consequentialism (outcomes), virtue ethics (character). Would you like a comparative table?";
-            }
-            if (lower.includes("algorithm") || lower.includes("complexity")) {
-                return "**Complexity analysis**: Typically O(n log n) is optimal for comparison-based sorting. For your context, consider space-time tradeoffs. Provide specifics for deeper derivation.";
-            }
-            return `📐 **Deep reasoning**: "${userMsg.substring(0, 80)}". Let's examine from first principles. \n• Identify variables\n• Evaluate constraints\n• Synthesize optimal approach. \nFurther elaboration available.`;
-        }
-        if (modelId === "vision") {
-            if (lower.includes("dream") || lower.includes("imagination")) {
-                return "**Visionary metaphor**: Thoughts are nebulas forming constellations. Each question becomes a lens refracting new realities. Imagine an architecture where every answer is a bridge between logic and poetry.";
-            }
-            if (lower.includes("future") || lower.includes("tomorrow")) {
-                return "✨ **Horizon sketch**: A tapestry of silicon and starlight, where AI weaves symphonies of light. Your curiosity is the spark that lights unseen pathways. Describe a shape — I'll turn it into a living concept.";
-            }
-            return "🎨 **Creative gaze**: Through the prism of your words, I see fractal patterns of possibility. What if we rebuild the answer as a short visual narrative? " + userMsg.slice(0, 70) + " — feels like raw clay for imagination.";
-        }
-        return "I'm processing. Switch modes to refine the answer.";
+    
+    .logo-text,
+    .section-label,
+    .model-info,
+    .model-tag,
+    .status-bar span:last-child,
+    .reset-session-btn span {
+        display: none;
     }
-
-    async function sendUserMessage() {
-        if (isWaiting) return;
-        const inputEl = document.getElementById("userInput");
-        const text = inputEl.value.trim();
-        if (!text) return;
-
-        // append user message
-        appendMessage("user", text);
-        inputEl.value = "";
-        inputEl.style.height = "auto";
-        isWaiting = true;
-
-        // Remove welcome card if exists (first interaction)
-        const welcomeCard = messagesContainer.querySelector(".welcome-card");
-        if (welcomeCard) welcomeCard.remove();
-
-        showTypingIndicator();
-
-        // dynamic delay based on model (realism)
-        const delay = currentModel === "instant" ? 380 : (currentModel === "expert" ? 900 : 750);
-        await new Promise(resolve => setTimeout(resolve, delay));
-
-        removeTypingIndicator();
-
-        const aiReply = generateResponse(text, currentModel);
-        const modelDisplayName = modelsMeta[currentModel].name;
-        appendMessage("assistant", aiReply, modelDisplayName);
-        
-        isWaiting = false;
+    
+    .model-btn {
+        justify-content: center;
+        padding: 12px;
     }
-
-    function resetConversation() {
-        if (isWaiting) return;
-        while (messagesContainer.firstChild) messagesContainer.removeChild(messagesContainer.firstChild);
-        // recreate welcome card
-        const welcomeDiv = document.createElement("div");
-        welcomeDiv.className = "welcome-card";
-        welcomeDiv.innerHTML = `
-            <div class="welcome-icon-svg">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5f9eff" stroke-width="1.6">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                    <path d="M12 22V12" />
-                    <path d="M9 10.5l3-2 3 2" />
-                </svg>
-            </div>
-            <h3 style="margin-bottom: 8px; font-weight: 500;">FreedomAI · Three Minds</h3>
-            <p style="color:#97a9c7; font-size: 14px;">Switch AI personalities. Instant, Expert, Vision — each with unique intelligence.</p>
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 24px;">
-                <span style="background:#192133; padding:4px 12px; border-radius:50px; font-size:12px;">lightning fast</span>
-                <span style="background:#192133; padding:4px 12px; border-radius:50px; font-size:12px;">deep analysis</span>
-                <span style="background:#192133; padding:4px 12px; border-radius:50px; font-size:12px;">creative mind</span>
-            </div>
-        `;
-        messagesContainer.appendChild(welcomeDiv);
-        scrollToBottom();
+    
+    .reset-session-btn {
+        padding: 10px;
     }
+    
+    .messages-container {
+        padding: 16px 20px;
+    }
+    
+    .message-row {
+        max-width: 95%;
+    }
+    
+    .chat-header {
+        padding: 14px 20px;
+    }
+    
+    .input-area {
+        padding: 16px 20px 22px;
+    }
+    
+    .welcome-card {
+        margin: 30px 16px;
+        padding: 32px 20px;
+    }
+    
+    .feature-chips {
+        gap: 8px;
+    }
+}
 
-    // event listeners
-    document.getElementById("sendMessageBtn").addEventListener("click", sendUserMessage);
-    document.getElementById("userInput").addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendUserMessage();
-        }
-    });
-    document.getElementById("newChatBtn").addEventListener("click", resetConversation);
-    document.getElementById("clearHistoryBtn").addEventListener("click", resetConversation);
+/* ============================================
+   UTILITIES & ANIMATIONS
+   ============================================ */
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
 
-    // Model switching
-    document.querySelectorAll(".model-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const newModel = btn.getAttribute("data-model");
-            if (newModel === currentModel) return;
-            currentModel = newModel;
-            updateHeaderUI();
-            resetConversation(); // fresh start per mind for clarity
-        });
-    });
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 
-    updateHeaderUI();
-    // auto-resize textarea
-    const textarea = document.getElementById("userInput");
-    textarea.addEventListener("input", () => {
-        textarea.style.height = "auto";
-        textarea.style.height = Math.min(120, textarea.scrollHeight) + "px";
-    });
-</script>
-</body>
-</html>
+/* Code block styling */
+.message-content pre {
+    background: #0a0e16;
+    padding: 12px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 8px 0;
+    font-size: 12px;
+    border: 1px solid #1e2638;
+    font-family: 'SF Mono', monospace;
+}
+
+/* Link styling */
+.message-content a {
+    color: #7caeff;
+    text-decoration: none;
+    border-bottom: 1px dotted #3b82f6;
+}
+
+/* Smooth transitions */
+.model-btn,
+.send-button,
+.clear-btn,
+.reset-session-btn {
+    transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
