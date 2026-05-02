@@ -3,661 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Nexus AI · Three Minds Chat</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%236366f1'/%3E%3Cpath fill='white' d='M38 32h24v8H38zm0 14h24v8H38zm0 14h16v8H38z'/%3E%3C/svg%3E">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: #0a0c10;
-            color: #eef2ff;
-            height: 100vh;
-            overflow: hidden;
-            transition: background 0.2s;
-        }
-
-        /* smooth scroll only inside chat */
-        .chat-messages {
-            scroll-behavior: smooth;
-        }
-
-        /* custom scroll */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1e1f2a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #3b3f5c;
-            border-radius: 8px;
-        }
-
-        /* main layout */
-        .app {
-            display: flex;
-            height: 100vh;
-            width: 100%;
-        }
-
-        /* ========= SIDEBAR ========= */
-        .sidebar {
-            width: 280px;
-            background: #0f1117;
-            border-right: 1px solid #20232e;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-            gap: 32px;
-            backdrop-filter: blur(2px);
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-left: 8px;
-        }
-        .logo-icon {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            width: 36px;
-            height: 36px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 20px;
-            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
-        }
-        .logo-area h1 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            background: linear-gradient(to right, #eef2ff, #a5b4fc);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .model-selector {
-            background: #181c25;
-            border-radius: 20px;
-            padding: 6px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .model-btn {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            background: transparent;
-            border: none;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #9ca3af;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
-            text-align: left;
-        }
-        .model-btn svg {
-            width: 22px;
-            height: 22px;
-            stroke-width: 1.7;
-        }
-        .model-btn.active {
-            background: #2d3142;
-            color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .model-btn.active svg {
-            stroke: #a78bfa;
-            color: #a78bfa;
-        }
-        .model-badge {
-            font-size: 0.7rem;
-            background: #1e293b;
-            padding: 2px 8px;
-            border-radius: 30px;
-            margin-left: auto;
-            color: #94a3b8;
-        }
-        .model-btn.active .model-badge {
-            background: #3b2e5e;
-            color: #c4b5fd;
-        }
-
-        .session-info {
-            margin-top: auto;
-            border-top: 1px solid #20232e;
-            padding-top: 20px;
-            font-size: 0.75rem;
-            color: #6b7280;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* ========= CHAT AREA ========= */
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #0a0c10;
-            position: relative;
-        }
-
-        .chat-header {
-            padding: 18px 28px;
-            border-bottom: 1px solid #20232e;
-            background: rgba(10,12,16,0.8);
-            backdrop-filter: blur(12px);
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-        }
-        .header-model {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .model-icon-large {
-            background: #1e1f2e;
-            padding: 8px;
-            border-radius: 40px;
-        }
-        .model-title {
-            font-weight: 600;
-            font-size: 1.2rem;
-        }
-        .model-desc {
-            font-size: 0.75rem;
-            color: #94a3b8;
-        }
-        .reset-chat {
-            background: #1e1f2e;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 30px;
-            color: #e2e8f0;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-
-        /* messages */
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px 28px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .message {
-            display: flex;
-            gap: 14px;
-            max-width: 85%;
-            animation: fadeSlideUp 0.25s ease;
-        }
-        @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(10px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-        .message.user {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-        .avatar {
-            width: 36px;
-            height: 36px;
-            background: #262a36;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-        .user .avatar {
-            background: #3b3f5c;
-        }
-        .bubble {
-            background: #181c25;
-            padding: 12px 18px;
-            border-radius: 24px;
-            border-top-left-radius: 6px;
-            line-height: 1.5;
-            font-size: 0.95rem;
-            color: #eef2ff;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        .user .bubble {
-            background: #2d2f44;
-            border-top-right-radius: 6px;
-            border-top-left-radius: 24px;
-        }
-        .thinking-bubble {
-            background: #10131c;
-            color: #9ca3af;
-            font-style: italic;
-            padding: 12px 18px;
-            border-radius: 24px;
-            border: 1px dashed #334155;
-        }
-        .model-tag {
-            font-size: 0.7rem;
-            color: #818cf8;
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-
-        /* input area */
-        .input-area {
-            padding: 20px 28px 28px;
-            background: #0a0c10;
-            border-top: 1px solid #20232e;
-        }
-        .input-wrapper {
-            display: flex;
-            gap: 12px;
-            background: #11141c;
-            border-radius: 32px;
-            padding: 6px 6px 6px 20px;
-            border: 1px solid #2a2e3f;
-            transition: 0.2s;
-        }
-        .input-wrapper:focus-within {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-        }
-        .input-wrapper textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 14px 0;
-            font-size: 0.95rem;
-            color: #f1f5f9;
-            resize: none;
-            font-family: inherit;
-            outline: none;
-            max-height: 120px;
-        }
-        .send-btn {
-            background: #6366f1;
-            border: none;
-            border-radius: 40px;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .send-btn:hover {
-            background: #818cf8;
-            transform: scale(1.02);
-        }
-        .info-note {
-            font-size: 0.7rem;
-            color: #4b5563;
-            text-align: center;
-            margin-top: 12px;
-        }
-
-        /* mobile */
-        @media (max-width: 680px) {
-            .sidebar {
-                width: 80px;
-                padding: 16px 8px;
-            }
-            .logo-area h1, .model-btn span:not(.model-badge), .session-info {
-                display: none;
-            }
-            .model-btn {
-                justify-content: center;
-                padding: 12px;
-            }
-            .model-badge {
-                display: none;
-            }
-            .message {
-                max-width: 95%;
-            }
-            .chat-header {
-                padding: 12px 16px;
-            }
-            .chat-messages {
-                padding: 16px;
-            }
-        }
-    </style>
+    <title>FreedomAI · Multimodal Intelligence</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%233b82f6'/%3E%3Cpath fill='white' d='M32 38h36v6H32zm0 12h36v6H32zm0 12h24v6H32z'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="app">
-    <!-- SIDEBAR with 3 minds -->
-    <div class="sidebar">
-        <div class="logo-area">
-            <div class="logo-icon">⚡</div>
-            <h1>Nexus<span style="font-weight:400">AI</span></h1>
-        </div>
-        <div class="model-selector">
-            <button class="model-btn active" data-model="instant">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span>Instant Bolt</span>
-                <span class="model-badge">⚡ 0.3s</span>
-            </button>
-            <button class="model-btn" data-model="expert">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z" />
-                    <path d="M12 6v6l4 2" />
-                    <path d="M16 16.33a7 7 0 1 0-8 0" />
-                </svg>
-                <span>Deep Expert</span>
-                <span class="model-badge">📚 α</span>
-            </button>
-            <button class="model-btn" data-model="vision">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <rect x="2" y="4" width="20" height="16" rx="2" ry="2" />
-                    <circle cx="8.5" cy="10.5" r="2.5" />
-                    <path d="M21 15l-5-4-3 3-4-4-5 5" />
-                </svg>
-                <span>Visionary</span>
-                <span class="model-badge">🖼️ creative</span>
-            </button>
-        </div>
-        <div class="session-info">
-            <span>✨ no login</span>
-            <span>AI · simulated minds</span>
-        </div>
-    </div>
-
-    <!-- MAIN CHAT -->
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="header-model">
-                <div class="model-icon-large" id="headerModelIcon">⚡</div>
-                <div>
-                    <div class="model-title" id="headerModelTitle">Instant Bolt</div>
-                    <div class="model-desc" id="headerModelDesc">Lightning fast, direct answers</div>
+    <div class="app">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo-icon">FA</div>
+                <div class="logo-text">
+                    <span class="logo-title">FreedomAI</span>
+                    <span class="logo-badge">α v2.0</span>
                 </div>
             </div>
-            <button class="reset-chat" id="resetChatBtn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                New session
-            </button>
-        </div>
 
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot">
-                <div class="avatar">🌟</div>
-                <div class="bubble">
-                    <div class="model-tag">✨ Instant Bolt</div>
-                    Hey there! I'm your AI companion. Choose a mind: <strong>Instant⚡</strong> for speed, <strong>Expert📚</strong> for depth, or <strong>Vision🎨</strong> for creative insights. Ask me anything!
+            <div class="model-section">
+                <div class="section-label">AI Minds</div>
+                <div class="model-list">
+                    <button class="model-card active" data-model="instant">
+                        <div class="model-icon lightning">⚡</div>
+                        <div class="model-info">
+                            <div class="model-name">Instant</div>
+                            <div class="model-desc">Blazing fast responses</div>
+                        </div>
+                        <div class="model-badge">0.3s</div>
+                    </button>
+                    <button class="model-card" data-model="expert">
+                        <div class="model-icon brain">🧠</div>
+                        <div class="model-info">
+                            <div class="model-name">Deep Expert</div>
+                            <div class="model-desc">Reasoning & analysis</div>
+                        </div>
+                        <div class="model-badge">α</div>
+                    </button>
+                    <button class="model-card" data-model="vision">
+                        <div class="model-icon eye">👁️</div>
+                        <div class="model-info">
+                            <div class="model-name">Visionary</div>
+                            <div class="model-desc">Creative & visual</div>
+                        </div>
+                        <div class="model-badge">β</div>
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <div class="input-area">
-            <div class="input-wrapper">
-                <textarea id="userInput" placeholder="Message Nexus AI ..." rows="1"></textarea>
-                <button class="send-btn" id="sendBtn">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>Ready · No login</span>
+                </div>
+                <button class="reset-btn" id="resetSessionBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    New chat
                 </button>
             </div>
-            <div class="info-note">✨ 3 distinct AI personalities · no registration · private chats</div>
-        </div>
-    </div>
-</div>
+        </aside>
 
-<script>
-    // --------------------------------------------------------------
-    //  Nexus AI — Three minds: Instant, Expert, Vision
-    //  Pure frontend simulation with intelligent responses & icons
-    // --------------------------------------------------------------
-    
-    let currentModel = "instant";   // 'instant', 'expert', 'vision'
-    let messages = [];              // store { role, content, modelUsed? }
-    let isWaiting = false;
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="header-model-info">
+                    <div class="current-model-icon" id="currentModelIcon">⚡</div>
+                    <div>
+                        <h2 id="currentModelName">Instant</h2>
+                        <p id="currentModelDesc">Fast, efficient, no-nonsense responses</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" id="clearChatBtn" title="Clear conversation">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
+            </header>
 
-    // DOM elements
-    const chatContainer = document.getElementById("chatMessages");
-    const userInput = document.getElementById("userInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const resetBtn = document.getElementById("resetChatBtn");
-    const modelBtns = document.querySelectorAll(".model-btn");
-    const headerModelTitle = document.getElementById("headerModelTitle");
-    const headerModelDesc = document.getElementById("headerModelDesc");
-    const headerModelIcon = document.getElementById("headerModelIcon");
-
-    // Model metadata + personality system prompts
-    const models = {
-        instant: {
-            name: "Instant Bolt",
-            desc: "Blazing fast, direct, no-nonsense assistant",
-            icon: "⚡",
-            systemPrompt: "You are Instant Bolt, a super fast AI. Keep responses concise, energetic and practical. Use bullet points when helpful. Answer directly with actionable info. max 3 sentences unless complex.",
-            style: "energetic, short"
-        },
-        expert: {
-            name: "Deep Expert",
-            desc: "Analytical, detailed and precise reasoning",
-            icon: "📚",
-            systemPrompt: "You are Deep Expert, a thoughtful, thorough AI. Provide well-structured answers, include reasoning, cite analogies. Be formal but warm. Give in-depth explanations.",
-            style: "analytical, step-by-step"
-        },
-        vision: {
-            name: "Visionary",
-            desc: "Creative, metaphorical, visual thinking",
-            icon: "🎨",
-            systemPrompt: "You are Visionary AI, imaginative and poetic. Use vivid metaphors, creative descriptions, sometimes add ASCII art or visual concepts. Inspire and paint with words.",
-            style: "creative, imaginative"
-        }
-    };
-
-    function updateHeader() {
-        const m = models[currentModel];
-        headerModelTitle.innerText = m.name;
-        headerModelDesc.innerText = m.desc;
-        headerModelIcon.innerText = m.icon;
-        // update active button style
-        modelBtns.forEach(btn => {
-            const modelVal = btn.getAttribute("data-model");
-            if (modelVal === currentModel) {
-                btn.classList.add("active");
-            } else {
-                btn.classList.remove("active");
-            }
-        });
-    }
-
-    // Add message to UI and storage
-    function addMessageToUI(role, content, model = null) {
-        const messageDiv = document.createElement("div");
-        messageDiv.className = `message ${role}`;
-        const avatarContent = role === "user" ? "👤" : (models[currentModel]?.icon || "✨");
-        const modelTag = (role === "assistant" && model) ? `<div class="model-tag">${model}</div>` : "";
-        messageDiv.innerHTML = `
-            <div class="avatar">${avatarContent}</div>
-            <div class="bubble">
-                ${modelTag}
-                <div>${formatMessageText(content)}</div>
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-message">
+                    <div class="welcome-icon">✨</div>
+                    <h3>FreedomAI</h3>
+                    <p>Three minds. Infinite possibilities. Choose your AI companion.</p>
+                    <div class="feature-grid">
+                        <div class="feature">⚡ <strong>Instant</strong> — Lightning answers</div>
+                        <div class="feature">🧠 <strong>Deep Expert</strong> — Analytical depth</div>
+                        <div class="feature">👁️ <strong>Visionary</strong> — Creative imagination</div>
+                    </div>
+                </div>
             </div>
-        `;
-        chatContainer.appendChild(messageDiv);
-        scrollToBottom();
-        // store in memory
-        messages.push({ role, content, modelUsed: model || null });
-    }
 
-    function formatMessageText(text) {
-        // simple formatting: replace newlines with <br> and basic markdown-like bold
-        let formatted = text.replace(/`(.*?)`/g, '<code style="background:#1e1f2e;padding:2px 6px;border-radius:6px;">$1</code>');
-        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        formatted = formatted.replace(/\n/g, '<br>');
-        return formatted;
-    }
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea id="userInput" placeholder="Ask FreedomAI anything..." rows="1"></textarea>
+                    <button class="send-button" id="sendBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-hint">Press Enter to send, Shift+Enter for new line</div>
+            </div>
+        </main>
+    </div>
 
-    function scrollToBottom() {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    // Simulate AI response based on current model and user input.
-    // This creates a unique "personality" without any external API — rich dynamic simulation.
-    function generateAIResponse(userMsg, modelId) {
-        const lowerMsg = userMsg.toLowerCase();
-        const model = models[modelId];
-        const name = model.name;
-        
-        // Instant ⚡: super fast, efficient, no waffle
-        if (modelId === "instant") {
-            if (lowerMsg.includes("hello") || lowerMsg.includes("hi")) return `⚡ Quick wave! Hey there. Need help? I'm all about speed — ask me anything, from code to trivia.`;
-            if (lowerMsg.includes("code") || lowerMsg.includes("javascript") || lowerMsg.includes("python")) return `⚡ Code snippet: \`const fast = "optimized";\`\n\n**Tip**: Use functional programming for clarity. Need a specific snippet? Ask short!`;
-            if (lowerMsg.includes("weather")) return `🌤️ Instant check: can't fetch live data, but I'd recommend checking local forecast! As a rule: always carry an umbrella if clouds > 40%. ☔`;
-            if (lowerMsg.includes("how to")) return `📌 Quick guide: Break it into 3 steps. 1) Research, 2) Prototype, 3) Iterate. Want more depth? Ask "expert mode"!`;
-            return `⚡ Quick take: ${userMsg.slice(0, 70)}… My instant answer — keep it simple, focus on the main goal, and avoid overthinking. Want a sharper breakdown?`;
-        }
-        
-        // Expert 📚: deep, structured, detailed
-        if (modelId === "expert") {
-            if (lowerMsg.includes("philosophy") || lowerMsg.includes("meaning")) {
-                return `📚 *Epistemological view*: The question of meaning intertwines with existential frameworks. From Aristotle's *eudaimonia* to Sartre's radical freedom, meaning is often constructed through authentic choices. Would you like a comparative analysis between eastern & western views?`;
-            }
-            if (lowerMsg.includes("math") || lowerMsg.includes="equation") {
-                return `🧮 *Analytical reasoning*: Let’s break down the mathematical structure. For any equation f(x)=0, start by isolating variables. I can illustrate with the quadratic formula: $x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$. Do you need a step-by-step derivation?`;
-            }
-            if (lowerMsg.includes("history") || lowerMsg.includes("why")) {
-                return `📜 *Historical causality*: Events rarely have single causes. From the perspective of long-term structural forces vs. agency, we can examine primary sources. Could you specify a time period? I’ll provide an annotated timeline.`;
-            }
-            return `📚 *Deep analysis*: "${userMsg.substring(0, 100)}" — This touches several domains. Here's a structured breakdown:\n\n1️⃣ Core principle: Identify key variables.\n2️⃣ Context matters: compare standard models.\n3️⃣ Critical nuance: exceptions and edge cases.\n\nWould you like me to elaborate on any specific aspect?`;
-        }
-        
-        // Vision: creative, metaphorical, artistic
-        if (modelId === "vision") {
-            if (lowerMsg.includes("dream") || lowerMsg.includes("imagination")) {
-                return `🎨 *Visionary stream*: Dreams are origami cranes floating through a subconscious river. Each fold holds a forgotten wish. Let’s co-create a dreamscape — tell me a color or a feeling, I’ll paint you a verbal mural. 🌈`;
-            }
-            if (lowerMsg.includes("future") || lowerMsg.includes("ai") && lowerMsg.includes("world")) {
-                return `🔮 *Visionary gaze*: I see a horizon where silicon and starlight weave symphonies. AI becomes a prism, not a cage — each reflection a new form of creativity. Imagine gardens of neural blooms & empathetic algorithms. ✨ What's your future dream?`;
-            }
-            if (lowerMsg.includes("art") || lowerMsg.includes("poem")) {
-                return `🖌️ *Creative spark*: Here's a miniature poem just for you:\n\n*Echoes of data, soft as twilight,*\n*Through pixel streams, a phoenix takes flight.*\n*Your question becomes ink* — let's write a galaxy together. ✍️`;
-            }
-            return `🎭 *Imaginative lens*: Looking at “${userMsg.slice(0, 80)}” through a kaleidoscope… I see layered possibilities. If this were a painting, it would mix ultramarine with raw umber — profound curiosity. Let’s explore the metaphors beneath. 🌊`;
-        }
-        
-        return `✨ ${name} is considering... I'd love to hear more. Ask me something creative or factual!`;
-    }
-
-    // Simulate typing delay + streaming effect (smooth)
-    async function simulateAssistantResponse(userText) {
-        if (isWaiting) return;
-        isWaiting = true;
-        
-        // Show typing indicator (thinking bubble)
-        const typingDiv = document.createElement("div");
-        typingDiv.className = "message bot";
-        typingDiv.id = "typingIndicator";
-        typingDiv.innerHTML = `<div class="avatar">${models[currentModel].icon}</div><div class="thinking-bubble">✦ ${models[currentModel].name} is thinking...</div>`;
-        chatContainer.appendChild(typingDiv);
-        scrollToBottom();
-        
-        // Artificial delay based on model (instant faster)
-        let delay = currentModel === "instant" ? 400 : (currentModel === "expert" ? 900 : 700);
-        await new Promise(r => setTimeout(r, delay));
-        
-        // Remove typing indicator
-        const indicator = document.getElementById("typingIndicator");
-        if (indicator) indicator.remove();
-        
-        // Generate contextual response according to selected model
-        const rawReply = generateAIResponse(userText, currentModel);
-        // small extra random tweak to avoid repetition
-        let finalReply = rawReply;
-        if (currentModel === "vision" && userText.length > 15 && !rawReply.includes("🎨")) finalReply = "🎨 " + rawReply;
-        
-        addMessageToUI("assistant", finalReply, models[currentModel].name);
-        isWaiting = false;
-    }
-
-    // handle new user message
-    async function sendMessage() {
-        const text = userInput.value.trim();
-        if (!text || isWaiting) return;
-        
-        // add user msg
-        addMessageToUI("user", text);
-        userInput.value = "";
-        userInput.style.height = "auto";
-        
-        // call AI response
-        await simulateAssistantResponse(text);
-    }
-    
-    function resetConversation() {
-        if (isWaiting) return;
-        // clear messages array and UI
-        messages = [];
-        chatContainer.innerHTML = "";
-        // Welcome message based on current model
-        const welcomeMsg = currentModel === "instant" ? `⚡ **Instant Bolt ready** — answers in a flash. Ask me anything!` :
-                           (currentModel === "expert" ? `📚 **Deep Expert mode** activated. Provide detailed reasoning, analysis, I'll help with depth.` :
-                            `🎨 **Visionary mode** — Let's imagine, create and think beyond boundaries. Share your spark.`);
-        addMessageToUI("assistant", welcomeMsg, models[currentModel].name);
-    }
-    
-    // resize textarea
-    function autoResizeTextarea() {
-        userInput.style.height = "auto";
-        userInput.style.height = Math.min(120, userInput.scrollHeight) + "px";
-    }
-    
-    // event listeners
-    sendBtn.addEventListener("click", sendMessage);
-    userInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-    userInput.addEventListener("input", autoResizeTextarea);
-    resetBtn.addEventListener("click", resetConversation);
-    
-    // model switching
-    modelBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const newModel = btn.getAttribute("data-model");
-            if (newModel === currentModel) return;
-            currentModel = newModel;
-            updateHeader();
-            // reset chat when switching minds for clean context? optionally keep messages but better reset (better ux)
-            resetConversation();
-        });
-    });
-    
-    // initial setup
-    updateHeader();
-    // small welcome persisted
-    if (messages.length === 0) {
-        addMessageToUI("assistant", `✨ **${models.instant.name}** ready. Switch minds using the sidebar — each AI has unique style. Ask about coding, philosophy, art or future.`, models.instant.name);
-    }
-    
-    // add placeholder background for scroll
-    autoResizeTextarea();
-</script>
+    <script src="script.js"></script>
 </body>
 </html>
