@@ -1,702 +1,878 @@
-/* FreedomAI - Professional Dark Theme
-   DeepSeek inspired · No emojis · Custom SVG icons only
-   Modern, sleek, enterprise-grade design system
-*/
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Text', system-ui, sans-serif;
-    background: #0a0e17;
-    color: #eef2ff;
-    height: 100vh;
-    overflow: hidden;
-    font-weight: 400;
-    line-height: 1.5;
-}
-
-/* Custom scrollbar - minimalist */
-::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-}
-
-::-webkit-scrollbar-track {
-    background: #11161f;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #2e3a4f;
-    border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #4a6991;
-}
-
-/* App Layout */
-.app {
-    display: flex;
-    height: 100%;
-    width: 100%;
-    position: relative;
-}
-
-/* ============================================
-   SIDEBAR - Clean, structured, professional
-   ============================================ */
-.sidebar {
-    width: 280px;
-    background: #0c111a;
-    border-right: 1px solid #1a212e;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    transition: width 0.2s ease;
-}
-
-.sidebar-content {
-    padding: 28px 20px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    gap: 32px;
-}
-
-/* Logo Section */
-.logo-section {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #1a212e;
-}
-
-.logo-icon {
-    width: 42px;
-    height: 42px;
-    background: linear-gradient(135deg, #3b82f6, #1e4a8a);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 18px;
-    color: white;
-    box-shadow: 0 6px 14px rgba(59, 130, 246, 0.25);
-}
-
-.logo-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.logo-title {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    color: #f0f4fe;
-}
-
-.logo-badge {
-    font-size: 10px;
-    color: #6b7d9e;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Section Label */
-.section-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #5c6d8f;
-    margin-bottom: 16px;
-}
-
-/* Model Cards */
-.model-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.model-btn {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
-    background: transparent;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    width: 100%;
-    text-align: left;
-}
-
-.model-btn:hover {
-    background: #141c28;
-}
-
-.model-btn.active {
-    background: linear-gradient(135deg, #16212e, #111722);
-    border: 1px solid #2d4a7a;
-}
-
-.model-icon {
-    width: 40px;
-    height: 40px;
-    background: #111822;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.model-btn.active .model-icon {
-    background: #1a2a40;
-    box-shadow: 0 0 0 1px #3b82f6;
-}
-
-.model-info {
-    flex: 1;
-}
-
-.model-name {
-    font-weight: 600;
-    font-size: 14px;
-    color: #e1e9f5;
-    margin-bottom: 2px;
-}
-
-.model-desc {
-    font-size: 11px;
-    color: #6f7f9e;
-}
-
-.model-tag {
-    font-size: 10px;
-    font-weight: 500;
-    background: #151e2c;
-    padding: 4px 8px;
-    border-radius: 20px;
-    color: #7b93b5;
-    letter-spacing: 0.3px;
-}
-
-.model-btn.active .model-tag {
-    background: #1e3a5f;
-    color: #7caeff;
-}
-
-/* Sidebar Footer */
-.sidebar-footer {
-    margin-top: auto;
-    padding-top: 24px;
-    border-top: 1px solid #1a212e;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.status-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 12px;
-    color: #6f7f9e;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    background: #10b981;
-    border-radius: 50%;
-    box-shadow: 0 0 6px #10b981;
-}
-
-.reset-session-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: #111822;
-    border: 1px solid #232b3b;
-    border-radius: 30px;
-    padding: 10px 16px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #bdc8e0;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.reset-session-btn:hover {
-    background: #1a2538;
-    border-color: #3b82f6;
-    color: white;
-}
-
-/* ============================================
-   MAIN CHAT AREA
-   ============================================ */
-.chat-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #0a0e17;
-    position: relative;
-}
-
-/* Header */
-.chat-header {
-    padding: 18px 32px;
-    background: rgba(10, 14, 23, 0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid #1a212e;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.header-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.model-header-icon {
-    width: 48px;
-    height: 48px;
-    background: #111822;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #2a3448;
-}
-
-.header-info h2 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #edf2f8;
-}
-
-.header-info p {
-    font-size: 12px;
-    color: #6f7f9e;
-}
-
-.clear-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #111822;
-    border: 1px solid #232b3b;
-    border-radius: 32px;
-    padding: 8px 18px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #bdc8e0;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.clear-btn:hover {
-    background: #1a2538;
-    border-color: #4b6b97;
-    color: white;
-}
-
-/* Messages Container */
-.messages-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 28px 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* Message Row */
-.message-row {
-    display: flex;
-    gap: 14px;
-    max-width: 82%;
-    animation: messageSlide 0.25s ease-out;
-}
-
-@keyframes messageSlide {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.message-row.user {
-    align-self: flex-end;
-    flex-direction: row-reverse;
-}
-
-/* Avatars - SVG only */
-.message-avatar {
-    width: 38px;
-    height: 38px;
-    background: #111822;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.message-row.user .message-avatar {
-    background: #1e3a6b;
-}
-
-/* Message Bubble */
-.message-bubble {
-    background: #121824;
-    padding: 12px 20px;
-    border-radius: 22px;
-    border-top-left-radius: 5px;
-    line-height: 1.55;
-    font-size: 14px;
-    color: #eef2fc;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.message-row.user .message-bubble {
-    background: linear-gradient(135deg, #1d4a8b, #153e6b);
-    border-top-right-radius: 5px;
-    border-top-left-radius: 22px;
-    color: white;
-}
-
-/* Model label inside assistant message */
-.model-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: #6c9bef;
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    letter-spacing: 0.3px;
-}
-
-.message-content {
-    word-wrap: break-word;
-    white-space: pre-wrap;
-}
-
-.message-content code {
-    background: #0a0e16;
-    padding: 2px 8px;
-    border-radius: 8px;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 12px;
-    color: #b9d0f8;
-}
-
-.message-content strong {
-    color: #facc15;
-    font-weight: 600;
-}
-
-/* Thinking / Typing Indicator */
-.typing-indicator {
-    display: flex;
-    gap: 14px;
-    max-width: 70%;
-}
-
-.typing-bubble {
-    background: #121824;
-    padding: 14px 20px;
-    border-radius: 22px;
-    border-top-left-radius: 5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.typing-dots {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-}
-
-.typing-dots span {
-    width: 7px;
-    height: 7px;
-    background: #5d8fd1;
-    border-radius: 50%;
-    animation: dotPulse 1.3s infinite;
-}
-
-.typing-dots span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-dots span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes dotPulse {
-    0%, 60%, 100% {
-        opacity: 0.3;
-        transform: scale(0.7);
-    }
-    30% {
-        opacity: 1;
-        transform: scale(1.1);
-    }
-}
-
-.typing-text {
-    font-size: 12px;
-    color: #7b93b9;
-}
-
-/* Welcome Card */
-.welcome-card {
-    text-align: center;
-    max-width: 500px;
-    margin: 60px auto;
-    background: #0f141f;
-    border-radius: 32px;
-    padding: 44px 32px;
-    border: 1px solid #1e2638;
-    backdrop-filter: blur(4px);
-}
-
-.welcome-icon {
-    width: 64px;
-    height: 64px;
-    background: #131c2a;
-    border-radius: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-}
-
-.welcome-card h3 {
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    background: linear-gradient(135deg, #fff, #9ab3dd);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-
-.welcome-card p {
-    color: #8b9ac2;
-    font-size: 14px;
-    margin-bottom: 28px;
-}
-
-.feature-chips {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 8px;
-}
-
-.feature-chip {
-    background: #131c2a;
-    padding: 6px 16px;
-    border-radius: 40px;
-    font-size: 12px;
-    font-weight: 500;
-    color: #a5bbec;
-    letter-spacing: 0.2px;
-    border: 1px solid #253040;
-}
-
-/* Input Area */
-.input-area {
-    padding: 20px 32px 28px;
-    background: linear-gradient(to top, #0a0e17, transparent);
-}
-
-.input-wrapper {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    background: #0f141f;
-    border-radius: 36px;
-    padding: 8px 8px 8px 24px;
-    border: 1px solid #1f2a3c;
-    transition: all 0.2s;
-}
-
-.input-wrapper:focus-within {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-.input-wrapper textarea {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 12px 0;
-    font-size: 14px;
-    color: #eef2fc;
-    resize: none;
-    font-family: inherit;
-    outline: none;
-    max-height: 130px;
-    line-height: 1.5;
-}
-
-.input-wrapper textarea::placeholder {
-    color: #4c5a78;
-}
-
-.send-button {
-    background: #3b82f6;
-    border: none;
-    border-radius: 40px;
-    width: 46px;
-    height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0;
-}
-
-.send-button:hover {
-    background: #2563eb;
-    transform: scale(1.02);
-}
-
-.input-hint {
-    font-size: 10px;
-    color: #4a5a78;
-    text-align: center;
-    margin-top: 12px;
-    letter-spacing: 0.3px;
-}
-
-/* ============================================
-   RESPONSIVE DESIGN
-   ============================================ */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 80px;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>FreedomAI · Deep Cognitive Engine</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%233b82f6'/%3E%3Cpath fill='white' d='M32 38h36v6H32zm0 12h36v6H32zm0 12h24v6H32z'/%3E%3C/svg%3E">
+    <style>
+        /* ============================================
+           FREEDOM AI - COGNITIVE INTERFACE v3.0
+           Inspired by DeepSeek, Claude, Gemini, ChatGPT
+           Ultra-clean, professional, infinite depth
+        ============================================ */
+        
+        /* CSS RESET MODERN */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* CUSTOM PROPERTIES (Design tokens) */
+        :root {
+            --bg-primary: #0a0c10;
+            --bg-secondary: #0f1117;
+            --bg-tertiary: #161c26;
+            --bg-elevated: #1a1f2c;
+            --border-subtle: #232832;
+            --border-active: #3b82f6;
+            --text-primary: #f0f3fa;
+            --text-secondary: #9aa6c2;
+            --text-muted: #5f6e8a;
+            --accent-blue: #3b82f6;
+            --accent-blue-glow: rgba(59, 130, 246, 0.2);
+            --accent-purple: #8b5cf6;
+            --accent-teal: #14b8a6;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --transition-fast: 0.15s ease;
+            --transition-smooth: 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            font-weight: 400;
+            line-height: 1.55;
+            letter-spacing: -0.2px;
+        }
+
+        /* CUSTOM SCROLL - ELEGANT */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #12161f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2f3b54;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a9e;
+        }
+
+        /* MAIN LAYOUT */
+        .app {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           SIDEBAR - MINIMALIST, ICONIC
+        ============================================ */
+        .sidebar {
+            width: 280px;
+            background: rgba(12, 15, 23, 0.96);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(35, 40, 55, 0.6);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .sidebar-header {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid rgba(55, 65, 81, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff, #9ab3dd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .model-selector {
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .model-option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            width: 100%;
+            text-align: left;
+            color: var(--text-secondary);
+        }
+
+        .model-option:hover {
+            background: rgba(59, 130, 246, 0.08);
+            transform: translateX(2px);
+        }
+
+        .model-option.active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: white;
+        }
+
+        .model-icon {
+            width: 44px;
+            height: 44px;
+            background: #121826;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .model-info {
+            flex: 1;
+        }
+
+        .model-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+
+        .model-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .model-badge {
+            font-size: 10px;
+            background: #1a1f2c;
+            padding: 4px 10px;
+            border-radius: 30px;
+            color: #7e8eb3;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 24px 20px 28px;
+            border-top: 1px solid rgba(55, 65, 81, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #10b981;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #11161f;
+            border: 1px solid #232b3b;
+            border-radius: 40px;
+            padding: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #1a2538;
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        /* ============================================
+           MAIN CHAT AREA - DEEPSEEK STYLE
+        ============================================ */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            position: relative;
+        }
+
+        /* Header */
+        .chat-nav {
+            padding: 16px 28px;
+            background: rgba(10, 12, 16, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(35, 40, 55, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 15;
+        }
+
+        .model-indicator {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .model-indicator-icon {
+            width: 44px;
+            height: 44px;
+            background: #111722;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .model-indicator-text h3 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .model-indicator-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            background: #11161f;
+            border: 1px solid #232b3b;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .icon-btn:hover {
+            background: #1a2538;
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Message Bubbles */
+        .message {
+            display: flex;
+            gap: 16px;
+            max-width: 85%;
+            animation: fadeSlideUp 0.3s ease;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #141c2a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .user .avatar {
+            background: linear-gradient(135deg, #1e4a8b, #2563eb);
+        }
+
+        .bubble {
+            background: #121824;
+            padding: 14px 20px;
+            border-radius: 24px;
+            border-top-left-radius: 6px;
+            line-height: 1.6;
+            font-size: 14px;
+            color: #eef3fc;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user .bubble {
+            background: linear-gradient(135deg, #1e3a6b, #154580);
+            border-top-right-radius: 6px;
+            border-top-left-radius: 24px;
+        }
+
+        .model-tag {
+            font-size: 10px;
+            font-weight: 600;
+            color: #7caeff;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Thinking Animation */
+        .thinking-message {
+            display: flex;
+            gap: 16px;
+            max-width: 70%;
+        }
+
+        .thinking-bubble {
+            background: #121824;
+            padding: 14px 24px;
+            border-radius: 24px;
+            border-top-left-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .thinking-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .thinking-dots span {
+            width: 8px;
+            height: 8px;
+            background: #5d8fd1;
+            border-radius: 50%;
+            animation: thinkPulse 1.2s infinite;
+        }
+
+        .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes thinkPulse {
+            0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Welcome */
+        .welcome-screen {
+            text-align: center;
+            max-width: 560px;
+            margin: 80px auto;
+            background: rgba(18, 24, 32, 0.6);
+            border-radius: 40px;
+            padding: 48px 36px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(4px);
+        }
+
+        .welcome-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #1e2a3e, #0f172a);
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .welcome-screen h2 {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .welcome-screen p {
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .capability {
+            background: #111722;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 12px;
+            border: 1px solid #232b3b;
+        }
+
+        /* Input */
+        .input-section {
+            padding: 20px 32px 28px;
+            background: linear-gradient(to top, var(--bg-primary), transparent);
+        }
+
+        .input-box {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            background: #0f141f;
+            border-radius: 32px;
+            padding: 8px 8px 8px 24px;
+            border: 1px solid #1f2c3e;
+            transition: all 0.2s;
+        }
+
+        .input-box:focus-within {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .input-box textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 0;
+            font-size: 15px;
+            color: var(--text-primary);
+            resize: none;
+            font-family: inherit;
+            outline: none;
+            max-height: 150px;
+        }
+
+        .send-action {
+            background: var(--accent-blue);
+            border: none;
+            border-radius: 40px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .send-action:hover {
+            background: #2563eb;
+            transform: scale(1.02);
+        }
+
+        .input-note {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 720px) {
+            .sidebar {
+                width: 80px;
+            }
+            .logo-text, .model-info, .model-badge, .status span:last-child, .action-btn span {
+                display: none;
+            }
+            .model-option {
+                justify-content: center;
+                padding: 12px;
+            }
+            .action-btn {
+                padding: 10px;
+            }
+            .message {
+                max-width: 95%;
+            }
+            .messages-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-mark">FA</div>
+                <div class="logo-text">FreedomAI</div>
+            </div>
+        </div>
+        <div class="model-selector">
+            <button class="model-option active" data-model="deep-thinker">
+                <div class="model-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </div>
+                <div class="model-info">
+                    <div class="model-name">Deep Thinker</div>
+                    <div class="model-desc">Reasoning · Analysis</div>
+                </div>
+                <div class="model-badge">Claude-style</div>
+            </button>
+            <button class="model-option" data-model="creative-oracle">
+                <div class="model-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                </div>
+                <div class="model-info">
+                    <div class="model-name">Creative Oracle</div>
+                    <div class="model-desc">Imagination · Vision</div>
+                </div>
+                <div class="model-badge">Gemini-esque</div>
+            </button>
+            <button class="model-option" data-model="precision-engine">
+                <div class="model-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </div>
+                <div class="model-info">
+                    <div class="model-name">Precision Engine</div>
+                    <div class="model-desc">Code · Logic · Facts</div>
+                </div>
+                <div class="model-badge">GPT-class</div>
+            </button>
+        </div>
+        <div class="sidebar-footer">
+            <div class="status">
+                <div class="status-dot"></div>
+                <span>Active · Local LLM core</span>
+            </div>
+            <button class="action-btn" id="newSessionBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span>New Session</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Chat -->
+    <main class="chat-container">
+        <div class="chat-nav">
+            <div class="model-indicator">
+                <div class="model-indicator-icon" id="headerModelIcon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5f9eff" stroke-width="1.8">
+                        <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </div>
+                <div class="model-indicator-text">
+                    <h3 id="headerModelName">Deep Thinker</h3>
+                    <p id="headerModelDesc">Reasoning · multi-step analysis</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="clearChatBtn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    <span>Clear</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="messages-area" id="messagesContainer">
+            <div class="welcome-screen">
+                <div class="welcome-icon">
+                    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.6">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <path d="M12 22V12"/>
+                    </svg>
+                </div>
+                <h2>FreedomAI</h2>
+                <p>Three minds, infinite intelligence. Ask me anything — I think, create and solve.</p>
+                <div class="capabilities">
+                    <span class="capability">Reasoning chain</span>
+                    <span class="capability">Creative synthesis</span>
+                    <span class="capability">Code precision</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-box">
+                <textarea id="userInput" placeholder="Ask me anything... Shift+Enter for new line" rows="1"></textarea>
+                <button class="send-action" id="sendBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+            <div class="input-note">Powered by cognitive architecture · real-time thinking simulation</div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // ============================================
+    // FREEDOM AI - ADVANCED COGNITIVE ENGINE
+    // DeepSeek-level reasoning, Claude detail, Gemini creativity
+    // ============================================
+    
+    let currentModel = "deep-thinker";
+    let isProcessing = false;
+    let messageHistory = [];
+    
+    const modelsConfig = {
+        "deep-thinker": {
+            name: "Deep Thinker",
+            desc: "Multi-step reasoning · analytical depth",
+            icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5f9eff" stroke-width="1.8"><path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/><path d="M12 6v6l4 2"/></svg>`,
+            system: "You are Deep Thinker. Use chain-of-thought, step-by-step reasoning. Show your logic. Be thorough and precise."
+        },
+        "creative-oracle": {
+            name: "Creative Oracle",
+            desc: "Imagination · metaphors · synthesis",
+            icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.7"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+            system: "You are Creative Oracle. Use vivid metaphors, imaginative structures, artistic insight. Think like a visionary poet."
+        },
+        "precision-engine": {
+            name: "Precision Engine",
+            desc: "Code · logic · factual accuracy",
+            icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="1.7"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+            system: "You are Precision Engine. Provide accurate, concise, technical answers. Code snippets when relevant. Be factual."
+        }
+    };
+    
+    const messagesContainer = document.getElementById("messagesContainer");
+    const userInput = document.getElementById("userInput");
+    
+    function updateHeader() {
+        const cfg = modelsConfig[currentModel];
+        document.getElementById("headerModelName").innerText = cfg.name;
+        document.getElementById("headerModelDesc").innerText = cfg.desc;
+        document.getElementById("headerModelIcon").innerHTML = cfg.icon;
+        // update active sidebar button
+        document.querySelectorAll(".model-option").forEach(btn => {
+            const modelVal = btn.getAttribute("data-model");
+            if (modelVal === currentModel) btn.classList.add("active");
+            else btn.classList.remove("active");
+        });
     }
     
-    .sidebar-content {
-        padding: 20px 12px;
+    function formatContent(text) {
+        let formatted = text.replace(/`(.*?)`/g, '<code>$1</code>');
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formatted = formatted.replace(/\n/g, '<br>');
+        return formatted;
     }
     
-    .logo-text,
-    .section-label,
-    .model-info,
-    .model-tag,
-    .status-bar span:last-child,
-    .reset-session-btn span {
-        display: none;
+    function addMessage(role, content, modelUsed = null) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${role}`;
+        let avatarHtml = "";
+        if (role === "user") {
+            avatarHtml = `<div class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
+        } else {
+            avatarHtml = `<div class="avatar">${modelsConfig[currentModel].icon.replace('width="24"', 'width="20"').replace('height="24"', 'height="20"')}</div>`;
+        }
+        const modelLabelHtml = (role === "assistant" && modelUsed) ? `<div class="model-tag"><span>🧠</span> ${modelUsed}</div>` : "";
+        messageDiv.innerHTML = `
+            ${avatarHtml}
+            <div class="bubble">
+                ${modelLabelHtml}
+                <div class="message-content">${formatContent(content)}</div>
+            </div>
+        `;
+        messagesContainer.appendChild(messageDiv);
+        scrollToBottom();
+        if (role === "assistant") messageHistory.push({role, content});
+        else messageHistory.push({role, content});
     }
     
-    .model-btn {
-        justify-content: center;
-        padding: 12px;
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
     
-    .reset-session-btn {
-        padding: 10px;
+    function showThinking() {
+        const thinkingDiv = document.createElement("div");
+        thinkingDiv.id = "thinkingIndicator";
+        thinkingDiv.className = "thinking-message";
+        thinkingDiv.innerHTML = `
+            <div class="avatar">${modelsConfig[currentModel].icon.replace('width="24"', 'width="20"').replace('height="24"', 'height="20"')}</div>
+            <div class="thinking-bubble">
+                <div class="thinking-dots"><span></span><span></span><span></span></div>
+                <span style="font-size:12px; color:#8ca3c9;">FreedomAI is reasoning...</span>
+            </div>
+        `;
+        messagesContainer.appendChild(thinkingDiv);
+        scrollToBottom();
     }
     
-    .messages-container {
-        padding: 16px 20px;
+    function removeThinking() {
+        const el = document.getElementById("thinkingIndicator");
+        if (el) el.remove();
     }
     
-    .message-row {
-        max-width: 95%;
+    // ADVANCED RESPONSE GENERATOR (simulated deep cognitive engine)
+    function generateDeepResponse(userMsg, modelId) {
+        const lower = userMsg.toLowerCase();
+        if (modelId === "deep-thinker") {
+            if (lower.includes("reason") || lower.includes("explain") || lower.includes("why")) {
+                return "**Reasoning chain:**\n1. Let me decompose your question into first principles.\n2. Identify core variables and relationships.\n3. Synthesize logical conclusion.\n\nBased on analysis: " + userMsg.slice(0, 120) + " — The most coherent answer emerges from understanding causality and context. Would you like deeper breakdown?";
+            }
+            if (lower.includes("compare") || lower.includes("difference")) {
+                return "**Analytical comparison:**\n• Structural similarities: both operate on layered abstractions.\n• Key distinctions: one emphasizes deduction, the other induction.\n• Conclusion: optimal choice depends on your constraints.\n\nNeed specific matrix?";
+            }
+            return `**Step-by-step reasoning:**\n“${userMsg.slice(0, 100)}” — Let's think. First, clarify intent. Second, map known patterns. Third, apply logical filters. Final verdict: a balanced, evidence-informed perspective. Elaboration available.`;
+        }
+        if (modelId === "creative-oracle") {
+            if (lower.includes("imagine") || lower.includes("dream")) {
+                return "✨ **Visionary stream:** What if your question was a nebula of possibilities? I see threads of starlight weaving into constellations of meaning. Let’s co-create an allegory: your curiosity is the key to a hidden library. Each answer becomes a painting.";
+            }
+            return "🎭 **Metaphor loom:** " + userMsg.slice(0, 80) + " — This resonates like a forgotten melody. Imagine an infinite garden where each thought blooms into a fractal sculpture. I offer you a tapestry of insight: embrace the beautiful uncertainty. Ask deeper.";
+        }
+        if (modelId === "precision-engine") {
+            if (lower.includes("code") || lower.includes("javascript") || lower.includes("python")) {
+                return "```javascript\n// optimal solution pattern\nfunction solve(problem) {\n  return problem.reduce((acc, val) => acc + val, 0);\n}\n```\n**Precision note:** Use efficient data structures. Time complexity O(n). Want specific implementation?";
+            }
+            return "**Factual response:** Based on logical verification, the most precise answer to your query involves deterministic principles. \n• Validate assumptions\n• Cross-reference known patterns\n• Apply constraint satisfaction.\nOutput: reliable, exact, minimal ambiguity.";
+        }
+        return "I analyze, create, or compute. Refine your query for deeper intelligence.";
     }
     
-    .chat-header {
-        padding: 14px 20px;
+    async function sendMessage() {
+        if (isProcessing) return;
+        const text = userInput.value.trim();
+        if (!text) return;
+        
+        // remove welcome screen if present
+        const welcome = messagesContainer.querySelector(".welcome-screen");
+        if (welcome) welcome.remove();
+        
+        addMessage("user", text);
+        userInput.value = "";
+        userInput.style.height = "auto";
+        isProcessing = true;
+        showThinking();
+        
+        // Simulate thinking latency based on complexity (DeepSeek-style)
+        const latency = currentModel === "precision-engine" ? 480 : (currentModel === "deep-thinker" ? 780 : 620);
+        await new Promise(r => setTimeout(r, latency));
+        
+        removeThinking();
+        const aiReply = generateDeepResponse(text, currentModel);
+        addMessage("assistant", aiReply, modelsConfig[currentModel].name);
+        isProcessing = false;
     }
     
-    .input-area {
-        padding: 16px 20px 22px;
+    function resetConversation() {
+        if (isProcessing) return;
+        while (messagesContainer.firstChild) messagesContainer.removeChild(messagesContainer.firstChild);
+        messageHistory = [];
+        const welcomeDiv = document.createElement("div");
+        welcomeDiv.className = "welcome-screen";
+        welcomeDiv.innerHTML = `
+            <div class="welcome-icon"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M12 22V12"/></svg></div>
+            <h2>FreedomAI</h2><p>Three minds, infinite intelligence. Ask me anything — I think, create and solve.</p>
+            <div class="capabilities"><span class="capability">Reasoning chain</span><span class="capability">Creative synthesis</span><span class="capability">Code precision</span></div>
+        `;
+        messagesContainer.appendChild(welcomeDiv);
+        scrollToBottom();
     }
     
-    .welcome-card {
-        margin: 30px 16px;
-        padding: 32px 20px;
-    }
+    // Event listeners
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+    document.getElementById("clearChatBtn").addEventListener("click", resetConversation);
+    document.getElementById("newSessionBtn").addEventListener("click", resetConversation);
+    userInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    userInput.addEventListener("input", function() {
+        this.style.height = "auto";
+        this.style.height = Math.min(140, this.scrollHeight) + "px";
+    });
     
-    .feature-chips {
-        gap: 8px;
-    }
-}
-
-/* ============================================
-   UTILITIES & ANIMATIONS
-   ============================================ */
-.fade-in {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* Code block styling */
-.message-content pre {
-    background: #0a0e16;
-    padding: 12px;
-    border-radius: 12px;
-    overflow-x: auto;
-    margin: 8px 0;
-    font-size: 12px;
-    border: 1px solid #1e2638;
-    font-family: 'SF Mono', monospace;
-}
-
-/* Link styling */
-.message-content a {
-    color: #7caeff;
-    text-decoration: none;
-    border-bottom: 1px dotted #3b82f6;
-}
-
-/* Smooth transitions */
-.model-btn,
-.send-button,
-.clear-btn,
-.reset-session-btn {
-    transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-}
-
-/* Focus states for accessibility */
-button:focus-visible,
-textarea:focus-visible {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-}
+    document.querySelectorAll(".model-option").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const newModel = btn.getAttribute("data-model");
+            if (newModel === currentModel) return;
+            currentModel = newModel;
+            updateHeader();
+            resetConversation();
+        });
+    });
+    
+    updateHeader();
+</script>
+</body>
+</html>
